@@ -15,7 +15,6 @@ import clr
 from typing import Dict, Any
 
 import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
 

@@ -6,7 +6,6 @@ import datetime
 import yaml
 import os,sys
 import Levenshtein
-sys.path.append(os.path.join(os.path.dirname(__file__), '../..'))
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 class ChatGPT:

@@ -7,7 +7,6 @@ import sys
 from enum import Enum
 from api.DataStore.PickleAccessor import PickleAccessor
 from api.gptAI.HumanBaseModel import DestinationAndProfitVector, ProfitVector, 目標と利益ベクトル
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from fastapi import WebSocket
 from openai import OpenAI, AsyncOpenAI, AssistantEventHandler
 import asyncio

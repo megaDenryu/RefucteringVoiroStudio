@@ -7,7 +7,6 @@ from typing_extensions import TypedDict
 
 from pathlib import Path
 import sys
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.Epic.Epic import Epic
 from api.Extend.ExtendSet import Interval
 

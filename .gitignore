@@ -23,6 +23,6 @@ my-electron-app/node_modules/*
 api/AppSettingJson/openai_api_key.json
 api/memo/*
 output_wav/*
-
+output_aivoice/*
 node_modules
 app-ts/dist
