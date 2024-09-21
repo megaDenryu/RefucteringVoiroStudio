@@ -1014,120 +1014,121 @@ class RandomExtend:
 
 
 
-if __name__ == '__main__':
-    if True:
-        # text = "ل  تستطيع  مساعدتي  من  فضلك؟"
-        text = "うおーー"
-        bool = TextConverter.convertReadableJapanaeseSentense(text)
-        print(bool)
-        l = ["ad","ｄｗだ"]
-        #リストを連結して文字列にする
-        print("".join(l))
+class ExtendFuncTest:
+    def __init__(self):
+        if True:
+            # text = "ل  تستطيع  مساعدتي  من  فضلك؟"
+            text = "うおーー"
+            bool = TextConverter.convertReadableJapanaeseSentense(text)
+            print(bool)
+            l = ["ad","ｄｗだ"]
+            #リストを連結して文字列にする
+            print("".join(l))
 
-        
-    if False:
-        text = "translate to Japanese とか これなんか多分 英語を維持するんだよね"
-        text  = TextConverter.translateEngWithJapanese(text)
-        print(text)
+            
+        if False:
+            text = "translate to Japanese とか これなんか多分 英語を維持するんだよね"
+            text  = TextConverter.translateEngWithJapanese(text)
+            print(text)
 
-    if False:
-        """
-        TextConverterのテスト
-        """
-        input_text = "ﾠ"
-        converted_text = TextConverter.convertUnicodeOnlyTextToText(input_text)
-        length = len(converted_text)
-        ExtendFunc.ExtendPrint(converted_text,length)  # 出力: Hello, 世界WHITE SMILING FACE!
+        if False:
+            """
+            TextConverterのテスト
+            """
+            input_text = "ﾠ"
+            converted_text = TextConverter.convertUnicodeOnlyTextToText(input_text)
+            length = len(converted_text)
+            ExtendFunc.ExtendPrint(converted_text,length)  # 出力: Hello, 世界WHITE SMILING FACE!
 
-    if False:
-        api_dir = ExtendFunc.findTargetDirFromParents(__file__, 'api')
-        test_json_dir = api_dir / "CharSettingJson/test.json"
-        test_list = ['a', 'b', 'd']
-        ExtendFunc.saveListToJson(test_json_dir, test_list)
-    elif False:
-        test_json_dir = ExtendFunc.createTargetFilePathFromCommonRoot(__file__, "api/CharSettingJson/test.json")
-        test_dict = {'a': 1, 'bc': 32, 'd': 3}
-        ExtendFunc.saveDictToJson(test_json_dir, test_dict)
-    elif False:
-        print(TimeExtend.nowSecond())
-    elif False:
-        TypeDict = {
-            f"赤ちゃんの発言": str,
-            "あなたの発言も踏まえた現在の全体状況": str,
-            "属性": ['赤ちゃん', '大工', '彼女', '看護師', '嫁', '先生', '同僚', '先輩', '上司', 'ママ', 'パパ']
+        if False:
+            api_dir = ExtendFunc.findTargetDirFromParents(__file__, 'api')
+            test_json_dir = api_dir / "CharSettingJson/test.json"
+            test_list = ['a', 'b', 'd']
+            ExtendFunc.saveListToJson(test_json_dir, test_list)
+        elif False:
+            test_json_dir = ExtendFunc.createTargetFilePathFromCommonRoot(__file__, "api/CharSettingJson/test.json")
+            test_dict = {'a': 1, 'bc': 32, 'd': 3}
+            ExtendFunc.saveDictToJson(test_json_dir, test_dict)
+        elif False:
+            print(TimeExtend.nowSecond())
+        elif False:
+            TypeDict = {
+                f"赤ちゃんの発言": str,
+                "あなたの発言も踏まえた現在の全体状況": str,
+                "属性": ['赤ちゃん', '大工', '彼女', '看護師', '嫁', '先生', '同僚', '先輩', '上司', 'ママ', 'パパ']
+                }
+            
+            result = {
+                "赤ちゃんの発言": "babu-babu",
+                "あなたの発言も踏まえた現在の全体状況": "あなたの発言も踏まえた現在の全体状況",
+                "属性": "hoge",
+                "huげ":"zunndamo"
             }
-        
-        result = {
-            "赤ちゃんの発言": "babu-babu",
-            "あなたの発言も踏まえた現在の全体状況": "あなたの発言も踏まえた現在の全体状況",
-            "属性": "hoge",
-            "huげ":"zunndamo"
-        }
-        
-        corrected_data = ExtendFunc.correctDictToTypeDict(result, TypeDict)
-        pprint(corrected_data, indent=4)
-    elif True:
-        time = TimeExtend("2024-05-04 19:18:17")
-        time2 = TimeExtend("2024-05-04 19:18:17")
-        print(time)
-        print(time2.toSecond())
-        print(time <= time2)
-    elif False:
-        TypeDict = {
-            "入力成功度合い":Interval("[",0,1,"]")
-        }
-        result = {
-            "入力成功度合い": "1.1"
-        }
-        corrected_data = ExtendFunc.correctDictToTypeDict(result, TypeDict)
-        print(corrected_data)
-    elif False:
-        TypeDict = {
-            "以前と今を合わせた周囲の状況の要約": str,
-            "どのキャラがどのキャラに話しかけているか？または独り言か？": str,
-            "他のキャラの会話ステータス": {str:['質問', '愚痴', 'ボケ', 'ツッコミ', 'ジョーク', '励まし', '慰め', '共感', '否定', '肯定', '感嘆表現', '愛情表現']},
-            "ロール": ['アシスタント', 'キャラクターなりきり'],
-            "あなたの属性": ['赤ちゃん', '大工', '彼女', '看護師', '嫁', '先生', '同僚', '先輩', '上司', 'ママ', 'パパ'],
-            "{{gptキャラ}}のこれからの感情": ['喜', '怒', '悲', '楽', '好き', '嫌い', '疲れ', '混乱', '疑問', 'ツンツン', 'デレデレ', '否定', '肯定', '催眠'],
-            "{{gptキャラ}}のこれからの会話ステータス": ['傾聴', '質問', '教える', 'ボケる', '突っ込む', '嘲笑', '感嘆表現', '愛憎表現', '続きを言う'],
-            "今まで起きたことの要約": str,
-            "{{gptキャラ}}の次の行動を見据えた心内セリフと思考": str
+            
+            corrected_data = ExtendFunc.correctDictToTypeDict(result, TypeDict)
+            pprint(corrected_data, indent=4)
+        elif True:
+            time = TimeExtend("2024-05-04 19:18:17")
+            time2 = TimeExtend("2024-05-04 19:18:17")
+            print(time)
+            print(time2.toSecond())
+            print(time <= time2)
+        elif False:
+            TypeDict = {
+                "入力成功度合い":Interval("[",0,1,"]")
             }
-        result = {
-                "以前と今を合わせた周囲の状況の要約": "プレイヤーキャラが考え事をしていて独り言を言っている中、{{gptキャラ}}がボケて「ぴよぴよ」と発言。プレイヤーキャラが「びよーん」と返答した。",
-                "どのキャラがどのキャラに話しかけているか？または独り言か？": "プレイヤーキャラが独り言を言っている中、{{gptキャラ}}がボケた。その後、プレイヤーキャラが{{gptキャラ}}に「びよーん」と返答。",
-                "他のキャラの会話ステータス": {
-                    "プレイヤーキャラ": "ボケ",
-                    "{{gptキャラ}}": "はげしいボケ"
-                },
-                "ロール": "キャラクターなりきり",
-                "あなたの属性": "年下の女友達",
-                "{{gptキャラ}}のこれからの感情": "楽",
-                "{{gptキャラ}}のこれからの会話ステータス": "続きを言う",
-                "今まで起きたことの要約": "プレイヤーキャラが独り言を言っていたところに、{{gptキャラ}}がボケて「ぴよぴよ」と言った。それに対してプレイヤーキャラが「びよーん」と返した。",
-                "{{gptキャラ}}の次の行動を見据えた心内セリフと思考": "プレイヤーキャラが楽しんでいるみたいだから、もっと楽しませるために次もボケてみよう。『ぴよぴよ』に続けてもっと可愛く楽しいことを言ってみよう。"
+            result = {
+                "入力成功度合い": "1.1"
             }
+            corrected_data = ExtendFunc.correctDictToTypeDict(result, TypeDict)
+            print(corrected_data)
+        elif False:
+            TypeDict = {
+                "以前と今を合わせた周囲の状況の要約": str,
+                "どのキャラがどのキャラに話しかけているか？または独り言か？": str,
+                "他のキャラの会話ステータス": {str:['質問', '愚痴', 'ボケ', 'ツッコミ', 'ジョーク', '励まし', '慰め', '共感', '否定', '肯定', '感嘆表現', '愛情表現']},
+                "ロール": ['アシスタント', 'キャラクターなりきり'],
+                "あなたの属性": ['赤ちゃん', '大工', '彼女', '看護師', '嫁', '先生', '同僚', '先輩', '上司', 'ママ', 'パパ'],
+                "{{gptキャラ}}のこれからの感情": ['喜', '怒', '悲', '楽', '好き', '嫌い', '疲れ', '混乱', '疑問', 'ツンツン', 'デレデレ', '否定', '肯定', '催眠'],
+                "{{gptキャラ}}のこれからの会話ステータス": ['傾聴', '質問', '教える', 'ボケる', '突っ込む', '嘲笑', '感嘆表現', '愛憎表現', '続きを言う'],
+                "今まで起きたことの要約": str,
+                "{{gptキャラ}}の次の行動を見据えた心内セリフと思考": str
+                }
+            result = {
+                    "以前と今を合わせた周囲の状況の要約": "プレイヤーキャラが考え事をしていて独り言を言っている中、{{gptキャラ}}がボケて「ぴよぴよ」と発言。プレイヤーキャラが「びよーん」と返答した。",
+                    "どのキャラがどのキャラに話しかけているか？または独り言か？": "プレイヤーキャラが独り言を言っている中、{{gptキャラ}}がボケた。その後、プレイヤーキャラが{{gptキャラ}}に「びよーん」と返答。",
+                    "他のキャラの会話ステータス": {
+                        "プレイヤーキャラ": "ボケ",
+                        "{{gptキャラ}}": "はげしいボケ"
+                    },
+                    "ロール": "キャラクターなりきり",
+                    "あなたの属性": "年下の女友達",
+                    "{{gptキャラ}}のこれからの感情": "楽",
+                    "{{gptキャラ}}のこれからの会話ステータス": "続きを言う",
+                    "今まで起きたことの要約": "プレイヤーキャラが独り言を言っていたところに、{{gptキャラ}}がボケて「ぴよぴよ」と言った。それに対してプレイヤーキャラが「びよーん」と返した。",
+                    "{{gptキャラ}}の次の行動を見据えた心内セリフと思考": "プレイヤーキャラが楽しんでいるみたいだから、もっと楽しませるために次もボケてみよう。『ぴよぴよ』に続けてもっと可愛く楽しいことを言ってみよう。"
+                }
 
-        corrected_data = ExtendFunc.correctDictToTypeDict(result, TypeDict)
-        pprint(corrected_data)
-    elif False:
-        dicta = {
-            "赤ちゃんの発言": "babu-babu",
-            "あなたの発言も踏まえた現在の全体状況": "あなたの発言も踏まえた現在の全体状況",
-            "属性": "hoge",
-            "huげ":"zunndamo"
-        } 
-        print(ExtendFunc.dictToStr(dicta))
-    elif False:
+            corrected_data = ExtendFunc.correctDictToTypeDict(result, TypeDict)
+            pprint(corrected_data)
+        elif False:
+            dicta = {
+                "赤ちゃんの発言": "babu-babu",
+                "あなたの発言も踏まえた現在の全体状況": "あなたの発言も踏まえた現在の全体状況",
+                "属性": "hoge",
+                "huげ":"zunndamo"
+            } 
+            print(ExtendFunc.dictToStr(dicta))
+        elif False:
 
-        ret = ExtendFunc.correctDictToJsonSchemaTypeDictRecursive({},{})
-        ExtendFunc.ExtendPrint(ret)
-    
-    elif True:
-        text = """
-                ここに普通の文章があり、{"key1": "value1", "key2": 2}というJSONがあります。
-                さらに、{"key3": [1, 2, 3], "key4": {"nested_key": "nested_value"}}という別のJSONもあります。
-                その他の文章は無視されます。
-                """
-        jsons = ExtendFunc.loadJsonFromSentence(text)
-        pprint(jsons)
+            ret = ExtendFunc.correctDictToJsonSchemaTypeDictRecursive({},{})
+            ExtendFunc.ExtendPrint(ret)
+        
+        elif True:
+            text = """
+                    ここに普通の文章があり、{"key1": "value1", "key2": 2}というJSONがあります。
+                    さらに、{"key3": [1, 2, 3], "key4": {"nested_key": "nested_value"}}という別のJSONもあります。
+                    その他の文章は無視されます。
+                    """
+            jsons = ExtendFunc.loadJsonFromSentence(text)
+            pprint(jsons)

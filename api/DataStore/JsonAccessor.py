@@ -183,5 +183,10 @@ class JsonAccessor:
         # ExtendFunc.ExtendPrint("dict",dict)
         ExtendFunc.saveDictToJson(path, dict)
 
-
     
+class JsonAccessorTest:
+    def __init__(self) -> None:
+        pudate = {}
+        pudate["ニコ生コメントレシーバー設定"] = {}
+        pudate["ニコ生コメントレシーバー設定"]["生放送URL"] = "test"
+        JsonAccessor.updateAppSettingJson(pudate)

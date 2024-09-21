@@ -54,3 +54,9 @@ class Memo:
         self.insertSentenceToMarkDown(file_name,sentence)
     
 
+class MemoTest:
+    def __init__(self) -> None:
+        memo = Memo()
+        memo.insertTodayMemo("test")
+        
+

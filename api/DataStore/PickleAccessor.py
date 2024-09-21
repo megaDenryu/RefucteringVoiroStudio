@@ -56,3 +56,10 @@ class PickleAsyncAccessor:
         file_path = cls.path / f"AIMemoryPickle/{chara_name}.pickle"
         return await cls.load(file_path)
     
+class PickleAccessorTest:
+    def __init__(self) -> None:
+        dataa = {"testa": "testa"}
+        datab = {"testb": "testb"}
+        data = {"dataa": dataa, "datab": datab}
+        PickleAccessor.save(data, Path("test.pickle"))
+        pprint(PickleAccessor.load(Path("test.pickle")))
