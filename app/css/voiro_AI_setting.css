@@ -1,0 +1,230 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+.body_setting{
+    /*flex-grow: 1;*/
+    overflow:auto;
+    height:100vh;
+    width: 20vh;
+    color:rgb(223, 234, 244);              /*文字色*/
+    background-color: rgb(223, 234, 244);
+}
+.body_setting::-webkit-scrollbar {
+    display: none;
+}
+
+.combination_name{
+    background-color:rgb(211, 154, 49);
+}
+
+.accordion_tab{
+    /*flex-grow: 1;*/
+    padding:5px;
+    list-style:none;
+    /*border:solid 1px #8622ff;*/
+    text-align:center;
+    cursor:pointer;
+}
+.accordion_item{
+    width: auto;
+}
+.accordion_item.open{
+    
+    /* 枠の色を付ける*/
+    border: solid 3px #000000;
+}
+.accordion_item_name{
+    border-bottom-right-radius: 10px;
+    text-decoration: none;
+    background-color: #737373;
+    text-align: left;
+}
+.accordion_item_name.has_on_content_button{
+    color: rgb(103, 189, 255);
+}
+.accordion_item_name:hover{
+    background-color: #242c36;
+}
+
+.accordion_contents{
+    background-color: rgb(223, 234, 244);
+}
+.accordion_content{
+    border-radius: 20px;
+    background-color: #aaa;
+    display: flex;
+    justify-content: space-between;
+}
+.accordion_content:hover{
+    background-color: #4e698e;
+}
+.non_vissible{
+    display: none;
+}
+.on_accordion_content{
+    background-color: rgb(0, 120, 212)
+}
+.on_accordion_content:hover{
+    background-color: rgb(0, 145, 255)
+}
+.accordion_content_name_string{
+    /* color: rgb(223, 234, 244); */
+    padding: 5px 10px;
+    margin-top: 3px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+}
+.accordion_content_pati_setting_toggle_button{
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    color: rgb(223, 234, 244);
+    padding: 5px 10px;
+    margin-top: 3px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+}
+
+.accordion_content_pati_setting_toggle_button.open{
+    background-color: #b80397;
+    border-top-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+.accordion_content_pati_setting_toggle_button.open:hover{
+    background-color: #ff2f00;
+}
+.accordion_content_pati_setting_toggle_button.close{
+    background-color: #3f2626;
+    border-top-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+.accordion_content_pati_setting_toggle_button.close:hover{
+    background-color: #ff2f00;
+}
+.combination_name{
+    background-color: rgb(118, 172, 73);
+}
+.combination_name:hover{
+    background-color: rgb(83, 169, 12);
+}
+
+.combination_candidate.non_vissible{
+    display: none;
+}
+
+.combination_name_button{
+    background-color: rgb(88, 124, 57);
+    border-top-left-radius: 4px;
+    border-bottom-right-radius: 10px;
+    color: rgb(223, 234, 244);
+    padding: 5px 10px;
+    margin-top: 3px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 16px;
+}
+.combination_name_button:hover{
+    background-color: rgb(91, 177, 16);
+}
+
+li {
+    list-style-type: none;/*liタグの前に表示される「●」は、ブラウザが自動的に付与するリストマーカーです。このリストマーカーを消す*/
+}
+ul {
+    list-style-type: none;  /*ulタグの前に表示される「●」は、ブラウザが自動的に付与するリストマーカーです。このリストマーカーを消す*/
+    padding: 0;             /*ulタグが右にずれるので余白を消す*/
+    margin: 0;              /*ulタグが右にずれるので余白を消す*/
+}
+.gpt_mode.on {
+    background-color: #0394b896;
+}
+.gpt_mode.on:hover {
+    background-color: #0394b8;
+}
+.gpt_mode.off {
+    background-color: #15182553;
+}
+.gpt_mode.off:hover {
+    background-color: #151825;
+}
+.pati_setting_radio-buttons {
+    display: flex;
+    align-items: center;
+}
+.pati_setting_radio-buttons:hover {
+    background-color: #a2a2a253;
+}
+.pati_setting_radio-buttons.non_vissible {
+    display: none;
+    /* visibility: hidden; */
+}
+.initial_display_object{
+    display: flex;
+    justify-content: space-between;
+}
+.name_string{
+    flex-grow: 1;
+    padding: 5px 10px;
+    margin-top: 3px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.name_string:hover{
+    background-color: #636363;
+    /* color: #1b7bdb; */
+    /*太文字にする*/
+    font-weight: bold;
+}
+.pati_setting{
+    flex-grow: 1;
+    padding: 5px 10px;
+    margin-top: 3px;
+    text-align: center;
+    text-decoration: none;
+    font-size: 12px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.pati_setting:hover{
+    background-color: #636363;
+    /* color: #1b7bdb; */
+    /*太文字にする*/
+    font-weight: bold;
+}
+.pati_setting_radio-button{
+    /* ボタンの大きさを指定*/
+    width: 4vh;
+    height: 4vh;
+    /* ボタンの形を丸くする*/
+    border-radius: 50%;
+    /* ボタンの枠線を消す*/
+    border: none;
+    /* ボタンの文字を中央に配置する*/
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ボタンの文字の大きさを指定*/
+    font-size: 10px;
+    /* ボタンの文字の色を指定*/
+    color: #fff;
+    /* ボタンの背景色を指定*/
+    background-color: #15182553;
+    /* ボタンの影を指定*/
+    box-shadow: 0 0 5px rgba(221, 92, 133, 0.5);
+    /* ボタンのカーソルを指定*/
+    cursor: pointer;
+    /* ボタンのマウスオーバー時の背景色を指定*/
+    transition: background-color 0.3s;
+}
+.pati_setting_radio-button.on {
+    color: rgb(139, 209, 236)
+}
+.pati_setting_radio-button:hover {
+    background-color: #002fff;
+}
+
+  
