@@ -3,7 +3,6 @@ import os
 import random
 import sys
 from pathlib import Path
-sys.path.append('../..')
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import cevio_human
@@ -141,8 +140,10 @@ async def read_app_ts(path_param: str):
 
 @app.get("/{path_param:path}")
 async def read_root(path_param: str):
+    # 現在のディレクトリを取得
+    current_dir = Path(__file__).parent
     # appファイルのルートディレクトリを指定
-    app_dir = Path(__file__).parent.parent.parent / 'app'
+    app_dir = current_dir / 'app'
     print(str(app_dir))
 
     # パスを取得
