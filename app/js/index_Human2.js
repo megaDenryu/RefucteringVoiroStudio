@@ -3516,7 +3516,7 @@ function humanWsOpen(){
 //ここから下がメイン処理
 var message_box_manager = new MessageBoxManager();
 const localhost = location.hostname;
-const port = "8020"
+const port = "8010"
 var init_human_tab = /** @type {HTMLLIElement} */ (document.getElementsByClassName("tab human_tab")[0]);
 addClickEvent2Tab(init_human_tab)
 //var ws = new WebSocket("ws://localhost:${port}/InputGPT")

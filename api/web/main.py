@@ -1143,4 +1143,4 @@ async def settingStore(websocket: WebSocket, setting_name: str, mode_name:PageMo
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="localhost", port=8020, lifespan="on")
+    uvicorn.run(app, host="localhost", port=8010, lifespan="on")
