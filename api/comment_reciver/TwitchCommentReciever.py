@@ -4,7 +4,6 @@ from twitchio.ext import commands
 import asyncio
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from asyncio import Queue
