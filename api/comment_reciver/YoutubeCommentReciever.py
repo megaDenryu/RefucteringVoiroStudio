@@ -127,28 +127,30 @@ class YoutubeCommentReciever:
 
 
 
-if __name__ == "__main__":
-    # url = "https://www.youtube.com/watch?v=CF1vS8DdBIk"
-    # url = "https://www.youtube.com/watch?v=x_fHq3B_UP4"
-    # print("url:",url)
-    # ycr = YoutubeCommentReciever(url = url)
-    # loop = asyncio.get_event_loop()
-    # loop.run_until_complete(ycr.main())
-    # while True:
-    #     # 1秒ごとに現在時刻を表示
-    #     print(time.strftime("%Y/%m/%d %H:%M:%S"))
-    #     time.sleep(1)
-    
-    # Replace 'YOUR_VIDEO_ID' with the actual video ID of the YouTube live stream
-    video_id = 'FsJC17Vtqfk'
+class YoutubeCommentRecieverTest:
+    def __init__(self) -> None:
+        
+        # url = "https://www.youtube.com/watch?v=CF1vS8DdBIk"
+        # url = "https://www.youtube.com/watch?v=x_fHq3B_UP4"
+        # print("url:",url)
+        # ycr = YoutubeCommentReciever(url = url)
+        # loop = asyncio.get_event_loop()
+        # loop.run_until_complete(ycr.main())
+        # while True:
+        #     # 1秒ごとに現在時刻を表示
+        #     print(time.strftime("%Y/%m/%d %H:%M:%S"))
+        #     time.sleep(1)
+        
+        # Replace 'YOUR_VIDEO_ID' with the actual video ID of the YouTube live stream
+        video_id = 'FsJC17Vtqfk'
 
-    # Run the async function
-    async def main():
-        ycr = YoutubeCommentReciever(video_id=video_id)
-        async for comment in ycr.fetch_comments(video_id):
-            print(comment)
-        print("done")
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(main())
-    
-    
+        # Run the async function
+        async def main():
+            ycr = YoutubeCommentReciever(video_id=video_id)
+            async for comment in ycr.fetch_comments(video_id):
+                print(comment)
+            print("done")
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+        
+        
