@@ -81,11 +81,12 @@ print(katakana_word)"""
 
 
 
-if __name__ == '__main__':
-    str = """
-    
-携帯素解析 はとても難しい
- """
-    english_word = "python code is very difficult"
-    katakana_word = convert_to_katakana(english_word)
-    print(katakana_word)
+class SentenceConverterTest:
+    def __init__(self) -> None:
+
+        str = """
+            携帯素解析 はとても難しい
+            """
+        english_word = "python code is very difficult"
+        katakana_word = convert_to_katakana(english_word)
+        print(katakana_word)

@@ -927,40 +927,41 @@ class Coeiroink:
         JsonAccessor.saveCoeiroinkNameToNumberJson(save_dict)
 
 
-if __name__ == '__main__':
-    if False:
-        print("開始")
-        one = cevio_human("おね",0)
-        ia = cevio_human("ia",1)
-        tudumi = cevio_human("つづみ",2)
-        one.outputWaveFile("おはよう")
-        ia.outputWaveFile("おねちゃんきょーもかみぼさぼさじゃーん")
-        tudumi.outputWaveFile("ほんとね、といてあげるわ")
+class voiceroid_apiTest:
+    def __init__(self) -> None:
+        if False:
+            print("開始")
+            one = cevio_human("おね",0)
+            ia = cevio_human("ia",1)
+            tudumi = cevio_human("つづみ",2)
+            one.outputWaveFile("おはよう")
+            ia.outputWaveFile("おねちゃんきょーもかみぼさぼさじゃーん")
+            tudumi.outputWaveFile("ほんとね、といてあげるわ")
 
-    elif False:
-        tumugi = voicevox_human("春日部つむぎ",0)
-        tumugi.speak("あーしはつむぎ,埼玉１のギャルの春日部つむぎだよ、よろしくねオタク君")
+        elif False:
+            tumugi = voicevox_human("春日部つむぎ",0)
+            tumugi.speak("あーしはつむぎ,埼玉１のギャルの春日部つむぎだよ、よろしくねオタク君")
 
-    elif False:
-        aoi = AIVoiceHuman("琴葉葵",0)
-        aoi.outputWaveFile("あーしは葵,埼玉１のギャルの琴葉葵だよ、よろしくねオタク君")
-    elif False:
-        print("開始")
-        voicevox_human.createVoiceVoxNameToNumberDict()
-        print("終了")
+        elif False:
+            aoi = AIVoiceHuman("琴葉葵",0)
+            aoi.outputWaveFile("あーしは葵,埼玉１のギャルの琴葉葵だよ、よろしくねオタク君")
+        elif False:
+            print("開始")
+            voicevox_human.createVoiceVoxNameToNumberDict()
+            print("終了")
 
-    elif True:
-        print("開始")
-        Coeiroink.createCoeiroinkNameToNumberDict()
-        print("終了")
-    elif False:
-        wav = Coeiroink.get_wave_data(1315987311, "いまははは")
-        # 音声をファイルに保存
-        with open("test.wav", "wb") as f:
-            f.write(wav)
-    elif False:
-        horomegu = Coeiroink("幌呂めぐる",0)
-        wav = horomegu.getWavData("こんにちは、私はほろめぐだよおおおおおお。")
-        # 音声をファイルに保存
-        with open("test.wav", "wb") as f:
-            f.write(wav)
+        elif True:
+            print("開始")
+            Coeiroink.createCoeiroinkNameToNumberDict()
+            print("終了")
+        elif False:
+            wav = Coeiroink.get_wave_data(1315987311, "いまははは")
+            # 音声をファイルに保存
+            with open("test.wav", "wb") as f:
+                f.write(wav)
+        elif False:
+            horomegu = Coeiroink("幌呂めぐる",0)
+            wav = horomegu.getWavData("こんにちは、私はほろめぐだよおおおおおお。")
+            # 音声をファイルに保存
+            with open("test.wav", "wb") as f:
+                f.write(wav)

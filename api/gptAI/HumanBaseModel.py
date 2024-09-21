@@ -311,6 +311,7 @@ test_dict = {
 test = Test(**test_dict)
 
 
-if __name__ == "__main__":
-    a = 体の状態("健康", 100, "特になし")
-    print(a.健康状態)
+class HumanBaseModelTest:
+    def __init__(self) -> None:
+        a = 体の状態("健康", 100, "特になし")
+        print(a.健康状態)

@@ -3334,8 +3334,10 @@ class GPTAgent:
 
 
     
-if __name__ == "__main__":
-    def te7():
+class AgentManagerTest:
+    def __init__(self) -> None:
+        pass
+    def te7(self):
         gpt_unit = ChatGptApiUnit(True)
         test_message_query:list[ChatGptApiUnit.MessageQuery] = [
             {
@@ -3360,11 +3362,11 @@ if __name__ == "__main__":
         JsonAccessor.insertLogJsonToDict(f"test_gpt_routine_result.json", test)
         ExtendFunc.ExtendPrint(test)
     
-    def te8():
+    def te8(self):
         a = {"a":"b","c":"d"}
         print("a" not in a)
 
-    def te9():
+    def te9(self):
         dict_a = {
             "a":0,
             "c":2
@@ -3373,7 +3375,7 @@ if __name__ == "__main__":
         print(dict_a.keys())
         print("a" in dict_a.keys())
     
-    def te10():
+    def te10(self):
         """
         タスクのブレイクダウンのテスト
         """
@@ -3392,9 +3394,9 @@ if __name__ == "__main__":
         ti = TaskBreakingDownTransportedItem.init(problem)
         ExtendFunc.ExtendPrint(ti)
 
-    import re
+    
 
-    def te11():
+    def te11(self):
         serif = "鬼ってことは、みんなを追いかける役かな？それなら、隠れる場所やアイテムを考えたりして、面白い要素を追加できそうだね！"
         # 修正した正規表現パターン（キャプチャグループを追加）
         split_pattern = r'([。！？、,\.\?\!\n])'

@@ -764,29 +764,32 @@ class Seq:
         if result > self._max: raise StopIteration
         self._a += 1
         return result
- 
-seq = Seq(10)
-for n in seq:
-    print(n, end=" ")
-    print(seq.__next__())
-print()
-for n in seq:
-    print(n, end=" ")
-    print("/n")
+    
+    @staticmethod
+    def Test():
+        seq = Seq(10)
+        for n in seq:
+            print(n, end=" ")
+            print(seq.__next__())
+        print()
+        for n in seq:
+            print(n, end=" ")
+            print("/n")
 
-if __name__ == "__main__":
-    if False:
-        gpt = ChatGPT("すずきつづみ","システムなし")
-        while True:
-            gpt.userInput()
-    elif False:
-        gpt = ChatGPT("琴葉茜","キャラ個別システム設定")
-        data = gpt.messages
-        append_to_json("chat.json",data)
-    elif False:
-        AKANETEST()
-    elif True:
-        gpt = ChatGPT("琴葉茜","キャラ個別システム設定")
-        pprint(gpt.messages)
-        while True:
-            gpt.userInput()
+class ChatGPTTest:
+    def __init__(self):    
+        if False:
+            gpt = ChatGPT("すずきつづみ","システムなし")
+            while True:
+                gpt.userInput()
+        elif False:
+            gpt = ChatGPT("琴葉茜","キャラ個別システム設定")
+            data = gpt.messages
+            append_to_json("chat.json",data)
+        elif False:
+            AKANETEST()
+        elif True:
+            gpt = ChatGPT("琴葉茜","キャラ個別システム設定")
+            pprint(gpt.messages)
+            while True:
+                gpt.userInput()
