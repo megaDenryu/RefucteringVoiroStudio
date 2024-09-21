@@ -98,17 +98,19 @@ class ExtendSet:
         pass
 
 
+def Test():
+    def ExtendSet_test1():
+        print(sys.float_info.epsilon) # 2.220446049250313e-16
+        print(sys.float_info.min) # 2.2250738585072014e-308
+        print(1.0+sys.float_info.epsilon) 
+        print(1.0 + sys.float_info.min > 1.0) # False
+        print(      sys.float_info.min > 0)   # True
 
-def test1():
-    print(sys.float_info.epsilon) # 2.220446049250313e-16
-    print(sys.float_info.min) # 2.2250738585072014e-308
-    print(1.0+sys.float_info.epsilon) 
-    print(1.0 + sys.float_info.min > 1.0) # False
-    print(      sys.float_info.min > 0)   # True
+    def ExtendSet_test2():
+        A = Interval("[", 1, 2, "]")
+        print(A)
+        B = Interval("(", 2, 3, "]")
+        print(A.intersect(B))
+        print(isinstance(A, Interval))
 
-if __name__ == "__main__":
-    A = Interval("[", 1, 2, "]")
-    print(A)
-    B = Interval("(", 2, 3, "]")
-    print(A.intersect(B))
-    print(isinstance(A, Interval))
+    ExtendSet_test1()

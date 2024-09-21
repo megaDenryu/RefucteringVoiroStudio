@@ -11,7 +11,6 @@ from typing import TypeVar, get_type_hints, Dict, Any, Literal, get_origin
 import sys
 import unicodedata
 from googletrans import translate
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.Extend.ExtendSet import Interval
 T = TypeVar('T', bound=Dict)
 

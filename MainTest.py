@@ -4,6 +4,7 @@ from api.DataStore.JsonAccessor import JsonAccessor
 from api.DataStore.Memo import Memo
 from api.DataStore.PickleAccessor import PickleAccessor
 from api.Extend.ExtendFunc import ExtendFunc
+from api.Extend.ExtendSet import Interval, ExtendSet, Test
 
 def MemoTest():
     memo = Memo()
@@ -20,6 +21,8 @@ def JsonAccsessTest():
     JsonAccessor.updateAppSettingJson(pudate)
 
 
+
+
 if __name__ == "__main__":
-    PickleTest()
+    Test()
 
