@@ -1,7 +1,6 @@
 from pprint import pprint
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 import json
 import yaml
@@ -184,8 +183,5 @@ class JsonAccessor:
         # ExtendFunc.ExtendPrint("dict",dict)
         ExtendFunc.saveDictToJson(path, dict)
 
-if __name__ == "__main__":
-    pudate = {}
-    pudate["ニコ生コメントレシーバー設定"] = {}
-    pudate["ニコ生コメントレシーバー設定"]["生放送URL"] = "test"
-    JsonAccessor.updateAppSettingJson(pudate)
+
+    

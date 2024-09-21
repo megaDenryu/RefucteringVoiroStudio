@@ -1,6 +1,5 @@
 import sys,os
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 
 class Memo:
@@ -54,9 +53,4 @@ class Memo:
             self.createTodayMemo()
         self.insertSentenceToMarkDown(file_name,sentence)
     
-
-    
-if __name__ == "__main__":
-    memo = Memo()
-    memo.insertTodayMemo("test")
 

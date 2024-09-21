@@ -2,7 +2,6 @@ import pickle
 from pprint import pprint
 import sys
 from pathlib import Path
-sys.path.append(str(Path(__file__).parent.parent.parent))
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 import aiofiles
 
@@ -57,9 +56,3 @@ class PickleAsyncAccessor:
         file_path = cls.path / f"AIMemoryPickle/{chara_name}.pickle"
         return await cls.load(file_path)
     
-if __name__ == "__main__":
-    dataa = {"testa": "testa"}
-    datab = {"testb": "testb"}
-    data = {"dataa": dataa, "datab": datab}
-    PickleAccessor.save(data, Path("test.pickle"))
-    pprint(PickleAccessor.load(Path("test.pickle")))
