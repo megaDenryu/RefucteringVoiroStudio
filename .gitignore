@@ -26,3 +26,5 @@ output_wav/*
 output_aivoice/*
 node_modules
 app-ts/dist
+build/*
+dist/*
