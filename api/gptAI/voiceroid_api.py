@@ -18,7 +18,7 @@ from typing import Dict, Any, Literal, TypedDict
 import sys
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.gptAI.HumanInformation import AllHumanInformationManager, TTSSoftware
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, NickName, TTSSoftware, VoiceMode
 
 
 
@@ -375,6 +375,54 @@ class voicevox_human:
         response = requests.get(url, headers=headers)
         speaker_dict = response.json()
         return speaker_dict
+    
+    @staticmethod
+    def updateSpeakerInfo():
+        speaker_dict = voicevox_human.getSpeakerDict()
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        voicevox_human.updateCharaNames(speaker_dict)
+        voicevox_human.updateVoiceModeInfo(speaker_dict)
+        voicevox_human.upadteNickname(speaker_dict)
+        
+    @staticmethod
+    def updateCharaNames(speaker_dict:list[SpeakerInfo]):
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        speaker_list:list[CharacterName] = []
+        for speaker in speaker_dict:
+            name = speaker["name"]
+            speaker_list.append(CharacterName(name = name))
+        
+        all_human_info_manager.updateCharaNames(TTSSoftware.VoiceVox,speaker_list)
+    
+    @staticmethod
+    def updateVoiceModeInfo(speaker_dict:list[SpeakerInfo]):
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        voicemode_dict:dict[CharacterName,list[VoiceMode]] = {}
+        for speaker in speaker_dict:
+            name = speaker["name"]
+            styles = speaker["styles"]
+            voice_mode_list = []
+            for style in styles:
+                style_name = style["name"]
+                style_num = style["id"]
+                voice_mode = VoiceMode(mode = style_name, id = style_num)
+                voice_mode_list.append(voice_mode)
+            voicemode_dict[CharacterName(name = name)] = voice_mode_list
+            
+        all_human_info_manager.updateCharaNames2VoiceModeDict(TTSSoftware.VoiceVox,voicemode_dict)
+
+    @staticmethod
+    def upadteNickname(speaker_dict:list[SpeakerInfo]):
+        """
+        ニックネームはある程度はあらかじめ作っておきたいので、毎回自動更新して消えると困る。しかし現状のこーどだと消えてしまう。
+        """
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        nickname_dict:dict[CharacterName,list[NickName]] = {}
+        for speaker in speaker_dict:
+            name = speaker["name"]
+            nickname_dict[CharacterName(name = name)] = [NickName(name = name)]
+        all_human_info_manager.updateNicknames(TTSSoftware.VoiceVox,nickname_dict)
+
     
     @staticmethod
     def createVoiceVoxNameToNumberDict():

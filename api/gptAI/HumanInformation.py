@@ -7,7 +7,7 @@ from api.Extend.ExtendFunc import ExtendFunc
 
 class TTSSoftware(Enum):
     CevioAI = "CevioAI"
-    VOICEVOX = "VOICEVOX"
+    VoiceVox = "VoiceVox"
     AIVoice = "AIVoice"
     Coeiroink = "Coeiroink"
 
@@ -19,6 +19,7 @@ class NickName(BaseModel):
 
 class VoiceMode(BaseModel):
     mode: str
+    id: int|None
 
 class HumanImage(BaseModel):
     name: str
@@ -80,7 +81,7 @@ class AllHumanInformationManager:
     
     def createVoiceModeNamesFilePath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VOICEVOX: self.api_dir / "CharSettingJson/VoiceModeNames/VoiceVoxVoiceModes.json",
+            TTSSoftware.VoiceVox: self.api_dir / "CharSettingJson/VoiceModeNames/VoiceVoxVoiceModes.json",
             TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/VoiceModeNames/CoeiroinkVoiceModes.json",
             TTSSoftware.AIVoice: self.api_dir / "CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json",
             TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/VoiceModeNames/CevioAIVoiceModes.json"
@@ -89,7 +90,7 @@ class AllHumanInformationManager:
     
     def createCharaNamesFilePath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VOICEVOX: self.api_dir / "CharSettingJson/CharaNames/VoiceVoxNames.json",
+            TTSSoftware.VoiceVox: self.api_dir / "CharSettingJson/CharaNames/VoiceVoxNames.json",
             TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/CharaNames/CoeiroinkNames.json",
             TTSSoftware.AIVoice: self.api_dir / "CharSettingJson/CharaNames/AIVoiceNames.json",
             TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/CharaNames/CevioAINames.json"
@@ -97,7 +98,7 @@ class AllHumanInformationManager:
     
     def createCharaNames2VoiceModeDictPath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VOICEVOX: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/VoiceVoxNames2VoiceMode.json",
+            TTSSoftware.VoiceVox: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/VoiceVoxNames2VoiceMode.json",
             TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/CoeiroinkNames2VoiceMode.json",
             TTSSoftware.AIVoice: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/AIVoiceNames2VoiceMode.json",
             TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/CevioAINames2VoiceMode.json"
@@ -106,7 +107,7 @@ class AllHumanInformationManager:
     
     def createNicknamesFilePath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VOICEVOX: self.api_dir / "CharSettingJson/Nicknames/VoiceVoxNicknames.json",
+            TTSSoftware.VoiceVox: self.api_dir / "CharSettingJson/Nicknames/VoiceVoxNicknames.json",
             TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/Nicknames/CoeiroinkNicknames.json",
             TTSSoftware.AIVoice: self.api_dir / "CharSettingJson/Nicknames/AIVoiceNicknames.json",
             TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/Nicknames/CevioAINicknames.json"
