@@ -12,6 +12,12 @@ class JsonAccessor:
     @staticmethod
     def dictToJsonString(input_dict:dict)->str:
         return json.dumps(input_dict, indent=4, ensure_ascii=False)
+    
+    @staticmethod
+    def checkExistAndCreateJson(path:Path, saveobj:dict|list):
+        if not path.exists():
+            with open(path, mode='w') as f:
+                json.dump(saveobj, f, indent=4)
 
     @staticmethod
     def extendJsonLoad(loadString:str):

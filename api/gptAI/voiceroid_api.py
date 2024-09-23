@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 import win32com.client
 import time
@@ -12,11 +13,14 @@ import base64
 
 #AI.VOICE Editor API用のライブラリ
 import clr
-from typing import Dict, Any
+from typing import Dict, Any, Literal, TypedDict
 
 import sys
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.gptAI.HumanInformation import AllHumanInformationManager, TTSSoftware
+
+
 
 class cevio_human:
     def __init__(self,char_name:str,started_cevio_num:int) -> None:
@@ -137,6 +141,8 @@ class cevio_human:
         print("talkerのインスタンス化完了")
         self.talker.Cast = self.cevio_name
         print("キャラクターの設定完了")
+        # cevioのキャストが変更されているか確認
+        self.updateAllCharaList()
 
     def kill_cevio(self):
         for proc in psutil.process_iter():
@@ -181,17 +187,23 @@ class cevio_human:
         """
         CeVIOのキャラクター名を取得して、CevioKnownNames.jsonを更新する
         """
+        all_human_info_manager = AllHumanInformationManager.singleton()
         # CeVIOのキャラクター名を取得
         cast_list = self.getAvailableCast()
         # CevioKnownNames.jsonを更新
-        api_dir = Path(__file__).parent.parent
-        path = api_dir / "CharSettingJson" / "CevioKnownNames.json"
-        #pathにspeaker_dictを書き込む
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(cast_list,f,ensure_ascii=False, indent=4)
-        
+        all_human_info_manager.updateVoiceModeNames(TTSSoftware.CevioAI, cast_list)
+
+class SpeakerStyle(TypedDict):
+    id:int
+    name:str
+    type:Literal["talk"]
+class SpeakerInfo(TypedDict):
+    name:str
+    styles:list[SpeakerStyle]
 class voicevox_human:
     def __init__(self,name:str,started_voicevox_num:int) -> None:
+        if started_voicevox_num == 0:
+            self.start()
         
         if "" != self.getCharNum(name):
             self.char_num = self.getCharNum(name)
@@ -201,6 +213,9 @@ class voicevox_human:
         else:
             self.char_name = ""
             self.name = ""
+    
+    def start(self):
+        voicevox_human.createVoiceVoxNameToNumberDict()
     
     @staticmethod
     def getCharNum(name):
@@ -350,6 +365,16 @@ class voicevox_human:
                     "voice_system_name":"VoiceVox"
                 }
                 self.output_wav_info_list.append(wav_info)
+
+
+
+    @staticmethod
+    def getSpeakerDict()->list[SpeakerInfo]:
+        url = "http://localhost:50021/speakers"
+        headers = {'accept': 'application/json'}
+        response = requests.get(url, headers=headers)
+        speaker_dict = response.json()
+        return speaker_dict
     
     @staticmethod
     def createVoiceVoxNameToNumberDict():
@@ -361,12 +386,8 @@ class voicevox_human:
         を実行して、VOICEVOXのキャラクター名とキャラクター番号のjsonを取得する。
         次にVOICEVOXのキャラクター名とキャラクター番号の対応表を作成する。
         """
-        import requests
 
-        url = "http://localhost:50021/speakers"
-        headers = {'accept': 'application/json'}
-        response = requests.get(url, headers=headers)
-        speaker_dict = response.json()
+        speaker_dict = voicevox_human.getSpeakerDict()
         save_dict = {}
         for speaker in speaker_dict:
             name = speaker["name"]
@@ -377,7 +398,7 @@ class voicevox_human:
                 save_name = name + ":" +style_name
                 save_dict[save_name] = style_num
         pprint(save_dict)
-        api_dir = Path(__file__).parent.parent
+        api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
         path = api_dir / "CharSettingJson" / "VoiceVoxNameToNumber.json"
         #pathにspeaker_dictを書き込む
         with open(path, "w", encoding="utf-8") as f:

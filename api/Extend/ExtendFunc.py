@@ -46,6 +46,24 @@ class ExtendFunc:
 
         Returns:
         dict: 更新後の辞書
+
+        Examples1:
+        >>> target = {"a": {"b": 1, "c": 2}, "d": 3}
+        >>> update = {"a": {"b": 4}}
+        >>> deepUpdateDict(target, update)
+        {"a": {"b": 4, "c": 2}, "d": 3}
+
+        Examples2:
+        >>> target = {"a": {"b": 1, "c": 2}, "d": 3}
+        >>> update = {"a": {"b": {"e": 5}}}
+        >>> deepUpdateDict(target, update)
+        {"a": {"b": {"e": 5}, "c": 2}, "d": 3}
+
+        Examples3:
+        >>> target = {"a": {"b": 1, "c": 2}, "d": 3}
+        >>> update = {"a": {"b": {"e": 5}}, "f": 6}
+        >>> deepUpdateDict(target, update)
+        {"a": {"b": {"e": 5}, "c": 2}, "d": 3, "f": 6}
         """
         for key, value in update.items():
             if key in target and isinstance(target[key], dict) and isinstance(value, dict):
@@ -140,6 +158,7 @@ class ExtendFunc:
         """
         with open(file_path, 'w', encoding="utf-8") as f:
             json.dump(content, f, ensure_ascii=False, indent=4)
+    
 
     @staticmethod
     def loadJsonToList(file_path: Path) -> list:
@@ -177,6 +196,32 @@ class ExtendFunc:
         if not isinstance(ret_dict, dict):
             raise ValueError(f"{file_path} は辞書形式ではありません。")
         return ret_dict
+    
+    @staticmethod
+    def addListToJson(file_path: Path, content: list):
+        """
+        ファイルにリストを追加保存します。
+
+        Parameters:
+        file_path (Path): 保存先のjsonファイルパス
+        content (list): 保存する内容
+        """
+        old_content = ExtendFunc.loadJsonToList(file_path)
+        ExtendFunc.saveListToJson(file_path, old_content + content)
+    
+    @staticmethod
+    def deepUpdateJsonDict(file_path: Path, content: dict):
+        """
+        jsonファイルを再帰的に更新します。
+
+        Parameters:
+        file_path (Path): 更新対象のjsonファイルパス
+        content (dict): 更新内容
+        """
+        old_content = ExtendFunc.loadJsonToDict(file_path)
+        new_content = ExtendFunc.deepUpdateDict(old_content, content)
+        ExtendFunc.saveDictToJson(file_path, new_content)
+        
     
     """
     json文字列とそうでない文字列が混在した文字列からjson文字列を抽出して辞書にして返します。
