@@ -192,12 +192,28 @@ class AllHumanInformationManager:
     
     def updateNicknames(self, software:TTSSoftware, nicknames:dict[CharacterName, list[NickName]]):
         """
-        ニックネームリストを上書きします。部分更新ではないので注意してください。
+        ニックネームリストを部分更新します。
+        キーのキャラ名が存在しない場合は新規追加、存在する場合は辞書の値であるニックネームリストの要素のうち存在しないものだけを追加します。
         """
         path = self.nicknames_filepath[software]
         JsonAccessor.checkExistAndCreateJson(path, {})
-        nicknames_dict = {chara_name.name:[nickname.name for nickname in nicknames] for chara_name, nicknames in nicknames.items()}
-        ExtendFunc.saveDictToJson(path, nicknames_dict)    
+        tmp_old_dict = ExtendFunc.loadJsonToDict(path)
+        old_nicknames_dict = {CharacterName(name=name):[NickName(name=nickname) for nickname in nicknames] for name, nicknames in tmp_old_dict.items()}
+        new_nicknames_dict:dict[CharacterName, list[NickName]] = {}
+        for chara_name in nicknames:
+            if chara_name in old_nicknames_dict:
+                old_nicknames = old_nicknames_dict[chara_name]
+                new_nicknames = nicknames[chara_name]
+                for new_nickname in new_nicknames:
+                    if new_nickname not in old_nicknames:
+                        old_nicknames.append(new_nickname)
+                new_nicknames_dict[chara_name] = old_nicknames
+            else:
+                new_nicknames_dict[chara_name] = nicknames[chara_name]
+        string_new_nicknames_dict = {chara_name.name:[nickname.name for nickname in nicknames] for chara_name, nicknames in new_nicknames_dict.items()}
+        ExtendFunc.saveDictToJson(path, string_new_nicknames_dict)
+            
+
 
     def loadCharaNames2VoiceModeDict(self,software:TTSSoftware)->dict[CharacterName, list[VoiceMode]]:
         path = self.CharaNames2VoiceModeDict_filepath[software]
@@ -220,6 +236,9 @@ class AllHumanInformationManager:
     def updateCharaNames2VoiceModeDict(self, software:TTSSoftware, voice_modes:dict[CharacterName, list[VoiceMode]]):
         """
         ボイスモードリストを上書きします。部分更新ではないので注意してください。
+        # 部分更新ではない理由:
+        キャラ名が存在しない場合は新規追加、存在する場合は上書きするため。
+        また、元の辞書に存在していて、入力辞書に存在しない場合は削除するため。
         """
         path = self.CharaNames2VoiceModeDict_filepath[software]
         JsonAccessor.checkExistAndCreateJson(path, {})

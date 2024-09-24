@@ -414,7 +414,7 @@ class voicevox_human:
     @staticmethod
     def upadteNickname(speaker_dict:list[SpeakerInfo]):
         """
-        ニックネームはある程度はあらかじめ作っておきたいので、毎回自動更新して消えると困る。しかし現状のこーどだと消えてしまう。
+        ニックネームリストを部分更新します。
         """
         all_human_info_manager = AllHumanInformationManager.singleton()
         nickname_dict:dict[CharacterName,list[NickName]] = {}
