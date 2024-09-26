@@ -1,7 +1,7 @@
 
 from enum import Enum
 from pathlib import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 
@@ -13,6 +13,8 @@ class TTSSoftware(Enum):
 
 class CharacterName(BaseModel):
     name: str
+
+
 
 class NickName(BaseModel):
     name: str
@@ -117,11 +119,12 @@ class AllHumanInformationManager:
         path = self.voice_mode_names_filepath[software]
         # もしファイルが存在しない場合はファイルを作成
         JsonAccessor.checkExistAndCreateJson(path, [])
-        voice_modes:list[str] = ExtendFunc.loadJsonToList(path)
-        # voice_modesの型が正常かどうかを確認
-        if not isinstance(voice_modes, list):
-            raise TypeError(f"voice_modesの型が正常ではありません。voice_modes:{voice_modes}")
-        return [VoiceMode(mode=mode) for mode in voice_modes]
+        voice_modes:list[dict] = ExtendFunc.loadJsonToList(path)
+        try:
+            return [VoiceMode(**mode) for mode in voice_modes]
+        except ValidationError as e:
+            raise e
+
     
     def loadAllVoiceModeNames(self)->dict[TTSSoftware, list[VoiceMode]]:
         all_voice_mode_names = {}
