@@ -623,15 +623,25 @@ class AIVoiceHuman:
             return name_dict[name]
         else:
             return ""
-    
-    def getAvailableVoicePresetNames(self)->tuple[list[str],list[str]]:
+        
+    @property
+    def VoiceNames(self)->list[str]:
+        if self.tts_control is None:
+            raise Exception("AIVoiceEditorが起動していません")
         voiceNames = self.convertPythonList(self.tts_control.VoiceNames) #利用可能なキャラクター名一覧を取得
         #[ '琴葉 茜', '琴葉 茜（蕾）', '琴葉 葵', '琴葉 葵（蕾）' ]
-
-        voicePresetNames = self.convertPythonList(self.tts_control.VoicePresetNames) #標準ボイス、ユーザーボイス名一覧を取得
+        return voiceNames
+    
+    @property
+    def VoicePresetNames(self)->list[str]:
+        if self.tts_control is None:
+            raise Exception("AIVoiceEditorが起動していません")
+        voicePresetNames = self.convertPythonList(self.tts_control.VoicePresetNames)
         # [ '琴葉 茜 - 新規', '琴葉 茜', '琴葉 茜（蕾）', '琴葉 葵', '琴葉 葵（蕾）' ]
-
-        return voiceNames,voicePresetNames
+        return voicePresetNames
+    
+    def getAvailableVoicePresetNames(self)->tuple[list[str],list[str]]:
+        return self.VoiceNames,self.VoicePresetNames
     
     def updateCharName(self):
         """
