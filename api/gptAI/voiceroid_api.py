@@ -218,7 +218,7 @@ class cevio_human:
         # 3. キャラクター名からボイスモード名リストを返す辞書    を更新
         all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.CevioAI, chara2voicemode_dict)
         # 4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
-        all_human_info_manager.human_images.updateHumanImages(humanImageFolderName_dict)
+        all_human_info_manager.human_images.tryAddHumanFolder(CharacterName_list)
         # 5. キャラクター名からニックネームリストを返す辞書      を更新
         
 

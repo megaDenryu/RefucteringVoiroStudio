@@ -4,6 +4,7 @@ from pathlib import Path
 from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
+from api.images.image_manager.HumanPart import HumanPart
 
 class TTSSoftware(Enum):
     CevioAI = "CevioAI"
@@ -175,24 +176,20 @@ class  CharaNames2VoiceModeDictManager:
 
 class NicknamesManager:
     api_dir: Path
-    nicknames_filepath: dict[TTSSoftware, Path]                # キャラ名とニックネームの対応リストのファイルパス
-    nicknames: dict[TTSSoftware, dict[CharacterName, list[NickName]]]
+    nicknames_filepath: Path                # キャラ名とニックネームの対応リストのファイルパス
+    namelistForhumanJson_filepath: Path
+    nicknames: dict[CharacterName, list[NickName]]
+    nickname2Charaname: dict[NickName,CharacterName]
 
     def __init__(self):
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
-        self.nicknames_filepath = self.createNicknamesFilePath()
-        self.nicknames = self.loadAllNicknames()
+        self.nicknames_filepath = self.api_dir / "CharSettingJson/NickNames.json"
+        self.namelistForhumanJson_filepath = self.api_dir / "CharSettingJson/NameListForHuman.json"
+        self.nicknames = self.loadNicknames()
+        self.nickname2Charaname = self.loadNickname2Charaname()
     
-    def createNicknamesFilePath(self)->dict[TTSSoftware, Path]:
-        return {
-            TTSSoftware.VoiceVox: self.api_dir / "CharSettingJson/Nicknames/VoiceVoxNicknames.json",
-            TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/Nicknames/CoeiroinkNicknames.json",
-            TTSSoftware.AIVoice: self.api_dir / "CharSettingJson/Nicknames/AIVoiceNicknames.json",
-            TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/Nicknames/CevioAINicknames.json"
-        }
-    
-    def loadNicknames(self, software:TTSSoftware)->dict[CharacterName, list[NickName]]:
-        path = self.nicknames_filepath[software]
+    def loadNicknames(self)->dict[CharacterName, list[NickName]]:
+        path = self.nicknames_filepath
         # もしファイルが存在しない場合はファイルを作成
         JsonAccessor.checkExistAndCreateJson(path, {})
         nicknames_dict:dict[str, list[str]] = ExtendFunc.loadJsonToDict(path)
@@ -201,38 +198,63 @@ class NicknamesManager:
             if not isinstance(name, str) or not isinstance(nicknames, list):
                 raise TypeError(f"nicknamesの型が正常ではありません。name:{name}, nicknames:{nicknames}")
         return {CharacterName(name=name):[NickName(name=nickname) for nickname in nicknames] for name, nicknames in nicknames_dict.items()}
+
+    def loadNickname2Charaname(self)->dict[NickName,CharacterName]:
+        path = self.namelistForhumanJson_filepath
+        # もしファイルが存在しない場合はファイルを作成
+        JsonAccessor.checkExistAndCreateJson(path, {})
+        nickname2Charaname_dict:dict[str, str] = ExtendFunc.loadJsonToDict(path)
+        
     
-    def loadAllNicknames(self) -> dict[CharacterName, list[NickName]]:
-        all_nicknames = {}
-        for software in TTSSoftware:
-            nicknames = self.loadNicknames(software)
-            all_nicknames.update(nicknames)
-        return all_nicknames
+    def tryAddCharacterNameKey(self, charaNames:list[CharacterName]):
+        """
+        humanlistを取得してNickNames辞書にキーがないキャラ名があった場合はキーを追加する
+        """
+        all_manager = AllHumanInformationManager.singleton()
+        charaNameList = all_manager.chara_names_manager.chara_names
+        for charaName in charaNames:
+            if charaName not in charaNameList or charaName not in self.nicknames:
+                #ファイルパス一覧に追加する
+                self.nicknames[charaName] = [NickName(name = charaName.name)]
+        
+        #上書き保存する
+        self.updateNicknames(self.nicknames)
+        #辞書の関係を逆にした辞書を作成
+
+    def updateNickName2CharaName(self, nicknames: dict[CharacterName,list[NickName]]):
+        for chara_name,nickname_list in nicknames.items():
+            for nickname in nickname_list:
+                if nickname not in self.nickname2Charaname:
+                    self.nickname2Charaname[nickname] = chara_name
+        path = self.namelistForhumanJson_filepath
+        JsonAccessor.checkExistAndCreateJson(path, {})
+        まだ書いていません
+
+
+
     
-    def updateNicknames(self, software:TTSSoftware, nicknames:dict[CharacterName, list[NickName]]):
+    def updateNicknames(self, nicknames:dict[CharacterName, list[NickName]]):
         """
         ニックネームリストを上書きします。部分更新ではないので注意してください。
         """
-        path = self.nicknames_filepath[software]
+        path = self.nicknames_filepath
         JsonAccessor.checkExistAndCreateJson(path, {})
         nicknames_dict = {chara_name.name:[nickname.name for nickname in nicknames] for chara_name, nicknames in nicknames.items()}
         ExtendFunc.saveDictToJson(path, nicknames_dict)
 
 class HumanImagesManager:
     api_dir: Path
-    human_images_filepath: Path
+    charaFilePathJson_filepath:Path
     human_images: dict[CharacterName, list[HumanImage]]
 
     def __init__(self):
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
-        self.human_images_filepath = self.createHumanImagesFilePath()
+        self.charaFilePathJson_filepath = self.api_dir / "CharSettingJson/CharFilePath.json"
         self.human_images = self.loadAllHumanImages()
-    
-    def createHumanImagesFilePath(self)->Path:
-        return self.api_dir / "CharSettingJson/HumanImages/HumanImages.json"
+
     
     def loadAllHumanImages(self)->dict[CharacterName, list[HumanImage]]:
-        path = self.human_images_filepath
+        path = self.charaFilePathJson_filepath
         # もしファイルが存在しない場合はファイルを作成
         JsonAccessor.checkExistAndCreateJson(path, {})
         human_images_dict:dict[str, list[str]] = ExtendFunc.loadJsonToDict(path)
@@ -242,11 +264,31 @@ class HumanImagesManager:
                 raise TypeError(f"human_imagesの型が正常ではありません。name:{name}, human_images:{human_images}")
         return {CharacterName(name=name):[HumanImage(folder_name=folder_name) for folder_name in human_images] for name, human_images in human_images_dict.items()}
     
+    def tryAddHumanFolder(self, charaNames:list[CharacterName]):
+        """
+        humanlistを取得してキャラ名 →立ち絵一覧のリストにないキャラがいた場合は
+        - ファイルパス一覧に追加する
+        - フォルダを生成する
+        """
+        all_manager = AllHumanInformationManager.singleton()
+        charaNameList = all_manager.chara_names_manager.chara_names
+        for charaName in charaNames:
+            if charaName not in charaNameList:
+                if charaName not in self.human_images:
+                    #ファイルパス一覧に追加する
+                    self.human_images[charaName] = []
+        
+        #上書き保存する
+        self.updateHumanImages(self.human_images)
+        #フォルダを生成する
+        HumanPart.initalCheck()
+
+    
     def updateHumanImages(self, human_images:dict[CharacterName, list[HumanImage]]):
         """
         人物画像リストを上書きします。部分更新ではないので注意してください。
         """
-        path = self.human_images_filepath
+        path = self.charaFilePathJson_filepath
         JsonAccessor.checkExistAndCreateJson(path, {})
         human_images_dict = {chara_name.name:[human_image.folder_name for human_image in human_images] for chara_name, human_images in human_images.items()}
         ExtendFunc.saveDictToJson(path, human_images_dict)
