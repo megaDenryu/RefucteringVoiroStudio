@@ -195,7 +195,7 @@ class cevio_human:
         6. キャラクター名からニックネームリストを返す辞書      を更新
         """
         all_human_info_manager = AllHumanInformationManager.singleton()
-        # CeVIOのキャラクター名を取得
+        #1. CeVIOのキャラクター名を取得
         cast_list = self.getAvailableCast()
         
         voice_mode_list:list[VoiceMode] = []
@@ -211,18 +211,16 @@ class cevio_human:
             humanImageFolderName_dict[characterName] = []
 
 
-        # 1. ボイスモード名リストを更新
+        # 2. ボイスモード名リストを更新
         all_human_info_manager.voice_mode_names_manager.updateVoiceModeNames(TTSSoftware.CevioAI, voice_mode_list)
-        # 2. キャラクター名リストを更新    
+        # 3. キャラクター名リストを更新    
         all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.CevioAI, CharacterName_list)
-        # 3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        # 4. キャラクター名からボイスモード名リストを返す辞書    を更新
         all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.CevioAI, chara2voicemode_dict)
-        # 4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        # 5. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
         all_human_info_manager.human_images.tryAddHumanFolder(CharacterName_list)
-        # 5. キャラクター名からニックネームリストを返す辞書      を更新
-        
-
-        # 6. キャラクター名からボイスモード名リストを返す辞書    を更新
+        # 6. キャラクター名からニックネームリストを返す辞書      を更新
+        all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(CharacterName_list)
         
 
 class SpeakerStyle(TypedDict):
@@ -411,10 +409,9 @@ class voicevox_human:
     @staticmethod
     def updateSpeakerInfo():
         speaker_dict = voicevox_human.getSpeakerDict()
-        all_human_info_manager = AllHumanInformationManager.singleton()
         voicevox_human.updateCharaNames(speaker_dict)
         voicevox_human.updateVoiceModeInfo(speaker_dict)
-        voicevox_human.upadteNickname(speaker_dict)
+        voicevox_human.upadteNicknameAndHumanImagesFolder(speaker_dict)
         
     @staticmethod
     def updateCharaNames(speaker_dict:list[SpeakerInfo]):
@@ -424,7 +421,7 @@ class voicevox_human:
             name = speaker["name"]
             speaker_list.append(CharacterName(name = name))
         
-        all_human_info_manager.updateCharaNames(TTSSoftware.VoiceVox,speaker_list)
+        all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.VoiceVox,speaker_list)
     
     @staticmethod
     def updateVoiceModeInfo(speaker_dict:list[SpeakerInfo]):
@@ -441,19 +438,20 @@ class voicevox_human:
                 voice_mode_list.append(voice_mode)
             voicemode_dict[CharacterName(name = name)] = voice_mode_list
             
-        all_human_info_manager.updateCharaNames2VoiceModeDict(TTSSoftware.VoiceVox,voicemode_dict)
+        all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.VoiceVox,voicemode_dict)
 
     @staticmethod
-    def upadteNickname(speaker_dict:list[SpeakerInfo]):
+    def upadteNicknameAndHumanImagesFolder(speaker_dict:list[SpeakerInfo]):
         """
-        ニックネームリストを部分更新します。
+        ニックネームリストと立ち絵のフォルダ名リストに新しいキャラがいれば追加する
         """
         all_human_info_manager = AllHumanInformationManager.singleton()
-        nickname_dict:dict[CharacterName,list[NickName]] = {}
+        tmp_charaNames:list[CharacterName] = []
         for speaker in speaker_dict:
             name = speaker["name"]
-            nickname_dict[CharacterName(name = name)] = [NickName(name = name)]
-        all_human_info_manager.updateNicknames(TTSSoftware.VoiceVox,nickname_dict)
+            tmp_charaNames.append(CharacterName(name = name))
+        all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(tmp_charaNames)
+        all_human_info_manager.human_images.tryAddHumanFolder(tmp_charaNames)
 
     
     @staticmethod
