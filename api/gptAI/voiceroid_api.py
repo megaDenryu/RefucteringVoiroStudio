@@ -18,7 +18,7 @@ from typing import Dict, Any, Literal, TypedDict
 import sys
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, NickName, TTSSoftware, VoiceMode
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
 
 
 
@@ -166,7 +166,7 @@ class cevio_human:
         #self.cevioStart()
         print("cevio再起動完了")
     
-    def getAvailableCast(self):
+    def getAvailableCast(self)->list[str]:
         """
         利用可能なキャスト一覧を出力
 
@@ -186,12 +186,44 @@ class cevio_human:
     def updateAllCharaList(self):
         """
         CeVIOのキャラクター名を取得して、CevioKnownNames.jsonを更新する
+
+        1. CeVIOのキャラクター名を取得
+        2. ボイスモード名リストを更新
+        3. キャラクター名リストを更新
+        4. キャラクター名からボイスモード名リストを返す辞書    を更新
+        5. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        6. キャラクター名からニックネームリストを返す辞書      を更新
         """
         all_human_info_manager = AllHumanInformationManager.singleton()
         # CeVIOのキャラクター名を取得
         cast_list = self.getAvailableCast()
-        # CevioKnownNames.jsonを更新
-        all_human_info_manager.updateVoiceModeNames(TTSSoftware.CevioAI, cast_list)
+        
+        voice_mode_list:list[VoiceMode] = []
+        CharacterName_list:list[CharacterName] = []
+        chara2voicemode_dict:dict[CharacterName,list[VoiceMode]] = {}
+        humanImageFolderName_dict:dict[CharacterName,list[HumanImage]] = {}
+        for cast in cast_list:
+            voice_mode = VoiceMode(mode = cast, id = None)
+            characterName = CharacterName(name = cast)
+            voice_mode_list.append(voice_mode)                      #ボイスモード名リストを作成
+            CharacterName_list.append(CharacterName(name = cast))   #キャラクター名リストを作成
+            chara2voicemode_dict[characterName] = [voice_mode]      #キャラクター名からボイスモード名リストを返す辞書を作成。cevioの場合はボイスモードが一つしかない
+            humanImageFolderName_dict[characterName] = []
+
+
+        # 1. ボイスモード名リストを更新
+        all_human_info_manager.voice_mode_names_manager.updateVoiceModeNames(TTSSoftware.CevioAI, voice_mode_list)
+        # 2. キャラクター名リストを更新    
+        all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.CevioAI, CharacterName_list)
+        # 3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.CevioAI, chara2voicemode_dict)
+        # 4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        all_human_info_manager.human_images.updateHumanImages(humanImageFolderName_dict)
+        # 5. キャラクター名からニックネームリストを返す辞書      を更新
+        
+
+        # 6. キャラクター名からボイスモード名リストを返す辞書    を更新
+        
 
 class SpeakerStyle(TypedDict):
     id:int
