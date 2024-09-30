@@ -3,6 +3,7 @@ from enum import Enum
 from pathlib import Path
 from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.Extend.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.images.image_manager.HumanPart import HumanPart
 
@@ -12,19 +13,23 @@ class TTSSoftware(Enum):
     AIVoice = "AIVoice"
     Coeiroink = "Coeiroink"
 
-class CharacterName(BaseModel):
+
+
+class CharacterName(HashableBaseModel):
     name: str
 
 
 
-class NickName(BaseModel):
+
+class NickName(HashableBaseModel):
     name: str
 
-class VoiceMode(BaseModel):
+class VoiceMode(HashableBaseModel):
     mode: str
-    id: int|None
+    id: int|None = None
+    id_str: str|None = None
 
-class HumanImage(BaseModel):
+class HumanImage(HashableBaseModel):
     folder_name: str
 
 class NameSpecies(Enum):
@@ -175,6 +180,10 @@ class  CharaNames2VoiceModeDictManager:
         ExtendFunc.saveDictToJson(path, voice_modes_dict)
 
 class NicknamesManager:
+    """
+    持っていないキャラクターに対しても最初からある程度ニックネームが実装しておく。
+    そしてキャラクターを取り出したときにボイスモード辞書にキーがないキャラクターは仕様化のではないと判断するようにする。
+    """
     api_dir: Path
     nicknames_filepath: Path                # キャラ名とニックネームの対応リストのファイルパス
     namelistForhumanJson_filepath: Path

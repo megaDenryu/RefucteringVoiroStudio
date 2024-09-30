@@ -14,6 +14,8 @@ import base64
 #AI.VOICE Editor API用のライブラリ
 import clr
 from typing import Dict, Any, Literal, TypedDict
+from pydantic import BaseModel
+from typing import Optional
 
 import sys
 from api.Extend.ExtendFunc import ExtendFunc
@@ -483,6 +485,32 @@ class voicevox_human:
             json.dump(save_dict,f,ensure_ascii=False, indent=4)
 
 
+class StyleModel(BaseModel):
+    Name: str  # J, A, S
+    Value: float
+
+class MergedVoiceModel(BaseModel):
+    VoiceName: str
+
+class MergedVoiceContainerModel(BaseModel):
+    BasePitchVoiceName: str
+    MergedVoices: list[MergedVoiceModel]
+
+class VoicePresetModel(BaseModel):
+    """
+    AIVoiceEditorのVoicePresetModelをpydanticで定義.
+    https://aivoice.jp/manual/editor/API/html/ace2be3b-ee08-3dda-405c-8967e31385cf.htm
+    """
+    PresetName: str
+    VoiceName: str
+    Volume: float
+    Speed: float
+    Pitch: float
+    PitchRange: float
+    MiddlePause: int
+    LongPause: int
+    Styles: list[StyleModel]
+    MergedVoiceContainer: Optional[MergedVoiceContainerModel]
 
 
 
@@ -633,6 +661,25 @@ class AIVoiceHuman:
         return voiceNames
     
     @property
+    def CharaNames(self)->list[CharacterName]:
+        charaNames = []
+        for name in self.VoiceNames:
+            charaNames.append(AIVoiceHuman.convertAIVoiceName2CharaName(name))
+        return charaNames
+    
+    @property
+    def CharaNames2DefalutVoiceModeDict(self)->dict[CharacterName, list[VoiceMode]]:
+        chara2voicemode_dict:dict[CharacterName, list[VoiceMode]] = {}
+        for name in self.VoiceNames:
+            charaName = AIVoiceHuman.convertAIVoiceName2CharaName(name)
+            voiceMode = VoiceMode(mode = name, id_str = self.GetVoicePreset(name).VoiceName)
+            if charaName in chara2voicemode_dict:
+                chara2voicemode_dict[charaName].append(voiceMode)
+            else:
+                chara2voicemode_dict[charaName] = [voiceMode]
+        return chara2voicemode_dict
+    
+    @property
     def VoicePresetNames(self)->list[str]:
         if self.tts_control is None:
             raise Exception("AIVoiceEditorが起動していません")
@@ -640,8 +687,69 @@ class AIVoiceHuman:
         # [ '琴葉 茜 - 新規', '琴葉 茜', '琴葉 茜（蕾）', '琴葉 葵', '琴葉 葵（蕾）' ]
         return voicePresetNames
     
-    def getAvailableVoicePresetNames(self)->tuple[list[str],list[str]]:
-        return self.VoiceNames,self.VoicePresetNames
+    @property
+    def VoiceModels(self)->list[VoiceMode]:
+        voiceModeList:list[VoiceMode] = []
+        for name in self.VoicePresetNames:
+            voicePresetModel = self.GetVoicePreset(name)
+            voiceModeList.append(VoiceMode(mode = name, id_str = voicePresetModel.VoiceName))
+        return voiceModeList
+
+            
+    
+    def GetVoicePreset(self,voice_preset:str)->VoicePresetModel:
+        """
+        AIVoiceではvoice_modeはボイスプリセット名と呼ばれている。これからボイスプリセット情報を取得する。
+        """
+        if self.tts_control is None:
+            raise Exception("AIVoiceEditorが起動していません")
+        tmp_voicePreset_jsonStr:str = self.tts_control.GetVoicePreset(voice_preset)
+        tmp_voicePresetDict:dict = json.loads(tmp_voicePreset_jsonStr)
+        voicePreset:VoicePresetModel = VoicePresetModel(**tmp_voicePresetDict)
+
+        ExtendFunc.ExtendPrint(voicePreset)
+
+        return voicePreset
+    
+    def createVoiceModeDict(self)->dict[CharacterName,list[VoiceMode]]:
+        #標準ボイスモードを辞書にする
+        defaultVoiceModeDict:dict[CharacterName,list[VoiceMode]] = self.CharaNames2DefalutVoiceModeDict
+        emptyVoiceModeDict:dict[CharacterName,list[VoiceMode]] = {}
+        #その後、id_strが同じ自作プリセットを各キャラのリストに追加する
+        for voicemode in self.VoiceModels:
+            if voicemode.id_str == None:
+                raise Exception("id_strがNoneです")
+            searched_charaName = AIVoiceHuman.searchCharaName(voicemode.id_str,defaultVoiceModeDict)
+            if searched_charaName is not None:
+                if searched_charaName in emptyVoiceModeDict:
+                    emptyVoiceModeDict[searched_charaName].append(voicemode)
+                else:
+                    emptyVoiceModeDict[searched_charaName] = [voicemode]
+
+        return emptyVoiceModeDict
+
+
+
+    @staticmethod
+    def searchCharaName(search_id:str,target_dict:dict[CharacterName,list[VoiceMode]])->CharacterName|None:
+        for charaName,voiceModeList in target_dict.items():
+            for voiceMode in voiceModeList:
+                if voiceMode.id_str == search_id:
+                    return charaName  
+        return None      
+
+        
+
+    @staticmethod
+    def convertAIVoiceName2CharaName(voice_name:str)->CharacterName:
+        """
+        AIVOICEの名前は半角スペースが入っているので、それを取り除いてキャラ名にする。
+        また、（蕾）などのサブ名前は取り除く。「（」は全角のカッコが入っている。
+        """
+        name = voice_name.replace(" ","")
+        if "（" in name:
+            name = name.split("（")[0]
+        return CharacterName(name = name)
     
     def updateCharName(self):
         """
@@ -657,7 +765,8 @@ class AIVoiceHuman:
         knouwn_name_list:list[str] = ExtendFunc.loadJsonToList(AIVOICEKnouwnNames_path)
         
         # 利用可能なキャラクター名一覧を取得
-        (voiceNames,now_voicePresetNames) = self.getAvailableVoicePresetNames()
+        voiceNames = self.VoiceNames
+        now_voicePresetNames = self.VoicePresetNames
         # 新しく追加されたボイスロイドの名前など、known_name_listにない名前をname_listに追加する
         necessity_update_knouwn_name_list = False
         for name in voiceNames:
@@ -1058,7 +1167,7 @@ class voiceroid_apiTest:
             voicevox_human.createVoiceVoxNameToNumberDict()
             print("終了")
 
-        elif True:
+        elif False:
             print("開始")
             Coeiroink.createCoeiroinkNameToNumberDict()
             print("終了")
@@ -1073,3 +1182,17 @@ class voiceroid_apiTest:
             # 音声をファイルに保存
             with open("test.wav", "wb") as f:
                 f.write(wav)
+
+        elif False:
+            dic = voicevox_human.getSpeakerDict()
+            pprint(dic)
+
+        elif True:
+            aivoice = AIVoiceHuman("琴葉葵",0)
+            # voicemodeDictを生成
+            voiceModeDict = aivoice.createVoiceModeDict()
+            ExtendFunc.ExtendPrint(voiceModeDict)
+
+            # ExtendFunc.ExtendPrint(aivoice.CharaNames)
+            # ExtendFunc.ExtendPrint(aivoice.VoiceModels)
+            
