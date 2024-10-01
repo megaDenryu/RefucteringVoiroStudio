@@ -815,6 +815,21 @@ class AIVoiceHuman:
     def saveWav(self,response_wav):
         pass
 
+from typing import TypedDict, List
+
+class CoeiroinkStyle(TypedDict):
+    styleName: str
+    styleId: int
+    base64Icon: str
+    base64Portrait: str
+
+class CoeiroinkSpeaker(TypedDict):
+    speakerName: str
+    speakerUuid: str
+    styles: List[CoeiroinkStyle]
+    version: str
+    base64Portrait: str
+
 class Coeiroink:
     DEFAULT_SERVER = "http://127.0.0.1:50032"
     none_num = -1
@@ -1115,7 +1130,7 @@ class Coeiroink:
                 self.output_wav_info_list.append(wav_info)
     
     @staticmethod
-    def createCoeiroinkNameToNumberDict():
+    def getCoeiroinkNameToNumberDict()->list[CoeiroinkSpeaker]:
         """
         todo : 声色インク用の改造が終わってないので、この関数は未完成
         まず
@@ -1125,12 +1140,16 @@ class Coeiroink:
         を実行して、VOICEVOXのキャラクター名とキャラクター番号のjsonを取得する。
         次にVOICEVOXのキャラクター名とキャラクター番号の対応表を作成する。
         """
-        import requests
 
         url = "http://127.0.0.1:50032/v1/speakers"
         headers = {'accept': 'application/json'}
         response = requests.get(url, headers=headers)
-        speaker_dict = response.json()
+        speaker_dict:list[CoeiroinkSpeaker] = response.json()
+        return speaker_dict
+    
+    @staticmethod
+    def createCoeiroinkNameToNumberDict():
+        speaker_dict = Coeiroink.getCoeiroinkNameToNumberDict()
         save_dict = {}
         for speaker in speaker_dict:
             name = speaker["speakerName"]
@@ -1142,6 +1161,29 @@ class Coeiroink:
                 save_dict[save_name] = style_num
         pprint(save_dict)
         JsonAccessor.saveCoeiroinkNameToNumberJson(save_dict)
+
+    @staticmethod
+    def getCaharaNameList()->list[CharacterName]:
+        speaker_dict = Coeiroink.getCoeiroinkNameToNumberDict()
+        charaNameList = []
+        for speaker in speaker_dict:
+            charaNameList.append(CharacterName(name = speaker["speakerName"]))
+        return charaNameList
+    
+    @staticmethod
+    def getVoiceModeDict()->dict[CharacterName,list[VoiceMode]]:
+        speaker_dict:list[CoeiroinkSpeaker] = Coeiroink.getCoeiroinkNameToNumberDict()
+        voiceModeDict = {}
+        for speaker in speaker_dict:
+            charaName = CharacterName(name = speaker["speakerName"])
+            styles = speaker["styles"]
+            voiceModeList:list[VoiceMode] = []
+            for style in styles:
+                voiceMode = VoiceMode(mode = style["styleName"], id = style["styleId"])
+                voiceModeList.append(voiceMode)
+            voiceModeDict[charaName] = voiceModeList
+        return voiceModeDict
+
 
 
 class voiceroid_apiTest:
