@@ -815,7 +815,24 @@ class AIVoiceHuman:
     def saveWav(self,response_wav):
         pass
 
-from typing import TypedDict, List
+
+class CoeiroinkWavRange(TypedDict):
+    start: int
+    end: int
+
+class CoeiroinkPhonemePitch(TypedDict):
+    phoneme: str
+    wavRange: CoeiroinkWavRange
+
+class CoeiroinkMoraDuration(TypedDict):
+    mora: str
+    hira: str
+    phonemePitches: list[CoeiroinkPhonemePitch]
+    wavRange: CoeiroinkWavRange
+
+class CoeiroinkWaveData(TypedDict):
+    wavBase64: str
+    moraDurations: list[CoeiroinkMoraDuration]
 
 class CoeiroinkStyle(TypedDict):
     styleName: str
@@ -826,7 +843,7 @@ class CoeiroinkStyle(TypedDict):
 class CoeiroinkSpeaker(TypedDict):
     speakerName: str
     speakerUuid: str
-    styles: List[CoeiroinkStyle]
+    styles: list[CoeiroinkStyle]
     version: str
     base64Portrait: str
 
@@ -864,7 +881,7 @@ class Coeiroink:
     
     # ステータスを取得する
     @staticmethod
-    def get_status(print_error=False) -> str:
+    def get_status(print_error=False) -> str|None:
         try:
             response = requests.get(f"{Coeiroink.server}/")
             response.raise_for_status()
@@ -876,7 +893,7 @@ class Coeiroink:
 
     # 話者リストを取得する
     @staticmethod
-    def get_speakers(print_error=False) -> {}:
+    def get_speakers(print_error=False) -> dict|None:
         try:
             response = requests.get(f"{Coeiroink.server}/v1/speakers")
             response.raise_for_status()
@@ -888,7 +905,7 @@ class Coeiroink:
 
     # スタイルIDから話者情報を取得する
     @staticmethod
-    def get_speaker_info(styleId: int, print_error=False) -> {}:
+    def get_speaker_info(styleId: int, print_error=False) -> dict|None:
         try:
             post_params = {"styleId": styleId}
             response = requests.post(f"{Coeiroink.server}/v1/style_id_to_speaker_meta", params=post_params)
@@ -901,7 +918,7 @@ class Coeiroink:
 
     # テキストの読み上げ用データを取得する
     @staticmethod
-    def estimate_prosody(text: str, print_error=False) -> {}:
+    def estimate_prosody(text: str, print_error=False) -> dict|None:
         try:
             post_params = {"text": text}
             response = requests.post(f"{Coeiroink.server}/v1/estimate_prosody", data=json.dumps(post_params))
@@ -913,9 +930,9 @@ class Coeiroink:
             return None
     
     @staticmethod
-    def predict_with_duration(speaker: {}, text: str, prosody: {},
+    def predict_with_duration(speaker: dict, text: str, prosody: dict,
                   speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
-                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> {}:
+                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> CoeiroinkWaveData|None:
         """
         wavBase64とlabデータを取得できる。
         """
@@ -945,9 +962,9 @@ class Coeiroink:
 
     # 音声データを生成する
     @staticmethod
-    def synthesis(speaker: {}, text: str, prosody: {},
+    def synthesis(speaker: dict, text: str, prosody: dict,
                   speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
-                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes:
+                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes|None:
         post_params = {
             "speakerUuid": speaker["speakerUuid"],
             "styleId": speaker["styleId"],
@@ -996,7 +1013,7 @@ class Coeiroink:
     @staticmethod
     def get_wave_data(styleId: int, text: str,
                       speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
-                      prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes:
+                      prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes|None:
 
         speaker = Coeiroink.get_speaker_info(styleId)
         if speaker is None:
@@ -1014,7 +1031,7 @@ class Coeiroink:
     
     def getWavData(self, text: str,
                       speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
-                      prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes:
+                      prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes|None:
         speaker = self.speaker
         if speaker is None:
             print("Failed to get speaker info.")
@@ -1048,6 +1065,9 @@ class Coeiroink:
         prediction = Coeiroink.predict_with_duration(speaker, text, prosody,
                                                       speedScale, volumeScale, pitchScale, intonationScale,
                                                       prePhonemeLength, postPhonemeLength, outputSamplingRate, print_error)
+        if prediction is None:
+            raise Exception("Failed to get prediction.")
+        
         wavBase64 = prediction["wavBase64"]
         moraDurations = prediction["moraDurations"]
         phoneme_str, phoneme_time = Coeiroink.labDataFromMora(moraDurations)
@@ -1068,7 +1088,8 @@ class Coeiroink:
         prediction = Coeiroink.predict_with_duration(speaker, text, prosody,
                                                       speedScale, volumeScale, pitchScale, intonationScale,
                                                       prePhonemeLength, postPhonemeLength, outputSamplingRate, print_error)
-
+        if prediction is None:
+            raise Exception("Failed to get prediction.")
         wavBase64 = prediction["wavBase64"]
         moraDurations = prediction["moraDurations"]
         phoneme_str, phoneme_time = Coeiroink.labDataFromMora(moraDurations)
@@ -1171,6 +1192,20 @@ class Coeiroink:
         return charaNameList
     
     @staticmethod
+    def getVoiceModeList()->list[VoiceMode]:
+        """
+        ボイスモードリストを作っても意味がなくなって来た気がするので削除するかもしれない
+        """
+        speaker_dict = Coeiroink.getCoeiroinkNameToNumberDict()
+        voiceModeList = []
+        for speaker in speaker_dict:
+            styles = speaker["styles"]
+            for style in styles:
+                voiceMode = VoiceMode(mode = style["styleName"], id = style["styleId"])
+                voiceModeList.append(voiceMode)
+        return voiceModeList
+    
+    @staticmethod
     def getVoiceModeDict()->dict[CharacterName,list[VoiceMode]]:
         speaker_dict:list[CoeiroinkSpeaker] = Coeiroink.getCoeiroinkNameToNumberDict()
         voiceModeDict = {}
@@ -1183,6 +1218,17 @@ class Coeiroink:
                 voiceModeList.append(voiceMode)
             voiceModeDict[charaName] = voiceModeList
         return voiceModeDict
+    
+    @staticmethod
+    def updateCoeiroinkInfo():
+        manager = AllHumanInformationManager.singleton()
+        
+        charaNameList:list[CharacterName] = Coeiroink.getCaharaNameList()
+        voiceModeList:list[VoiceMode] = Coeiroink.getVoiceModeList()
+        voiceModeDict:dict[CharacterName,list[VoiceMode]] = Coeiroink.getVoiceModeDict()
+        manager.voice_mode_names_manager.updateVoiceModeNames(TTSSoftware.Coeiroink,voiceModeList)
+        manager.chara_names_manager.updateCharaNames(TTSSoftware.Coeiroink,charaNameList)
+        manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.Coeiroink,voiceModeDict)
 
 
 
