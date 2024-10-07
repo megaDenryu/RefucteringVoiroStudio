@@ -1264,7 +1264,7 @@ class Coeiroink:
         return voiceModeDict
     
     @staticmethod
-    def updateCoeiroinkInfo():
+    def updateAllCharaList():
         manager = AllHumanInformationManager.singleton()
         
         charaNameList:list[CharacterName] = Coeiroink.getCaharaNameList()
@@ -1273,6 +1273,9 @@ class Coeiroink:
         manager.voice_mode_names_manager.updateVoiceModeNames(TTSSoftware.Coeiroink,voiceModeList)
         manager.chara_names_manager.updateCharaNames(TTSSoftware.Coeiroink,charaNameList)
         manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.Coeiroink,voiceModeDict)
+        manager.human_images.tryAddHumanFolder(charaNameList)
+        manager.nick_names_manager.tryAddCharacterNameKey(charaNameList)
+
 
 
 
