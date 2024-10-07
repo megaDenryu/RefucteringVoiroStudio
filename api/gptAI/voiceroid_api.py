@@ -247,7 +247,8 @@ class voicevox_human:
             self.name = ""
     
     def start(self):
-        voicevox_human.createVoiceVoxNameToNumberDict()
+        voicevox_human.createVoiceVoxNameToNumberDict() #キャラアプデ処理旧
+        self.updateAllCharaList() #キャラアプデ処理新
     
     @staticmethod
     def getCharNum(name):
@@ -534,6 +535,7 @@ class AIVoiceHuman:
         self.aivoice_name = self.setCharName(char_name)
         self.start()
         print(self.updateCharName())
+        self.updateAllCharaList()
         
     def start(self):
         _editor_dir = os.environ['ProgramW6432'] + '\\AI\\AIVoice\\AIVoiceEditor\\'
@@ -897,6 +899,7 @@ class Coeiroink:
     server = DEFAULT_SERVER
     def __init__(self,name:str,started_coeiro_num:int) -> None:
         
+        Coeiroink.updateAllCharaList()
         if "" != self.getCharNum(name):
             self.styleId = self.getCharNum(name)
             if self.styleId == Coeiroink.none_num:
@@ -1265,16 +1268,20 @@ class Coeiroink:
     
     @staticmethod
     def updateAllCharaList():
-        manager = AllHumanInformationManager.singleton()
-        
-        charaNameList:list[CharacterName] = Coeiroink.getCaharaNameList()
-        voiceModeList:list[VoiceMode] = Coeiroink.getVoiceModeList()
-        voiceModeDict:dict[CharacterName,list[VoiceMode]] = Coeiroink.getVoiceModeDict()
-        manager.voice_mode_names_manager.updateVoiceModeNames(TTSSoftware.Coeiroink,voiceModeList)
-        manager.chara_names_manager.updateCharaNames(TTSSoftware.Coeiroink,charaNameList)
-        manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.Coeiroink,voiceModeDict)
-        manager.human_images.tryAddHumanFolder(charaNameList)
-        manager.nick_names_manager.tryAddCharacterNameKey(charaNameList)
+        try:
+            manager = AllHumanInformationManager.singleton()
+            
+            charaNameList:list[CharacterName] = Coeiroink.getCaharaNameList()
+            voiceModeList:list[VoiceMode] = Coeiroink.getVoiceModeList()
+            voiceModeDict:dict[CharacterName,list[VoiceMode]] = Coeiroink.getVoiceModeDict()
+            manager.voice_mode_names_manager.updateVoiceModeNames(TTSSoftware.Coeiroink,voiceModeList)
+            manager.chara_names_manager.updateCharaNames(TTSSoftware.Coeiroink,charaNameList)
+            manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.Coeiroink,voiceModeDict)
+            manager.human_images.tryAddHumanFolder(charaNameList)
+            manager.nick_names_manager.tryAddCharacterNameKey(charaNameList)
+        except Exception as e:
+            # coeiroinkが起動してないとき
+            print(e)
 
 
 
