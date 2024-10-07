@@ -12,9 +12,9 @@ from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 
 if __name__ == "__main__":
     # HumanInformationTest()
-    # voiceroid_apiTest()
-    dict = Coeiroink.getCoeiroinkNameToNumberDict()
-    pprint(dict)
+    voiceroid_apiTest()
+    # dict = Coeiroink.getCoeiroinkNameToNumberDict()
+    # pprint(dict)
 
 
 

@@ -409,10 +409,21 @@ class voicevox_human:
         return speaker_dict
     
     @staticmethod
-    def updateSpeakerInfo():
+    def updateAllCharaList():
+        """
+        1. VoiceVoxのキャラクター名を取得
+        2. キャラクター名リストを更新
+        3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        5. キャラクター名からニックネームリストを返す辞書      を更新
+        """
+        #1. VoiceVoxのキャラクター名を取得
         speaker_dict = voicevox_human.getSpeakerDict()
+        #2. キャラクター名リストを更新
         voicevox_human.updateCharaNames(speaker_dict)
+        #3. キャラクター名からボイスモード名リストを返す辞書    を更新
         voicevox_human.updateVoiceModeInfo(speaker_dict)
+        #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
         voicevox_human.upadteNicknameAndHumanImagesFolder(speaker_dict)
         
     @staticmethod
@@ -483,6 +494,9 @@ class voicevox_human:
         #pathにspeaker_dictを書き込む
         with open(path, "w", encoding="utf-8") as f:
             json.dump(save_dict,f,ensure_ascii=False, indent=4)
+    
+        
+
 
 
 class StyleModel(BaseModel):
@@ -662,9 +676,16 @@ class AIVoiceHuman:
     
     @property
     def CharaNames(self)->list[CharacterName]:
+        """
+        茜ちゃんなら蕾などのサブ名前を取り除いて、キャラ名だけを取得し、重複を取り除いてリストにする。ボイスモード辞書などのキーに使えるものと同じ。
+        @return : [CharacterName(name='琴葉茜'), CharacterName(name='紲星あかり'), CharacterName(name='琴葉葵'), CharacterName(name='結月ゆかり')]
+        """
         charaNames = []
         for name in self.VoiceNames:
-            charaNames.append(AIVoiceHuman.convertAIVoiceName2CharaName(name))
+            chara_name = AIVoiceHuman.convertAIVoiceName2CharaName(name)
+            #既にリストに入っていないなら追加
+            if chara_name not in charaNames:
+                charaNames.append(chara_name)
         return charaNames
     
     @property
@@ -707,7 +728,7 @@ class AIVoiceHuman:
         tmp_voicePresetDict:dict = json.loads(tmp_voicePreset_jsonStr)
         voicePreset:VoicePresetModel = VoicePresetModel(**tmp_voicePresetDict)
 
-        ExtendFunc.ExtendPrint(voicePreset)
+        # ExtendFunc.ExtendPrint(voicePreset)
 
         return voicePreset
     
@@ -750,6 +771,29 @@ class AIVoiceHuman:
         if "（" in name:
             name = name.split("（")[0]
         return CharacterName(name = name)
+    
+    def updateAllCharaList(self):
+        """
+        AIVoiceのキャラクター名を取得して、AIVOICEKnownNames.jsonを更新する
+        1.いきなり完成版のボイスモード辞書を作成
+
+        1. AIVoiceのキャラクター名を取得
+        2. キャラクター名リストを更新
+        3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        5. キャラクター名からニックネームリストを返す辞書      を更新
+        """
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        #2. キャラクター名リストを更新
+        charaNames = self.CharaNames
+        all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.AIVoice,charaNames)
+        #3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        voiceModeDict:dict[CharacterName,list[VoiceMode]] = self.createVoiceModeDict()
+        all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.AIVoice,voiceModeDict)
+        #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        all_human_info_manager.human_images.tryAddHumanFolder(charaNames)
+        #5. キャラクター名からニックネームリストを返す辞書      を更新
+        all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(charaNames)
     
     def updateCharName(self):
         """
@@ -1278,6 +1322,7 @@ class voiceroid_apiTest:
         elif True:
             aivoice = AIVoiceHuman("琴葉葵",0)
             # voicemodeDictを生成
+            ExtendFunc.ExtendPrint(aivoice.CharaNames)
             voiceModeDict = aivoice.createVoiceModeDict()
             ExtendFunc.ExtendPrint(voiceModeDict)
 
