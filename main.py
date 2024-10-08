@@ -4,6 +4,7 @@ import random
 import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import cevio_human
 from api.gptAI.Human import Human
@@ -1091,6 +1092,32 @@ async def wsGptGraphEventStart(websocket: WebSocket, front_name: str):
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
+@app.post("/CharaInfo")
+async def charaInfo(req):
+    """
+    @return: キャラの名前が入力されたときにボイスモードリストと画像リストを返す
+    """
+    characterName = CharacterName(req)
+    all_manager = AllHumanInformationManager.singleton()
+    voiceModeList:list[VoiceMode] = all_manager.CharaNames2VoiceModeDict_manager.chara_names2_voice_modes[characterName]
+    humanImages:list[HumanImage] = all_manager.human_images.human_images[characterName]
+
+    return {"voiceModeList": voiceModeList, "humanImages": humanImages}
+
+
+@app.post("AllCharaInfo")
+async def allCharaName():
+    """
+    @return: 全てのキャラの情報を返す
+    # 問題
+    1. ページにアクセスすると、キャラクターを選択しないといけないが、今まではあだ名を入力して召喚していたが、キャラクターをプルダウンで選べるようにもする。
+    2. そのためにTTSSoftwareのキャラクターの名前を返すAPIを作成する。
+    # 手順
+
+    """
+    all_manager = AllHumanInformationManager.singleton()
+    charaNames:dict[TTSSoftware, list[CharacterName]] = all_manager.chara_names_manager.chara_names
+    return charaNames
 
 
 class Item(BaseModel):
