@@ -266,7 +266,7 @@ class Human:
         return name_list
 
     @staticmethod
-    def setCharName(name:str):
+    def setCharName(name:str)->str:
         """
         front_nameからchar_nameに変換する関数
         """

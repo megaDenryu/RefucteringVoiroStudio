@@ -24,11 +24,12 @@ class NiconamaUserLinkVoiceroidModule:
             return "キャラ名は登録されていませんでした"
     
     
-    def registerNikonamaUserIdToCharaName(self,comment,NikonamaUserId):
+    def registerNikonamaUserIdToCharaName(self,comment,NikonamaUserId)->str:
         chara_name = self.getCharaNameFromComment(comment)
         if chara_name != "名前が無効です":
             self.saveNikonamaUserIdToCharaName(NikonamaUserId, chara_name)
             self.user_data = self.loadNikonamaUserIdToCharaNameJson()
+        return chara_name
         
 
     

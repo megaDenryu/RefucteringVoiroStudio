@@ -694,41 +694,7 @@ async def inputPokemon(websocket: WebSocket):
         # 切れたセッションの削除
         notifier.remove(websocket)
 
-#Websocket用のパス。ボイロ会話用Websocket用のパス。
-@app.websocket("/InputGPT")
-async def inputGPT(websocket: WebSocket):
-    # クライアントとのコネクション確立
-    await notifier.connect(websocket)
-    tumugi = ChatGPT("つむぎ")
-    try:
-        while True:
-            # クライアントからメッセージの受け取り
-            data = json.loads(await websocket.receive_text()) 
-            # 双方向通信する場合
-            #  await websocket.send_text(f"Message text was: {data}")
-            # ブロードキャスト
-            if type(data) == list:
-                for d in data:
-                    await notifier.push(f"あなた: {d}")
-                    response = tumugi.generate_text(d)
-                    await notifier.push(f"つむぎ：{response}")
-            elif type(data) == dict:
-                for key in data.keys():
-                    await notifier.push(f"あなた: {data[key]}")
-                    response = tumugi.generate_text(data[key])
-                    await notifier.push(f"つむぎ：{response}")
-            elif type(data) == str:
-                print("ここ")
-                await notifier.push(f"あなた: {data}")
-                response = tumugi.generate_text(data)
-                await notifier.push(f"つむぎ：{response}")
-            else:
-                print(type(data))
-    # セッションが切れた場合
-    except WebSocketDisconnect:
-        print("wsエラーです:InputGPT")
-        # 切れたセッションの削除
-        notifier.remove(websocket)
+
 
 @app.websocket("/human/{client_id}")
 async def human_pict(websocket: WebSocket, client_id: str):
