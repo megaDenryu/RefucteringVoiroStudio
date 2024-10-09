@@ -162,6 +162,9 @@ async def read_root(path_param: str):
     if path_param == "settingPage":
         target = app_dir / "setting.html"
 
+    if path_param == "DevPlayGround":
+        target = app_dir / "DevPlayGround.html"
+
     print(f"{target=}")
 
     # ファイルが存在しない場合は404エラーを返す

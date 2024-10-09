@@ -1,0 +1,18 @@
+.TTSSoftwareSelecter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.CharacterNameSelecter {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.HumanImageSelecter {
+
+}
+
