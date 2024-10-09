@@ -358,6 +358,13 @@ class BaseComponent {
         this.element.appendChild(childComponent.element);
     }
 
+    /**
+     * childComponentClusterを作成し、それを親子関係として登録する。
+     */
+    createChildComponentCluster() {
+        this.childCompositeCluster = new CompositeComponentCluster(this.vertex);
+    }
+
     
 
 }

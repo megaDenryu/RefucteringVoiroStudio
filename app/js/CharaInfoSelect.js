@@ -90,10 +90,38 @@ class TTSSoftwareSelecter {
     component;
 
     /** @type {TTSSoftware} */
-    selectedSoftware;
+    _selectedSoftware;
 
     /** @type {HTMLSelectElement} */
     selectElement;
+
+    get selectedSoftware() {
+        return this._selectedSoftware;
+    }
+
+    /** @param {TTSSoftware} value*/
+    set selectedSoftware(value) {
+        this._selectedSoftware = value;
+        for (const onSelectedSoftwareChanged of this.onSelectedSoftwareChanged) {
+            onSelectedSoftwareChanged(value);
+        }
+    }
+
+    /**
+     * selectedSoftwareの中で実行したいほかのオブジェクトのメソッドを登録する
+     * @type {Array<(TTSSoftware) => void>}
+     */
+    onSelectedSoftwareChanged = [];
+
+    /**
+     * selectedSoftwareの中で実行したいほかのオブジェクトのメソッドを登録する
+     * @param {(TTSSoftware) => void} method
+     */
+    addOnSelectedSoftwareChanged(method) {
+        this.onSelectedSoftwareChanged.push(method);
+    }
+
+
     
     constructor() {
         this.selectedSoftware = TTSSoftwareEnum.CevioAI;
@@ -140,6 +168,12 @@ class CharacterNameSelecter {
 
     calcBoxSize() {
         return 8;
+    }
+
+    changeTTS(ttsSoftware) {
+        this.ttsSoftware = ttsSoftware;
+        //ここでセレクトボックスの中身を変更する
+
     }
 }
 
@@ -281,18 +315,30 @@ class CharaSelectFunction{
     }
 
     initSetChaildElement() {
+        this.Component.createChildComponentCluster();
+        if (this.Component.childCompositeCluster === null) throw new Error("childCompositeCluster is null");
         // TTSSoftwareSelecterを追加
-        this.Component.childCompositeCluster?.createArrowBetweenComponents(this.Component, this.ttsSoftwareSelecter.component)
+        this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.ttsSoftwareSelecter.component)
         // CharacterNameSelecterを追加
-        this.Component.childCompositeCluster?.createArrowBetweenComponents(this.Component, this.defaultCaracterNameSelecter.component)
+        this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.defaultCaracterNameSelecter.component)
 
         // HumanImageSelecterを追加
-        this.Component.childCompositeCluster?.createArrowBetweenComponents(this.Component, this.defaultHumanImageSelecter.component)
+        this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.defaultHumanImageSelecter.component)
     }
 
+    /**
+     * TTSSoftwareSelecterの選択肢が変更されたときは、CharacterNameSelecterとHumanImageSelecterを変更する.
+     */
+    addOnSelectedSoftwareChanged() {
+        this.ttsSoftwareSelecter.addOnSelectedSoftwareChanged(this.chengeCharacterNameSelecter)
+    }
 
-
-
+    /**
+     * @param {TTSSoftware} ttsSoftware
+     */
+    chengeCharacterNameSelecter(ttsSoftware) {
+        // CharacterNameSelecterを変更する
+    }
 
 
 
