@@ -1,6 +1,6 @@
 ///@ts-check
 
-const { uniqueId } = require("lodash");
+
 
 class VectorN {
     /** @type {number[]} */array;
@@ -312,7 +312,7 @@ class BaseComponent {
      */
     constructor(HTMLElementInput, className = null, vertexViewContent = null) {
         this.className = className;
-        this.id = uniqueId()
+        this.id = ExtendFunction.uuid()
         this.element = this.createElement(HTMLElementInput);
         this.vertexViewContent = vertexViewContent;
         this.vertex = new Vertex(this.id, this, this.vertexViewContent);
