@@ -177,6 +177,71 @@ class CharacterNameSelecter {
     }
 }
 
+class CompositeCharacterNameSelecter {
+    /** @type {BaseComponent} */ baseComponent;
+    /** @type {Record<TTSSoftware,CharacterName[]>} */ characterNamesDict;
+    /** @type {Record<TTSSoftware,CharacterNameSelecter>} */ characterNameSelecterDict;
+    /** @type {TTSSoftware} */ _selectedSoftware;
+
+    get selectedSoftware() {
+        return this._selectedSoftware;
+    }
+
+    /** @param {TTSSoftware} value*/
+    set selectedSoftware(value) {
+        this._selectedSoftware = value;
+        this.changeCharacterNameSelecter(value);
+    }
+
+    /**
+     * @returns {string}
+     */
+    get HTMLInput(){
+        return `
+        <div class="CompositeCharacterNameSelecter"></div>
+        `;   
+    }
+
+    /**
+     * @param {Record<TTSSoftware,CharacterName[]>} characterNamesDict
+     */
+    constructor(characterNamesDict) {
+        this.baseComponent = new BaseComponent(this.HTMLInput);
+        this.characterNamesDict = characterNamesDict;
+        this.characterNameSelecterDict = {
+            "AIVoice": new CharacterNameSelecter(TTSSoftwareEnum.AIVoice, characterNamesDict[TTSSoftwareEnum.AIVoice]),
+            "CevioAI": new CharacterNameSelecter(TTSSoftwareEnum.CevioAI, characterNamesDict[TTSSoftwareEnum.CevioAI]),
+            "VoiceVox": new CharacterNameSelecter(TTSSoftwareEnum.VoiceVox, characterNamesDict[TTSSoftwareEnum.VoiceVox]),
+            "Coeiroink": new CharacterNameSelecter(TTSSoftwareEnum.Coeiroink, characterNamesDict[TTSSoftwareEnum.Coeiroink]),
+        };
+    }
+
+    /**
+     * 各CharacterNameSelecterをこのコンポーネントの子要素として追加する
+     */
+    setGraph() {
+        this.baseComponent.createArrowBetweenComponents(this.baseComponent, this.characterNameSelecterDict[TTSSoftwareEnum.AIVoice].component);
+        this.baseComponent.createArrowBetweenComponents(this.baseComponent, this.characterNameSelecterDict[TTSSoftwareEnum.CevioAI].component);
+        this.baseComponent.createArrowBetweenComponents(this.baseComponent, this.characterNameSelecterDict[TTSSoftwareEnum.VoiceVox].component);
+        this.baseComponent.createArrowBetweenComponents(this.baseComponent, this.characterNameSelecterDict[TTSSoftwareEnum.Coeiroink].component);
+    }
+
+    /**
+     * 選択したTTSソフトウェアによって表示するCharacterNameSelecterのエレメントを変更する。1種類しか表示されないようにする。
+     * @param {TTSSoftware} ttsSoftware 
+     */
+    changeCharacterNameSelecter(ttsSoftware) {
+        for (const [key, characterNameSelecter] of Object.entries(this.characterNameSelecterDict)) {
+            if (key === ttsSoftware) {
+                characterNameSelecter.component.element.style.display = "block";
+            } else {
+                characterNameSelecter.component.element.style.display = "none";
+            }
+        }
+    }
+    
+}
+
 class HumanImageSelecter {
     /** @type {BaseComponent} */
     component;
@@ -321,7 +386,6 @@ class CharaSelectFunction{
         this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.ttsSoftwareSelecter.component)
         // CharacterNameSelecterを追加
         this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.defaultCaracterNameSelecter.component)
-
         // HumanImageSelecterを追加
         this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.defaultHumanImageSelecter.component)
     }
@@ -338,6 +402,7 @@ class CharaSelectFunction{
      */
     chengeCharacterNameSelecter(ttsSoftware) {
         // CharacterNameSelecterを変更する
+
     }
 
 

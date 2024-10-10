@@ -365,6 +365,17 @@ class BaseComponent {
         this.childCompositeCluster = new CompositeComponentCluster(this.vertex);
     }
 
+    /**
+     * ２つのコンポーネントを矢印で結んで親子関係を作る。
+     * @param {BaseComponent} parentComponent
+     * @param {BaseComponent} childComponent
+     */
+    createArrowBetweenComponents(parentComponent, childComponent) {
+        if (this.childCompositeCluster == null) this.createChildComponentCluster();
+        if (this.childCompositeCluster == null) throw new Error('childCompositeCluster is null.');
+        this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent);
+    }
+
     
 
 }
