@@ -296,7 +296,7 @@ class ElementCreater {
 
 
 class BaseComponent {
-    /** @type {string|null} */          className;
+    /** @type {string[]} */          className;
     /** @type {string} */               id;
     /** @type {HTMLElement} */          element;
     /** @type {Vertex}*/                vertex; //コンポーネントグラフでの頂点
@@ -307,10 +307,10 @@ class BaseComponent {
 
     /**
      * @param {string | HTMLElement} HTMLElementInput
-     * @param {string|null} [className=null]
+     * @param {string[]} className
      * @param {any | null} [vertexViewContent=null]
      */
-    constructor(HTMLElementInput, className = null, vertexViewContent = null) {
+    constructor(HTMLElementInput, className = [], vertexViewContent = null) {
         this.className = className;
         this.id = ExtendFunction.uuid()
         this.element = this.createElement(HTMLElementInput);
@@ -375,6 +375,36 @@ class BaseComponent {
         if (this.childCompositeCluster == null) throw new Error('childCompositeCluster is null.');
         this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent);
     }
+
+    /**
+     * @param {string[]|String} classNames
+     * @return {void}
+     **/
+    addCSSClass(classNames) {
+        if (typeof classNames === 'string') {
+            this.className.push(classNames);
+            this.element.className = classNames;
+        } else {
+            this.className.push(...classNames);
+            this.element.className = classNames.join(' ');
+        }
+    }
+
+    /**
+     * @param {string[]|string} classNames
+     * @return {void}
+     * */
+    removeCSSClass(classNames) {
+        if (typeof classNames === 'string') {
+            this.className = this.className.filter(className => className !== classNames);
+            this.element.className = this.className.join(' ');
+        } else {
+            this.className = this.className.filter(className => !classNames.includes(className));
+            this.element.className = this.className.join(' ');
+        }
+    }
+
+
 
     
 

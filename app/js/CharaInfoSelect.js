@@ -175,10 +175,18 @@ class CharacterNameSelecter {
         //ここでセレクトボックスの中身を変更する
 
     }
+
+    show() {
+        this.component.show();
+    }
+
+    hide() {
+        this.component.hide();
+    }
 }
 
 class CompositeCharacterNameSelecter {
-    /** @type {BaseComponent} */ baseComponent;
+    /** @type {BaseComponent} */ component;
     /** @type {Record<TTSSoftware,CharacterName[]>} */ characterNamesDict;
     /** @type {Record<TTSSoftware,CharacterNameSelecter>} */ characterNameSelecterDict;
     /** @type {TTSSoftware} */ _selectedSoftware;
@@ -193,6 +201,38 @@ class CompositeCharacterNameSelecter {
         this.changeCharacterNameSelecter(value);
     }
 
+    /** @type {CharacterName}*/ _selectedCharacterName;
+
+    get selectedCharacterName() {
+        return this._selectedCharacterName;
+    }
+
+    /**
+     * @param {CharacterName} characterName
+     */
+    set onSelectedCharacterName(characterName) {
+        this._selectedCharacterName = characterName;
+        this.OnCharacterNameChanged(characterName)
+    }
+
+    /** @type {Array<(CharacterName)=>void>} */ onCharacterNameChanged;
+
+    /**
+     * @param {CharacterName} characterName
+     **/
+    OnCharacterNameChanged(characterName) {
+        for (const onCharacterNameChanged of this.onCharacterNameChanged) {
+            onCharacterNameChanged(characterName);
+        }
+    }
+
+    /**
+     * @param {(CharacterName) => void} method 
+     */
+    addOnCharacterNameChanged(method) {
+        this.onCharacterNameChanged.push(method);
+    }
+
     /**
      * @returns {string}
      */
@@ -204,8 +244,9 @@ class CompositeCharacterNameSelecter {
 
     /**
      * @param {Record<TTSSoftware,CharacterName[]>} characterNamesDict
+     * @param {TTSSoftware} defaultTTSSoftWare
      */
-    constructor(characterNamesDict) {
+    constructor(characterNamesDict, defaultTTSSoftWare) {
         this.baseComponent = new BaseComponent(this.HTMLInput);
         this.characterNamesDict = characterNamesDict;
         this.characterNameSelecterDict = {
@@ -214,6 +255,7 @@ class CompositeCharacterNameSelecter {
             "VoiceVox": new CharacterNameSelecter(TTSSoftwareEnum.VoiceVox, characterNamesDict[TTSSoftwareEnum.VoiceVox]),
             "Coeiroink": new CharacterNameSelecter(TTSSoftwareEnum.Coeiroink, characterNamesDict[TTSSoftwareEnum.Coeiroink]),
         };
+        this.selectedSoftware = defaultTTSSoftWare;
     }
 
     /**
@@ -231,11 +273,11 @@ class CompositeCharacterNameSelecter {
      * @param {TTSSoftware} ttsSoftware 
      */
     changeCharacterNameSelecter(ttsSoftware) {
-        for (const [key, characterNameSelecter] of Object.entries(this.characterNameSelecterDict)) {
-            if (key === ttsSoftware) {
-                characterNameSelecter.component.element.style.display = "block";
+        for (const [software, characterNameSelecter] of Object.entries(this.characterNameSelecterDict)) {
+            if (software === ttsSoftware) {
+                characterNameSelecter.show();
             } else {
-                characterNameSelecter.component.element.style.display = "none";
+                characterNameSelecter.hide();
             }
         }
     }
@@ -267,6 +309,53 @@ class HumanImageSelecter {
     }
 }
 
+class CompositeHumanImageSelecter {
+    /** @type {BaseComponent} */
+    component;
+    /** @type {Record<CharacterName["name"],HumanImage[]>} */
+    humanImagesDict;
+    /** @type {Record<CharacterName["name"],HumanImageSelecter>} */
+    humanImageSelecter;
+
+    /**
+     * @param {Record<CharacterName["name"],HumanImage[]>} humanImagesDict
+     * @param {CharacterName} defaultCharacterName
+     * @param {HumanImage} defaultHumanImage
+     **/
+    constructor(humanImagesDict, defaultCharacterName, defaultHumanImage) {
+        this.component = new BaseComponent(this.HTMLInput);
+        this.humanImagesDict = humanImagesDict;
+        this.humanImageSelecter = {};
+        Object.entries(humanImagesDict).forEach(([characterName, humanImages]) => {
+            this.humanImageSelecter[characterName] = new HumanImageSelecter(humanImages);
+        });
+        this.selectedCharacterName = defaultCharacterName;
+        this.selectedHumanImage = defaultHumanImage;
+
+        this.setGraph();
+    }
+
+    /**
+     * @returns {string}
+     * */
+    get HTMLInput(){
+        return `
+        <div class="CompositeHumanImageSelecter"></div>
+        `;
+    }
+
+    /**
+     * 各HumanImageSelecterをこのコンポーネントの子要素として追加する
+     * */
+    setGraph() {
+        for (const [characterName, humanImageSelecter] of Object.entries(this.humanImageSelecter)) {
+            this.component.createArrowBetweenComponents(this.component, humanImageSelecter.component);
+        }
+    }
+
+    
+}
+
 
 class CharaSelectFunction{
     /**
@@ -283,15 +372,9 @@ class CharaSelectFunction{
     /** @type {BaseComponent} */
     Component;
 
-    /** @type {TTSSoftwareSelecter} */
-    ttsSoftwareSelecter;
-    /** @type {Record<TTSSoftware,CharacterNameSelecter>} */
-    characterNameSelecterDict;
-    
-    
-
-    /** @type {Record<CharacterName["name"],HumanImageSelecter>} */
-    humanImageSelecter;
+    /** @type {TTSSoftwareSelecter} */ ttsSoftwareSelecter;
+    /** @type {CompositeCharacterNameSelecter} */ compositeCharacterNameSelecter;
+    /** @type {CompositeHumanImageSelecter} */ compositehumanImageSelecter;
 
     /**
      * @returns {TTSSoftware}
@@ -300,26 +383,9 @@ class CharaSelectFunction{
     get defaultTTSSoftWare() {
         const defaultCharacterName = this.defaultCharacterName;
         //なのでこれが存在しているかセレクターを探す 
-        for (const [ttsSoftware, characterNameSelecter] of Object.entries(this.characterNameSelecterDict)) {
-            //characterNameSelecter.characterNamesにdefaultCharacterNameが存在しているか
-            if (characterNameSelecter.characterNames.includes(defaultCharacterName)) {
-                return TTSSoftwareEnum.check(ttsSoftware);
-            }
-        }
+        
         //存在していない場合はエラーを返す。画像辞書にはあるのにキャラ名がないのは明らかにおかしい。
         throw new Error("No TTSSoftware");
-    }
-
-    /**
-     * @returns {CharacterNameSelecter}
-     * @throws {Error}
-     * */
-    get defaultCaracterNameSelecter() {
-        return this.characterNameSelecterDict[this.defaultTTSSoftWare];
-        
-        
-        //存在していない場合はエラーを返す。画像辞書にはあるのにキャラ名がないのは明らかにおかしい。
-        throw new Error("No characterNameSelecter");
     }
 
     /**
@@ -350,13 +416,8 @@ class CharaSelectFunction{
      */
     constructor(characterNamesDict, humanImagesDict) {
         this.ttsSoftwareSelecter = new TTSSoftwareSelecter();
-        const t = TTSSoftwareEnum.CevioAI;
-        this.characterNameSelecterDict = {
-            "AIVoice": new CharacterNameSelecter(TTSSoftwareEnum.AIVoice, characterNamesDict[TTSSoftwareEnum.AIVoice]),
-            "CevioAI": new CharacterNameSelecter(TTSSoftwareEnum.CevioAI, characterNamesDict[TTSSoftwareEnum.CevioAI]),
-            "VoiceVox": new CharacterNameSelecter(TTSSoftwareEnum.VoiceVox, characterNamesDict[TTSSoftwareEnum.VoiceVox]),
-            "Coeiroink": new CharacterNameSelecter(TTSSoftwareEnum.Coeiroink, characterNamesDict[TTSSoftwareEnum.Coeiroink]),
-        };
+        this.compositeCharacterNameSelecter = new CompositeCharacterNameSelecter(characterNamesDict, this.defaultTTSSoftWare);
+        this.compositehumanImageSelecter = new CompositeHumanImageSelecter(humanImagesDict);
         this.humanImageSelecter = {};
         Object.entries(humanImagesDict).forEach(([characterName, humanImages]) => {
             this.humanImageSelecter[characterName] = new HumanImageSelecter(humanImages);
@@ -384,28 +445,21 @@ class CharaSelectFunction{
         if (this.Component.childCompositeCluster === null) throw new Error("childCompositeCluster is null");
         // TTSSoftwareSelecterを追加
         this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.ttsSoftwareSelecter.component)
-        // CharacterNameSelecterを追加
-        this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.defaultCaracterNameSelecter.component)
+        // CompositeCharacterNameSelecterを追加
+        this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.compositeCharacterNameSelecter.component)
         // HumanImageSelecterを追加
         this.Component.childCompositeCluster.createArrowBetweenComponents(this.Component, this.defaultHumanImageSelecter.component)
     }
 
     /**
-     * TTSSoftwareSelecterの選択肢が変更されたときは、CharacterNameSelecterとHumanImageSelecterを変更する.
+     * コンポーネントのふるまいを定義する
+     * TTSSoftwareSelecterの選択肢が変更されたときは、CharacterNameSelecterとHumanImageSelecterを変更する。
+     * CharacterNameSelecterの選択肢が変更されたときは、HumanImageSelecterを変こうする。
      */
-    addOnSelectedSoftwareChanged() {
-        this.ttsSoftwareSelecter.addOnSelectedSoftwareChanged(this.chengeCharacterNameSelecter)
+    definitionBehavior() {
+        this.ttsSoftwareSelecter.addOnSelectedSoftwareChanged(this.compositeCharacterNameSelecter.changeCharacterNameSelecter)
+        this.compositeCharacterNameSelecter.addOnCharacterNameChanged(this.humanImageSelecter.changedHumanImageSelecter)
     }
-
-    /**
-     * @param {TTSSoftware} ttsSoftware
-     */
-    chengeCharacterNameSelecter(ttsSoftware) {
-        // CharacterNameSelecterを変更する
-
-    }
-
-
 
 }
 
