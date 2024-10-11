@@ -46,9 +46,10 @@ class Property {
     constructor(value = null) {
         this._property = value;
 
-        
+
     }
 
     get() { return this._property;}
+    
     set(value) { this.property = value;}
 }

@@ -317,6 +317,10 @@ class CompositeHumanImageSelecter {
     /** @type {Record<CharacterName["name"],HumanImageSelecter>} */
     humanImageSelecter;
 
+    /** @type {CharacterName} */ selectedCharacterName;
+
+
+
     /**
      * @param {Record<CharacterName["name"],HumanImage[]>} humanImagesDict
      * @param {CharacterName} defaultCharacterName
