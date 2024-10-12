@@ -4,6 +4,7 @@ import random
 import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import cevio_human
 from api.gptAI.Human import Human
@@ -119,13 +120,18 @@ async def create_id(websocket: WebSocket):
 # この関数が @app.get("./") より上にあるので /app-ts/ はこっちで処理される
 @app.get("/app-ts/{path_param:path}")
 async def read_app_ts(path_param: str):
-    app_ts_dir = Path(__file__).parent.parent.parent / 'app-ts/dist'
+    # 現在のディレクトリを取得
+    current_dir = Path(__file__).parent
+    # appファイルのルートディレクトリを指定
+    app_ts_dir = current_dir / 'app-ts/dist'
     print(str(app_ts_dir))
 
     print(f"{path_param=}")
     target = app_ts_dir / path_param
     if path_param == "":
         target = app_ts_dir / "index.html"
+    elif path_param == "option":
+        target = app_ts_dir / "option.html"
     print(f"{target=}")
 
     # ファイルが存在しない場合は404エラーを返す
@@ -160,6 +166,9 @@ async def read_root(path_param: str):
     
     if path_param == "settingPage":
         target = app_dir / "setting.html"
+
+    if path_param == "DevPlayGround":
+        target = app_dir / "DevPlayGround.html"
 
     print(f"{target=}")
 
@@ -693,41 +702,7 @@ async def inputPokemon(websocket: WebSocket):
         # 切れたセッションの削除
         notifier.remove(websocket)
 
-#Websocket用のパス。ボイロ会話用Websocket用のパス。
-@app.websocket("/InputGPT")
-async def inputGPT(websocket: WebSocket):
-    # クライアントとのコネクション確立
-    await notifier.connect(websocket)
-    tumugi = ChatGPT("つむぎ")
-    try:
-        while True:
-            # クライアントからメッセージの受け取り
-            data = json.loads(await websocket.receive_text()) 
-            # 双方向通信する場合
-            #  await websocket.send_text(f"Message text was: {data}")
-            # ブロードキャスト
-            if type(data) == list:
-                for d in data:
-                    await notifier.push(f"あなた: {d}")
-                    response = tumugi.generate_text(d)
-                    await notifier.push(f"つむぎ：{response}")
-            elif type(data) == dict:
-                for key in data.keys():
-                    await notifier.push(f"あなた: {data[key]}")
-                    response = tumugi.generate_text(data[key])
-                    await notifier.push(f"つむぎ：{response}")
-            elif type(data) == str:
-                print("ここ")
-                await notifier.push(f"あなた: {data}")
-                response = tumugi.generate_text(data)
-                await notifier.push(f"つむぎ：{response}")
-            else:
-                print(type(data))
-    # セッションが切れた場合
-    except WebSocketDisconnect:
-        print("wsエラーです:InputGPT")
-        # 切れたセッションの削除
-        notifier.remove(websocket)
+
 
 @app.websocket("/human/{client_id}")
 async def human_pict(websocket: WebSocket, client_id: str):
@@ -1091,6 +1066,32 @@ async def wsGptGraphEventStart(websocket: WebSocket, front_name: str):
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
+@app.post("/CharaInfo")
+async def charaInfo(req):
+    """
+    @return: キャラの名前が入力されたときにボイスモードリストと画像リストを返す
+    """
+    characterName = CharacterName(req)
+    all_manager = AllHumanInformationManager.singleton()
+    voiceModeList:list[VoiceMode] = all_manager.CharaNames2VoiceModeDict_manager.chara_names2_voice_modes[characterName]
+    humanImages:list[HumanImage] = all_manager.human_images.human_images[characterName]
+
+    return {"voiceModeList": voiceModeList, "humanImages": humanImages}
+
+
+@app.post("AllCharaInfo")
+async def allCharaName():
+    """
+    @return: 全てのキャラの情報を返す
+    # 問題
+    1. ページにアクセスすると、キャラクターを選択しないといけないが、今まではあだ名を入力して召喚していたが、キャラクターをプルダウンで選べるようにもする。
+    2. そのためにTTSSoftwareのキャラクターの名前を返すAPIを作成する。
+    # 手順
+
+    """
+    all_manager = AllHumanInformationManager.singleton()
+    charaNames:dict[TTSSoftware, list[CharacterName]] = all_manager.chara_names_manager.chara_names
+    return charaNames
 
 
 class Item(BaseModel):

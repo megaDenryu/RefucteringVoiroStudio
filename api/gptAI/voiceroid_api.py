@@ -1,3 +1,4 @@
+from enum import Enum
 from pathlib import Path
 import win32com.client
 import time
@@ -12,11 +13,16 @@ import base64
 
 #AI.VOICE Editor API用のライブラリ
 import clr
-from typing import Dict, Any
+from typing import Dict, Any, Literal, TypedDict
+from pydantic import BaseModel
+from typing import Optional
 
 import sys
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
+
+
 
 class cevio_human:
     def __init__(self,char_name:str,started_cevio_num:int) -> None:
@@ -137,6 +143,8 @@ class cevio_human:
         print("talkerのインスタンス化完了")
         self.talker.Cast = self.cevio_name
         print("キャラクターの設定完了")
+        # cevioのキャストが変更されているか確認
+        self.updateAllCharaList()
 
     def kill_cevio(self):
         for proc in psutil.process_iter():
@@ -160,7 +168,7 @@ class cevio_human:
         #self.cevioStart()
         print("cevio再起動完了")
     
-    def getAvailableCast(self):
+    def getAvailableCast(self)->list[str]:
         """
         利用可能なキャスト一覧を出力
 
@@ -180,18 +188,54 @@ class cevio_human:
     def updateAllCharaList(self):
         """
         CeVIOのキャラクター名を取得して、CevioKnownNames.jsonを更新する
+
+        1. CeVIOのキャラクター名を取得
+        2. ボイスモード名リストを更新
+        3. キャラクター名リストを更新
+        4. キャラクター名からボイスモード名リストを返す辞書    を更新
+        5. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        6. キャラクター名からニックネームリストを返す辞書      を更新
         """
-        # CeVIOのキャラクター名を取得
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        #1. CeVIOのキャラクター名を取得
         cast_list = self.getAvailableCast()
-        # CevioKnownNames.jsonを更新
-        api_dir = Path(__file__).parent.parent
-        path = api_dir / "CharSettingJson" / "CevioKnownNames.json"
-        #pathにspeaker_dictを書き込む
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(cast_list,f,ensure_ascii=False, indent=4)
         
+        voice_mode_list:list[VoiceMode] = []
+        CharacterName_list:list[CharacterName] = []
+        chara2voicemode_dict:dict[CharacterName,list[VoiceMode]] = {}
+        humanImageFolderName_dict:dict[CharacterName,list[HumanImage]] = {}
+        for cast in cast_list:
+            voice_mode = VoiceMode(mode = cast, id = None)
+            characterName = CharacterName(name = cast)
+            voice_mode_list.append(voice_mode)                      #ボイスモード名リストを作成
+            CharacterName_list.append(CharacterName(name = cast))   #キャラクター名リストを作成
+            chara2voicemode_dict[characterName] = [voice_mode]      #キャラクター名からボイスモード名リストを返す辞書を作成。cevioの場合はボイスモードが一つしかない
+            humanImageFolderName_dict[characterName] = []
+
+
+        # 2. ボイスモード名リストを更新
+        all_human_info_manager.voice_mode_names_manager.updateVoiceModeNames(TTSSoftware.CevioAI, voice_mode_list)
+        # 3. キャラクター名リストを更新    
+        all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.CevioAI, CharacterName_list)
+        # 4. キャラクター名からボイスモード名リストを返す辞書    を更新
+        all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.CevioAI, chara2voicemode_dict)
+        # 5. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        all_human_info_manager.human_images.tryAddHumanFolder(CharacterName_list)
+        # 6. キャラクター名からニックネームリストを返す辞書      を更新
+        all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(CharacterName_list)
+        
+
+class SpeakerStyle(TypedDict):
+    id:int
+    name:str
+    type:Literal["talk"]
+class SpeakerInfo(TypedDict):
+    name:str
+    styles:list[SpeakerStyle]
 class voicevox_human:
     def __init__(self,name:str,started_voicevox_num:int) -> None:
+        if started_voicevox_num == 0:
+            self.start()
         
         if "" != self.getCharNum(name):
             self.char_num = self.getCharNum(name)
@@ -201,6 +245,10 @@ class voicevox_human:
         else:
             self.char_name = ""
             self.name = ""
+    
+    def start(self):
+        voicevox_human.createVoiceVoxNameToNumberDict() #キャラアプデ処理旧
+        self.updateAllCharaList() #キャラアプデ処理新
     
     @staticmethod
     def getCharNum(name):
@@ -350,6 +398,75 @@ class voicevox_human:
                     "voice_system_name":"VoiceVox"
                 }
                 self.output_wav_info_list.append(wav_info)
+
+
+
+    @staticmethod
+    def getSpeakerDict()->list[SpeakerInfo]:
+        url = "http://localhost:50021/speakers"
+        headers = {'accept': 'application/json'}
+        response = requests.get(url, headers=headers)
+        speaker_dict = response.json()
+        return speaker_dict
+    
+    @staticmethod
+    def updateAllCharaList():
+        """
+        1. VoiceVoxのキャラクター名を取得
+        2. キャラクター名リストを更新
+        3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        5. キャラクター名からニックネームリストを返す辞書      を更新
+        """
+        #1. VoiceVoxのキャラクター名を取得
+        speaker_dict = voicevox_human.getSpeakerDict()
+        #2. キャラクター名リストを更新
+        voicevox_human.updateCharaNames(speaker_dict)
+        #3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        voicevox_human.updateVoiceModeInfo(speaker_dict)
+        #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        voicevox_human.upadteNicknameAndHumanImagesFolder(speaker_dict)
+        
+    @staticmethod
+    def updateCharaNames(speaker_dict:list[SpeakerInfo]):
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        speaker_list:list[CharacterName] = []
+        for speaker in speaker_dict:
+            name = speaker["name"]
+            speaker_list.append(CharacterName(name = name))
+        
+        all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.VoiceVox,speaker_list)
+    
+    @staticmethod
+    def updateVoiceModeInfo(speaker_dict:list[SpeakerInfo]):
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        voicemode_dict:dict[CharacterName,list[VoiceMode]] = {}
+        for speaker in speaker_dict:
+            name = speaker["name"]
+            styles = speaker["styles"]
+            voice_mode_list = []
+            for style in styles:
+                style_name = style["name"]
+                style_num = style["id"]
+                voice_mode = VoiceMode(mode = style_name, id = style_num)
+                voice_mode_list.append(voice_mode)
+            voicemode_dict[CharacterName(name = name)] = voice_mode_list
+            
+        all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.VoiceVox,voicemode_dict)
+
+    @staticmethod
+    def upadteNicknameAndHumanImagesFolder(speaker_dict:list[SpeakerInfo]):
+        """
+        ニックネームリストと立ち絵のフォルダ名リストに新しいキャラがいれば追加する
+        """
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        tmp_charaNames:list[CharacterName] = []
+        for speaker in speaker_dict:
+            name = speaker["name"]
+            tmp_charaNames.append(CharacterName(name = name))
+        all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(tmp_charaNames)
+        all_human_info_manager.human_images.tryAddHumanFolder(tmp_charaNames)
+
     
     @staticmethod
     def createVoiceVoxNameToNumberDict():
@@ -361,12 +478,8 @@ class voicevox_human:
         を実行して、VOICEVOXのキャラクター名とキャラクター番号のjsonを取得する。
         次にVOICEVOXのキャラクター名とキャラクター番号の対応表を作成する。
         """
-        import requests
 
-        url = "http://localhost:50021/speakers"
-        headers = {'accept': 'application/json'}
-        response = requests.get(url, headers=headers)
-        speaker_dict = response.json()
+        speaker_dict = voicevox_human.getSpeakerDict()
         save_dict = {}
         for speaker in speaker_dict:
             name = speaker["name"]
@@ -377,13 +490,42 @@ class voicevox_human:
                 save_name = name + ":" +style_name
                 save_dict[save_name] = style_num
         pprint(save_dict)
-        api_dir = Path(__file__).parent.parent
+        api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
         path = api_dir / "CharSettingJson" / "VoiceVoxNameToNumber.json"
         #pathにspeaker_dictを書き込む
         with open(path, "w", encoding="utf-8") as f:
             json.dump(save_dict,f,ensure_ascii=False, indent=4)
+    
+        
 
 
+
+class StyleModel(BaseModel):
+    Name: str  # J, A, S
+    Value: float
+
+class MergedVoiceModel(BaseModel):
+    VoiceName: str
+
+class MergedVoiceContainerModel(BaseModel):
+    BasePitchVoiceName: str
+    MergedVoices: list[MergedVoiceModel]
+
+class VoicePresetModel(BaseModel):
+    """
+    AIVoiceEditorのVoicePresetModelをpydanticで定義.
+    https://aivoice.jp/manual/editor/API/html/ace2be3b-ee08-3dda-405c-8967e31385cf.htm
+    """
+    PresetName: str
+    VoiceName: str
+    Volume: float
+    Speed: float
+    Pitch: float
+    PitchRange: float
+    MiddlePause: int
+    LongPause: int
+    Styles: list[StyleModel]
+    MergedVoiceContainer: Optional[MergedVoiceContainerModel]
 
 
 
@@ -393,6 +535,7 @@ class AIVoiceHuman:
         self.aivoice_name = self.setCharName(char_name)
         self.start()
         print(self.updateCharName())
+        self.updateAllCharaList()
         
     def start(self):
         _editor_dir = os.environ['ProgramW6432'] + '\\AI\\AIVoice\\AIVoiceEditor\\'
@@ -524,15 +667,135 @@ class AIVoiceHuman:
             return name_dict[name]
         else:
             return ""
-    
-    def getAvailableVoicePresetNames(self)->tuple[list[str],list[str]]:
+        
+    @property
+    def VoiceNames(self)->list[str]:
+        if self.tts_control is None:
+            raise Exception("AIVoiceEditorが起動していません")
         voiceNames = self.convertPythonList(self.tts_control.VoiceNames) #利用可能なキャラクター名一覧を取得
         #[ '琴葉 茜', '琴葉 茜（蕾）', '琴葉 葵', '琴葉 葵（蕾）' ]
-
-        voicePresetNames = self.convertPythonList(self.tts_control.VoicePresetNames) #標準ボイス、ユーザーボイス名一覧を取得
+        return voiceNames
+    
+    @property
+    def CharaNames(self)->list[CharacterName]:
+        """
+        茜ちゃんなら蕾などのサブ名前を取り除いて、キャラ名だけを取得し、重複を取り除いてリストにする。ボイスモード辞書などのキーに使えるものと同じ。
+        @return : [CharacterName(name='琴葉茜'), CharacterName(name='紲星あかり'), CharacterName(name='琴葉葵'), CharacterName(name='結月ゆかり')]
+        """
+        charaNames = []
+        for name in self.VoiceNames:
+            chara_name = AIVoiceHuman.convertAIVoiceName2CharaName(name)
+            #既にリストに入っていないなら追加
+            if chara_name not in charaNames:
+                charaNames.append(chara_name)
+        return charaNames
+    
+    @property
+    def CharaNames2DefalutVoiceModeDict(self)->dict[CharacterName, list[VoiceMode]]:
+        chara2voicemode_dict:dict[CharacterName, list[VoiceMode]] = {}
+        for name in self.VoiceNames:
+            charaName = AIVoiceHuman.convertAIVoiceName2CharaName(name)
+            voiceMode = VoiceMode(mode = name, id_str = self.GetVoicePreset(name).VoiceName)
+            if charaName in chara2voicemode_dict:
+                chara2voicemode_dict[charaName].append(voiceMode)
+            else:
+                chara2voicemode_dict[charaName] = [voiceMode]
+        return chara2voicemode_dict
+    
+    @property
+    def VoicePresetNames(self)->list[str]:
+        if self.tts_control is None:
+            raise Exception("AIVoiceEditorが起動していません")
+        voicePresetNames = self.convertPythonList(self.tts_control.VoicePresetNames)
         # [ '琴葉 茜 - 新規', '琴葉 茜', '琴葉 茜（蕾）', '琴葉 葵', '琴葉 葵（蕾）' ]
+        return voicePresetNames
+    
+    @property
+    def VoiceModels(self)->list[VoiceMode]:
+        voiceModeList:list[VoiceMode] = []
+        for name in self.VoicePresetNames:
+            voicePresetModel = self.GetVoicePreset(name)
+            voiceModeList.append(VoiceMode(mode = name, id_str = voicePresetModel.VoiceName))
+        return voiceModeList
 
-        return voiceNames,voicePresetNames
+            
+    
+    def GetVoicePreset(self,voice_preset:str)->VoicePresetModel:
+        """
+        AIVoiceではvoice_modeはボイスプリセット名と呼ばれている。これからボイスプリセット情報を取得する。
+        """
+        if self.tts_control is None:
+            raise Exception("AIVoiceEditorが起動していません")
+        tmp_voicePreset_jsonStr:str = self.tts_control.GetVoicePreset(voice_preset)
+        tmp_voicePresetDict:dict = json.loads(tmp_voicePreset_jsonStr)
+        voicePreset:VoicePresetModel = VoicePresetModel(**tmp_voicePresetDict)
+
+        # ExtendFunc.ExtendPrint(voicePreset)
+
+        return voicePreset
+    
+    def createVoiceModeDict(self)->dict[CharacterName,list[VoiceMode]]:
+        #標準ボイスモードを辞書にする
+        defaultVoiceModeDict:dict[CharacterName,list[VoiceMode]] = self.CharaNames2DefalutVoiceModeDict
+        emptyVoiceModeDict:dict[CharacterName,list[VoiceMode]] = {}
+        #その後、id_strが同じ自作プリセットを各キャラのリストに追加する
+        for voicemode in self.VoiceModels:
+            if voicemode.id_str == None:
+                raise Exception("id_strがNoneです")
+            searched_charaName = AIVoiceHuman.searchCharaName(voicemode.id_str,defaultVoiceModeDict)
+            if searched_charaName is not None:
+                if searched_charaName in emptyVoiceModeDict:
+                    emptyVoiceModeDict[searched_charaName].append(voicemode)
+                else:
+                    emptyVoiceModeDict[searched_charaName] = [voicemode]
+
+        return emptyVoiceModeDict
+
+
+
+    @staticmethod
+    def searchCharaName(search_id:str,target_dict:dict[CharacterName,list[VoiceMode]])->CharacterName|None:
+        for charaName,voiceModeList in target_dict.items():
+            for voiceMode in voiceModeList:
+                if voiceMode.id_str == search_id:
+                    return charaName  
+        return None      
+
+        
+
+    @staticmethod
+    def convertAIVoiceName2CharaName(voice_name:str)->CharacterName:
+        """
+        AIVOICEの名前は半角スペースが入っているので、それを取り除いてキャラ名にする。
+        また、（蕾）などのサブ名前は取り除く。「（」は全角のカッコが入っている。
+        """
+        name = voice_name.replace(" ","")
+        if "（" in name:
+            name = name.split("（")[0]
+        return CharacterName(name = name)
+    
+    def updateAllCharaList(self):
+        """
+        AIVoiceのキャラクター名を取得して、AIVOICEKnownNames.jsonを更新する
+        1.いきなり完成版のボイスモード辞書を作成
+
+        1. AIVoiceのキャラクター名を取得
+        2. キャラクター名リストを更新
+        3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        5. キャラクター名からニックネームリストを返す辞書      を更新
+        """
+        all_human_info_manager = AllHumanInformationManager.singleton()
+        #2. キャラクター名リストを更新
+        charaNames = self.CharaNames
+        all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.AIVoice,charaNames)
+        #3. キャラクター名からボイスモード名リストを返す辞書    を更新
+        voiceModeDict:dict[CharacterName,list[VoiceMode]] = self.createVoiceModeDict()
+        all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.AIVoice,voiceModeDict)
+        #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+        all_human_info_manager.human_images.tryAddHumanFolder(charaNames)
+        #5. キャラクター名からニックネームリストを返す辞書      を更新
+        all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(charaNames)
     
     def updateCharName(self):
         """
@@ -548,7 +811,8 @@ class AIVoiceHuman:
         knouwn_name_list:list[str] = ExtendFunc.loadJsonToList(AIVOICEKnouwnNames_path)
         
         # 利用可能なキャラクター名一覧を取得
-        (voiceNames,now_voicePresetNames) = self.getAvailableVoicePresetNames()
+        voiceNames = self.VoiceNames
+        now_voicePresetNames = self.VoicePresetNames
         # 新しく追加されたボイスロイドの名前など、known_name_listにない名前をname_listに追加する
         necessity_update_knouwn_name_list = False
         for name in voiceNames:
@@ -597,12 +861,45 @@ class AIVoiceHuman:
     def saveWav(self,response_wav):
         pass
 
+
+class CoeiroinkWavRange(TypedDict):
+    start: int
+    end: int
+
+class CoeiroinkPhonemePitch(TypedDict):
+    phoneme: str
+    wavRange: CoeiroinkWavRange
+
+class CoeiroinkMoraDuration(TypedDict):
+    mora: str
+    hira: str
+    phonemePitches: list[CoeiroinkPhonemePitch]
+    wavRange: CoeiroinkWavRange
+
+class CoeiroinkWaveData(TypedDict):
+    wavBase64: str
+    moraDurations: list[CoeiroinkMoraDuration]
+
+class CoeiroinkStyle(TypedDict):
+    styleName: str
+    styleId: int
+    base64Icon: str
+    base64Portrait: str
+
+class CoeiroinkSpeaker(TypedDict):
+    speakerName: str
+    speakerUuid: str
+    styles: list[CoeiroinkStyle]
+    version: str
+    base64Portrait: str
+
 class Coeiroink:
     DEFAULT_SERVER = "http://127.0.0.1:50032"
     none_num = -1
     server = DEFAULT_SERVER
     def __init__(self,name:str,started_coeiro_num:int) -> None:
         
+        Coeiroink.updateAllCharaList()
         if "" != self.getCharNum(name):
             self.styleId = self.getCharNum(name)
             if self.styleId == Coeiroink.none_num:
@@ -631,7 +928,7 @@ class Coeiroink:
     
     # ステータスを取得する
     @staticmethod
-    def get_status(print_error=False) -> str:
+    def get_status(print_error=False) -> str|None:
         try:
             response = requests.get(f"{Coeiroink.server}/")
             response.raise_for_status()
@@ -643,7 +940,7 @@ class Coeiroink:
 
     # 話者リストを取得する
     @staticmethod
-    def get_speakers(print_error=False) -> {}:
+    def get_speakers(print_error=False) -> dict|None:
         try:
             response = requests.get(f"{Coeiroink.server}/v1/speakers")
             response.raise_for_status()
@@ -655,7 +952,7 @@ class Coeiroink:
 
     # スタイルIDから話者情報を取得する
     @staticmethod
-    def get_speaker_info(styleId: int, print_error=False) -> {}:
+    def get_speaker_info(styleId: int, print_error=False) -> dict|None:
         try:
             post_params = {"styleId": styleId}
             response = requests.post(f"{Coeiroink.server}/v1/style_id_to_speaker_meta", params=post_params)
@@ -668,7 +965,7 @@ class Coeiroink:
 
     # テキストの読み上げ用データを取得する
     @staticmethod
-    def estimate_prosody(text: str, print_error=False) -> {}:
+    def estimate_prosody(text: str, print_error=False) -> dict|None:
         try:
             post_params = {"text": text}
             response = requests.post(f"{Coeiroink.server}/v1/estimate_prosody", data=json.dumps(post_params))
@@ -680,9 +977,9 @@ class Coeiroink:
             return None
     
     @staticmethod
-    def predict_with_duration(speaker: {}, text: str, prosody: {},
+    def predict_with_duration(speaker: dict, text: str, prosody: dict,
                   speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
-                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> {}:
+                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> CoeiroinkWaveData|None:
         """
         wavBase64とlabデータを取得できる。
         """
@@ -712,9 +1009,9 @@ class Coeiroink:
 
     # 音声データを生成する
     @staticmethod
-    def synthesis(speaker: {}, text: str, prosody: {},
+    def synthesis(speaker: dict, text: str, prosody: dict,
                   speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
-                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes:
+                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes|None:
         post_params = {
             "speakerUuid": speaker["speakerUuid"],
             "styleId": speaker["styleId"],
@@ -763,7 +1060,7 @@ class Coeiroink:
     @staticmethod
     def get_wave_data(styleId: int, text: str,
                       speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
-                      prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes:
+                      prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes|None:
 
         speaker = Coeiroink.get_speaker_info(styleId)
         if speaker is None:
@@ -781,7 +1078,7 @@ class Coeiroink:
     
     def getWavData(self, text: str,
                       speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
-                      prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes:
+                      prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> bytes|None:
         speaker = self.speaker
         if speaker is None:
             print("Failed to get speaker info.")
@@ -815,6 +1112,9 @@ class Coeiroink:
         prediction = Coeiroink.predict_with_duration(speaker, text, prosody,
                                                       speedScale, volumeScale, pitchScale, intonationScale,
                                                       prePhonemeLength, postPhonemeLength, outputSamplingRate, print_error)
+        if prediction is None:
+            raise Exception("Failed to get prediction.")
+        
         wavBase64 = prediction["wavBase64"]
         moraDurations = prediction["moraDurations"]
         phoneme_str, phoneme_time = Coeiroink.labDataFromMora(moraDurations)
@@ -835,7 +1135,8 @@ class Coeiroink:
         prediction = Coeiroink.predict_with_duration(speaker, text, prosody,
                                                       speedScale, volumeScale, pitchScale, intonationScale,
                                                       prePhonemeLength, postPhonemeLength, outputSamplingRate, print_error)
-
+        if prediction is None:
+            raise Exception("Failed to get prediction.")
         wavBase64 = prediction["wavBase64"]
         moraDurations = prediction["moraDurations"]
         phoneme_str, phoneme_time = Coeiroink.labDataFromMora(moraDurations)
@@ -897,7 +1198,7 @@ class Coeiroink:
                 self.output_wav_info_list.append(wav_info)
     
     @staticmethod
-    def createCoeiroinkNameToNumberDict():
+    def getCoeiroinkNameToNumberDict()->list[CoeiroinkSpeaker]:
         """
         todo : 声色インク用の改造が終わってないので、この関数は未完成
         まず
@@ -907,12 +1208,16 @@ class Coeiroink:
         を実行して、VOICEVOXのキャラクター名とキャラクター番号のjsonを取得する。
         次にVOICEVOXのキャラクター名とキャラクター番号の対応表を作成する。
         """
-        import requests
 
         url = "http://127.0.0.1:50032/v1/speakers"
         headers = {'accept': 'application/json'}
         response = requests.get(url, headers=headers)
-        speaker_dict = response.json()
+        speaker_dict:list[CoeiroinkSpeaker] = response.json()
+        return speaker_dict
+    
+    @staticmethod
+    def createCoeiroinkNameToNumberDict():
+        speaker_dict = Coeiroink.getCoeiroinkNameToNumberDict()
         save_dict = {}
         for speaker in speaker_dict:
             name = speaker["speakerName"]
@@ -924,6 +1229,61 @@ class Coeiroink:
                 save_dict[save_name] = style_num
         pprint(save_dict)
         JsonAccessor.saveCoeiroinkNameToNumberJson(save_dict)
+
+    @staticmethod
+    def getCaharaNameList()->list[CharacterName]:
+        speaker_dict = Coeiroink.getCoeiroinkNameToNumberDict()
+        charaNameList = []
+        for speaker in speaker_dict:
+            charaNameList.append(CharacterName(name = speaker["speakerName"]))
+        return charaNameList
+    
+    @staticmethod
+    def getVoiceModeList()->list[VoiceMode]:
+        """
+        ボイスモードリストを作っても意味がなくなって来た気がするので削除するかもしれない
+        """
+        speaker_dict = Coeiroink.getCoeiroinkNameToNumberDict()
+        voiceModeList = []
+        for speaker in speaker_dict:
+            styles = speaker["styles"]
+            for style in styles:
+                voiceMode = VoiceMode(mode = style["styleName"], id = style["styleId"])
+                voiceModeList.append(voiceMode)
+        return voiceModeList
+    
+    @staticmethod
+    def getVoiceModeDict()->dict[CharacterName,list[VoiceMode]]:
+        speaker_dict:list[CoeiroinkSpeaker] = Coeiroink.getCoeiroinkNameToNumberDict()
+        voiceModeDict = {}
+        for speaker in speaker_dict:
+            charaName = CharacterName(name = speaker["speakerName"])
+            styles = speaker["styles"]
+            voiceModeList:list[VoiceMode] = []
+            for style in styles:
+                voiceMode = VoiceMode(mode = style["styleName"], id = style["styleId"])
+                voiceModeList.append(voiceMode)
+            voiceModeDict[charaName] = voiceModeList
+        return voiceModeDict
+    
+    @staticmethod
+    def updateAllCharaList():
+        try:
+            manager = AllHumanInformationManager.singleton()
+            
+            charaNameList:list[CharacterName] = Coeiroink.getCaharaNameList()
+            voiceModeList:list[VoiceMode] = Coeiroink.getVoiceModeList()
+            voiceModeDict:dict[CharacterName,list[VoiceMode]] = Coeiroink.getVoiceModeDict()
+            manager.voice_mode_names_manager.updateVoiceModeNames(TTSSoftware.Coeiroink,voiceModeList)
+            manager.chara_names_manager.updateCharaNames(TTSSoftware.Coeiroink,charaNameList)
+            manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.Coeiroink,voiceModeDict)
+            manager.human_images.tryAddHumanFolder(charaNameList)
+            manager.nick_names_manager.tryAddCharacterNameKey(charaNameList)
+        except Exception as e:
+            # coeiroinkが起動してないとき
+            print(e)
+
+
 
 
 class voiceroid_apiTest:
@@ -949,7 +1309,7 @@ class voiceroid_apiTest:
             voicevox_human.createVoiceVoxNameToNumberDict()
             print("終了")
 
-        elif True:
+        elif False:
             print("開始")
             Coeiroink.createCoeiroinkNameToNumberDict()
             print("終了")
@@ -964,3 +1324,18 @@ class voiceroid_apiTest:
             # 音声をファイルに保存
             with open("test.wav", "wb") as f:
                 f.write(wav)
+
+        elif False:
+            dic = voicevox_human.getSpeakerDict()
+            pprint(dic)
+
+        elif True:
+            aivoice = AIVoiceHuman("琴葉葵",0)
+            # voicemodeDictを生成
+            ExtendFunc.ExtendPrint(aivoice.CharaNames)
+            voiceModeDict = aivoice.createVoiceModeDict()
+            ExtendFunc.ExtendPrint(voiceModeDict)
+
+            # ExtendFunc.ExtendPrint(aivoice.CharaNames)
+            # ExtendFunc.ExtendPrint(aivoice.VoiceModels)
+            
