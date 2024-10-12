@@ -120,13 +120,18 @@ async def create_id(websocket: WebSocket):
 # この関数が @app.get("./") より上にあるので /app-ts/ はこっちで処理される
 @app.get("/app-ts/{path_param:path}")
 async def read_app_ts(path_param: str):
-    app_ts_dir = Path(__file__).parent.parent.parent / 'app-ts/dist'
+    # 現在のディレクトリを取得
+    current_dir = Path(__file__).parent
+    # appファイルのルートディレクトリを指定
+    app_ts_dir = current_dir / 'app-ts/dist'
     print(str(app_ts_dir))
 
     print(f"{path_param=}")
     target = app_ts_dir / path_param
     if path_param == "":
         target = app_ts_dir / "index.html"
+    elif path_param == "option":
+        target = app_ts_dir / "option.html"
     print(f"{target=}")
 
     # ファイルが存在しない場合は404エラーを返す
