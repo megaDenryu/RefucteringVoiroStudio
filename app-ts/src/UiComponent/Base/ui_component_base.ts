@@ -1,5 +1,6 @@
-import { ExtendFunction } from "../Extend/extend";
-import { Vertex, Cluster, Arrow} from "../Math/GrapgTheory/graph";
+import { Interface } from "readline";
+import { ExtendFunction } from "../../Extend/extend";
+import { Vertex, Cluster, Arrow} from "../../Math/GrapgTheory/graph";
 
 export class ElementCreater {
     /**
@@ -87,6 +88,10 @@ export class ElementCreater {
     }
 }
 
+export interface IHasComponent {
+    readonly component: BaseComponent;
+}
+
 export class BaseComponent {
     className: string[];
     id: string;
@@ -137,7 +142,9 @@ export class BaseComponent {
     }
 
  
-    createArrowBetweenComponents(parentComponent: BaseComponent, childComponent: BaseComponent): void {
+    createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent): void {
+        const parentComponent = parent.component
+        const childComponent = child.component
         if (this.childCompositeCluster == null) this.createChildComponentCluster();
         if (this.childCompositeCluster == null) throw new Error('childCompositeCluster is null.');
         this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent);
@@ -163,6 +170,14 @@ export class BaseComponent {
             this.className = this.className.filter(className => !classNames.includes(className));
             this.element.className = this.className.join(' ');
         }
+    }
+
+    show(): void {
+        this.element.style.display = 'block';
+    }
+
+    hide(): void {
+        this.element.style.display = 'none';
     }
 }
 
