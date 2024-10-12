@@ -12,7 +12,7 @@ ReactDOM.createRoot(document.getElementById("root")!)
   );
 
 export function App() {
-  debugger;
+  // debugger;
   jsFunc(JS_VALUE);
   // jsFunc("HAY"); // 型エラー
 

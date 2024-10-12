@@ -13,6 +13,7 @@ export default defineConfig({
         // このファイル(vite.config.js)を変更した場合は `npm run build:watch` を実行し直す必要があります
         index: resolve(__dirname, "index.html"),
         option: resolve(__dirname, "option.html"),
+        test1012: resolve(__dirname, "test1012.html"),
       },
     },
   },
