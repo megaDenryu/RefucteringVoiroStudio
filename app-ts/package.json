@@ -4,8 +4,7 @@
   "scripts": {
     "build": "tsc && vite build",
     "build:watch": "vite build --watch",
-    "eslint": "eslint .",
-    "install": "npm install"
+    "eslint": "eslint ."
   },
   "dependencies": {
     "@typescript-eslint/eslint-plugin": "^8.8.1",
