@@ -25,7 +25,7 @@ export class TTSSoftwareEnum {
 }
 
 export class CharacterName {
-    name: string;
+    public readonly name: string;
 
     constructor(name: string) {
         this.name = name;
@@ -33,7 +33,7 @@ export class CharacterName {
 }
 
 export class NickName {
-    name: string;
+    public readonly name: string;
 
     constructor(name: string) {
         this.name = name;
@@ -41,9 +41,9 @@ export class NickName {
 }
 
 export class VoiceMode {
-    mode: string;
-    id: number | null;
-    id_str: string | null;
+    public readonly mode: string;
+    public readonly id: number | null;
+    public readonly id_str: string | null;
 
     constructor(mode: string, id: number | null = null, id_str: string | null = null) {
         this.mode = mode;
@@ -53,9 +53,43 @@ export class VoiceMode {
 }
 
 export class HumanImage {
-    folder_name: string;
+    public readonly folder_name: string;
 
     constructor(folder_name: string) {
         this.folder_name = folder_name;
+    }
+}
+
+export class SelectCharacterState {
+    
+    public readonly tts_software: TTSSoftware;
+    public readonly character_name: CharacterName;
+    public readonly human_image: HumanImage;
+    public readonly voice_mode: VoiceMode;
+
+    constructor(
+        tts_software: TTSSoftware,
+        character_name: CharacterName, 
+        human_image: HumanImage,
+        voice_mode: VoiceMode
+    ) {
+        this.character_name = character_name;
+        this.voice_mode = voice_mode;
+        this.human_image = human_image;
+        this.tts_software = tts_software;
+    }
+}
+
+export class HumanNameState {
+    public readonly character_name: CharacterName;
+    public readonly nick_name: NickName;
+    public readonly voice_mode: VoiceMode;
+    public readonly human_image: HumanImage;
+
+    constructor(character_name: CharacterName, nick_name: NickName, voice_mode: VoiceMode, human_image: HumanImage) {
+        this.character_name = character_name;
+        this.nick_name = nick_name;
+        this.voice_mode = voice_mode;
+        this.human_image = human_image;
     }
 }

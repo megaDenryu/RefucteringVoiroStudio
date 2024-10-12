@@ -1,4 +1,4 @@
-class Property<T> {
+export class ReactiveProperty<T> {
     private _property: T;
 
     constructor(value: T | null = null) {
@@ -16,10 +16,6 @@ class Property<T> {
 
     private methods: Array<(T) => void> = [];
 
-    public addMethod(event: (T) => void): void {
-        this.methods.push(event);
-    }
-
     private executeMethods(value: T): void {
         for (let i = 0; i < this.methods.length; i++) {
             this.methods[i](value);
@@ -32,5 +28,9 @@ class Property<T> {
 
     public set(value: T): void {
         this.property = value;
+    }
+
+    public addMethod(event: (T) => void): void {
+        this.methods.push(event);
     }
 }
