@@ -2,6 +2,7 @@
   "name": "app-ts",
   "type": "module",
   "scripts": {
+    "dev": "vite",
     "build": "tsc && vite build",
     "build:watch": "vite build --watch",
     "eslint": "eslint ."

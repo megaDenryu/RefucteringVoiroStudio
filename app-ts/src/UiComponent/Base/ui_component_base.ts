@@ -81,6 +81,13 @@ export class ElementCreater {
         return selectElement;
     }
 
+    static createButtonElement(text: string, onClick: () => void): HTMLButtonElement {
+        const buttonElement = document.createElement('button');
+        buttonElement.textContent = text;
+        buttonElement.onclick = onClick;
+        return buttonElement;
+    }
+
     static setClassNameAndId(element: HTMLElement, className: string | null = null, id: string | null = null): HTMLElement {
         if (className) { element.className = className; }
         if (id) { element.id = id; }

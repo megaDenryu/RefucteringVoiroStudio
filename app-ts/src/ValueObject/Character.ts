@@ -1,3 +1,5 @@
+import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
+
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
 export class TTSSoftwareEnum {
@@ -24,43 +26,47 @@ export class TTSSoftwareEnum {
     }
 }
 
-export class CharacterName {
+export class CharacterName extends BaseValueObject{
     public readonly name: string;
 
     constructor(name: string) {
+        super();
         this.name = name;
     }
 }
 
-export class NickName {
+export class NickName extends BaseValueObject {
     public readonly name: string;
 
     constructor(name: string) {
+        super();
         this.name = name;
     }
 }
 
-export class VoiceMode {
+export class VoiceMode extends BaseValueObject {
     public readonly mode: string;
     public readonly id: number | null;
     public readonly id_str: string | null;
 
     constructor(mode: string, id: number | null = null, id_str: string | null = null) {
+        super();
         this.mode = mode;
         this.id = id;
         this.id_str = id_str;
     }
 }
 
-export class HumanImage {
+export class HumanImage extends BaseValueObject {
     public readonly folder_name: string;
 
     constructor(folder_name: string) {
+        super();
         this.folder_name = folder_name;
     }
 }
 
-export class SelectCharacterState {
+export class SelectCharacterState implements IValueObject<SelectCharacterState> {
     
     public readonly tts_software: TTSSoftware;
     public readonly character_name: CharacterName;
@@ -78,6 +84,21 @@ export class SelectCharacterState {
         this.human_image = human_image;
         this.tts_software = tts_software;
     }
+
+    equals(other: SelectCharacterState): boolean {
+        if (this.tts_software !== other.tts_software) return false;
+        if (this.character_name.equals(other.character_name) === false) return false;
+        if (this.human_image.equals(other.human_image) === false) return false;
+        if (this.voice_mode.equals(other.voice_mode) === false) return false;
+        return true;
+    }
+
+    includes(others: SelectCharacterState[]): boolean {
+        for (const other of others) {
+            if (this.equals(other) === true) return true;
+        }
+        return false;
+    }
 }
 
 export class HumanNameState {
@@ -91,5 +112,20 @@ export class HumanNameState {
         this.nick_name = nick_name;
         this.voice_mode = voice_mode;
         this.human_image = human_image;
+    }
+
+    equals(other: HumanNameState): boolean {
+        if (this.character_name.equals(other.character_name) === false) return false;
+        if (this.nick_name.equals(other.nick_name) === false) return false;
+        if (this.voice_mode.equals(other.voice_mode) === false) return false;
+        if (this.human_image.equals(other.human_image) === false) return false;
+        return true;
+    }
+
+    includes(others: HumanNameState[]): boolean {
+        for (const other of others) {
+            if (this.equals(other) === true) return true;
+        }
+        return false;
     }
 }

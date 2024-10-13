@@ -1,5 +1,13 @@
-import { VectorN } from "../Math/LinearAlgebra/vector";
+
+import { CharaSelectFunctionCreater } from "../UiComponent/CharaInfoSelecter/CharaSelectFunctionCreater";
 
 
-const vec = new VectorN([1, 2, 3]);
-console.log(vec);
+
+
+
+console.log("test staart");
+
+const charaSelectFunction = new CharaSelectFunctionCreater();
+await charaSelectFunction.requestCharaInfoTest();
+await charaSelectFunction.requestCharaInfo();
+console.log("test done");
