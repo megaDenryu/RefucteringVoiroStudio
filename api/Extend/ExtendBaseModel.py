@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, Generic, List, Literal, Type, TypeVar
+from typing import Dict, Generic, List, Literal, Sequence, Type, TypeVar, TypedDict, get_args
 from pathlib import Path
 import json
 
@@ -13,11 +13,18 @@ class HashableBaseModel(BaseModel):
         return False
 
 MapKey = TypeVar('MapKey', bound='HashableBaseModel')
-MapValue = TypeVar('MapValue', bound='HashableBaseModel')
+MapValue = TypeVar('MapValue', bound='HashableBaseModel|Sequence[HashableBaseModel]')
+MapValueList = TypeVar('MapValueList', bound='Sequence[HashableBaseModel]')
 
 class MapItem(Generic[MapKey, MapValue], HashableBaseModel):
     key: MapKey
     value: MapValue
+
+class DictItem(TypedDict):
+    key: dict
+    value: dict|list[dict]
+
+
 
 class Map(Generic[MapKey, MapValue], BaseModel):
     items: List[MapItem[MapKey,MapValue]]
@@ -31,7 +38,7 @@ class Map(Generic[MapKey, MapValue], BaseModel):
     def empty()->'Map[MapKey, MapValue]':
         return Map[MapKey, MapValue](items=[])
     
-    def dumpToJsonDict(self)->Dict[Literal["items"], List[Dict[MapKey, MapValue]]]:
+    def dumpToJsonDict(self)->Dict[Literal["items"], list[DictItem]]:
         return {"items": [item.model_dump() for item in self.items]} # type: ignore
 
     def toDict(self)-> Dict[MapKey, MapValue]:
@@ -42,14 +49,22 @@ class Map(Generic[MapKey, MapValue], BaseModel):
             
 
     @classmethod
-    def fromDict(cls, data: dict, key_type: Type[MapKey], value_type: Type[MapValue]):
-        items = [
-            MapItem[MapKey, MapValue](
-                key=key_type(**item["key"]),
-                value=value_type(**item["value"])
-            )
-            for item in data["items"]
-        ]
+    def fromDict(cls, data: Dict[Literal["items"], list[DictItem]], key_type: Type[MapKey], value_type: Type[MapValue]):
+        items = []
+        for item in data["items"]:
+            key = key_type(**item["key"])
+            if isinstance(item["value"], list):
+                values = []
+                # リストの要素の型を取得
+                element_type = get_args(value_type)[0] #value_type.__args__[0]
+                print(element_type)
+                # 各要素に対してコンストラクタを呼び出し、リストを作成
+                for v in item["value"]:
+                    values.append(element_type(**v))
+                items.append(MapItem[MapKey, MapValue](key=key, value=values)) # type: ignore
+            else:
+                value = value_type(**item["value"])
+                items.append(MapItem[MapKey, MapValue](key=key, value=value))
         return cls(items=items)
 
     def get(self, key: MapKey) -> MapValue:

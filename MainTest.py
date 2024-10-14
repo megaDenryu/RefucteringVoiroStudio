@@ -28,6 +28,7 @@ if __name__ == "__main__":
     ]
     
     path = api_dir /"CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json"
+    JsonAccessor.checkExistAndCreateJson(path, {})
     # ExtendFunc.saveListToJson(path, voicemodes)
 
     # voice_modes:list[dict] = ExtendFunc.loadJsonToList(path)
@@ -41,21 +42,38 @@ if __name__ == "__main__":
     for i in wa:
         chara = i.key
 
-    map = (Map[CharacterName,VoiceMode].empty().
-            set(CharacterName(name = "one"), VoiceMode(mode = "one")).
-            set(CharacterName(name = "あかね"), VoiceMode(mode = "つぼみ")).
-            set(CharacterName(name = "あおい"), VoiceMode(mode = "ノーマル")).
-            set(CharacterName(name = "みずき"), VoiceMode(mode = "ノーマル")).
-            set(CharacterName(name = "ゆう"), VoiceMode(mode = "ノーマル"))
+    # map = (Map[CharacterName,VoiceMode].empty().
+    #         set(CharacterName(name = "one"), VoiceMode(mode = "one")).
+    #         set(CharacterName(name = "あかね"), VoiceMode(mode = "つぼみ")).
+    #         set(CharacterName(name = "あおい"), VoiceMode(mode = "ノーマル")).
+    #         set(CharacterName(name = "みずき"), VoiceMode(mode = "ノーマル")).
+    #         set(CharacterName(name = "ゆう"), VoiceMode(mode = "ノーマル"))
+    #     )
+    
+    
+    
+    # ExtendFunc.ExtendPrint("作成",map)
+
+    # ExtendFunc.saveDictToJson(path, map)
+
+    # # ロードする
+    # map = Map[CharacterName,VoiceMode].loadJson(path, CharacterName, VoiceMode)
+    # ExtendFunc.ExtendPrint("ロード",map)
+
+
+    mapList = (Map[CharacterName,list[VoiceMode]].empty().
+            set(CharacterName(name = "one"), [VoiceMode(mode = "one")]).
+            set(CharacterName(name = "あかね"), [VoiceMode(mode = "ノーマル"), VoiceMode(mode = "つぼみ")]).
+            set(CharacterName(name = "あおい"), [VoiceMode(mode = "ノーマル")])
         )
     
-    ExtendFunc.ExtendPrint("作成",map)
+    ExtendFunc.ExtendPrint("作成",mapList)
 
-    ExtendFunc.saveDictToJson(path, map)
+    ExtendFunc.saveDictToJson(path, mapList)
 
     # ロードする
-    map = Map[CharacterName,VoiceMode].loadJson(path, CharacterName, VoiceMode)
-    ExtendFunc.ExtendPrint("ロード",map)
+    map = Map[CharacterName,list[VoiceMode]].loadJson(path, CharacterName, list[VoiceMode])
+    ExtendFunc.ExtendPrint("ロード",mapList)
 
 
 

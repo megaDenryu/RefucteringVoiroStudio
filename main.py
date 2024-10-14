@@ -94,7 +94,9 @@ if game_master_enable:
 # print("アプリ起動完了")
 # Websocket用のパス
 ExtendFunc.ExtendPrint("ボイスロイドの起動")
+mana = AllHumanInformationManager.singleton()
 TTSSoftwareManager.tryStartAllTTSSoftware()
+TTSSoftwareManager.updateAllCharaList()
 ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
 @app.on_event("startup")

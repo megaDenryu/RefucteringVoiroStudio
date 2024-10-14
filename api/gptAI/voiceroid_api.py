@@ -1512,6 +1512,8 @@ class TTSSoftwareManager:
         TTSSoftware.Coeiroink:TTSSoftwareInstallState.NotInstalled
     }
 
+    HasTTSStateDict:dict[TTSSoftware,HasTTSState] = {}
+
     """
     各種ボイスロイドの起動を管理する
     """
@@ -1531,7 +1533,7 @@ class TTSSoftwareManager:
         """
         for ttss in TTSSoftware:
             TTSSate = TTSSoftwareManager.tryStartTTSSoftware(ttss)
-            TTSSoftwareManager.updateCharaList(ttss,TTSSate)
+            TTSSoftwareManager.HasTTSStateDict[ttss] = TTSSate
 
     @staticmethod
     def tryStartTTSSoftware(ttss:TTSSoftware)->HasTTSState:
@@ -1552,6 +1554,11 @@ class TTSSoftwareManager:
         mana.onTTSSoftwareDict[ttss] = tmp_human.onTTSSoftware
         mana.hasTTSSoftwareDict[ttss] = tmp_human.hasTTSSoftware
         return tmp_human
+    
+    @staticmethod
+    def updateAllCharaList():
+        for ttss in TTSSoftware:
+            TTSSoftwareManager.updateCharaList(ttss,TTSSoftwareManager.HasTTSStateDict[ttss])
 
     @staticmethod
     def updateCharaList(ttss:TTSSoftware, tmp_human:HasTTSState):
