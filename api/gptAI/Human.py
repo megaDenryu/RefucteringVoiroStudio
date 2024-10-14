@@ -87,7 +87,7 @@ class Human:
         if self.voice_switch:
             
             if "" != cevio_human.setCharName(self.char_name):
-                tmp_cevio = cevio_human(self.char_name,voiceroid_dict["cevio"])
+                tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.char_name,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
                 print(f"{self.char_name}のcevio起動完了")
@@ -101,7 +101,7 @@ class Human:
                 self.human_Voice.speak("起動完了")
                 return "voicevox"
             elif "" != AIVoiceHuman.setCharName(self.char_name):
-                tmp_aivoice = AIVoiceHuman(self.char_name,voiceroid_dict["AIVOICE"])
+                tmp_aivoice = AIVoiceHuman.createAndUpdateALLCharaList(self.char_name,voiceroid_dict["AIVOICE"])
                 print(f"{self.char_name}のAIVOICE起動開始")
                 self.human_Voice = tmp_aivoice
                 print(f"{self.char_name}のAIVOICE起動完了")
@@ -142,7 +142,7 @@ class Human:
                     self.human_Voice.reStart()
                 else:
                     print(f"{self.char_name}のcevioが起動していないので起動します")
-                    self.human_Voice = cevio_human(self.char_name,1)
+                    self.human_Voice = cevio_human.createAndUpdateALLCharaList(self.char_name,1)
                 print(f"{self.char_name}のcevio起動完了")
         else:
             print(f"ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。")

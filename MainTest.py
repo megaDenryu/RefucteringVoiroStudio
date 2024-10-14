@@ -3,18 +3,62 @@ from pprint import pprint
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
+from api.Extend.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
-from api.gptAI.HumanInformation import AllHumanInformationManager, HumanInformationTest
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanInformationTest, TTSSoftware, VoiceMode, VoiceModeNamesManager
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
+
+
+
 
 
 
 if __name__ == "__main__":
     # HumanInformationTest()
-    voiceroid_apiTest()
+    # voiceroid_apiTest()
     # dict = Coeiroink.getCoeiroinkNameToNumberDict()
     # pprint(dict)
+    api_dir = Path(__file__).parent / "api"
+
+    # manager = VoiceModeNamesManager()
+
+    voicemodes:list[VoiceMode] = [
+        VoiceMode(mode = "ほねほね")
+    ]
+    
+    path = api_dir /"CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json"
+    # ExtendFunc.saveListToJson(path, voicemodes)
+
+    # voice_modes:list[dict] = ExtendFunc.loadJsonToList(path)
+    # l = [VoiceMode(**mode) for mode in voice_modes]
+    # ExtendFunc.ExtendPrint("l",l)
+
+    wa : list[MapItem[CharacterName,VoiceMode]] = [
+        MapItem[CharacterName,VoiceMode](key = CharacterName(name = "one"), value = VoiceMode(mode = "one")),
+        MapItem[CharacterName,VoiceMode](key = CharacterName(name = "あかね"), value = VoiceMode(mode = "つぼみ")),
+    ]
+    for i in wa:
+        chara = i.key
+
+    map = (Map[CharacterName,VoiceMode].empty().
+            set(CharacterName(name = "one"), VoiceMode(mode = "one")).
+            set(CharacterName(name = "あかね"), VoiceMode(mode = "つぼみ")).
+            set(CharacterName(name = "あおい"), VoiceMode(mode = "ノーマル")).
+            set(CharacterName(name = "みずき"), VoiceMode(mode = "ノーマル")).
+            set(CharacterName(name = "ゆう"), VoiceMode(mode = "ノーマル"))
+        )
+    
+    ExtendFunc.ExtendPrint("作成",map)
+
+    ExtendFunc.saveDictToJson(path, map)
+
+    # ロードする
+    map = Map[CharacterName,VoiceMode].loadJson(path, CharacterName, VoiceMode)
+    ExtendFunc.ExtendPrint("ロード",map)
+
+
+
 
 
 

@@ -90,7 +90,7 @@ class VoiceModeNamesManager:
         # 既存のボイスモードリストとの差分がある場合は更新
         if self.voice_mode_list[software] != voice_modes:
             ExtendFunc.saveListToJson(path, voice_modes)
-
+        
 class CharaNameManager:
     api_dir: Path
     chara_names: dict[TTSSoftware, list[CharacterName]]
@@ -303,7 +303,7 @@ class HumanImagesManager:
         JsonAccessor.checkExistAndCreateJson(path, {})
         human_images_dict:dict[str, list[str]] = ExtendFunc.loadJsonToDict(path)
         # human_imagesの型が正常かどうかを確認
-        for name, human_images in human_images_dict:
+        for name, human_images in human_images_dict.items():
             if not isinstance(name, str) or not isinstance(human_images, list):
                 raise TypeError(f"human_imagesの型が正常ではありません。name:{name}, human_images:{human_images}")
         return {CharacterName(name=name):[HumanImage(folder_name=folder_name) for folder_name in human_images] for name, human_images in human_images_dict.items()}

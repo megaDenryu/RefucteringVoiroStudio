@@ -15,9 +15,22 @@ class JsonAccessor:
     
     @staticmethod
     def checkExistAndCreateJson(path:Path, saveobj:dict|list):
-        if not path.exists():
-            with open(path, mode='w') as f:
-                json.dump(saveobj, f, indent=4)
+        try: 
+            # ディレクトリが存在しない場合は作成
+            if not path.parent.exists():
+                path.parent.mkdir(parents=True, exist_ok=True)
+
+            # ファイルが存在しない場合は作成して内容を書き込む
+            if not path.exists():
+                with open(path, mode='w') as f:
+                    json.dump(saveobj, f, indent=4)
+        except Exception as e:
+            ExtendFunc.ExtendPrint({
+                "エラー":"Jsonファイルの作成に失敗しました。",
+                "エラー内容":str(e),
+                "path":f"{path}",
+                "saveobj":saveobj
+            })
 
     @staticmethod
     def extendJsonLoad(loadString:str):
@@ -41,6 +54,10 @@ class JsonAccessor:
     
     @staticmethod
     def saveAppSetting(app_setting):
+        """
+        使用前にloadAppSettingを使用してapp_settingを取得
+        書き換えたい値を変更した後にこの関数を使用して保存
+        """
         path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting.json"
         ExtendFunc.saveDictToJson(path, app_setting)
     

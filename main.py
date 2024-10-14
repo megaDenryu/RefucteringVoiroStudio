@@ -6,7 +6,7 @@ from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
-from api.gptAI.voiceroid_api import cevio_human
+from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, InputReciever, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
@@ -93,6 +93,9 @@ if game_master_enable:
     game_master = Human("game_master")
 # print("アプリ起動完了")
 # Websocket用のパス
+ExtendFunc.ExtendPrint("ボイスロイドの起動")
+TTSSoftwareManager.tryStartAllTTSSoftware()
+ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
 @app.on_event("startup")
 async def startup_event():
