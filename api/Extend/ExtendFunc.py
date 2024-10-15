@@ -202,7 +202,7 @@ class ExtendFunc:
         if isinstance(content, Map):
             content = content.dumpToJsonDict()
         elif isinstance(content, MapHasListValue):
-            content = content.dumpToTypedDict()
+            content = content.dumpToJsonDict()
 
         with open(file_path, 'w', encoding="utf-8") as f:
             json.dump(content, f, ensure_ascii=False, indent=4)

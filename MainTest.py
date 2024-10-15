@@ -55,7 +55,7 @@ def test1():
 
     # ロードする
     map = Map[CharacterName,list[VoiceMode]].loadJson(path, CharacterName, list[VoiceMode])
-    ExtendFunc.ExtendPrintWithTitle(["ロード","ペロ"],mapList)
+    ExtendFunc.ExtendPrintWithTitle(["ロード","ペロ"],map)
 
 
 def test2():
@@ -70,12 +70,14 @@ def test2():
         )
     
     ExtendFunc.ExtendPrintWithTitle("作成",mapList)
+    ExtendFunc.ExtendPrintWithTitle("タイプ辞書",mapList.dumpToTypedDict())
+    ExtendFunc.ExtendPrintWithTitle("Json辞書",mapList.dumpToJsonDict())
 
     ExtendFunc.saveDictToJson(path, mapList)
 
-    # ロードする
-    map = MapHasListValue[CharacterName,VoiceMode,list[VoiceMode]].loadJson(path, CharacterName, VoiceMode)
-    ExtendFunc.ExtendPrintWithTitle(["ロード","ペロ"],mapList)
+    # # ロードする
+    map = MapHasListValue[CharacterName,VoiceMode,list[VoiceMode]].loadJson(path, CharacterName, VoiceMode,list[VoiceMode])
+    ExtendFunc.ExtendPrintWithTitle(["ロード","ペロ"],map)
 
 
 
@@ -96,7 +98,7 @@ if __name__ == "__main__":
     path = api_dir /"CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json"
     JsonAccessor.checkExistAndCreateJson(path, {})
     
-    test1()
+    test2()
 
 
 
