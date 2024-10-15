@@ -3,7 +3,7 @@ from enum import Enum
 from pathlib import Path
 from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.Extend.ExtendBaseModel import HashableBaseModel, Map
+from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel, Map
 from api.Extend.ExtendFunc import ExtendFunc
 from api.images.image_manager.HumanPart import HumanPart
 

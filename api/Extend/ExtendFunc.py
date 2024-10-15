@@ -12,13 +12,32 @@ import sys
 import unicodedata
 from googletrans import translate
 from pydantic import BaseModel
-from api.Extend.ExtendBaseModel import Map
+from api.Extend.BaseModel.ExtendBaseModel import Map
 from api.Extend.ExtendSet import Interval
+
+from colorama import Fore, Style, init
+
+# Windows環境での色のサポートを初期化
+init(autoreset=True)
+
 T = TypeVar('T', bound=Dict)
 B = TypeVar('B', bound=BaseModel)
 
 class ExtendFunc:
-    
+    @staticmethod
+    def ExtendPrintWithTitle(title:str|list[str] = "", *args, **kwargs):
+        """
+        拡張プリント関数
+        """
+        # 呼び出し箇所のファイルパスと行数を取得
+        caller_frame = sys._getframe(1)
+        caller_file = caller_frame.f_code.co_filename
+        caller_line = caller_frame.f_lineno
+        print(f"\n{Fore.GREEN}=====▽{title} : 結果▽==============={TimeExtend()}====================={Style.RESET_ALL}")
+        print(f"{Fore.RED}{caller_file}:{caller_line}{Style.RESET_ALL}")
+        # dict型ならpprintで出力
+        ExtendFunc.print_args(*args, **kwargs)
+        print(f"{Fore.GREEN}+++++△結果△++++++++++++++++++++++++++++++++++++++++++++++++++++++{Style.RESET_ALL}\n")
     @staticmethod
     def ExtendPrint(*args, **kwargs):
         """
@@ -28,13 +47,29 @@ class ExtendFunc:
         caller_frame = sys._getframe(1)
         caller_file = caller_frame.f_code.co_filename
         caller_line = caller_frame.f_lineno
-        print(f"{caller_file}:{caller_line}")
+        print(f"\n{Fore.GREEN}=====▽結果▽======================={TimeExtend()}=================={Style.RESET_ALL}")
+        print(f"{Fore.RED}{caller_file}:{caller_line}{Style.RESET_ALL}")
         # dict型ならpprintで出力
+        ExtendFunc.print_args(*args, **kwargs)
+        print(f"{Fore.GREEN}+++++△結果△++++++++++++++++++++++++++++++++++++++++++++++++++++++{Style.RESET_ALL}\n\n")
+    
+    @staticmethod
+    def recursive_print(data: Any, indent: int = 0, **kwargs):
+        if isinstance(data, dict):
+            pprint(data, indent=indent, **kwargs)
+        elif isinstance(data, list):
+            for item in data:
+                pprint(item, indent=indent, **kwargs)
+        elif isinstance(data, Map):
+            pprint(data.toDict(), indent=indent, **kwargs)
+        else:
+            print(' ' * indent + str(data))
+
+    @staticmethod
+    def print_args(*args, **kwargs):
         for arg in args:
-            if isinstance(arg, dict):
-                pprint(arg, **kwargs ,indent=4)
-            else:
-                print(arg)
+            ExtendFunc.recursive_print(arg, **kwargs)
+                
 
 
 

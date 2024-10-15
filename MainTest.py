@@ -3,7 +3,7 @@ from pprint import pprint
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
-from api.Extend.ExtendBaseModel import Map, MapItem
+from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanInformationTest, TTSSoftware, VoiceMode, VoiceModeNamesManager
@@ -63,17 +63,21 @@ if __name__ == "__main__":
 
     mapList = (Map[CharacterName,list[VoiceMode]].empty().
             set(CharacterName(name = "one"), [VoiceMode(mode = "one")]).
-            set(CharacterName(name = "あかね"), [VoiceMode(mode = "ノーマル"), VoiceMode(mode = "つぼみ")]).
+            set(CharacterName(name = "あかね"), [
+                VoiceMode(mode = "ノーマル"), 
+                VoiceMode(mode = "つぼみ"),
+                VoiceMode(mode = "ほねほね")
+                ]).
             set(CharacterName(name = "あおい"), [VoiceMode(mode = "ノーマル")])
         )
     
-    ExtendFunc.ExtendPrint("作成",mapList)
+    ExtendFunc.ExtendPrintWithTitle("作成",mapList)
 
     ExtendFunc.saveDictToJson(path, mapList)
 
     # ロードする
     map = Map[CharacterName,list[VoiceMode]].loadJson(path, CharacterName, list[VoiceMode])
-    ExtendFunc.ExtendPrint("ロード",mapList)
+    ExtendFunc.ExtendPrintWithTitle(["ロード","ペロ"],mapList)
 
 
 

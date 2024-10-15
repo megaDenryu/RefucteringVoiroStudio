@@ -14,7 +14,6 @@ class HashableBaseModel(BaseModel):
 
 MapKey = TypeVar('MapKey', bound='HashableBaseModel')
 MapValue = TypeVar('MapValue', bound='HashableBaseModel|Sequence[HashableBaseModel]')
-MapValueList = TypeVar('MapValueList', bound='Sequence[HashableBaseModel]')
 
 class MapItem(Generic[MapKey, MapValue], HashableBaseModel):
     key: MapKey
@@ -56,12 +55,12 @@ class Map(Generic[MapKey, MapValue], BaseModel):
             if isinstance(item["value"], list):
                 values = []
                 # リストの要素の型を取得
-                element_type = get_args(value_type)[0] #value_type.__args__[0]
+                element_type = value_type.__args__[0]
                 print(element_type)
                 # 各要素に対してコンストラクタを呼び出し、リストを作成
                 for v in item["value"]:
                     values.append(element_type(**v))
-                items.append(MapItem[MapKey, MapValue](key=key, value=values)) # type: ignore
+                items.append(MapItem[MapKey, MapValue](key=key, value=values)) 
             else:
                 value = value_type(**item["value"])
                 items.append(MapItem[MapKey, MapValue](key=key, value=value))
