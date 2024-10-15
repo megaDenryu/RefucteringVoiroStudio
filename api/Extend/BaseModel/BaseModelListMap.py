@@ -99,6 +99,9 @@ class MapHasListValue(BaseModel, Generic[MapKey, MapValue, MapValueList]):
     def values(self)->list[list[MapValue]]:
         return [item.values for item in self.items]
     
+    def existsInKeys(self, key: MapKey)->bool:
+        return key in self.keys
+    
     @staticmethod
     def loadJson(path: Path, key_type: Type[MapKey], value_type: Type[MapValue], value_list_type: Type[MapValueList]):
         with open(path, 'r', encoding="utf-8") as f:
