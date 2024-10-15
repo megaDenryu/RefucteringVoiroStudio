@@ -12,6 +12,7 @@ import sys
 import unicodedata
 from googletrans import translate
 from pydantic import BaseModel
+from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map
 from api.Extend.ExtendSet import Interval
 
@@ -60,7 +61,7 @@ class ExtendFunc:
         elif isinstance(data, list):
             for item in data:
                 pprint(item, indent=indent, **kwargs)
-        elif isinstance(data, Map):
+        elif isinstance(data, Map|MapHasListValue):
             pprint(data.toDict(), indent=indent, **kwargs)
         else:
             print(' ' * indent + str(data))
@@ -189,7 +190,7 @@ class ExtendFunc:
             json.dump(serializable_content, f, ensure_ascii=False, indent=4)
     
     @staticmethod
-    def saveDictToJson(file_path: Path, content: dict|Map):
+    def saveDictToJson(file_path: Path, content: dict|Map|MapHasListValue):
         """
         ファイルを保存します。
 
@@ -200,6 +201,8 @@ class ExtendFunc:
         # contentがMapの場合はdictに変換
         if isinstance(content, Map):
             content = content.dumpToJsonDict()
+        elif isinstance(content, MapHasListValue):
+            content = content.dumpToTypedDict()
 
         with open(file_path, 'w', encoding="utf-8") as f:
             json.dump(content, f, ensure_ascii=False, indent=4)
