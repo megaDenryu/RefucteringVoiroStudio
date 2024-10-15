@@ -13,7 +13,7 @@ import base64
 
 #AI.VOICE Editor API用のライブラリ
 import clr
-from typing import Dict, Any, Literal, TypedDict
+from typing import Dict, Any, Literal, TypedDict, Protocol
 from pydantic import BaseModel
 from typing import Optional
 
@@ -22,17 +22,34 @@ from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
 
+import subprocess
+import winreg
 
+
+
+class TTSSoftwareInstallState(Enum):
+    NotInstalled = 0
+    Installed = 1
+    ModuleNotFound = 2
 
 class cevio_human:
-    def __init__(self,char_name:str,started_cevio_num:int) -> None:
+    name:str|None = None
+    cevio_name:str|None = None
+    onTTSSoftware:bool = False #CevioAIが起動しているかどうか
+    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #CevioAiがインストールされているかどうか
+    def __init__(self,char_name:str|None,started_cevio_num:int) -> None:
+        if char_name is not None:
+            self.name = char_name 
+            self.cevio_name = self.setCharName(char_name)
         
-        self.name = char_name 
-        self.cevio_name = self.setCharName(char_name)
-        #名前が設定されていない場合は起動しない
-        if self.cevio_name != "":
-            self.cevioStart(started_cevio_num)
-            self.output_wav_info_list = []
+        self.cevioStart(started_cevio_num)
+        self.output_wav_info_list = []
+
+    @staticmethod
+    def createAndUpdateALLCharaList(char_name:str|None,started_cevio_num:int)->"cevio_human":
+        human = cevio_human(char_name,started_cevio_num)
+        human.updateAllCharaList()
+        return human
     
     def settingParameter(self,talk_param_dict):
         """
@@ -117,7 +134,9 @@ class cevio_human:
         except Exception as e:
             return ""
     @staticmethod
-    def setCharName(name):
+    def setCharName(name:str|None):
+        if name is None:
+            return None
         api_dir = Path(__file__).parent.parent
         path = api_dir / "CharSettingJson" / "CevioNameForVoiceroidAPI.json"
         with open(path, "r", encoding="utf-8") as f:
@@ -126,25 +145,41 @@ class cevio_human:
         if name in name_list:
             return name
         else:
-            return ""
+            return None
+        
     def cevioStart(self,started_cevio_num:int):
         print("cevio起動開始")
         if 0 == started_cevio_num:
             #self.kill_cevio()
             pass
         print("cevioが起動しているか確認完了")
-        self.cevio = win32com.client.Dispatch("CeVIO.Talk.RemoteService2.ServiceControl2")
-
-
-        print("cevioのインスタンス化完了")
-        self.cevio.StartHost(False)
-        print("cevio起動完了")
-        self.talker = win32com.client.Dispatch("CeVIO.Talk.RemoteService2.Talker2V40")
-        print("talkerのインスタンス化完了")
-        self.talker.Cast = self.cevio_name
-        print("キャラクターの設定完了")
-        # cevioのキャストが変更されているか確認
-        self.updateAllCharaList()
+        try :
+            self.cevio = win32com.client.Dispatch("CeVIO.Talk.RemoteService2.ServiceControl2")
+        except:
+            print("CeVIOがインストールされていません")
+            self.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            self.onTTSSoftware = False
+            return
+        
+        try:
+            print("cevioのインスタンス化完了")
+            self.cevio.StartHost(False)
+            print("cevio起動完了")
+            self.talker = win32com.client.Dispatch("CeVIO.Talk.RemoteService2.Talker2V40")
+            print("talkerのインスタンス化完了")
+            self.setCast(self.cevio_name)
+            print("キャラクターの設定完了")
+            self.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            self.onTTSSoftware = True
+        except:
+            print("CeVIOが起動に失敗")
+            self.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            self.onTTSSoftware = False
+            return
+    
+    def setCast(self,cast_name:str|None):
+        if cast_name is not None:
+            self.talker.Cast = cast_name
 
     def kill_cevio(self):
         for proc in psutil.process_iter():
@@ -233,7 +268,12 @@ class SpeakerInfo(TypedDict):
     name:str
     styles:list[SpeakerStyle]
 class voicevox_human:
-    def __init__(self,name:str,started_voicevox_num:int) -> None:
+    name:str|None = None
+    onTTSSoftware:bool = False #voicevoxが起動しているかどうか
+    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
+    def __init__(self,name:str|None,started_voicevox_num:int) -> None:
+        if name is None:
+            return
         if started_voicevox_num == 0:
             self.start()
         
@@ -409,8 +449,12 @@ class voicevox_human:
         speaker_dict = response.json()
         return speaker_dict
     
+    def updateAllCharaList(self):
+        voicevox_human.updateAllCharaListStatic()
+        
+    
     @staticmethod
-    def updateAllCharaList():
+    def updateAllCharaListStatic():
         """
         1. VoiceVoxのキャラクター名を取得
         2. キャラクター名リストを更新
@@ -495,7 +539,58 @@ class voicevox_human:
         #pathにspeaker_dictを書き込む
         with open(path, "w", encoding="utf-8") as f:
             json.dump(save_dict,f,ensure_ascii=False, indent=4)
-    
+
+    @staticmethod
+    def find_voicevox_path():
+        try:
+            # レジストリキーを開く
+            reg_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\VOICEVOX")
+            # インストールパスを取得
+            voicevox_path, _ = winreg.QueryValueEx(reg_key, "InstallPath")
+            winreg.CloseKey(reg_key)
+            return voicevox_path
+        except FileNotFoundError:
+            return None
+
+    @staticmethod
+    def startVoicevox()->"voicevox_human":
+        tmp_human = voicevox_human(None,0)
+        voicevox_path = voicevox_human.find_voicevox_path()
+        if voicevox_path is None:
+            # 既知のパスをチェック
+            known_paths = [
+                "C://Program Files//VOICEVOX//"
+            ]
+            for path in known_paths:
+                if os.path.exists(path):
+                    voicevox_path = path
+                    break
+
+        if voicevox_path is None:
+            print("VoiceVoxのインストール場所が見つかりませんでした。")
+            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            tmp_human.onTTSSoftware = False
+            return tmp_human
+
+        voicevox_exe_path = os.path.join(voicevox_path, "VOICEVOX.exe")
+        if not os.path.exists(voicevox_exe_path):
+            print("VoiceVoxのexeファイルが見つかりませんでした。")
+            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            tmp_human.onTTSSoftware = False
+            return tmp_human
+
+        try:
+            # 非同期でプロセスを起動
+            subprocess.Popen([voicevox_exe_path])
+            print("VoiceVoxが正常に起動しました。")
+            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human.onTTSSoftware = True
+            return tmp_human
+        except Exception as e:
+            print(f"VoiceVoxの起動に失敗しました: {e}")
+            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human.onTTSSoftware = False
+            return tmp_human
         
 
 
@@ -530,39 +625,69 @@ class VoicePresetModel(BaseModel):
 
 
 class AIVoiceHuman:
-    def __init__(self,char_name:str,started_AIVoice_num:int) -> None:
-        self.char_name = char_name
-        self.aivoice_name = self.setCharName(char_name)
+    aivoice_name:str|None = None
+    onTTSSoftware:bool = False #AIVoiceが起動しているかどうか
+    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #AIVoiceがインストールされているかどうか
+    def __init__(self,char_name:str|None,started_AIVoice_num:int) -> None:
+        if char_name is not None:
+            self.char_name = char_name
+            self.aivoice_name = self.setCharName(char_name)
         self.start()
-        print(self.updateCharName())
-        self.updateAllCharaList()
+    
+    @staticmethod
+    def createAndUpdateALLCharaList(char_name:str|None,started_AIVoice_num:int)->"AIVoiceHuman":
+        human = AIVoiceHuman(char_name,started_AIVoice_num)
+        print(human.updateCharName())
+        human.updateAllCharaList()
+        return human
+
+
         
     def start(self):
         _editor_dir = os.environ['ProgramW6432'] + '\\AI\\AIVoice\\AIVoiceEditor\\'
 
+        # 自分で置かないといけないファイルがあるか確認dllを確認。todo ダウンロードと配置を自動化する
         if not os.path.isfile(_editor_dir + 'AI.Talk.Editor.Api.dll'):
             print("A.I.VOICE Editor (v1.3.0以降) がインストールされていません。")
-            exit()
+            self.hasTTSSoftware = TTSSoftwareInstallState.ModuleNotFound
+            self.onTTSSoftware = False
+            return
+        # A.I.VOICE Editor APIの読み込み
+        try:
+            # pythonnet DLLの読み込み
+            clr.AddReference(_editor_dir + "AI.Talk.Editor.Api")
+            from AI.Talk.Editor.Api import TtsControl, HostStatus
+        
+        except Exception as e:
+            print(f"AI.Talk.Editor.Api.dllの読み込みに失敗しました: {e}")
+            self.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            self.onTTSSoftware = False
+            return        
 
-        # pythonnet DLLの読み込み
-        clr.AddReference(_editor_dir + "AI.Talk.Editor.Api")
-        from AI.Talk.Editor.Api import TtsControl, HostStatus
+        # アクセスを確立する
+        try:
+            self.tts_control = TtsControl()
 
-        self.tts_control = TtsControl()
+            # A.I.VOICE Editor APIの初期化
+            host_name = self.tts_control.GetAvailableHostNames()[0]
+            self.tts_control.Initialize(host_name)
 
-        # A.I.VOICE Editor APIの初期化
-        host_name = self.tts_control.GetAvailableHostNames()[0]
-        self.tts_control.Initialize(host_name)
+            # A.I.VOICE Editorの起動
+            if self.tts_control.Status == HostStatus.NotRunning:
+                self.tts_control.StartHost()
 
-        # A.I.VOICE Editorの起動
-        if self.tts_control.Status == HostStatus.NotRunning:
-            self.tts_control.StartHost()
-
-        # A.I.VOICE Editorへ接続
-        self.tts_control.Connect()
-        host_version = self.tts_control.Version
-        self.setVoiceChara()
-        print(f"{host_name} (v{host_version}) へ接続しました。")
+            # A.I.VOICE Editorへ接続
+            self.tts_control.Connect()
+            host_version = self.tts_control.Version
+            self.setVoiceChara()
+            print(f"{host_name} (v{host_version}) へ接続しました。")
+            self.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            self.onTTSSoftware = True
+        except Exception as e:
+            print(f"A.I.VOICE Editorへの接続に失敗しました: {e}")
+            self.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            self.onTTSSoftware = False
+            return
 
     def outputWaveFile(self,content:str):
         """
@@ -645,6 +770,8 @@ class AIVoiceHuman:
     
     def setVoiceChara(self):
         #ボイスを琴葉 葵に設定する
+        if self.aivoice_name is not None:
+            return
         self.tts_control.CurrentVoicePresetName=self.aivoice_name
     
     def convertPythonList(self,CsArr):
@@ -897,9 +1024,14 @@ class Coeiroink:
     DEFAULT_SERVER = "http://127.0.0.1:50032"
     none_num = -1
     server = DEFAULT_SERVER
-    def __init__(self,name:str,started_coeiro_num:int) -> None:
-        
-        Coeiroink.updateAllCharaList()
+    name: str|None = None
+    onTTSSoftware:bool = False #vCoeiroinkが起動しているかどうか
+    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #Coeiroinkがインストールされているかどうか
+
+    def __init__(self,name:str|None,started_coeiro_num:int) -> None:
+        if name is None:
+            return
+        self.updateAllCharaList()
         if "" != self.getCharNum(name):
             self.styleId = self.getCharNum(name)
             if self.styleId == Coeiroink.none_num:
@@ -1266,8 +1398,11 @@ class Coeiroink:
             voiceModeDict[charaName] = voiceModeList
         return voiceModeDict
     
+    def updateAllCharaList(self):
+        Coeiroink.updateAllCharaListStatic()
+    
     @staticmethod
-    def updateAllCharaList():
+    def updateAllCharaListStatic():
         try:
             manager = AllHumanInformationManager.singleton()
             
@@ -1283,6 +1418,157 @@ class Coeiroink:
             # coeiroinkが起動してないとき
             print(e)
 
+    @staticmethod
+    def find_coeiroink_exe_path():
+        defalut_exe_name = "COEIROINKv2.exe"
+        retPath:str = JsonAccessor.loadAppSetting()["COEIROINKv2設定"]["path"]
+        # 存在していてpathが正しいかチェック
+        if retPath != "" and os.path.exists(retPath):
+            return retPath
+        
+        # 見つからなかった場合は検索
+
+        try:
+            # ユーザーのダウンロードフォルダを優先的に検索
+            download_folder = os.path.join(os.path.expanduser("~"), "Downloads")
+            for root, dirs, files in os.walk(download_folder):
+                if defalut_exe_name in files:
+                    return os.path.join(root, defalut_exe_name)
+            
+            # Cドライブ全体から検索
+            for root, dirs, files in os.walk("C:\\"):
+                if defalut_exe_name in files:
+                    return os.path.join(root, defalut_exe_name)
+
+            # Dドライブ全体から検索
+            for root, dirs, files in os.walk("D:\\"):
+                if defalut_exe_name in files:
+                    return os.path.join(root, defalut_exe_name)
+
+
+            #pc全体の中からCOEIROINKv2.exeを探す
+            for drive in psutil.disk_partitions():
+                if os.path.isdir(drive.device):
+                    for root, dirs, files in os.walk(drive.device):
+                        if defalut_exe_name in files:
+                            return root
+        except Exception as e:
+            ExtendFunc.ExtendPrint(e)
+            return None
+        
+    @staticmethod
+    def saveCoeiroinkPath(path:str):
+        app_setting = JsonAccessor.loadAppSetting()
+        app_setting["COEIROINKv2設定"]["path"] = path
+        JsonAccessor.saveAppSetting(app_setting)
+
+    @staticmethod
+    def startCoeiroink()->"Coeiroink":
+        tmp_human = Coeiroink(None,0)
+
+        coeiroink_exe_path = Coeiroink.find_coeiroink_exe_path()
+        ExtendFunc.ExtendPrint(coeiroink_exe_path)
+
+        if coeiroink_exe_path is None:
+            print("Coeiroinkのインストール場所が見つかりませんでした。")
+            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            tmp_human.onTTSSoftware = False
+            return tmp_human
+        
+        Coeiroink.saveCoeiroinkPath(coeiroink_exe_path)
+
+        try:
+            # 非同期でプロセスを起動
+            subprocess.Popen([coeiroink_exe_path])
+            print("Coeiroinkが正常に起動しました。")
+            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human.onTTSSoftware = True
+            return tmp_human
+        except Exception as e:
+            print(f"Coeiroinkの起動に失敗しました: {e}")
+            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human.onTTSSoftware = False
+            return tmp_human
+
+class HasTTSState(Protocol):
+    hasTTSSoftware:TTSSoftwareInstallState
+    onTTSSoftware:bool
+    def updateAllCharaList(self):
+        pass
+
+class TTSSoftwareManager:
+    _instance:"TTSSoftwareManager"
+    onTTSSoftwareDict:dict[TTSSoftware,bool] = {
+        TTSSoftware.AIVoice:False,
+        TTSSoftware.CevioAI:False,
+        TTSSoftware.VoiceVox:False,
+        TTSSoftware.Coeiroink:False
+    }
+
+    hasTTSSoftwareDict:dict[TTSSoftware,TTSSoftwareInstallState] = {
+        TTSSoftware.AIVoice:TTSSoftwareInstallState.NotInstalled,
+        TTSSoftware.CevioAI:TTSSoftwareInstallState.NotInstalled,
+        TTSSoftware.VoiceVox:TTSSoftwareInstallState.NotInstalled,
+        TTSSoftware.Coeiroink:TTSSoftwareInstallState.NotInstalled
+    }
+
+    HasTTSStateDict:dict[TTSSoftware,HasTTSState] = {}
+
+    """
+    各種ボイスロイドの起動を管理する
+    """
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def singleton():
+        if not hasattr(TTSSoftwareManager, "_instance"):
+            TTSSoftwareManager._instance = TTSSoftwareManager()
+        return TTSSoftwareManager._instance
+
+    @staticmethod
+    def tryStartAllTTSSoftware():
+        """
+        全てのボイスロイドを起動する
+        """
+        for ttss in TTSSoftware:
+            TTSSate = TTSSoftwareManager.tryStartTTSSoftware(ttss)
+            TTSSoftwareManager.HasTTSStateDict[ttss] = TTSSate
+
+    @staticmethod
+    def tryStartTTSSoftware(ttss:TTSSoftware)->HasTTSState:
+        """
+        各種ボイスロイドを起動する
+        """
+        
+        if ttss == TTSSoftware.AIVoice:
+            tmp_human = AIVoiceHuman(None,0)
+        elif ttss == TTSSoftware.CevioAI:
+            tmp_human = cevio_human(None,0)
+        elif ttss == TTSSoftware.VoiceVox:
+            tmp_human = voicevox_human.startVoicevox()
+        elif ttss == TTSSoftware.Coeiroink:
+            tmp_human = Coeiroink.startCoeiroink()
+        
+        mana = TTSSoftwareManager.singleton()
+        mana.onTTSSoftwareDict[ttss] = tmp_human.onTTSSoftware
+        mana.hasTTSSoftwareDict[ttss] = tmp_human.hasTTSSoftware
+        return tmp_human
+    
+    @staticmethod
+    def updateAllCharaList():
+        for ttss in TTSSoftware:
+            TTSSoftwareManager.updateCharaList(ttss,TTSSoftwareManager.HasTTSStateDict[ttss])
+
+    @staticmethod
+    def updateCharaList(ttss:TTSSoftware, tmp_human:HasTTSState):
+        """
+        各種ボイスロイドのキャラクターリストを更新する
+        """
+        if tmp_human.hasTTSSoftware == TTSSoftwareInstallState.Installed and tmp_human.onTTSSoftware:
+            tmp_human.updateAllCharaList()
+        
+     
 
 
 
@@ -1338,4 +1624,7 @@ class voiceroid_apiTest:
 
             # ExtendFunc.ExtendPrint(aivoice.CharaNames)
             # ExtendFunc.ExtendPrint(aivoice.VoiceModels)
+
+
+
             

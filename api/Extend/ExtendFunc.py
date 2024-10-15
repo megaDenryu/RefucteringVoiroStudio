@@ -7,15 +7,37 @@ import re
 import typing
 import Levenshtein
 from pprint import pprint
-from typing import TypeVar, get_type_hints, Dict, Any, Literal, get_origin
+from typing import Type, TypeVar, get_type_hints, Dict, Any, Literal, get_origin
 import sys
 import unicodedata
 from googletrans import translate
+from pydantic import BaseModel
+from api.Extend.BaseModel.ExtendBaseModel import Map
 from api.Extend.ExtendSet import Interval
+
+from colorama import Fore, Style, init
+
+# Windows環境での色のサポートを初期化
+init(autoreset=True)
+
 T = TypeVar('T', bound=Dict)
+B = TypeVar('B', bound=BaseModel)
 
 class ExtendFunc:
-    
+    @staticmethod
+    def ExtendPrintWithTitle(title:str|list[str] = "", *args, **kwargs):
+        """
+        拡張プリント関数
+        """
+        # 呼び出し箇所のファイルパスと行数を取得
+        caller_frame = sys._getframe(1)
+        caller_file = caller_frame.f_code.co_filename
+        caller_line = caller_frame.f_lineno
+        print(f"\n{Fore.GREEN}=====▽{title} : 結果▽==============={TimeExtend()}====================={Style.RESET_ALL}")
+        print(f"{Fore.RED}{caller_file}:{caller_line}{Style.RESET_ALL}")
+        # dict型ならpprintで出力
+        ExtendFunc.print_args(*args, **kwargs)
+        print(f"{Fore.GREEN}+++++△結果△++++++++++++++++++++++++++++++++++++++++++++++++++++++{Style.RESET_ALL}\n")
     @staticmethod
     def ExtendPrint(*args, **kwargs):
         """
@@ -25,13 +47,29 @@ class ExtendFunc:
         caller_frame = sys._getframe(1)
         caller_file = caller_frame.f_code.co_filename
         caller_line = caller_frame.f_lineno
-        print(f"{caller_file}:{caller_line}")
+        print(f"\n{Fore.GREEN}=====▽結果▽======================={TimeExtend()}=================={Style.RESET_ALL}")
+        print(f"{Fore.RED}{caller_file}:{caller_line}{Style.RESET_ALL}")
         # dict型ならpprintで出力
+        ExtendFunc.print_args(*args, **kwargs)
+        print(f"{Fore.GREEN}+++++△結果△++++++++++++++++++++++++++++++++++++++++++++++++++++++{Style.RESET_ALL}\n\n")
+    
+    @staticmethod
+    def recursive_print(data: Any, indent: int = 0, **kwargs):
+        if isinstance(data, dict):
+            pprint(data, indent=indent, **kwargs)
+        elif isinstance(data, list):
+            for item in data:
+                pprint(item, indent=indent, **kwargs)
+        elif isinstance(data, Map):
+            pprint(data.toDict(), indent=indent, **kwargs)
+        else:
+            print(' ' * indent + str(data))
+
+    @staticmethod
+    def print_args(*args, **kwargs):
         for arg in args:
-            if isinstance(arg, dict):
-                pprint(arg, **kwargs ,indent=4)
-            else:
-                print(arg)
+            ExtendFunc.recursive_print(arg, **kwargs)
+                
 
 
 
@@ -144,11 +182,14 @@ class ExtendFunc:
         file_path (Path): 保存先のjsonファイルパス
         content (list): 保存する内容
         """
+        # BaseModelのインスタンスを辞書に変換
+        serializable_content = [item.model_dump() if isinstance(item, BaseModel) else item for item in content]
+        
         with open(file_path, 'w', encoding="utf-8") as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
+            json.dump(serializable_content, f, ensure_ascii=False, indent=4)
     
     @staticmethod
-    def saveDictToJson(file_path: Path, content: dict):
+    def saveDictToJson(file_path: Path, content: dict|Map):
         """
         ファイルを保存します。
 
@@ -156,9 +197,12 @@ class ExtendFunc:
         file_path (Path): 保存先のjsonファイルパス
         content (dict): 保存する内容
         """
+        # contentがMapの場合はdictに変換
+        if isinstance(content, Map):
+            content = content.dumpToJsonDict()
+
         with open(file_path, 'w', encoding="utf-8") as f:
             json.dump(content, f, ensure_ascii=False, indent=4)
-    
 
     @staticmethod
     def loadJsonToList(file_path: Path) -> list:
@@ -171,13 +215,21 @@ class ExtendFunc:
         Returns:
         list: 読み込んだ内容
         """
-        print("file_path",file_path)
-        ret_list = []
-        with open(file_path, 'r', encoding="utf-8") as f:
-            ret_list = json.load(f)
-        if not isinstance(ret_list, list):
-            raise ValueError(f"{file_path} はリスト形式ではありません。")
-        return ret_list
+        try:
+            print("file_path",file_path)
+            ret_list = []
+            with open(file_path, 'r', encoding="utf-8") as f:
+                ret_list = json.load(f)
+            if not isinstance(ret_list, list):
+                raise ValueError(f"{file_path} はリスト形式ではありません。")
+            return ret_list
+        except Exception as e:
+            ExtendFunc.ExtendPrint({
+                "エラー":"Jsonファイルの読み込みに失敗しました。",
+                "エラー内容":str(e),
+                "file_path":f"{file_path}"
+            })
+            raise e
     
     @staticmethod
     def loadJsonToDict(file_path: Path) -> dict:
@@ -196,6 +248,22 @@ class ExtendFunc:
         if not isinstance(ret_dict, dict):
             raise ValueError(f"{file_path} は辞書形式ではありません。")
         return ret_dict
+    
+    
+    @staticmethod
+    def loadJsonToBaseModel(file_path: Path, model_class: Type[B]) -> B:
+        """
+        jsonファイルを読み込み、指定されたBaseModelクラスのインスタンスとして返します。
+
+        Parameters:
+        file_path (Path): 読み込むjsonファイルパス
+        model_class (Type[BaseModel]): インスタンス化するBaseModelクラス
+
+        Returns: BaseModel: 読み込んだ内容を持つBaseModelのインスタンス
+        """
+        ret_dict = ExtendFunc.loadJsonToDict(file_path)
+        return model_class(**ret_dict)
+        
     
     @staticmethod
     def addListToJson(file_path: Path, content: list):

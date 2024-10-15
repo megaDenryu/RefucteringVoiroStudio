@@ -5,5 +5,8 @@
     },
     "GPT設定": {
         "SpeakerDistributeAgentのmode": "全部通す"
+    },
+    "COEIROINKv2設定": {
+        "path": "C:\\Users\\pokr301qup\\RIPOSITORY\\COEIROINK_WIN_CPU_v.2.3.4\\COEIROINKv2.exe"
     }
 }

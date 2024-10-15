@@ -6,7 +6,7 @@ from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
-from api.gptAI.voiceroid_api import cevio_human
+from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, InputReciever, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
@@ -24,6 +24,7 @@ from fastapi.encoders import jsonable_encoder
 from starlette.websockets import WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
@@ -48,6 +49,16 @@ import uvicorn
 HumanPart.initalCheck()
 
 app = FastAPI()
+
+# CORS設定を追加
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],  # 許可するオリジンを指定
+    allow_credentials=True,
+    allow_methods=["*"],  # 許可するHTTPメソッドを指定
+    allow_headers=["*"],  # 許可するHTTPヘッダーを指定
+)
+
 # プッシュ通知各種設定が定義されているインスタンス
 notifier = Notifier()
 # クライアントのidと対応するwsを格納する配列類
@@ -82,6 +93,11 @@ if game_master_enable:
     game_master = Human("game_master")
 # print("アプリ起動完了")
 # Websocket用のパス
+ExtendFunc.ExtendPrint("ボイスロイドの起動")
+mana = AllHumanInformationManager.singleton()
+TTSSoftwareManager.tryStartAllTTSSoftware()
+TTSSoftwareManager.updateAllCharaList()
+ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
 @app.on_event("startup")
 async def startup_event():
@@ -1081,19 +1097,49 @@ async def charaInfo(req):
     return {"voiceModeList": voiceModeList, "humanImages": humanImages}
 
 
-@app.post("AllCharaInfo")
-async def allCharaName():
-    """
-    @return: 全てのキャラの情報を返す
-    # 問題
-    1. ページにアクセスすると、キャラクターを選択しないといけないが、今まではあだ名を入力して召喚していたが、キャラクターをプルダウンで選べるようにもする。
-    2. そのためにTTSSoftwareのキャラクターの名前を返すAPIを作成する。
-    # 手順
 
+"""
+# 問題
+1. ページにアクセスすると、キャラクターを選択しないといけないが、今まではあだ名を入力して召喚していたが、キャラクターをプルダウンで選べるようにもする。
+"""
+@app.post("/AllCharaInfoTest")
+async def AllCharaInfo():
+    ExtendFunc.ExtendPrint("AllCharaInfoTest")
+    return {"message": "AllCharaInfoTest"}
+
+@app.post("/AllCharaInfoCharaNames")
+async def AllCharaInfoCharaNames():
     """
+    2. クライアントのtsでは以下のオブジェクトを生成する
+    characterNamesDict: Record<TTSSoftware, CharacterName[]>;
+    """
+    ExtendFunc.ExtendPrint("AllCharaInfoCharaNames")
     all_manager = AllHumanInformationManager.singleton()
     charaNames:dict[TTSSoftware, list[CharacterName]] = all_manager.chara_names_manager.chara_names
+    ExtendFunc.ExtendPrint(charaNames)
     return charaNames
+@app.post("/AllCharaInfoHumanImages")
+async def AllCharaInfoHumanImages(req):
+    """
+    2. クライアントのtsでは以下のオブジェクトを生成する
+    humanImagesDict: Map<CharacterName, HumanImage[]>
+    """
+    ExtendFunc.ExtendPrint("AllCharaInfoHumanImages")
+    all_manager = AllHumanInformationManager.singleton()
+    humanImages:dict[CharacterName, list[HumanImage]] = all_manager.human_images.human_images
+    ExtendFunc.ExtendPrint(humanImages)
+    return  humanImages
+@app.post("/AllCharaInfoVoiceModes")
+async def AllCharaInfoVoiceModes(req):
+    """
+    2. クライアントのtsでは以下のオブジェクトを生成する
+    voiceModesDict: Map<CharacterName, VoiceMode[]>;
+    """
+    ExtendFunc.ExtendPrint("AllCharaInfoVoiceModes")
+    all_manager = AllHumanInformationManager.singleton()
+    voiceModes:dict[CharacterName, list[VoiceMode]] = all_manager.CharaNames2VoiceModeDict_manager.chara_names2_voice_modes
+    ExtendFunc.ExtendPrint(voiceModes)
+    return voiceModes
 
 
 class Item(BaseModel):
