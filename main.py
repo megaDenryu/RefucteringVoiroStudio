@@ -4,7 +4,7 @@ import random
 import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
@@ -1103,9 +1103,14 @@ async def charaInfo(req):
 1. ページにアクセスすると、キャラクターを選択しないといけないが、今まではあだ名を入力して召喚していたが、キャラクターをプルダウンで選べるようにもする。
 """
 @app.post("/AllCharaInfoTest")
-async def AllCharaInfo():
+async def AllCharaInfoTest():
     ExtendFunc.ExtendPrint("AllCharaInfoTest")
     return {"message": "AllCharaInfoTest"}
+
+@app.post("/AllCharaInfo")
+async def AllCharaInfo():
+    mana = AllHumanInformationDict()
+    return mana
 
 @app.post("/AllCharaInfoCharaNames")
 async def AllCharaInfoCharaNames():

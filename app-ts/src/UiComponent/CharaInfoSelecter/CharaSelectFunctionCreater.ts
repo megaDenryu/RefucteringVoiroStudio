@@ -1,5 +1,6 @@
-import { TTSSoftware, CharacterName, HumanImage, VoiceMode } from "../../ValueObject/Character";
+import { TTSSoftware, CharacterName, HumanImage, VoiceMode, AllHumanInformationDict } from "../../ValueObject/Character";
 import { CharaSelectFunction } from "./CharaInfoSelecter";
+import { IAllHumanInformationDict } from "./ICharacterInfo";
 
 interface CharaInfoResponse {
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
@@ -29,6 +30,7 @@ export class CharaSelectFunctionCreater {
             'Content-Type': 'application/json'
         }
     }
+    allHumanInformationDict: AllHumanInformationDict;
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
     humanImagesDict: Map<CharacterName, HumanImage[]>;
     voiceModesDict: Map<CharacterName, VoiceMode[]>;
@@ -51,9 +53,12 @@ export class CharaSelectFunctionCreater {
 
     constructor() {
         
-        // this.requestCharaInfo().then(() => {
-        //     this.createCharaSelectFunction();
-        // });
+        this.fetchHumanInformation().then(data => {
+            this.allHumanInformationDict = new AllHumanInformationDict(data);
+            this.characterNamesDict = this.allHumanInformationDict.getCharacterNamesDict();
+            this.humanImagesDict = this.allHumanInformationDict.getHumanImagesDict();
+            this.voiceModesDict = this.allHumanInformationDict.getVoiceModesDict();
+        });
     }
 
     async requestCharaInfoTest() {
@@ -70,12 +75,12 @@ export class CharaSelectFunctionCreater {
         await testPromise;
     }
 
-    async fetchHumanInformation(): Promise<AllHumanInformationDict> {
+    async fetchHumanInformation(): Promise<IAllHumanInformationDict> {
         const response = await fetch(this.apiURLCharaNames, this.requestinit);
         if (!response.ok) {
             throw new Error("Failed to fetch human information");
         }
-        const data: AllHumanInformationDict = await response.json();
+        const data: IAllHumanInformationDict = await response.json();
         return data;
     }
     

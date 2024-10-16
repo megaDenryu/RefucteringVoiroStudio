@@ -132,7 +132,7 @@ export class HumanNameState {
 }
 
 
-class HumanInformation {
+export class HumanInformation {
     chara_name: CharacterName;
     nicknames: NickName[];
     voice_modes: VoiceMode[];
@@ -146,7 +146,7 @@ class HumanInformation {
     }
 }
 
-class HumanInformationList {
+export class HumanInformationList {
     tTSSoftware: TTSSoftware;
     human_informations: HumanInformation[];
 
@@ -156,7 +156,7 @@ class HumanInformationList {
     }
 }
 
-class AllHumanInformationDict {
+export class AllHumanInformationDict {
     data: Record<TTSSoftware, HumanInformationList>;
 
     constructor(allHumanInformationDict: IAllHumanInformationDict) {
@@ -166,5 +166,40 @@ class AllHumanInformationDict {
             AIVoice: new HumanInformationList(allHumanInformationDict.data.AIVoice),
             Coeiroink: new HumanInformationList(allHumanInformationDict.data.Coeiroink)
         };
+    }
+
+    public getCharacterNamesDict(): Record<TTSSoftware, CharacterName[]> {
+        const characterNamesDict: Record<TTSSoftware, CharacterName[]> = {
+            CevioAI: [],
+            VoiceVox: [],
+            AIVoice: [],
+            Coeiroink: []
+        };
+        for (const ttsSoftware of TTSSoftwareEnum.values) {
+            this.data[ttsSoftware].human_informations.forEach(humanInformation => {
+                characterNamesDict[ttsSoftware].push(humanInformation.chara_name);
+            });
+        }
+        return characterNamesDict;
+    }
+
+    public getHumanImagesDict(): Map<CharacterName, HumanImage[]> {
+        const humanImagesDict = new Map<CharacterName, HumanImage[]>();
+        for (const ttsSoftware of TTSSoftwareEnum.values) {
+            this.data[ttsSoftware].human_informations.forEach(humanInformation => {
+                humanImagesDict.set(humanInformation.chara_name, humanInformation.images);
+            });
+        }
+        return humanImagesDict;
+    }
+
+    public getVoiceModesDict(): Map<CharacterName, VoiceMode[]> {
+        const voiceModesDict = new Map<CharacterName, VoiceMode[]>();
+        for (const ttsSoftware of TTSSoftwareEnum.values) {
+            this.data[ttsSoftware].human_informations.forEach(humanInformation => {
+                voiceModesDict.set(humanInformation.chara_name, humanInformation.voice_modes);
+            });
+        }
+        return voiceModesDict;
     }
 }

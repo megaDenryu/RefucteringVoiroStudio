@@ -381,35 +381,35 @@ class HumanInformation(BaseModel):
 
     def __init__(self, chara_name:CharacterName):
         self.chara_name = chara_name
-        self.nickname = self.loadNicknames(chara_name)
-        self.voice_mode = self.loadVoiceModes(chara_name)
-        self.images = self.loadImages(chara_name)
+        nicknames = self.loadNicknames(chara_name)
+        voice_modes = self.loadVoiceModes(chara_name)
+        images = self.loadImages(chara_name)
+        super().__init__(chara_name=chara_name, nicknames=nicknames, voice_modes=voice_modes, images=images)
 
-    def loadNicknames(self, chara_name:CharacterName)->list[NickName]:
-        self.nicknames = AllHumanInformationManager.singleton().nick_names_manager.nicknames[chara_name]
-        pass
+    def loadNicknames(self, chara_name:CharacterName):
+        return AllHumanInformationManager.singleton().nick_names_manager.nicknames[chara_name]
 
-    def loadVoiceModes(self, chara_name:CharacterName)->list[VoiceMode]:
-        self.voice_modes = AllHumanInformationManager.singleton().CharaNames2VoiceModeDict_manager.chara_names2_voice_modes[chara_name]
-        pass
+    def loadVoiceModes(self, chara_name:CharacterName):
+        return AllHumanInformationManager.singleton().CharaNames2VoiceModeDict_manager.chara_names2_voice_modes[chara_name]
 
-    def loadImages(self, chara_name:CharacterName)->list[HumanImage]:
-        self.images = AllHumanInformationManager.singleton().human_images.human_images[chara_name]
-        pass
+    def loadImages(self, chara_name:CharacterName):
+        return AllHumanInformationManager.singleton().human_images.human_images[chara_name]
 
 class HumanInformationList(BaseModel):
     tTSSoftware: TTSSoftware
     human_informations: list[HumanInformation]
 
     def __init__(self, tTSSoftware:TTSSoftware):
-        charaNames = AllHumanInformationManager.singleton().chara_names_manager.chara_names[TTSSoftware]
-        self.human_informations = [HumanInformation(chara_name) for chara_name in charaNames]
+        mana = AllHumanInformationManager.singleton()
+        charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
+        super().__init__(tTSSoftware=tTSSoftware, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
 
 class AllHumanInformationDict(BaseModel):
     data: dict[TTSSoftware,HumanInformationList]
 
     def __init__(self):
-        self.data = {software:HumanInformationList(software) for software in TTSSoftware}
+        data = {software:HumanInformationList(software) for software in TTSSoftware}
+        super().__init__(data=data)
 
 
 
