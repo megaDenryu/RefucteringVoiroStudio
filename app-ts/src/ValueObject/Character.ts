@@ -1,4 +1,5 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
+import { IAllHumanInformationDict, IHumanInformation, IHumanInformationList } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
@@ -127,5 +128,43 @@ export class HumanNameState {
             if (this.equals(other) === true) return true;
         }
         return false;
+    }
+}
+
+
+class HumanInformation {
+    chara_name: CharacterName;
+    nicknames: NickName[];
+    voice_modes: VoiceMode[];
+    images: HumanImage[];
+
+    constructor(humanInformation: IHumanInformation) {
+        this.chara_name = new CharacterName(humanInformation.chara_name.name);
+        this.nicknames = humanInformation.nicknames.map(nick_name => new NickName(nick_name.name));
+        this.voice_modes = humanInformation.voice_modes.map(voice_mode => new VoiceMode(voice_mode.mode, voice_mode.id, voice_mode.id_str));
+        this.images = humanInformation.images.map(image => new HumanImage(image.folder_name));
+    }
+}
+
+class HumanInformationList {
+    tTSSoftware: TTSSoftware;
+    human_informations: HumanInformation[];
+
+    constructor(humanInformationList: IHumanInformationList) {
+        this.tTSSoftware = TTSSoftwareEnum.check(humanInformationList.tTSSoftware);
+        this.human_informations = humanInformationList.human_informations.map(humanInformation => new HumanInformation(humanInformation));
+    }
+}
+
+class AllHumanInformationDict {
+    data: Record<TTSSoftware, HumanInformationList>;
+
+    constructor(allHumanInformationDict: IAllHumanInformationDict) {
+        this.data = {
+            CevioAI: new HumanInformationList(allHumanInformationDict.data.CevioAI),
+            VoiceVox: new HumanInformationList(allHumanInformationDict.data.VoiceVox),
+            AIVoice: new HumanInformationList(allHumanInformationDict.data.AIVoice),
+            Coeiroink: new HumanInformationList(allHumanInformationDict.data.Coeiroink)
+        };
     }
 }

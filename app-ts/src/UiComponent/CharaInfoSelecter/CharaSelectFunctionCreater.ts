@@ -7,6 +7,7 @@ interface CharaInfoResponse {
     voiceModesDict: Map<CharacterName, VoiceMode[]>;
 }
 
+
 export class CharaSelectFunctionCreater {
     /**
      * キャラクター選択関数を作成する
@@ -69,6 +70,18 @@ export class CharaSelectFunctionCreater {
         await testPromise;
     }
 
+    async fetchHumanInformation(): Promise<AllHumanInformationDict> {
+        const response = await fetch(this.apiURLCharaNames, this.requestinit);
+        if (!response.ok) {
+            throw new Error("Failed to fetch human information");
+        }
+        const data: AllHumanInformationDict = await response.json();
+        return data;
+    }
+    
+
+    
+
     async requestCharaInfo() {
         // 1. キャラクター情報をapiにリクエストする
 
@@ -79,26 +92,7 @@ export class CharaSelectFunctionCreater {
          * にキャラクター情報を格納する.
          * 3つの情報を非同期に同時に取得する.
          */
-        const charaNamesPromise = fetch(this.apiURLCharaNames, this.requestinit)
-            .then(response => response.json())
-            .then(json => {
-                console.log(json);
-                this.characterNamesDict = json;
-            });
-        const humanImagesPromise = fetch(this.apiURLHumanImages, this.requestinit)
-            .then(response => response.json())
-            .then(json => {
-                console.log(json);  
-                this.humanImagesDict = json;
-            });
-        const voiceModesPromise = fetch(this.apiURLVoiceModes, this.requestinit)
-            .then(response => response.json())
-            .then(json => {
-                console.log(json);
-                this.voiceModesDict = json;
-            });
 
-        await Promise.all([charaNamesPromise, humanImagesPromise, voiceModesPromise]);
     }
 
     createCharaSelectFunction() {

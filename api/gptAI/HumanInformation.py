@@ -373,10 +373,7 @@ class AllHumanInformationManager:
 
     
 
-    
-
-
-class HumanInformation:
+class HumanInformation(BaseModel):
     chara_name: CharacterName
     nicknames: list[NickName]
     voice_modes: list[VoiceMode]
@@ -389,13 +386,33 @@ class HumanInformation:
         self.images = self.loadImages(chara_name)
 
     def loadNicknames(self, chara_name:CharacterName)->list[NickName]:
+        self.nicknames = AllHumanInformationManager.singleton().nick_names_manager.nicknames[chara_name]
         pass
 
     def loadVoiceModes(self, chara_name:CharacterName)->list[VoiceMode]:
+        self.voice_modes = AllHumanInformationManager.singleton().CharaNames2VoiceModeDict_manager.chara_names2_voice_modes[chara_name]
         pass
 
     def loadImages(self, chara_name:CharacterName)->list[HumanImage]:
+        self.images = AllHumanInformationManager.singleton().human_images.human_images[chara_name]
         pass
+
+class HumanInformationList(BaseModel):
+    tTSSoftware: TTSSoftware
+    human_informations: list[HumanInformation]
+
+    def __init__(self, tTSSoftware:TTSSoftware):
+        charaNames = AllHumanInformationManager.singleton().chara_names_manager.chara_names[TTSSoftware]
+        self.human_informations = [HumanInformation(chara_name) for chara_name in charaNames]
+
+class AllHumanInformationDict(BaseModel):
+    data: dict[TTSSoftware,HumanInformationList]
+
+    def __init__(self):
+        self.data = {software:HumanInformationList(software) for software in TTSSoftware}
+
+
+
         
 
 class HumanNameState:
