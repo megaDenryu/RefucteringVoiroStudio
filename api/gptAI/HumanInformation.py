@@ -130,6 +130,9 @@ class CharaNameManager:
         キャラネームリストを上書きします。部分更新ではないので注意してください。
         """
         path = self.chara_names_filepath[software]
+        JsonAccessor.checkExistAndCreateJson(path, [])
+        chara_names_list = [chara_name.name for chara_name in chara_names]
+        ExtendFunc.saveListToJson(path, chara_names_list)
 
 class  CharaNames2VoiceModeDictManager:
     api_dir: Path
@@ -410,6 +413,15 @@ class AllHumanInformationDict(BaseModel):
     def __init__(self):
         data = {software:HumanInformationList(software) for software in TTSSoftware}
         super().__init__(data=data)
+
+    def save(self):
+        path = AllHumanInformationManager.singleton().api_dir / "CharSettingJson/AllHumanInformation.json"
+        ExtendFunc.saveDictToJson(path, self.model_dump())
+
+    def load(self):
+        path = AllHumanInformationManager.singleton().api_dir / "CharSettingJson/AllHumanInformation.json"
+        data = ExtendFunc.loadJsonToDict(path)
+        return AllHumanInformationDict(**data)
 
 
 
