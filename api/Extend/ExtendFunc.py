@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 import json
 import os
@@ -190,6 +191,12 @@ class ExtendFunc:
             json.dump(serializable_content, f, ensure_ascii=False, indent=4)
     
     @staticmethod
+    def enum_to_str(obj):
+        if isinstance(obj, Enum):
+            return obj.value
+        raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+    
+    @staticmethod
     def saveDictToJson(file_path: Path, content: dict|Map|MapHasListValue):
         """
         ファイルを保存します。
@@ -197,6 +204,8 @@ class ExtendFunc:
         Parameters:
         file_path (Path): 保存先のjsonファイルパス
         content (dict): 保存する内容
+
+        enumの値は文字列に変換して保存します。
         """
         # contentがMapの場合はdictに変換
         if isinstance(content, Map):
@@ -205,7 +214,7 @@ class ExtendFunc:
             content = content.dumpToJsonDict()
 
         with open(file_path, 'w', encoding="utf-8") as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
+            json.dump(content, f, ensure_ascii=False, indent=4, default=ExtendFunc.enum_to_str)
 
     @staticmethod
     def loadJsonToList(file_path: Path) -> list:
