@@ -360,8 +360,6 @@ class AllHumanInformationManager:
         self.CharaNames2VoiceModeDict_manager = CharaNames2VoiceModeDictManager()
         self.nick_names_manager = NicknamesManager()
         self.human_images = HumanImagesManager()
-
-
         self.images = self.loadImages()
     
     @classmethod
@@ -383,9 +381,13 @@ class HumanInformation(BaseModel):
     images: list[HumanImage]
 
     def __init__(self, chara_name:CharacterName):
-        self.chara_name = chara_name
+        ExtendFunc.ExtendPrintWithTitle("名前",chara_name)
+        ExtendFunc.ExtendPrint(chara_name)
+        ExtendFunc.ExtendPrint("ニックネームロード")
         nicknames = self.loadNicknames(chara_name)
+        ExtendFunc.ExtendPrint("ボイスモードロード")
         voice_modes = self.loadVoiceModes(chara_name)
+        ExtendFunc.ExtendPrint("イメージロード")
         images = self.loadImages(chara_name)
         super().__init__(chara_name=chara_name, nicknames=nicknames, voice_modes=voice_modes, images=images)
 
@@ -399,23 +401,25 @@ class HumanInformation(BaseModel):
         return AllHumanInformationManager.singleton().human_images.human_images[chara_name]
 
 class HumanInformationList(BaseModel):
-    tTSSoftware: TTSSoftware
+    tTSSoftware: str#TTSSoftware
     human_informations: list[HumanInformation]
 
     def __init__(self, tTSSoftware:TTSSoftware):
         mana = AllHumanInformationManager.singleton()
         charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
-        super().__init__(tTSSoftware=tTSSoftware, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
+        super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
 
 class AllHumanInformationDict(BaseModel):
-    data: dict[TTSSoftware,HumanInformationList]
+    data: dict[str,HumanInformationList]
 
     def __init__(self):
-        data = {software:HumanInformationList(software) for software in TTSSoftware}
+        data = {software.value:HumanInformationList(software) for software in TTSSoftware}
         super().__init__(data=data)
 
     def save(self):
         path = AllHumanInformationManager.singleton().api_dir / "CharSettingJson/AllHumanInformation.json"
+        JsonAccessor.checkExistAndCreateJson(path, {})
+        ExtendFunc.ExtendPrintWithTitle("保存",self.model_dump())
         ExtendFunc.saveDictToJson(path, self.model_dump())
 
     def load(self):

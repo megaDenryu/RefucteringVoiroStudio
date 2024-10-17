@@ -8,6 +8,6 @@ import { CharaSelectFunctionCreater } from "../UiComponent/CharaInfoSelecter/Cha
 console.log("test staart");
 
 const charaSelectFunction = new CharaSelectFunctionCreater();
-await charaSelectFunction.requestCharaInfoTest();
-await charaSelectFunction.requestCharaInfo();
+// await charaSelectFunction.requestCharaInfoTest();
+await charaSelectFunction.requestAllCharaInfo();
 console.log("test done");

@@ -81,8 +81,11 @@ def test2():
 
 
 def test3():
+    chara = CharacterName(name = "あかね")
+    ExtendFunc.ExtendPrintWithTitle("作成",chara)
     mana = AllHumanInformationDict()
     ExtendFunc.ExtendPrintWithTitle("作成",mana)
+    mana.save()
 
 
 

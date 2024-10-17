@@ -95,8 +95,11 @@ if game_master_enable:
 # Websocket用のパス
 ExtendFunc.ExtendPrint("ボイスロイドの起動")
 mana = AllHumanInformationManager.singleton()
-TTSSoftwareManager.tryStartAllTTSSoftware()
-TTSSoftwareManager.updateAllCharaList()
+# TTSSoftwareManager.tryStartAllTTSSoftware()
+# TTSSoftwareManager.updateAllCharaList()
+mana = AllHumanInformationDict()
+ExtendFunc.ExtendPrint(mana)
+mana.save()
 ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
 @app.on_event("startup")
@@ -1110,6 +1113,8 @@ async def AllCharaInfoTest():
 @app.post("/AllCharaInfo")
 async def AllCharaInfo():
     mana = AllHumanInformationDict()
+    ExtendFunc.ExtendPrint(mana)
+    mana.save()
     return mana
 
 @app.post("/AllCharaInfoCharaNames")

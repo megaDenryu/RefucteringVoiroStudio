@@ -39,6 +39,10 @@ export class CharaSelectFunctionCreater {
         return this.rootURL + "AllCharaInfoTest";
     }
 
+    get apiURLCharaInfo() {
+        return this.rootURL + "AllCharaInfo";
+    }
+
     get apiURLCharaNames() {
         return this.rootURL + this.apiEndPoints.CharaNames;
     }
@@ -49,16 +53,7 @@ export class CharaSelectFunctionCreater {
         return this.rootURL + this.apiEndPoints.VoiceModes;
     }
 
-    
-
     constructor() {
-        
-        this.fetchHumanInformation().then(data => {
-            this.allHumanInformationDict = new AllHumanInformationDict(data);
-            this.characterNamesDict = this.allHumanInformationDict.getCharacterNamesDict();
-            this.humanImagesDict = this.allHumanInformationDict.getHumanImagesDict();
-            this.voiceModesDict = this.allHumanInformationDict.getVoiceModesDict();
-        });
     }
 
     async requestCharaInfoTest() {
@@ -76,28 +71,31 @@ export class CharaSelectFunctionCreater {
     }
 
     async fetchHumanInformation(): Promise<IAllHumanInformationDict> {
-        const response = await fetch(this.apiURLCharaNames, this.requestinit);
+        const response = await fetch("http://localhost:8010/AllCharaInfo", this.requestinit);
         if (!response.ok) {
             throw new Error("Failed to fetch human information");
         }
         const data: IAllHumanInformationDict = await response.json();
         return data;
     }
-    
 
-    
+    async requestAllCharaInfo() {
+        const charaInfo = await fetch("http://localhost:8010/AllCharaInfo", this.requestinit)
+        .then(response => response.json())
+        .then(json => {
+            console.log(json);
+            return json;
+        })
+        await charaInfo;
+    }
 
     async requestCharaInfo() {
-        // 1. キャラクター情報をapiにリクエストする
-
-        /**
-         * characterNamesDict: Record<TTSSoftware, CharacterName[]>
-         * humanImagesDict: Map<CharacterName, HumanImage[]>
-         * voiceModesDict: Map<CharacterName, VoiceMode[]>
-         * にキャラクター情報を格納する.
-         * 3つの情報を非同期に同時に取得する.
-         */
-
+        var data = await this.fetchHumanInformation();
+        console.log(data);
+        this.allHumanInformationDict = new AllHumanInformationDict(data);
+        this.characterNamesDict = this.allHumanInformationDict.getCharacterNamesDict();
+        this.humanImagesDict = this.allHumanInformationDict.getHumanImagesDict();
+        this.voiceModesDict = this.allHumanInformationDict.getVoiceModesDict();
     }
 
     createCharaSelectFunction() {
