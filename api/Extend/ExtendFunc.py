@@ -263,7 +263,7 @@ class ExtendFunc:
     
     
     @staticmethod
-    def loadJsonToBaseModel(file_path: Path, model_class: Type[B]) -> B:
+    def loadJsonToBaseModel(file_path: Path, model_class: Type[B]) -> B|None:
         """
         jsonファイルを読み込み、指定されたBaseModelクラスのインスタンスとして返します。
 
@@ -273,8 +273,31 @@ class ExtendFunc:
 
         Returns: BaseModel: 読み込んだ内容を持つBaseModelのインスタンス
         """
-        ret_dict = ExtendFunc.loadJsonToDict(file_path)
-        return model_class(**ret_dict)
+        try :
+            ret_dict = ExtendFunc.loadJsonToDict(file_path)
+            return model_class(**ret_dict)
+        except Exception as e:
+            return None
+    
+    @staticmethod
+    def saveBaseModelToJson(file_path: Path, model: BaseModel):
+        """
+        BaseModelをjsonファイルに保存します。
+
+        Parameters:
+        file_path (Path): 保存先のjsonファイルパス
+        model (BaseModel): 保存するBaseModelのインスタンス
+        """
+        try:
+            ExtendFunc.saveDictToJson(file_path, model.model_dump())
+        except Exception as e:
+            ExtendFunc.ExtendPrint({
+                "エラー":"BaseModelの保存に失敗しました。",
+                "エラー内容":str(e),
+                "file_path":f"{file_path}",
+                "model":model
+            })
+            raise e
         
     
     @staticmethod

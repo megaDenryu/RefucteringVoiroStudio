@@ -1,7 +1,7 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Literal, TypeAlias, TypedDict
 from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel, Map
@@ -33,7 +33,13 @@ class TTSSoftware(Enum):
 class CharacterName(HashableBaseModel):
     name: str
 
+class ICharacterName(TypedDict):
+    name: str
+
 class NickName(HashableBaseModel):
+    name: str
+
+class INickName(TypedDict):
     name: str
 
 class VoiceMode(HashableBaseModel):
@@ -41,7 +47,15 @@ class VoiceMode(HashableBaseModel):
     id: int|None = None
     id_str: str|None = None
 
+class IVoiceMode(TypedDict):
+    mode: str
+    id: int|None
+    id_str: str|None
+
 class HumanImage(HashableBaseModel):
+    folder_name: str
+
+class IHumanImage(TypedDict):
     folder_name: str
 
 class NameSpecies(Enum):
@@ -146,15 +160,31 @@ class CharaNameManager:
         chara_names_list = [chara_name.name for chara_name in chara_names]
         ExtendFunc.saveListToJson(path, chara_names_list)
 
+class CharaNamaeVoiceModePair(BaseModel):
+    chara_name: CharacterName
+    voice_modes: list[VoiceMode]
+
+class ICharaNamaeVoiceModePair(TypedDict):
+    chara_name: ICharacterName
+    voice_modes: list[IVoiceMode]
+
+class CharaNamaeVoiceModePairList(BaseModel):
+    charaNameAndVoiceModesPair: list[CharaNamaeVoiceModePair]
+
+
 class  CharaNames2VoiceModeDictManager:
     api_dir: Path
     CharaNames2VoiceModeDict_filepath: dict[TTSSoftware, Path] # キャラ名とボイスモードの対応リストのファイルパス
-    chara_names2_voice_modes:  dict[CharacterName, list[VoiceMode]] # キャラ名とボイスモードの対応リスト
+    charaNameAndVoiceModesPairList: CharaNamaeVoiceModePairList
+
+    @property
+    def chara_names2_voice_modes(self)->dict[CharacterName, list[VoiceMode]]:
+        return {pair.chara_name:pair.voice_modes for pair in self.charaNameAndVoiceModesPairList.charaNameAndVoiceModesPair}
 
     def __init__(self):
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
         self.CharaNames2VoiceModeDict_filepath = self.createCharaNames2VoiceModeDictPath()
-        self.chara_names2_voice_modes = self.loadAllCharaNames2VoiceModeDict()
+        self.charaNameAndVoiceModesPairList = self.loadAllCharaNames2VoiceModeDict()
     
     def createCharaNames2VoiceModeDictPath(self)->dict[TTSSoftware, Path]:
         return {
@@ -164,23 +194,21 @@ class  CharaNames2VoiceModeDictManager:
             TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/CevioAINames2VoiceMode.json"
         }
     
-    def loadCharaNames2VoiceModeDict(self, software:TTSSoftware)->dict[CharacterName, list[VoiceMode]]:
+    def loadCharaNames2VoiceModeDict(self, software:TTSSoftware)->CharaNamaeVoiceModePairList:
         path = self.CharaNames2VoiceModeDict_filepath[software]
         # もしファイルが存在しない場合はファイルを作成
-        JsonAccessor.checkExistAndCreateJson(path, {})
-        voice_modes_dict:dict[str, list[str]] = ExtendFunc.loadJsonToDict(path)
-        # voice_modesの型が正常かどうかを確認
-        for name, voice_modes in voice_modes_dict.items():
-            if not isinstance(name, str) or not isinstance(voice_modes, list):
-                raise TypeError(f"voice_modesの型が正常ではありません。name:{name}, voice_modes:{voice_modes}")
-        return {CharacterName(name=name):[VoiceMode(mode=mode) for mode in voice_modes] for name, voice_modes in voice_modes_dict.items()}
+        JsonAccessor.checkExistAndCreateJson(path, None)
+        voice_modes_dict:CharaNamaeVoiceModePairList|None = ExtendFunc.loadJsonToBaseModel(path, CharaNamaeVoiceModePairList)
+        if voice_modes_dict is None:
+            return CharaNamaeVoiceModePairList(charaNameAndVoiceModesPair=[])
+        return voice_modes_dict
     
-    def loadAllCharaNames2VoiceModeDict(self) -> dict[CharacterName, list[VoiceMode]]:
-        all_voice_modes = {}
+    def loadAllCharaNames2VoiceModeDict(self) -> CharaNamaeVoiceModePairList:
+        all_voice_modes = []
         for software in TTSSoftware:
             voice_modes = self.loadCharaNames2VoiceModeDict(software)
-            all_voice_modes.update(voice_modes)
-        return all_voice_modes
+            all_voice_modes += voice_modes.charaNameAndVoiceModesPair
+        return CharaNamaeVoiceModePairList(charaNameAndVoiceModesPair=all_voice_modes)
 
     def updateCharaNames2VoiceModeDict(self, software:TTSSoftware, voice_modes:dict[CharacterName, list[VoiceMode]]):
         """
@@ -191,8 +219,8 @@ class  CharaNames2VoiceModeDictManager:
         """
         path = self.CharaNames2VoiceModeDict_filepath[software]
         JsonAccessor.checkExistAndCreateJson(path, {})
-        voice_modes_dict = {chara_name.name:[voice_mode.mode for voice_mode in voice_modes] for chara_name, voice_modes in voice_modes.items()}
-        ExtendFunc.saveDictToJson(path, voice_modes_dict)
+        voice_mode_list = [CharaNamaeVoiceModePair(chara_name=chara_name, voice_modes=voice_modes[chara_name]) for chara_name in voice_modes]
+        ExtendFunc.saveBaseModelToJson(path, CharaNamaeVoiceModePairList(charaNameAndVoiceModesPair=voice_mode_list))
 
 class NicknamesManager:
     """

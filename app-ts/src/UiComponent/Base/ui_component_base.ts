@@ -138,6 +138,10 @@ export class BaseComponent {
         this.parentComponentCluster = parentComponentCluster;
     }
 
+    bindParentElement(parentElement: HTMLElement): void {
+        parentElement.appendChild(this.element);
+    }
+
   
     appendChildToElement(childComponent: BaseComponent): void {
         this.element.appendChild(childComponent.element);

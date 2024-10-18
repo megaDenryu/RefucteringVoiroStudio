@@ -213,12 +213,15 @@ class cevio_human:
         Raises :
           CevioException : CeVIOが起動していない場合の例外
         """
-
-        castlist = self.talker.AvailableCasts
-        result = []
-        for i in range(0,castlist.Length):
-            result.append(castlist.At(i))
-        return result
+        try:
+            castlist = self.talker.AvailableCasts
+            result = []
+            for i in range(0,castlist.Length):
+                result.append(castlist.At(i))
+            return result
+        except Exception as e:
+            print(e)
+            raise Exception("CeVIOが起動していません")
     
     def updateAllCharaList(self):
         """
@@ -462,14 +465,18 @@ class voicevox_human:
         4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
         5. キャラクター名からニックネームリストを返す辞書      を更新
         """
-        #1. VoiceVoxのキャラクター名を取得
-        speaker_dict = voicevox_human.getSpeakerDict()
-        #2. キャラクター名リストを更新
-        voicevox_human.updateCharaNames(speaker_dict)
-        #3. キャラクター名からボイスモード名リストを返す辞書    を更新
-        voicevox_human.updateVoiceModeInfo(speaker_dict)
-        #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
-        voicevox_human.upadteNicknameAndHumanImagesFolder(speaker_dict)
+        try:
+            #1. VoiceVoxのキャラクター名を取得
+            speaker_dict = voicevox_human.getSpeakerDict()
+            #2. キャラクター名リストを更新
+            voicevox_human.updateCharaNames(speaker_dict)
+            #3. キャラクター名からボイスモード名リストを返す辞書    を更新
+            voicevox_human.updateVoiceModeInfo(speaker_dict)
+            #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+            voicevox_human.upadteNicknameAndHumanImagesFolder(speaker_dict)
+        except Exception as e:
+            print(e)
+            print("VoiceVoxのキャラクター名取得に失敗しました。起動してないかもしれません")
         
     @staticmethod
     def updateCharaNames(speaker_dict:list[SpeakerInfo]):
@@ -912,17 +919,21 @@ class AIVoiceHuman:
         4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
         5. キャラクター名からニックネームリストを返す辞書      を更新
         """
-        all_human_info_manager = AllHumanInformationManager.singleton()
-        #2. キャラクター名リストを更新
-        charaNames = self.CharaNames
-        all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.AIVoice,charaNames)
-        #3. キャラクター名からボイスモード名リストを返す辞書    を更新
-        voiceModeDict:dict[CharacterName,list[VoiceMode]] = self.createVoiceModeDict()
-        all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.AIVoice,voiceModeDict)
-        #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
-        all_human_info_manager.human_images.tryAddHumanFolder(charaNames)
-        #5. キャラクター名からニックネームリストを返す辞書      を更新
-        all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(charaNames)
+        try:
+            all_human_info_manager = AllHumanInformationManager.singleton()
+            #2. キャラクター名リストを更新
+            charaNames = self.CharaNames
+            all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.AIVoice,charaNames)
+            #3. キャラクター名からボイスモード名リストを返す辞書    を更新
+            voiceModeDict:dict[CharacterName,list[VoiceMode]] = self.createVoiceModeDict()
+            all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.AIVoice,voiceModeDict)
+            #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+            all_human_info_manager.human_images.tryAddHumanFolder(charaNames)
+            #5. キャラクター名からニックネームリストを返す辞書      を更新
+            all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(charaNames)
+        except Exception as e:
+            print(e)
+            print("AIVoiceのキャラクター名取得に失敗しました。起動してないかもしれません")
     
     def updateCharName(self):
         """
@@ -1417,6 +1428,7 @@ class Coeiroink:
         except Exception as e:
             # coeiroinkが起動してないとき
             print(e)
+            print("Coeiroinkのキャラクター名取得に失敗しました。起動してないかもしれません")
 
     @staticmethod
     def find_coeiroink_exe_path():
@@ -1557,6 +1569,9 @@ class TTSSoftwareManager:
     
     @staticmethod
     def updateAllCharaList():
+        """
+        ボイロの起動コマンド直後にやると、声色インクとかが、非同期ではなく別プロセスで実行されてるせいで失敗することがあるのでアプデボタンを押したときに実行するようにする。また、通信に失敗した場合はエラーを投げる。
+        """
         for ttss in TTSSoftware:
             TTSSoftwareManager.updateCharaList(ttss,TTSSoftwareManager.HasTTSStateDict[ttss])
 
@@ -1566,7 +1581,10 @@ class TTSSoftwareManager:
         各種ボイスロイドのキャラクターリストを更新する
         """
         if tmp_human.hasTTSSoftware == TTSSoftwareInstallState.Installed and tmp_human.onTTSSoftware:
+            ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストを更新します。")
             tmp_human.updateAllCharaList()
+        else:
+            ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストの更新に失敗しました。",tmp_human)
         
      
 
