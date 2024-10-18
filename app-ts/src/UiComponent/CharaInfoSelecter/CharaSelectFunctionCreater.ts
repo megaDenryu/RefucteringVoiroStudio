@@ -74,21 +74,22 @@ export class CharaSelectFunctionCreater {
         await charaInfo;
     }
 
-    async requestAllCharaInfo() {
+    async requestAllCharaInfo(): Promise<CharaSelectFunction> {
         var data = await this.fetchHumanInformation();
         console.log(data);
         this.allHumanInformationDict = new AllHumanInformationDict(data);
         this.characterNamesDict = this.allHumanInformationDict.getCharacterNamesDict();
         this.humanImagesDict = this.allHumanInformationDict.getHumanImagesDict();
         this.voiceModesDict = this.allHumanInformationDict.getVoiceModesDict();
-        this.createCharaSelectFunction();
+        return this.createCharaSelectFunction();
     }
 
-    createCharaSelectFunction() {
+    createCharaSelectFunction(): CharaSelectFunction {
         const charaSelectFunction = new CharaSelectFunction(
             this.characterNamesDict,
             this.humanImagesDict,
             this.voiceModesDict
         );
+        return charaSelectFunction;
     }
 }
