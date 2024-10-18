@@ -7,7 +7,7 @@ from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanInformationTest, TTSSoftware, VoiceMode, VoiceModeNamesManager
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanInformationTest, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 
 
@@ -87,6 +87,15 @@ def test3():
     ExtendFunc.ExtendPrintWithTitle("作成",mana)
     mana.save()
 
+def test4():
+    t:TTSSoftwareType = "AIVoice"
+    print(t)
+    s = TTSSoftware.fromType(t)
+    print(s)
+    t1 = "hoge"
+    s1 = TTSSoftware.fromType(t1)
+    print(s1)
+
 
 
 if __name__ == "__main__":
@@ -105,9 +114,7 @@ if __name__ == "__main__":
     path = api_dir /"CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json"
     JsonAccessor.checkExistAndCreateJson(path, {})
     
-    test3()
-
-
+    test4()
 
 
 

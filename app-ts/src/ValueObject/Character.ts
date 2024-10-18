@@ -1,5 +1,5 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
-import { IAllHumanInformationDict, IHumanInformation, IHumanInformationList } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, IHumanNameState, INickName, ISelectCharacterState, IVoiceMode } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
@@ -34,6 +34,16 @@ export class CharacterName extends BaseValueObject{
         super();
         this.name = name;
     }
+
+    toDict(): ICharacterName {
+        return {
+            name: this.name
+        };
+    }
+
+    static fromDict(characterName: ICharacterName): CharacterName {
+        return new CharacterName(characterName.name);
+    }
 }
 
 export class NickName extends BaseValueObject {
@@ -42,6 +52,16 @@ export class NickName extends BaseValueObject {
     constructor(name: string) {
         super();
         this.name = name;
+    }
+
+    toDict(): INickName {
+        return {
+            name: this.name
+        };
+    }
+
+    static fromDict(nickName: INickName): NickName {
+        return new NickName(nickName.name);
     }
 }
 
@@ -56,6 +76,18 @@ export class VoiceMode extends BaseValueObject {
         this.id = id;
         this.id_str = id_str;
     }
+
+    toDict(): IVoiceMode {
+        return {
+            mode: this.mode,
+            id: this.id,
+            id_str: this.id_str
+        };
+    }
+
+    static fromDict(voiceMode: IVoiceMode): VoiceMode {
+        return new VoiceMode(voiceMode.mode, voiceMode.id, voiceMode.id_str);
+    }
 }
 
 export class HumanImage extends BaseValueObject {
@@ -64,6 +96,16 @@ export class HumanImage extends BaseValueObject {
     constructor(folder_name: string) {
         super();
         this.folder_name = folder_name;
+    }
+
+    toDict(): IHumanImage {
+        return {
+            folder_name: this.folder_name
+        };
+    }
+
+    static fromDict(humanImage: IHumanImage): HumanImage {
+        return new HumanImage(humanImage.folder_name);
     }
 }
 
@@ -84,6 +126,24 @@ export class SelectCharacterState implements IValueObject<SelectCharacterState> 
         this.voice_mode = voice_mode;
         this.human_image = human_image;
         this.tts_software = tts_software;
+    }
+
+    toDict(): ISelectCharacterState {
+        return {
+            tts_software: this.tts_software,
+            character_name: this.character_name.toDict(),
+            human_image: this.human_image.toDict(),
+            voice_mode: this.voice_mode.toDict()
+        };
+    }
+
+    static fromDict(selectCharacterState: ISelectCharacterState): SelectCharacterState {
+        return new SelectCharacterState(
+            TTSSoftwareEnum.check(selectCharacterState.tts_software),
+            CharacterName.fromDict(selectCharacterState.character_name),
+            HumanImage.fromDict(selectCharacterState.human_image),
+            VoiceMode.fromDict(selectCharacterState.voice_mode)
+        );
     }
 
     equals(other: SelectCharacterState): boolean {
@@ -128,6 +188,11 @@ export class HumanNameState {
             if (this.equals(other) === true) return true;
         }
         return false;
+    }
+
+    toDict(): IHumanNameState {
+        return {
+        };
     }
 }
 

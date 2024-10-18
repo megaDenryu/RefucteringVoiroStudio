@@ -19,11 +19,6 @@ export class CharaSelectFunctionCreater {
      */
 
     rootURL = "http://localhost:8010/";
-    apiEndPoints = {
-        "CharaNames":"AllCharaInfoCharaNames",
-        "HumanImages":"AllCharaInfoHumanImages",
-        "VoiceModes":"AllCharaInfoVoiceModes"
-    }
     requestinit = {
         method: 'POST',
         headers: {
@@ -41,16 +36,6 @@ export class CharaSelectFunctionCreater {
 
     get apiURLCharaInfo() {
         return this.rootURL + "AllCharaInfo";
-    }
-
-    get apiURLCharaNames() {
-        return this.rootURL + this.apiEndPoints.CharaNames;
-    }
-    get apiURLHumanImages() {
-        return this.rootURL + this.apiEndPoints.HumanImages;
-    }
-    get apiURLVoiceModes() {
-        return this.rootURL + this.apiEndPoints.VoiceModes;
     }
 
     constructor() {
@@ -79,7 +64,7 @@ export class CharaSelectFunctionCreater {
         return data;
     }
 
-    async requestAllCharaInfo() {
+    async requestAllCharaInfoTest() {
         const charaInfo = await fetch("http://localhost:8010/AllCharaInfo", this.requestinit)
         .then(response => response.json())
         .then(json => {
@@ -89,13 +74,14 @@ export class CharaSelectFunctionCreater {
         await charaInfo;
     }
 
-    async requestCharaInfo() {
+    async requestAllCharaInfo() {
         var data = await this.fetchHumanInformation();
         console.log(data);
         this.allHumanInformationDict = new AllHumanInformationDict(data);
         this.characterNamesDict = this.allHumanInformationDict.getCharacterNamesDict();
         this.humanImagesDict = this.allHumanInformationDict.getHumanImagesDict();
         this.voiceModesDict = this.allHumanInformationDict.getVoiceModesDict();
+        this.createCharaSelectFunction();
     }
 
     createCharaSelectFunction() {

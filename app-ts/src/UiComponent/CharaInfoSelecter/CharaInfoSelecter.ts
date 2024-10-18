@@ -440,9 +440,14 @@ export class CharaSelectFunction implements IHasComponent {
             this.compositeVoiceModeSelecter.selectedVoiceMode
         );
         //情報をまとめてサーバーにPostでリクエストを投げる
+
         
         //サーバーから返ってきた情報を元に、キャラクターを生成する
         //送るapiエンドポイントの名前は
+        
+    }
+
+    private fetchCharaInfo(): void {
         
     }
 }

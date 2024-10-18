@@ -11,8 +11,8 @@ export interface INickName {
 
 export interface IVoiceMode {
     mode: string;
-    id?: number;
-    id_str?: string;
+    id: number|null;
+    id_str: string|null;
 }
 
 export interface IHumanImage {
@@ -33,4 +33,11 @@ export interface IHumanInformationList {
 
 export interface IAllHumanInformationDict {
     data: Record<TTSSoftware, IHumanInformationList>;
+}
+
+export interface ISelectCharacterState {
+    tts_software: TTSSoftware,
+    character_name: ICharacterName, 
+    human_image: IHumanImage,
+    voice_mode: IVoiceMode
 }

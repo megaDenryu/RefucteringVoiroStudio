@@ -1,11 +1,14 @@
 
 from enum import Enum
 from pathlib import Path
+from typing import Literal, TypeAlias
 from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel, Map
 from api.Extend.ExtendFunc import ExtendFunc
 from api.images.image_manager.HumanPart import HumanPart
+
+TTSSoftwareType: TypeAlias = Literal["CevioAI", "VoiceVox", "AIVoice", "Coeiroink"]
 
 class TTSSoftware(Enum):
     CevioAI = "CevioAI"
@@ -13,13 +16,22 @@ class TTSSoftware(Enum):
     AIVoice = "AIVoice"
     Coeiroink = "Coeiroink"
 
-
+    @staticmethod
+    def get_all_software_names() -> list[TTSSoftwareType]:
+        return [software.value for software in TTSSoftware]
+    
+    @staticmethod
+    def toType(ttsSotWare:"TTSSoftware")->TTSSoftwareType:
+        return ttsSotWare.value
+    @staticmethod
+    def fromType(ttsSotWareType:TTSSoftwareType)->"TTSSoftware":
+        for ttsSoftware in TTSSoftware:
+            if ttsSoftware.value == ttsSotWareType:
+                return TTSSoftware(ttsSotWareType)
+        raise ValueError(f"TTSSoftwareに{ttsSotWareType}は存在しません。")
 
 class CharacterName(HashableBaseModel):
     name: str
-
-
-
 
 class NickName(HashableBaseModel):
     name: str
@@ -410,7 +422,7 @@ class HumanInformationList(BaseModel):
         super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
 
 class AllHumanInformationDict(BaseModel):
-    data: dict[str,HumanInformationList]
+    data: dict[TTSSoftwareType,HumanInformationList]
 
     def __init__(self):
         data = {software.value:HumanInformationList(software) for software in TTSSoftware}
