@@ -67,7 +67,7 @@ export class ElementCreater {
      * @return {HTMLSelectElement} - 生成されたHTMLSelectElement。
      */
     static createSelectElement(options: string[], size: number | null = null): HTMLSelectElement {
-        const selectElement = document.createElement('select');
+        let selectElement = document.createElement('select');
 
         options.forEach(optionText => {
             const optionElement = document.createElement('option');
@@ -77,7 +77,6 @@ export class ElementCreater {
         });
 
         if (size != null) { selectElement.size = size; }
-
         return selectElement;
     }
 
