@@ -1,5 +1,5 @@
 import { ReactiveProperty } from "../../BaseClasses/observer";
-import { BaseComponent, ElementChildClass, ElementCreater, IHasComponent } from "../Base/ui_component_base";
+import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
 import { CharacterName, HumanImage, SelectCharacterState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 
 
@@ -85,7 +85,7 @@ export class CompositeCharacterNameSelecter implements IHasComponent {
     }
 
     constructor(characterNamesDict: Record<TTSSoftware, CharacterName[]>, defaultTTSSoftWare: TTSSoftware, defaultCharacterName: CharacterName) {
-        this.component = new BaseComponent(this.HTMLInput);
+        this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.characterNamesDict = characterNamesDict;
         this.characterNameSelecterDict = {
             "AIVoice": new CharacterNameSelecter(TTSSoftwareEnum.AIVoice, characterNamesDict[TTSSoftwareEnum.AIVoice]),
@@ -186,7 +186,7 @@ export class CompositeHumanImageSelecter implements IHasComponent {
     public get selectedHumanImage(): HumanImage { return this._selectedHumanImage; }
 
     constructor(humanImagesDict: Map<CharacterName, HumanImage[]>, defaultCharacterName: CharacterName, defaultHumanImage: HumanImage) {
-        this.component = new BaseComponent(this.HTMLInput);
+        this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.humanImagesDict = humanImagesDict;
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
         this._selectedHumanImage = defaultHumanImage;
@@ -297,7 +297,7 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
     }
 
     constructor(cvoiceModesDict: Map<CharacterName, VoiceMode[]>, defaultCharacterName: CharacterName, defaultVoiceMode: VoiceMode) {
-        this.component = new BaseComponent(this.HTMLInput);
+        this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
         this._selectedVoiceMode = defaultVoiceMode;
         this.voiceModesDict = cvoiceModesDict;
@@ -369,17 +369,28 @@ export class CharacterSelectDecisionButton implements IHasComponent {
 
 
 
-class IElementCharaSelectFunction extends ElementChildClass {
-    static readonly AriaTTSSoftwareSelecter = "AriaTTSSoftwareSelecter";
-    static readonly AriaFlexCompositeCharaSelecters = "AriaFlexCompositeCharaSelecters";
-    static readonly AriaButton = "AriaButton"
-}
+
 
 export class CharaSelectFunction implements IHasComponent {
+    private readonly componentDefString = HtmlElementInput.new(
+        `
+            <div class="CharaSelectFunction">
+                <div class="AriaTTSSoftwareSelecter"></div>
+                <div class="AriaFlexCompositeCharaSelecters"></div>
+                <div class="AriaButton"></div>
+            </div>
+        `,
+        {
+            "AriaTTSSoftwareSelecter":"AriaTTSSoftwareSelecter",
+            "AriaFlexCompositeCharaSelecters":"AriaFlexCompositeCharaSelecters",
+            "AriaButton":"AriaButton"
+        }
+    );
+
     private characterNamesDict: Record<TTSSoftware, CharacterName[]>
     private humanImagesDict: Map<CharacterName, HumanImage[]>;
     private voiceModesDict: Map<CharacterName, VoiceMode[]>;
-    public readonly component: BaseComponent;
+    public readonly component: BaseComponent<typeof this.componentDefString["classNames"]>;
     private ttsSoftwareSelecter: TTSSoftwareSelecter;
     private compositeCharacterNameSelecter: CompositeCharacterNameSelecter;
     private compositehumanImageSelecter: CompositeHumanImageSelecter;
@@ -441,19 +452,8 @@ export class CharaSelectFunction implements IHasComponent {
         this.compositehumanImageSelecter = new CompositeHumanImageSelecter(humanImagesDict, this.defaultCharacterName, this.defaultHumanImage);
         this.compositeVoiceModeSelecter = new CompositeVoiceModeSelecter(voiceModesDict, this.defaultCharacterName, this.defaultVoiceMode);
         this.characterSelectDecisionButton = new CharacterSelectDecisionButton();
-        this.component = new BaseComponent(this.componentDefString);
+        this.component = BaseComponent.createElement<typeof this.componentDefString["classNames"]>(this.componentDefString);
         this.start();
-    }
-
-
-    get componentDefString(): string {
-        return `
-        <div class="CharaSelectFunction">
-            <div class="AriaTTSSoftwareSelecter"></div>
-            <div class="AriaFlexCompositeCharaSelecters"></div>
-            <div class="AriaButton"></div>
-        </div>
-        `;
     }
 
     start(): void {
@@ -463,10 +463,10 @@ export class CharaSelectFunction implements IHasComponent {
     }
 
     initSetChildElement(): void {
-        this.component.createArrowBetweenComponents(this, this.ttsSoftwareSelecter, "AriaTTSSoftwareSelecter");                //TTSSoftセレクター
-        this.component.createArrowBetweenComponents(this, this.compositeCharacterNameSelecter, "AriaFlexCompositeCharaSelecters");     //キャラクター名セレクター
-        this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter, "AriaFlexCompositeCharaSelecters");        //人間の画像セレクター
-        this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, "AriaFlexCompositeCharaSelecters");         //ボイスモードセレクター
+        this.component.createArrowBetweenComponents(this, this.ttsSoftwareSelecter, this.componentDefString.classNames.AriaTTSSoftwareSelecter);                //TTSSoftセレクター
+        this.component.createArrowBetweenComponents(this, this.compositeCharacterNameSelecter, this.componentDefString.classNames.AriaFlexCompositeCharaSelecters);     //キャラクター名セレクター
+        this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter, this.componentDefString.classNames.AriaFlexCompositeCharaSelecters);        //人間の画像セレクター
+        this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, this.componentDefString.classNames.AriaFlexCompositeCharaSelecters);         //ボイスモードセレクター
         this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, "AriaButton");      //決定ボタン
     }
 

@@ -101,12 +101,20 @@ export interface IHasComponent {
 export class ElementChildClass {
 }
 
-export interface HTMLElementInput {
-    HTMLElement: string | HTMLElement;
-    className: ElementChildClass;
+export interface HtmlElementInput<ClassNames extends Readonly<Record<string,string>> = Readonly<Record<string,string>>> {
+    readonly HTMLElement: string | HTMLElement;
+    readonly classNames: ClassNames;
 }
+export const HtmlElementInput = {
+  new: <ClassNames extends Readonly<Record<string,string>>> (
+    HTMLElement: string,
+    classNames: ClassNames,
+  ): HtmlElementInput<ClassNames> => ({
+    HTMLElement, classNames
+  })
+} as const;
 
-export class BaseComponent {
+export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = Readonly<Record<string,string>> > {
     className: string[];
     id: string;
     element: HTMLElement;
@@ -115,10 +123,10 @@ export class BaseComponent {
     childCompositeCluster: CompositeComponentCluster | null = null;
     parentComponentCluster: CompositeComponentCluster | null = null;
 
-    constructor(HTMLElementInput: string | HTMLElement, className: string[] = [], vertexViewContent: any | null = null) {
+    constructor(HTMLElementInput: HTMLElement, className: string[] = [], vertexViewContent: any | null = null) {
         this.className = className;
         this.id = ExtendFunction.uuid();
-        this.element = this.createElement(HTMLElementInput);
+        this.element = HTMLElementInput;
         this.vertexViewContent = vertexViewContent;
         this.vertex = new Vertex(this.id, this, this.vertexViewContent);
         this.parentComponentCluster = null;
@@ -129,14 +137,31 @@ export class BaseComponent {
         this.vertexViewContent = content;
     }
 
-    createElement(HTMLElementInput: string | HTMLElement): HTMLElement {
-        if (HTMLElementInput instanceof HTMLElement) {
-            return HTMLElementInput;
-        } else if (typeof HTMLElementInput === 'string') {
-            return ElementCreater.createElementFromHTMLString(HTMLElementInput);
-        } else {
-            throw new Error('HTMLElementInput is not a string or HTMLElement.');
+    static createElementByString(hTMLElementInput: string): BaseComponent {
+        const element = ElementCreater.createElementFromHTMLString(hTMLElementInput);
+        return new BaseComponent(element);
+    }
+
+    static createElement<ClassNames extends Readonly<Record<string,string>> = Readonly<Record<string,string>>> (hTMLElementInput :HtmlElementInput<ClassNames>) {
+        const element = (typeof hTMLElementInput.HTMLElement === 'string') ? ElementCreater.createElementFromHTMLString(hTMLElementInput.HTMLElement) : hTMLElementInput.HTMLElement;
+        // ClassNamesをチェック
+
+        const classList: string[] = Object.values(hTMLElementInput.classNames);
+        if (this.checkHasClasses(element,classList) === false) {
+            console.error(element);
+            throw new Error('Class not found.');
         }
+        return new BaseComponent<ClassNames>(element);
+    }
+
+    static checkHasClasses(element,classList: string[]): boolean {
+        for (let i = 0; i < classList.length; i++) {
+            element.getElementsByClassName(classList[i]);
+            if (element.getElementsByClassName(classList[i]).length === 0) {
+                return false
+            }
+        }
+        return true;
     }
 
     

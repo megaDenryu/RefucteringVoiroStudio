@@ -1,6 +1,5 @@
-
-import { CharaSelectFunction } from "../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { CharaSelectFunctionCreater } from "../UiComponent/CharaInfoSelecter/CharaSelectFunctionCreater";
+import "../UiComponent/CharaInfoSelecter/CharaInfoSelecter.css";
 
 
 
