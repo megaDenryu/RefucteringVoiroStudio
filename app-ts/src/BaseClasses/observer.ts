@@ -1,8 +1,8 @@
 export class ReactiveProperty<T> {
     private _property: T;
 
-    constructor(value: T | null = null) {
-        this._property = value as T;
+    constructor(value: T) {
+        this._property = value;
     }
 
     private get property(): T {
