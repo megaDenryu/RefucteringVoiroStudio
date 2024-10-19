@@ -98,6 +98,14 @@ export interface IHasComponent {
     readonly component: BaseComponent;
 }
 
+export class ElementChildClass {
+}
+
+export interface HTMLElementInput {
+    HTMLElement: string | HTMLElement;
+    className: ElementChildClass;
+}
+
 export class BaseComponent {
     className: string[];
     id: string;
@@ -142,8 +150,22 @@ export class BaseComponent {
     }
 
   
-    appendChildToElement(childComponent: BaseComponent): void {
-        this.element.appendChild(childComponent.element);
+    appendChildToElement(childComponent: BaseComponent, parentClass: string|null = null): void {
+        if (parentClass == null) {
+            this.element.appendChild(childComponent.element);
+        }
+
+        if (parentClass != null) {
+            const parentElement = this.element.getElementsByClassName(parentClass)[0];
+            if (parentElement == null) {
+                // 親クラスが見つからなかった場合はコンソールにthis.elementを表示してエラーを出す
+                console.error(this.element);
+                throw new Error('Parent class not found.');
+                
+            }
+            parentElement.appendChild(childComponent.element);
+        }
+        
     }
 
  
@@ -152,12 +174,12 @@ export class BaseComponent {
     }
 
  
-    createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent): void {
+    createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent, parentClass: string|null = null): void {
         const parentComponent = parent.component
         const childComponent = child.component
         if (this.childCompositeCluster == null) this.createChildComponentCluster();
         if (this.childCompositeCluster == null) throw new Error('childCompositeCluster is null.');
-        this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent);
+        this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent, parentClass);
     }
 
 
@@ -202,13 +224,13 @@ export class CompositeComponentCluster {
     /**
      * ２つのコンポーネントを矢印で結んで親子関係を作る。
      */
-    createArrowBetweenComponents(parentComponent: BaseComponent, childComponent: BaseComponent): void {
+    createArrowBetweenComponents(parentComponent: BaseComponent, childComponent: BaseComponent, parentClass:string|null = null): void {
         const arrow = new Arrow(parentComponent.vertex, childComponent.vertex, null);
         this.cluster.graph.addEdge(arrow);
         // コンポーネントのedgesにarrowを追加
         parentComponent.registerComponentGraphEdge(arrow, this);
         childComponent.registerComponentGraphEdge(arrow, this);
         // 親コンポーネントのhtml要素に子コンポーネントのhtml要素を追加
-        parentComponent.appendChildToElement(childComponent);
+        parentComponent.appendChildToElement(childComponent,parentClass);
     }
 }

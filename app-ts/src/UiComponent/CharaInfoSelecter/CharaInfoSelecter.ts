@@ -1,5 +1,5 @@
 import { ReactiveProperty } from "../../BaseClasses/observer";
-import { BaseComponent, ElementCreater, IHasComponent } from "../Base/ui_component_base";
+import { BaseComponent, ElementChildClass, ElementCreater, IHasComponent } from "../Base/ui_component_base";
 import { CharacterName, HumanImage, SelectCharacterState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 
 
@@ -16,6 +16,7 @@ export class TTSSoftwareSelecter implements IHasComponent {
             this._selectedSoftware.set(TTSSoftwareEnum.check((event.target as HTMLSelectElement).value));
         });
         this.component = new BaseComponent(selectElement);
+        this.component.addCSSClass("TTSSoftwareSelecter");
         this.start();
     }
 
@@ -48,6 +49,7 @@ export class CharacterNameSelecter implements IHasComponent {
             this.selectedCharacterName.set(new CharacterName((event.target as HTMLSelectElement).value));
         });
         this.component = new BaseComponent(HTMLElementInput);
+        this.component.addCSSClass("CharacterNameSelecter");
     }
 
     public addOnCharacterNameChanged(method: (characterName: CharacterName) => void): void {
@@ -104,6 +106,7 @@ export class CompositeCharacterNameSelecter implements IHasComponent {
         });
         this.selectedSoftware.set(this.selectedSoftware.get());
         this._selectedCharacterName.set(this.selectedCharacterName);
+        this.component.addCSSClass("CompositeCharacterNameSelecter");
     }
 
     private setGraph(): void {
@@ -151,6 +154,7 @@ export class HumanImageSelecter implements IHasComponent {
             this._selectedHumanImage.set(new HumanImage((event.target as HTMLSelectElement).value));
         });
         this.component = new BaseComponent(HTMLElementInput);
+        this.component.addCSSClass("HumanImageSelecter");
     }
 
     private calcBoxSize(): number {
@@ -196,6 +200,7 @@ export class CompositeHumanImageSelecter implements IHasComponent {
         });
         this.setGraph();
         this.selectedCharacterName.set(this.selectedCharacterName.get());
+        this.component.addCSSClass("CompositeHumanImageSelecter");
     }
 
     private get HTMLInput(): string {
@@ -256,6 +261,7 @@ export class VoicemodeSelecter implements IHasComponent {
             this._selectedVoiceMode.set(new VoiceMode((event.target as HTMLSelectElement).value));
         });
         this.component = new BaseComponent(HTMLElementInput);
+        this.component.addCSSClass("VoicemodeSelecter");
     }
 
     private calcBoxSize(): number {
@@ -305,6 +311,7 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
             this.changeShowVoiceModeSelecter(charaName);
         });
         this.selectedCharacterName.set(this.selectedCharacterName.get());
+        this.component.addCSSClass("CompositeVoiceModeSelecter");
     }
 
     private createVoiceModeSelecter(voiceModesDict: Map<CharacterName, VoiceMode[]>): Map<CharacterName, VoicemodeSelecter> {
@@ -351,11 +358,21 @@ export class CharacterSelectDecisionButton implements IHasComponent {
             this.onPushButton.set(true);
         });
         this.component = new BaseComponent(button);
+        this.component.addCSSClass("CharacterSelectDecisionButton");
     }
 
     addOnPushButton(method: () => void): void {
         this.onPushButton.addMethod(method);
     }
+}
+
+
+
+
+class IElementCharaSelectFunction extends ElementChildClass {
+    static readonly AriaTTSSoftwareSelecter = "AriaTTSSoftwareSelecter";
+    static readonly AriaFlexCompositeCharaSelecters = "AriaFlexCompositeCharaSelecters";
+    static readonly AriaButton = "AriaButton"
 }
 
 export class CharaSelectFunction implements IHasComponent {
@@ -428,9 +445,13 @@ export class CharaSelectFunction implements IHasComponent {
         this.start();
     }
 
+
     get componentDefString(): string {
         return `
         <div class="CharaSelectFunction">
+            <div class="AriaTTSSoftwareSelecter"></div>
+            <div class="AriaFlexCompositeCharaSelecters"></div>
+            <div class="AriaButton"></div>
         </div>
         `;
     }
@@ -438,14 +459,15 @@ export class CharaSelectFunction implements IHasComponent {
     start(): void {
         this.initSetChildElement();
         this.definitionBehavior();
+        this.component.addCSSClass("CharaSelectFunction");
     }
 
     initSetChildElement(): void {
-        this.component.createArrowBetweenComponents(this, this.ttsSoftwareSelecter);                //TTSSoftセレクター
-        this.component.createArrowBetweenComponents(this, this.compositeCharacterNameSelecter);     //キャラクター名セレクター
-        this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter);        //人間の画像セレクター
-        this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter);         //ボイスモードセレクター
-        this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton);      //決定ボタン
+        this.component.createArrowBetweenComponents(this, this.ttsSoftwareSelecter, "AriaTTSSoftwareSelecter");                //TTSSoftセレクター
+        this.component.createArrowBetweenComponents(this, this.compositeCharacterNameSelecter, "AriaFlexCompositeCharaSelecters");     //キャラクター名セレクター
+        this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter, "AriaFlexCompositeCharaSelecters");        //人間の画像セレクター
+        this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, "AriaFlexCompositeCharaSelecters");         //ボイスモードセレクター
+        this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, "AriaButton");      //決定ボタン
     }
 
     definitionBehavior(): void {

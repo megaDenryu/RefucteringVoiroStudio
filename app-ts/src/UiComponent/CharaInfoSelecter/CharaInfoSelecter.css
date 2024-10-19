@@ -1,0 +1,48 @@
+.CharaSelectFunction {
+    /* ピンク色の四角形を表示 */
+    width: 40%;
+    height: 90vh;
+    background-color: pink;
+}
+
+.TTSSoftwareSelecter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.FlexCompositeCharaSelecters {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.CharacterNameSelecter {
+
+}
+
+.CompositeCharacterNameSelecter {
+
+}
+
+.HumanImageSelecter {
+
+}
+
+.CompositeHumanImageSelecter {
+
+}
+
+.VoicemodeSelecter {
+
+}
+
+.CompositeVoicemodeSelecter {
+
+}
+
+.CharacterSelectDecisionButton {
+
+}
