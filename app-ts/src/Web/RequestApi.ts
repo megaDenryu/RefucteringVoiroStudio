@@ -1,4 +1,5 @@
-import { HumanNameState } from "../ValueObject/Character";
+import { SelectCharacterState } from "../ValueObject/Character";
+
 
 export class RequestAPI {
     private static _port: Number = 8010;
@@ -16,7 +17,7 @@ export class RequestAPI {
     }
 
 
-    async fetchOnDecideCharaInfo(humanNameState: HumanNameState) {
+    async fetchOnDecideCharaInfo(humanNameState: SelectCharacterState) {
         //キャラインフォが決まったときに呼びdして、サーバーにキャラインフォを送り、ボイスロイドを起動して、画像データを取得する。
 
         //1. jsonに変換する

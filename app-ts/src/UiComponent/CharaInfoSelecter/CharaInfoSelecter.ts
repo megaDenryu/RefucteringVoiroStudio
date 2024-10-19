@@ -1,6 +1,6 @@
 import { ReactiveProperty } from "../../BaseClasses/observer";
 import { BaseComponent, ElementCreater, IHasComponent } from "../Base/ui_component_base";
-import { CharacterName, HumanImage, HumanNameState, SelectCharacterState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
+import { CharacterName, HumanImage, SelectCharacterState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 
 
 

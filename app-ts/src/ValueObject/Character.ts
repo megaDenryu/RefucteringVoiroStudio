@@ -1,5 +1,5 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
-import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, IHumanNameState, INickName, ISelectCharacterState, IVoiceMode } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ISelectCharacterState, IVoiceMode } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
@@ -162,39 +162,7 @@ export class SelectCharacterState implements IValueObject<SelectCharacterState> 
     }
 }
 
-export class HumanNameState {
-    public readonly character_name: CharacterName;
-    public readonly nick_name: NickName;
-    public readonly voice_mode: VoiceMode;
-    public readonly human_image: HumanImage;
 
-    constructor(character_name: CharacterName, nick_name: NickName, voice_mode: VoiceMode, human_image: HumanImage) {
-        this.character_name = character_name;
-        this.nick_name = nick_name;
-        this.voice_mode = voice_mode;
-        this.human_image = human_image;
-    }
-
-    equals(other: HumanNameState): boolean {
-        if (this.character_name.equals(other.character_name) === false) return false;
-        if (this.nick_name.equals(other.nick_name) === false) return false;
-        if (this.voice_mode.equals(other.voice_mode) === false) return false;
-        if (this.human_image.equals(other.human_image) === false) return false;
-        return true;
-    }
-
-    includes(others: HumanNameState[]): boolean {
-        for (const other of others) {
-            if (this.equals(other) === true) return true;
-        }
-        return false;
-    }
-
-    toDict(): IHumanNameState {
-        return {
-        };
-    }
-}
 
 
 export class HumanInformation {
