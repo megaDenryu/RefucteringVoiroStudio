@@ -2,8 +2,10 @@
 from typing import TypeAlias
 
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
-from api.gptAI.HumanInformation import CharacterName, HumanImage, VoiceMode, TTSSoftwareType
+from api.Extend.ExtendFunc import ExtendFunc
+from api.gptAI.HumanInformation import CharacterName, HumanImage, SelectCharacterState, VoiceMode, TTSSoftwareType
 from api.gptAI.VoiceController import VoiceState
+from uuid import uuid4
 
 CharacterId: TypeAlias = int
 
@@ -31,5 +33,16 @@ class CharacterModeState(HashableBaseModel):
         if not isinstance(o, CharacterModeState):
             return False
         return self.id == o.id
+    
+    @staticmethod
+    def new(select_character_state: SelectCharacterState) -> "CharacterModeState":
+        return CharacterModeState(
+            id=uuid4().int,
+            tts_software=select_character_state.tts_software,
+            character_name=select_character_state.character_name,
+            human_image=select_character_state.human_image,
+            voice_mode=select_character_state.voice_mode,
+            voice_state=None
+        )
     
     

@@ -34,6 +34,9 @@ class Human:
     @property
     def char_name(self): #キャラ名
         return self.chara_mode_state.character_name
+    @property
+    def id(self):
+        return self.chara_mode_state.id
     def __init__(self,chara_mode_state:CharacterModeState ,voiceroid_dict, corresponding_websocket:WebSocket, prompt_setteing_num:str = "キャラ個別システム設定") -> None:
         """
         @param front_name: フロントで入力してウインドウに表示されてる名前

@@ -4,6 +4,7 @@ import random
 import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
+from api.gptAI.CharacterModeState import CharacterModeState, CharacterId
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, SelectCharacterState, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
@@ -73,7 +74,6 @@ human_id_dict = []
 voiceroid_dict = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}
 gpt_mode_dict = {}
 #game_masterのインスタンスを生成
-game_master_enable = False
 human_queue_shuffle = False
 yukarinet_enable = True
 nikonama_comment_reciever_list:dict[str,NicoNamaCommentReciever] = {}
@@ -89,8 +89,6 @@ diary = Memo()
 app_setting = JsonAccessor.loadAppSetting()
 pprint(app_setting)
 
-if game_master_enable:
-    game_master = Human("game_master")
 # print("アプリ起動完了")
 # Websocket用のパス
 ExtendFunc.ExtendPrint("ボイスロイドの起動")
@@ -249,18 +247,6 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         inputer = char_name
             print(f"input:{input}")
 
-            #game_masterに状況を考えさせる
-            if game_master_enable:
-                #game_masterのインスタンスのgenerate_textを実行
-                game_master.generate_text(input)
-                # 感情パラメータと会話の取得
-                game_master.format_response(game_master.response_dict["response"])
-                print("game_masterの感情パラメータと会話の取得完了")
-                message["game_master"] = game_master.response_dict
-                # ブロードキャスト
-                json_data = json.dumps(message, ensure_ascii=False)
-                await notifier.push(json_data)
-
             #human_dictのキーをランダムな順番に並べ替えた配列を作成。userではないAIの名前リスト
             human_dict_keys = list(human_dict.keys())
             if True == human_queue_shuffle:
@@ -298,197 +284,6 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         await websocket.send_json(json.dumps(send_data))
                     # daiaryに保存
                     diary.insertTodayMemo(input_dict[human_ai.char_name])
-
-            sentence_dict4sedn_gpt:str = json_data
-            #human_dict_keysの順番にhuman_dictの値を取り出し、それぞれのインスタンスのgenerate_textを実行
-            for ai_name in human_dict_keys:
-                tmp_input = input
-                print(f"{ai_name}の返答を生成します")
-                human_ai:Human = human_dict[ai_name]
-                #json返答エラー対策処理。２回まで自動で行うがそれ以上上手くいかなければ通す。
-                human_ai.response_dict["json返答"] = ""
-                error_count = 0
-                gpt_mode = "none"#"test"
-                pprint(gpt_mode_dict)
-                print(f"{ai_name=}")
-                if ai_name in gpt_mode_dict:
-                    gpt_mode = gpt_mode_dict[ai_name]
-                print(f"{gpt_mode=}")
-                if gpt_mode == "high":
-                    while "成功"!=human_ai.response_dict["json返答"]:
-                        response = human_ai.generate_text(tmp_input)
-                        # 感情パラメータと会話の取得
-                        human_ai.format_response(response)
-                        print("感情パラメータと会話の取得完了")
-                        # 生成された返答をフロントエンドに送るための辞書に入れる
-                        message[human_ai.front_name] = response
-                        print("これをフロントに送るよ！")
-                        json_data = json.dumps(message, ensure_ascii=False)
-                        print(f"{json_data=}を送信します")
-                        await notifier.push(json_data)
-                        human_ai.execLastResponse()
-                        tmp_input = "json形式で答えてね"
-                        error_count = error_count + 1
-                        if error_count == 2:
-                            break
-                    
-                    if "成功" == human_ai.response_dict["json返答"]:
-                        if "wav出力" == human_ai.voice_mode:
-                            #wavデータを取得
-                            wav_info = human_ai.human_Voice.output_wav_info_list
-                            #バイナリーをjson形式で送信
-                            await websocket.send_json(json.dumps(wav_info))
-                
-                elif gpt_mode == "SimpleWait4":
-
-                    input_sentence,sentence_count = human_ai.appendSentence(input_dict[inputer])
-
-                    if sentence_count <= 5 or len(input_sentence) < 77 :
-                        continue
-
-                    # prompt_setteing_num を確認し、prompt_setteing_numを1にする
-                    if human_ai.human_GPT.prompt_setteing_num != 1:
-                        human_ai.resetGPTPromptSetting(1)
-                    #シンプルに実行したいので、inputerの文章だけを投げる
-                    response_json = human_ai.generate_text_simple_json_4(input_sentence,"gpt-4-1106-preview")
-                    #このモードの時はjsonなのでdictに変換
-                    response_dict = json.loads(response_json)
-                    status = response_dict["status"]
-                    response = response_dict["spoken_words"]
-                    
-                    async def generateVoice(response):
-                        # 生成された返答をフロントエンドに送るための辞書に入れる
-                        message[human_ai.front_name] = response
-                        json_data = json.dumps(message, ensure_ascii=False)
-                        print(f"{json_data=}を送信します")
-                        try:
-                            await notifier.push(json_data)
-                        except Exception as e:
-                            print(e)
-                            await websocket.send_json(json_data)
-                        if "wav出力" == human_ai.voice_mode:
-                            human_ai.outputWaveFile(response)
-                            #wavデータを取得
-                            wav_info = human_ai.human_Voice.output_wav_info_list
-                            #バイナリーをjson形式で送信
-                            print(f"{human_ai.char_name}のwavデータを送信します")
-                            await websocket.send_json(json.dumps(wav_info))
-                        pprint(response_dict)
-                    if status != "wait":
-                        await generateVoice(response)
-                    human_ai.resetSentence()
-                
-                elif gpt_mode == "SimpleWait3.5":
-                    print("SimpleWait3.5モードです")
-                    # GPT3でwaitがあるモード
-                    input_sentence,sentence_count = human_ai.appendSentence(input_dict[inputer],inputer)
-
-                    if sentence_count <= random.randint(2,4) or len(input_sentence) < 10 :
-                        continue
-
-                    # prompt_setteing_num を確認し、prompt_setteing_numを1にする
-                    if human_ai.human_GPT.prompt_setteing_num != 1:
-                        human_ai.resetGPTPromptSetting(1)
-                    #シンプルに実行したいので、inputerの文章だけを投げる
-                    response_json = human_ai.generate_text_simple(input_sentence,"gpt-3.5-turbo")
-                    #このモードの時はjsonなのでdictに変換
-                    response = human_ai.human_GPT.filterResponse(response_json,human_ai.char_name)
-                    print(f"{response=}")
-                    human_ai.resetSentence()
-
-                    # 生成された返答をフロントエンドに送るための辞書に入れる
-                    message[human_ai.front_name] = response
-                    json_data = json.dumps(message, ensure_ascii=False)
-                    print(f"{json_data=}を送信します")
-                    try:
-                        await notifier.push(json_data)
-                    except Exception as e:
-                        print(e)
-                        await websocket.send_json(json_data)
-                    if "wav出力" == human_ai.voice_mode:
-                        human_ai.outputWaveFile(response)
-                        #wavデータを取得
-                        wav_info = human_ai.human_Voice.output_wav_info_list
-                        #バイナリーをjson形式で送信
-                        print(f"{human_ai.char_name}のwavデータを送信します")
-                        await websocket.send_json(json.dumps(wav_info))
-                    
-                    
-
-                
-                elif gpt_mode == "low":
-                    input_sentence,sentence_count = human_ai.appendSentence(sentence_dict4sedn_gpt)#input_dict[inputer])
-
-                    if human_ai.human_GPT.initSentenceSendingCount == 0:
-                        human_ai.human_GPT.initSntenceSend(input_sentence)
-
-                    if sentence_count <= 5 or len(input_sentence) < 77 :
-                        continue
-                    # prompt_setteing_num を確認し、prompt_setteing_numを0にする
-                    if human_ai.human_GPT.prompt_setteing_num != 0:
-                        human_ai.resetGPTPromptSetting("キャラ個別システム設定")
-
-                    #シンプルに実行したいので、inputerの文章だけを投げる
-                    response = human_ai.generate_text_simple(input_sentence,"gpt-3.5-turbo")
-                    human_ai.format_response(response)
-                    # 生成された返答をフロントエンドに送るための辞書に入れる
-                    message[human_ai.front_name] = response
-                    json_data = json.dumps(message, ensure_ascii=False)
-                    print(f"{json_data=}を送信します")
-                    try:
-                        await notifier.push(json_data)
-                    except Exception as e:
-                        print(e)
-                        await websocket.send_json(json_data)
-                    if "wav出力" == human_ai.voice_mode:
-                        extract_sentence = Human.extractSentence4low(response)
-                        for sentence in Human.parseSentenseList(extract_sentence):
-                            human_ai.outputWaveFile(sentence)
-                            #wavデータを取得
-                            wav_info = human_ai.human_Voice.output_wav_info_list
-                            #バイナリーをjson形式で送信
-                            print(f"{human_ai.char_name}のwavデータを送信します")
-                            await human_ai.corresponding_websocket.send_json(json.dumps(wav_info))
-                    human_ai.resetSentence()
-                    sentence_dict4sedn_gpt = sentence_dict4sedn_gpt + response
-
-                
-                elif gpt_mode == "test":
-                    # 今の時刻をh時m分s秒で取得
-                    now = datetime.datetime.now().strftime('%H時%M分%S秒')
-                    # nowから'を取り除く
-                    now = now.replace("'", "")
-                    response = f"これはgptAIの発話テストモードです:{now=}"
-                    human_ai.format_response(response)
-                    # 生成された返答をフロントエンドに送るための辞書に入れる
-                    message[human_ai.front_name] = response
-                    json_data = json.dumps(message, ensure_ascii=False)
-                    print(f"{json_data=}を送信します")
-                    try:
-                        await notifier.push(json_data)
-                    except Exception as e:
-                        print(e)
-                        await websocket.send_json(json_data)
-                    if "wav出力" == human_ai.voice_mode:
-                        human_ai.outputWaveFile(response)
-                        #wavデータを取得
-                        wav_info = human_ai.human_Voice.output_wav_info_list
-                        #バイナリーをjson形式で送信
-                        print(f"{human_ai.char_name}のwavデータを送信します")
-                        try:
-                            await human_ai.corresponding_websocket.send_json(json.dumps(wav_info))
-                        except Exception as e:
-                            print(e)
-                            print("wav送信エラーです start")
-                            print(f"{wav_info=}")
-                            print("wav送信エラーです end")
-                            #await websocket.send_json(json.dumps(wav_info))
-
-                elif gpt_mode == "none":
-                    pass
-
-                    
-
             
     # セッションが切れた場合
     except WebSocketDisconnect:
@@ -1098,16 +893,17 @@ class SelectCharacterStateReq(BaseModel):
 @app.post("/DecideChara")
 async def DecideChara(req: SelectCharacterStateReq):
     select_character_state = req.selectCharacterState
+    character_mode_state:CharacterModeState = CharacterModeState.new(select_character_state)
     client_id = req.client_id
     #name_dataに対応したHumanインスタンスを生成
     prompt_setteing_num = "キャラ個別システム設定"
     corresponding_websocket = clients_ws[client_id]
-    tmp_human = Human(name_data, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
+    tmp_human = Human(character_mode_state, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
     #使用してる合成音声の種類をカウント
     print(f"{tmp_human.voice_system=}")
     voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
     #humanインスタンスが完成したのでhuman_dictに登録
-    human_dict[tmp_human.char_name] = tmp_human
+    human_dict[tmp_human.id] = tmp_human
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
     human_part_folder = tmp_human.image_data_for_client
     ret_data = json.dumps(human_part_folder)
