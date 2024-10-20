@@ -3,7 +3,7 @@ from typing import TypeAlias
 
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInformation import CharacterName, HumanImage, SelectCharacterState, VoiceMode, TTSSoftwareType
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, SelectCharacterState, VoiceMode, TTSSoftwareType
 from api.gptAI.VoiceController import VoiceState
 from uuid import uuid4
 
@@ -44,5 +44,21 @@ class CharacterModeState(HashableBaseModel):
             voice_mode=select_character_state.voice_mode,
             voice_state=None
         )
+    
+    @staticmethod
+    def newFromFrontName(front_name: str) -> "CharacterModeState":
+        #ニックネームからキャラクターを生成する
+        manager = AllHumanInformationManager.singleton()
+        chara_name = manager.nick_names_manager.getCharacterName(front_name)
+        if chara_name is None:
+            ExtendFunc.ExtendPrint("キャラクターが見つかりませんでした")
+            raise ValueError("キャラクターが見つかりませんでした")
+        
+        # キャラクターのでふぁるとモードとデフォルト画像などを取得
+        # デフォルトが存在しない場合について検討（画像がないなど）
+
+        
+
+        
     
     

@@ -67,7 +67,7 @@ client_ids: list[str] = []
 clients_ws:dict[str,WebSocket] = {}
 setting_module = AppSettingModule()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
-human_dict:dict[str,Human] = {}
+human_dict:dict[CharacterId,Human] = {}
 #Humanクラスの生成されたインスタンスをid順に登録する辞書を作成
 human_id_dict = []
 #使用してる合成音声の種類をカウントする辞書を作成
@@ -508,6 +508,9 @@ async def inputPokemon(websocket: WebSocket):
 
 @app.websocket("/human/{client_id}")
 async def human_pict(websocket: WebSocket, client_id: str):
+    """
+    キャラクターのあだ名を受け取り、キャラクターのパーツの画像のpathを送信する
+    """
      # クライアントとのコネクション確立
     print("humanコネクションします")
     await websocket.accept()
@@ -523,12 +526,13 @@ async def human_pict(websocket: WebSocket, client_id: str):
                 print("キャラ名が無効です")
                 await websocket.send_json(json.dumps("キャラ名が無効です"))
                 continue
+            chara_mode_state = CharacterModeState.newFromFrontName(name_data)
             #キャラ立ち絵のパーツを全部送信する。エラーがあったらエラーを返す
             try:
                 #name_dataに対応したHumanインスタンスを生成
                 prompt_setteing_num = "キャラ個別システム設定"
                 corresponding_websocket = clients_ws[client_id]
-                tmp_human = Human(name_data, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
+                tmp_human = Human(chara_mode_state, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
                 #使用してる合成音声の種類をカウント
                 print(f"{tmp_human.voice_system=}")
                 voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1

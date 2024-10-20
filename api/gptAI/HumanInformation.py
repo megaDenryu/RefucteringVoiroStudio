@@ -328,6 +328,16 @@ class NicknamesManager:
         for nickname,charaname in nicknames.items():
             tmp_charaname2nickname[charaname].append(nickname)
         return tmp_charaname2nickname
+    
+    def getCharacterName(self, front_name:str)->CharacterName|None:
+        """
+        フロントでのキャラ名からHumanインスタンスのキャラ名に変換する関数
+        """
+        try:
+            return self.nickname2Charaname[NickName(name=front_name)]
+        except Exception as e:
+            print(f"{front_name}は対応するキャラがサーバーに登録されていません。")
+            return None
 
 class HumanImagesManager:
     api_dir: Path
