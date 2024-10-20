@@ -11,6 +11,12 @@ api/web/build/*
 api/web/dist/*
 api/web/main.spec
 api/web/user_data.json
+# キャラクター設定
+api/CharSettingJson/CharaNames/*
+api/CharSettingJson/CharaNames2VoiceMode/*
+api/CharSettingJson/VoiceModeNames/*
+api/CharSettingJson/AllHumanInformation.json
+
 ボイロキャラ素材/*
 app/images/
 api/web/output_wav/*

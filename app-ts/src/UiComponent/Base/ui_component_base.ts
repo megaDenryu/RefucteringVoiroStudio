@@ -67,7 +67,7 @@ export class ElementCreater {
      * @return {HTMLSelectElement} - 生成されたHTMLSelectElement。
      */
     static createSelectElement(options: string[], size: number | null = null): HTMLSelectElement {
-        const selectElement = document.createElement('select');
+        let selectElement = document.createElement('select');
 
         options.forEach(optionText => {
             const optionElement = document.createElement('option');
@@ -77,7 +77,6 @@ export class ElementCreater {
         });
 
         if (size != null) { selectElement.size = size; }
-
         return selectElement;
     }
 
@@ -99,7 +98,23 @@ export interface IHasComponent {
     readonly component: BaseComponent;
 }
 
-export class BaseComponent {
+export class ElementChildClass {
+}
+
+export interface HtmlElementInput<ClassNames extends Readonly<Record<string,string>> = Readonly<Record<string,string>>> {
+    readonly HTMLElement: string | HTMLElement;
+    readonly classNames: ClassNames;
+}
+export const HtmlElementInput = {
+  new: <ClassNames extends Readonly<Record<string,string>>> (
+    HTMLElement: string,
+    classNames: ClassNames,
+  ): HtmlElementInput<ClassNames> => ({
+    HTMLElement, classNames
+  })
+} as const;
+
+export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = Readonly<Record<string,string>> > {
     className: string[];
     id: string;
     element: HTMLElement;
@@ -108,10 +123,10 @@ export class BaseComponent {
     childCompositeCluster: CompositeComponentCluster | null = null;
     parentComponentCluster: CompositeComponentCluster | null = null;
 
-    constructor(HTMLElementInput: string | HTMLElement, className: string[] = [], vertexViewContent: any | null = null) {
+    constructor(HTMLElementInput: HTMLElement, className: string[] = [], vertexViewContent: any | null = null) {
         this.className = className;
         this.id = ExtendFunction.uuid();
-        this.element = this.createElement(HTMLElementInput);
+        this.element = HTMLElementInput;
         this.vertexViewContent = vertexViewContent;
         this.vertex = new Vertex(this.id, this, this.vertexViewContent);
         this.parentComponentCluster = null;
@@ -122,14 +137,31 @@ export class BaseComponent {
         this.vertexViewContent = content;
     }
 
-    createElement(HTMLElementInput: string | HTMLElement): HTMLElement {
-        if (HTMLElementInput instanceof HTMLElement) {
-            return HTMLElementInput;
-        } else if (typeof HTMLElementInput === 'string') {
-            return ElementCreater.createElementFromHTMLString(HTMLElementInput);
-        } else {
-            throw new Error('HTMLElementInput is not a string or HTMLElement.');
+    static createElementByString(hTMLElementInput: string): BaseComponent {
+        const element = ElementCreater.createElementFromHTMLString(hTMLElementInput);
+        return new BaseComponent(element);
+    }
+
+    static createElement<ClassNames extends Readonly<Record<string,string>> = Readonly<Record<string,string>>> (hTMLElementInput :HtmlElementInput<ClassNames>) {
+        const element = (typeof hTMLElementInput.HTMLElement === 'string') ? ElementCreater.createElementFromHTMLString(hTMLElementInput.HTMLElement) : hTMLElementInput.HTMLElement;
+        // ClassNamesをチェック
+
+        const classList: string[] = Object.values(hTMLElementInput.classNames);
+        if (this.checkHasClasses(element,classList) === false) {
+            console.error(element);
+            throw new Error('Class not found.');
         }
+        return new BaseComponent<ClassNames>(element);
+    }
+
+    static checkHasClasses(element,classList: string[]): boolean {
+        for (let i = 0; i < classList.length; i++) {
+            element.getElementsByClassName(classList[i]);
+            if (element.getElementsByClassName(classList[i]).length === 0) {
+                return false
+            }
+        }
+        return true;
     }
 
     
@@ -138,9 +170,27 @@ export class BaseComponent {
         this.parentComponentCluster = parentComponentCluster;
     }
 
+    bindParentElement(parentElement: HTMLElement): void {
+        parentElement.appendChild(this.element);
+    }
+
   
-    appendChildToElement(childComponent: BaseComponent): void {
-        this.element.appendChild(childComponent.element);
+    appendChildToElement(childComponent: BaseComponent, parentClass: string|null = null): void {
+        if (parentClass == null) {
+            this.element.appendChild(childComponent.element);
+        }
+
+        if (parentClass != null) {
+            const parentElement = this.element.getElementsByClassName(parentClass)[0];
+            if (parentElement == null) {
+                // 親クラスが見つからなかった場合はコンソールにthis.elementを表示してエラーを出す
+                console.error(this.element);
+                throw new Error('Parent class not found.');
+                
+            }
+            parentElement.appendChild(childComponent.element);
+        }
+        
     }
 
  
@@ -149,12 +199,12 @@ export class BaseComponent {
     }
 
  
-    createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent): void {
+    createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent, parentClass: string|null = null): void {
         const parentComponent = parent.component
         const childComponent = child.component
         if (this.childCompositeCluster == null) this.createChildComponentCluster();
         if (this.childCompositeCluster == null) throw new Error('childCompositeCluster is null.');
-        this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent);
+        this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent, parentClass);
     }
 
 
@@ -199,13 +249,13 @@ export class CompositeComponentCluster {
     /**
      * ２つのコンポーネントを矢印で結んで親子関係を作る。
      */
-    createArrowBetweenComponents(parentComponent: BaseComponent, childComponent: BaseComponent): void {
+    createArrowBetweenComponents(parentComponent: BaseComponent, childComponent: BaseComponent, parentClass:string|null = null): void {
         const arrow = new Arrow(parentComponent.vertex, childComponent.vertex, null);
         this.cluster.graph.addEdge(arrow);
         // コンポーネントのedgesにarrowを追加
         parentComponent.registerComponentGraphEdge(arrow, this);
         childComponent.registerComponentGraphEdge(arrow, this);
         // 親コンポーネントのhtml要素に子コンポーネントのhtml要素を追加
-        parentComponent.appendChildToElement(childComponent);
+        parentComponent.appendChildToElement(childComponent,parentClass);
     }
 }

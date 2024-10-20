@@ -1,11 +1,13 @@
-import { TTSSoftware, CharacterName, HumanImage, VoiceMode } from "../../ValueObject/Character";
+import { TTSSoftware, CharacterName, HumanImage, VoiceMode, AllHumanInformationDict } from "../../ValueObject/Character";
 import { CharaSelectFunction } from "./CharaInfoSelecter";
+import { IAllHumanInformationDict } from "./ICharacterInfo";
 
 interface CharaInfoResponse {
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
     humanImagesDict: Map<CharacterName, HumanImage[]>;
     voiceModesDict: Map<CharacterName, VoiceMode[]>;
 }
+
 
 export class CharaSelectFunctionCreater {
     /**
@@ -17,17 +19,13 @@ export class CharaSelectFunctionCreater {
      */
 
     rootURL = "http://localhost:8010/";
-    apiEndPoints = {
-        "CharaNames":"AllCharaInfoCharaNames",
-        "HumanImages":"AllCharaInfoHumanImages",
-        "VoiceModes":"AllCharaInfoVoiceModes"
-    }
     requestinit = {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         }
     }
+    allHumanInformationDict: AllHumanInformationDict;
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
     humanImagesDict: Map<CharacterName, HumanImage[]>;
     voiceModesDict: Map<CharacterName, VoiceMode[]>;
@@ -36,23 +34,11 @@ export class CharaSelectFunctionCreater {
         return this.rootURL + "AllCharaInfoTest";
     }
 
-    get apiURLCharaNames() {
-        return this.rootURL + this.apiEndPoints.CharaNames;
+    get apiURLCharaInfo() {
+        return this.rootURL + "AllCharaInfo";
     }
-    get apiURLHumanImages() {
-        return this.rootURL + this.apiEndPoints.HumanImages;
-    }
-    get apiURLVoiceModes() {
-        return this.rootURL + this.apiEndPoints.VoiceModes;
-    }
-
-    
 
     constructor() {
-        
-        // this.requestCharaInfo().then(() => {
-        //     this.createCharaSelectFunction();
-        // });
     }
 
     async requestCharaInfoTest() {
@@ -69,43 +55,41 @@ export class CharaSelectFunctionCreater {
         await testPromise;
     }
 
-    async requestCharaInfo() {
-        // 1. キャラクター情報をapiにリクエストする
-
-        /**
-         * characterNamesDict: Record<TTSSoftware, CharacterName[]>
-         * humanImagesDict: Map<CharacterName, HumanImage[]>
-         * voiceModesDict: Map<CharacterName, VoiceMode[]>
-         * にキャラクター情報を格納する.
-         * 3つの情報を非同期に同時に取得する.
-         */
-        const charaNamesPromise = fetch(this.apiURLCharaNames, this.requestinit)
-            .then(response => response.json())
-            .then(json => {
-                console.log(json);
-                this.characterNamesDict = json;
-            });
-        const humanImagesPromise = fetch(this.apiURLHumanImages, this.requestinit)
-            .then(response => response.json())
-            .then(json => {
-                console.log(json);  
-                this.humanImagesDict = json;
-            });
-        const voiceModesPromise = fetch(this.apiURLVoiceModes, this.requestinit)
-            .then(response => response.json())
-            .then(json => {
-                console.log(json);
-                this.voiceModesDict = json;
-            });
-
-        await Promise.all([charaNamesPromise, humanImagesPromise, voiceModesPromise]);
+    async fetchHumanInformation(): Promise<IAllHumanInformationDict> {
+        const response = await fetch("http://localhost:8010/AllCharaInfo", this.requestinit);
+        if (!response.ok) {
+            throw new Error("Failed to fetch human information");
+        }
+        const data: IAllHumanInformationDict = await response.json();
+        return data;
     }
 
-    createCharaSelectFunction() {
+    async requestAllCharaInfoTest() {
+        const charaInfo = await fetch("http://localhost:8010/AllCharaInfo", this.requestinit)
+        .then(response => response.json())
+        .then(json => {
+            console.log(json);
+            return json;
+        })
+        await charaInfo;
+    }
+
+    async requestAllCharaInfo(): Promise<CharaSelectFunction> {
+        var data = await this.fetchHumanInformation();
+        console.log(data);
+        this.allHumanInformationDict = new AllHumanInformationDict(data);
+        this.characterNamesDict = this.allHumanInformationDict.getCharacterNamesDict();
+        this.humanImagesDict = this.allHumanInformationDict.getHumanImagesDict();
+        this.voiceModesDict = this.allHumanInformationDict.getVoiceModesDict();
+        return this.createCharaSelectFunction();
+    }
+
+    createCharaSelectFunction(): CharaSelectFunction {
         const charaSelectFunction = new CharaSelectFunction(
             this.characterNamesDict,
             this.humanImagesDict,
             this.voiceModesDict
         );
+        return charaSelectFunction;
     }
 }

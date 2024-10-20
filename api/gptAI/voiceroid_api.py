@@ -20,6 +20,7 @@ from typing import Optional
 import sys
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.gptAI.CharacterModeState import CharacterModeState
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
 
 import subprocess
@@ -33,21 +34,30 @@ class TTSSoftwareInstallState(Enum):
     ModuleNotFound = 2
 
 class cevio_human:
-    name:str|None = None
-    cevio_name:str|None = None
+    chara_mode_state:CharacterModeState|None
+    @property
+    def name(self):
+        if self.chara_mode_state is None:
+            raise Exception("chara_mode_stateがNoneです")
+        return self.chara_mode_state.character_name.name
+    @property
+    def cevio_name(self):
+        if self.chara_mode_state is None:
+            raise Exception("chara_mode_stateがNoneです")
+        return self.chara_mode_state.voice_mode.mode
+    
     onTTSSoftware:bool = False #CevioAIが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #CevioAiがインストールされているかどうか
-    def __init__(self,char_name:str|None,started_cevio_num:int) -> None:
-        if char_name is not None:
-            self.name = char_name 
-            self.cevio_name = self.setCharName(char_name)
+    def __init__(self, chara_mode_state:CharacterModeState|None, started_cevio_num:int) -> None:
+        if chara_mode_state is not None:
+            self.chara_mode_state = chara_mode_state
         
         self.cevioStart(started_cevio_num)
         self.output_wav_info_list = []
 
     @staticmethod
-    def createAndUpdateALLCharaList(char_name:str|None,started_cevio_num:int)->"cevio_human":
-        human = cevio_human(char_name,started_cevio_num)
+    def createAndUpdateALLCharaList(chara_mode_state:CharacterModeState, started_cevio_num:int)->"cevio_human":
+        human = cevio_human(chara_mode_state,started_cevio_num)
         human.updateAllCharaList()
         return human
     
@@ -134,9 +144,10 @@ class cevio_human:
         except Exception as e:
             return ""
     @staticmethod
-    def setCharName(name:str|None):
-        if name is None:
+    def setCharName(chara:CharacterModeState|None):
+        if chara is None:
             return None
+        name = chara.character_name.name
         api_dir = Path(__file__).parent.parent
         path = api_dir / "CharSettingJson" / "CevioNameForVoiceroidAPI.json"
         with open(path, "r", encoding="utf-8") as f:
@@ -199,7 +210,7 @@ class cevio_human:
         #self.shutDown()
         #time.sleep(2)
         self.cevio.StartHost(False)
-        self.talker.Cast = self.setCharName(self.name)
+        self.talker.Cast = self.cevio_name
         #self.cevioStart()
         print("cevio再起動完了")
     
@@ -213,12 +224,15 @@ class cevio_human:
         Raises :
           CevioException : CeVIOが起動していない場合の例外
         """
-
-        castlist = self.talker.AvailableCasts
-        result = []
-        for i in range(0,castlist.Length):
-            result.append(castlist.At(i))
-        return result
+        try:
+            castlist = self.talker.AvailableCasts
+            result = []
+            for i in range(0,castlist.Length):
+                result.append(castlist.At(i))
+            return result
+        except Exception as e:
+            print(e)
+            raise Exception("CeVIOが起動していません")
     
     def updateAllCharaList(self):
         """
@@ -268,30 +282,36 @@ class SpeakerInfo(TypedDict):
     name:str
     styles:list[SpeakerStyle]
 class voicevox_human:
-    name:str|None = None
+    chara_mode_state:CharacterModeState|None
     onTTSSoftware:bool = False #voicevoxが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
-    def __init__(self,name:str|None,started_voicevox_num:int) -> None:
-        if name is None:
+    query_url = f"http://127.0.0.1:50021/audio_query" #f"http://localhost:50021/audio_query"だとlocalhostの名前解決に時間がかかるらしい
+    synthesis_url = f"http://127.0.0.1:50021/synthesis" #f"http://localhost:50021/synthesis"だとlocalhostの名前解決に時間がかかるらしい
+    @property
+    def char_name(self):
+        if self.chara_mode_state is None:
+            raise Exception("chara_mode_stateがNoneです")
+        return self.chara_mode_state.character_name.name
+    @property
+    def mode(self):
+        if self.chara_mode_state is None:
+            raise Exception("chara_mode_stateがNoneです")
+        return self.chara_mode_state.voice_mode.id
+
+    def __init__(self,chara_mode_state:CharacterModeState|None,started_voicevox_num:int) -> None:
+        if chara_mode_state is None:
             return
+        self.chara_mode_state = chara_mode_state
         if started_voicevox_num == 0:
             self.start()
-        
-        if "" != self.getCharNum(name):
-            self.char_num = self.getCharNum(name)
-            self.query_url = f"http://127.0.0.1:50021/audio_query" #f"http://localhost:50021/audio_query"だとlocalhostの名前解決に時間がかかるらしい
-            self.synthesis_url = f"http://127.0.0.1:50021/synthesis" #f"http://localhost:50021/synthesis"だとlocalhostの名前解決に時間がかかるらしい
-            self.char_name = name
-        else:
-            self.char_name = ""
-            self.name = ""
+    
     
     def start(self):
         voicevox_human.createVoiceVoxNameToNumberDict() #キャラアプデ処理旧
         self.updateAllCharaList() #キャラアプデ処理新
     
     @staticmethod
-    def getCharNum(name):
+    def getCharNum(name:str):
         """
         VOICEVOXとの通信で使う名前。
         front_nameとchar_nameのようなgptや画像管理で使うための名前ではない。
@@ -308,8 +328,11 @@ class voicevox_human:
             return ""
 
     def getVoiceQuery(self, text: str) -> Dict[str, Any]:
+        """
+        todo TypedDictでボイボのquery_dictを定義する。現状は動いているので後回し
+        """
         params = {
-            'speaker': self.char_num,
+            'speaker': self.mode,
             'text': text
         }
         pprint(params)
@@ -322,7 +345,7 @@ class voicevox_human:
         getVoiceQuery()で取得したquery_dictを引数に使ってwavを生成する.
         """
         query_json = json.dumps(query_dict)
-        wav = requests.post(self.synthesis_url, params={'speaker': self.char_num}, data=query_json)
+        wav = requests.post(self.synthesis_url, params={'speaker': self.mode}, data=query_json)
         return wav
     
     def wav2base64(self,wav):
@@ -462,14 +485,18 @@ class voicevox_human:
         4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
         5. キャラクター名からニックネームリストを返す辞書      を更新
         """
-        #1. VoiceVoxのキャラクター名を取得
-        speaker_dict = voicevox_human.getSpeakerDict()
-        #2. キャラクター名リストを更新
-        voicevox_human.updateCharaNames(speaker_dict)
-        #3. キャラクター名からボイスモード名リストを返す辞書    を更新
-        voicevox_human.updateVoiceModeInfo(speaker_dict)
-        #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
-        voicevox_human.upadteNicknameAndHumanImagesFolder(speaker_dict)
+        try:
+            #1. VoiceVoxのキャラクター名を取得
+            speaker_dict = voicevox_human.getSpeakerDict()
+            #2. キャラクター名リストを更新
+            voicevox_human.updateCharaNames(speaker_dict)
+            #3. キャラクター名からボイスモード名リストを返す辞書    を更新
+            voicevox_human.updateVoiceModeInfo(speaker_dict)
+            #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+            voicevox_human.upadteNicknameAndHumanImagesFolder(speaker_dict)
+        except Exception as e:
+            print(e)
+            print("VoiceVoxのキャラクター名取得に失敗しました。起動してないかもしれません")
         
     @staticmethod
     def updateCharaNames(speaker_dict:list[SpeakerInfo]):
@@ -625,18 +652,27 @@ class VoicePresetModel(BaseModel):
 
 
 class AIVoiceHuman:
-    aivoice_name:str|None = None
+    chara_mode_state:CharacterModeState|None
+    @property
+    def char_name(self):
+        if self.chara_mode_state is None:
+            raise Exception("chara_mode_stateがNoneです")
+        return self.chara_mode_state.character_name.name
+    @property
+    def aivoice_name(self):
+        if self.chara_mode_state is None:
+            raise Exception("chara_mode_stateがNoneです")
+        return self.chara_mode_state.voice_mode.mode
     onTTSSoftware:bool = False #AIVoiceが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #AIVoiceがインストールされているかどうか
-    def __init__(self,char_name:str|None,started_AIVoice_num:int) -> None:
-        if char_name is not None:
-            self.char_name = char_name
-            self.aivoice_name = self.setCharName(char_name)
+    def __init__(self, chara_mode_state:CharacterModeState|None, started_AIVoice_num:int) -> None:
+        if chara_mode_state is not None:
+            self.chara_mode_state = chara_mode_state
         self.start()
     
     @staticmethod
-    def createAndUpdateALLCharaList(char_name:str|None,started_AIVoice_num:int)->"AIVoiceHuman":
-        human = AIVoiceHuman(char_name,started_AIVoice_num)
+    def createAndUpdateALLCharaList(chara_mode_state:CharacterModeState|None,started_AIVoice_num:int)->"AIVoiceHuman":
+        human = AIVoiceHuman(chara_mode_state,started_AIVoice_num)
         print(human.updateCharName())
         human.updateAllCharaList()
         return human
@@ -912,17 +948,21 @@ class AIVoiceHuman:
         4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
         5. キャラクター名からニックネームリストを返す辞書      を更新
         """
-        all_human_info_manager = AllHumanInformationManager.singleton()
-        #2. キャラクター名リストを更新
-        charaNames = self.CharaNames
-        all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.AIVoice,charaNames)
-        #3. キャラクター名からボイスモード名リストを返す辞書    を更新
-        voiceModeDict:dict[CharacterName,list[VoiceMode]] = self.createVoiceModeDict()
-        all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.AIVoice,voiceModeDict)
-        #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
-        all_human_info_manager.human_images.tryAddHumanFolder(charaNames)
-        #5. キャラクター名からニックネームリストを返す辞書      を更新
-        all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(charaNames)
+        try:
+            all_human_info_manager = AllHumanInformationManager.singleton()
+            #2. キャラクター名リストを更新
+            charaNames = self.CharaNames
+            all_human_info_manager.chara_names_manager.updateCharaNames(TTSSoftware.AIVoice,charaNames)
+            #3. キャラクター名からボイスモード名リストを返す辞書    を更新
+            voiceModeDict:dict[CharacterName,list[VoiceMode]] = self.createVoiceModeDict()
+            all_human_info_manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.AIVoice,voiceModeDict)
+            #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
+            all_human_info_manager.human_images.tryAddHumanFolder(charaNames)
+            #5. キャラクター名からニックネームリストを返す辞書      を更新
+            all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(charaNames)
+        except Exception as e:
+            print(e)
+            print("AIVoiceのキャラクター名取得に失敗しました。起動してないかもしれません")
     
     def updateCharName(self):
         """
@@ -1021,42 +1061,33 @@ class CoeiroinkSpeaker(TypedDict):
     base64Portrait: str
 
 class Coeiroink:
+    chara_mode_state:CharacterModeState|None
+    @property
+    def char_name(self):
+        if self.chara_mode_state is None:
+            raise Exception("chara_mode_stateがNoneです")
+        return self.chara_mode_state.character_name.name
+    @property
+    def styleId(self):
+        if self.chara_mode_state is None:
+            raise Exception("chara_mode_stateがNoneです")
+        if self.chara_mode_state.voice_mode is None:
+            raise Exception("voice_modeがNoneです")
+        if self.chara_mode_state.voice_mode.id is None:
+            raise Exception("voice_mode.idがNoneです")
+        return self.chara_mode_state.voice_mode.id
     DEFAULT_SERVER = "http://127.0.0.1:50032"
     none_num = -1
     server = DEFAULT_SERVER
-    name: str|None = None
     onTTSSoftware:bool = False #vCoeiroinkが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #Coeiroinkがインストールされているかどうか
 
-    def __init__(self,name:str|None,started_coeiro_num:int) -> None:
-        if name is None:
+    def __init__(self, chara_mode_state:CharacterModeState|None, started_coeiro_num:int) -> None:
+        if chara_mode_state is None:
             return
+        self.chara_mode_state = chara_mode_state
         self.updateAllCharaList()
-        if "" != self.getCharNum(name):
-            self.styleId = self.getCharNum(name)
-            if self.styleId == Coeiroink.none_num:
-                print(f"{name}はcoeiroinkに登録されていません。")
-                Coeiroink.createCoeiroinkNameToNumberDict()
-                return
-
-            self.speaker = Coeiroink.get_speaker_info(self.styleId)
-            self.char_name = name
-        else:
-            self.char_name = ""
-            self.name = ""
-    
-
-    @staticmethod
-    def getCharNum(name)->int:
-        """
-        coeiroinkとの通信で使う名前。
-        front_nameとchar_nameのようなgptや画像管理で使うための名前ではない。
-        """
-        name_dict = JsonAccessor.loadCoeiroinkNameToNumberJson()
-        if name in name_dict:
-            return name_dict[name]
-        
-        return Coeiroink.none_num
+        self.speaker = Coeiroink.get_speaker_info(self.styleId)
     
     # ステータスを取得する
     @staticmethod
@@ -1417,6 +1448,7 @@ class Coeiroink:
         except Exception as e:
             # coeiroinkが起動してないとき
             print(e)
+            print("Coeiroinkのキャラクター名取得に失敗しました。起動してないかもしれません")
 
     @staticmethod
     def find_coeiroink_exe_path():
@@ -1557,6 +1589,9 @@ class TTSSoftwareManager:
     
     @staticmethod
     def updateAllCharaList():
+        """
+        ボイロの起動コマンド直後にやると、声色インクとかが、非同期ではなく別プロセスで実行されてるせいで失敗することがあるのでアプデボタンを押したときに実行するようにする。また、通信に失敗した場合はエラーを投げる。
+        """
         for ttss in TTSSoftware:
             TTSSoftwareManager.updateCharaList(ttss,TTSSoftwareManager.HasTTSStateDict[ttss])
 
@@ -1566,7 +1601,10 @@ class TTSSoftwareManager:
         各種ボイスロイドのキャラクターリストを更新する
         """
         if tmp_human.hasTTSSoftware == TTSSoftwareInstallState.Installed and tmp_human.onTTSSoftware:
+            ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストを更新します。")
             tmp_human.updateAllCharaList()
+        else:
+            ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストの更新に失敗しました。",tmp_human)
         
      
 
@@ -1574,56 +1612,10 @@ class TTSSoftwareManager:
 
 class voiceroid_apiTest:
     def __init__(self) -> None:
-        if False:
-            print("開始")
-            one = cevio_human("おね",0)
-            ia = cevio_human("ia",1)
-            tudumi = cevio_human("つづみ",2)
-            one.outputWaveFile("おはよう")
-            ia.outputWaveFile("おねちゃんきょーもかみぼさぼさじゃーん")
-            tudumi.outputWaveFile("ほんとね、といてあげるわ")
+        pass
 
-        elif False:
-            tumugi = voicevox_human("春日部つむぎ",0)
-            tumugi.speak("あーしはつむぎ,埼玉１のギャルの春日部つむぎだよ、よろしくねオタク君")
+       
 
-        elif False:
-            aoi = AIVoiceHuman("琴葉葵",0)
-            aoi.outputWaveFile("あーしは葵,埼玉１のギャルの琴葉葵だよ、よろしくねオタク君")
-        elif False:
-            print("開始")
-            voicevox_human.createVoiceVoxNameToNumberDict()
-            print("終了")
-
-        elif False:
-            print("開始")
-            Coeiroink.createCoeiroinkNameToNumberDict()
-            print("終了")
-        elif False:
-            wav = Coeiroink.get_wave_data(1315987311, "いまははは")
-            # 音声をファイルに保存
-            with open("test.wav", "wb") as f:
-                f.write(wav)
-        elif False:
-            horomegu = Coeiroink("幌呂めぐる",0)
-            wav = horomegu.getWavData("こんにちは、私はほろめぐだよおおおおおお。")
-            # 音声をファイルに保存
-            with open("test.wav", "wb") as f:
-                f.write(wav)
-
-        elif False:
-            dic = voicevox_human.getSpeakerDict()
-            pprint(dic)
-
-        elif True:
-            aivoice = AIVoiceHuman("琴葉葵",0)
-            # voicemodeDictを生成
-            ExtendFunc.ExtendPrint(aivoice.CharaNames)
-            voiceModeDict = aivoice.createVoiceModeDict()
-            ExtendFunc.ExtendPrint(voiceModeDict)
-
-            # ExtendFunc.ExtendPrint(aivoice.CharaNames)
-            # ExtendFunc.ExtendPrint(aivoice.VoiceModels)
 
 
 

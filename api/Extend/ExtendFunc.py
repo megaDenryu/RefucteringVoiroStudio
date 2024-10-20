@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from enum import Enum
 from pathlib import Path
 import json
 import os
@@ -12,6 +13,7 @@ import sys
 import unicodedata
 from googletrans import translate
 from pydantic import BaseModel
+from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map
 from api.Extend.ExtendSet import Interval
 
@@ -60,7 +62,7 @@ class ExtendFunc:
         elif isinstance(data, list):
             for item in data:
                 pprint(item, indent=indent, **kwargs)
-        elif isinstance(data, Map):
+        elif isinstance(data, Map|MapHasListValue):
             pprint(data.toDict(), indent=indent, **kwargs)
         else:
             print(' ' * indent + str(data))
@@ -189,20 +191,30 @@ class ExtendFunc:
             json.dump(serializable_content, f, ensure_ascii=False, indent=4)
     
     @staticmethod
-    def saveDictToJson(file_path: Path, content: dict|Map):
+    def enum_to_str(obj):
+        if isinstance(obj, Enum):
+            return obj.value
+        raise TypeError(f"Object of type {obj.__class__.__name__} is not JSON serializable")
+    
+    @staticmethod
+    def saveDictToJson(file_path: Path, content: dict|Map|MapHasListValue):
         """
         ファイルを保存します。
 
         Parameters:
         file_path (Path): 保存先のjsonファイルパス
         content (dict): 保存する内容
+
+        enumの値は文字列に変換して保存します。
         """
         # contentがMapの場合はdictに変換
         if isinstance(content, Map):
             content = content.dumpToJsonDict()
+        elif isinstance(content, MapHasListValue):
+            content = content.dumpToJsonDict()
 
         with open(file_path, 'w', encoding="utf-8") as f:
-            json.dump(content, f, ensure_ascii=False, indent=4)
+            json.dump(content, f, ensure_ascii=False, indent=4, default=ExtendFunc.enum_to_str)
 
     @staticmethod
     def loadJsonToList(file_path: Path) -> list:
@@ -251,7 +263,7 @@ class ExtendFunc:
     
     
     @staticmethod
-    def loadJsonToBaseModel(file_path: Path, model_class: Type[B]) -> B:
+    def loadJsonToBaseModel(file_path: Path, model_class: Type[B]) -> B|None:
         """
         jsonファイルを読み込み、指定されたBaseModelクラスのインスタンスとして返します。
 
@@ -261,8 +273,31 @@ class ExtendFunc:
 
         Returns: BaseModel: 読み込んだ内容を持つBaseModelのインスタンス
         """
-        ret_dict = ExtendFunc.loadJsonToDict(file_path)
-        return model_class(**ret_dict)
+        try :
+            ret_dict = ExtendFunc.loadJsonToDict(file_path)
+            return model_class(**ret_dict)
+        except Exception as e:
+            return None
+    
+    @staticmethod
+    def saveBaseModelToJson(file_path: Path, model: BaseModel):
+        """
+        BaseModelをjsonファイルに保存します。
+
+        Parameters:
+        file_path (Path): 保存先のjsonファイルパス
+        model (BaseModel): 保存するBaseModelのインスタンス
+        """
+        try:
+            ExtendFunc.saveDictToJson(file_path, model.model_dump())
+        except Exception as e:
+            ExtendFunc.ExtendPrint({
+                "エラー":"BaseModelの保存に失敗しました。",
+                "エラー内容":str(e),
+                "file_path":f"{file_path}",
+                "model":model
+            })
+            raise e
         
     
     @staticmethod

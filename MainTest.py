@@ -3,38 +3,16 @@ from pprint import pprint
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
+from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanInformationTest, TTSSoftware, VoiceMode, VoiceModeNamesManager
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanInformationTest, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 
 
 
-
-
-
-if __name__ == "__main__":
-    # HumanInformationTest()
-    # voiceroid_apiTest()
-    # dict = Coeiroink.getCoeiroinkNameToNumberDict()
-    # pprint(dict)
-    api_dir = Path(__file__).parent / "api"
-
-    # manager = VoiceModeNamesManager()
-
-    voicemodes:list[VoiceMode] = [
-        VoiceMode(mode = "ほねほね")
-    ]
-    
-    path = api_dir /"CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json"
-    JsonAccessor.checkExistAndCreateJson(path, {})
-    # ExtendFunc.saveListToJson(path, voicemodes)
-
-    # voice_modes:list[dict] = ExtendFunc.loadJsonToList(path)
-    # l = [VoiceMode(**mode) for mode in voice_modes]
-    # ExtendFunc.ExtendPrint("l",l)
-
+def test1():
     wa : list[MapItem[CharacterName,VoiceMode]] = [
         MapItem[CharacterName,VoiceMode](key = CharacterName(name = "one"), value = VoiceMode(mode = "one")),
         MapItem[CharacterName,VoiceMode](key = CharacterName(name = "あかね"), value = VoiceMode(mode = "つぼみ")),
@@ -77,7 +55,67 @@ if __name__ == "__main__":
 
     # ロードする
     map = Map[CharacterName,list[VoiceMode]].loadJson(path, CharacterName, list[VoiceMode])
-    ExtendFunc.ExtendPrintWithTitle(["ロード","ペロ"],mapList)
+    ExtendFunc.ExtendPrintWithTitle(["ロード","ペロ"],map)
+
+
+def test2():
+    mapList = (MapHasListValue[CharacterName,VoiceMode,list[VoiceMode]].empty().
+            set(CharacterName(name = "one"), [VoiceMode(mode = "one")]).
+            set(CharacterName(name = "あかね"), [
+                VoiceMode(mode = "ノーマル"), 
+                VoiceMode(mode = "つぼみ"),
+                VoiceMode(mode = "ほねほね")
+                ]).
+            set(CharacterName(name = "あおい"), [VoiceMode(mode = "ノーマル")])
+        )
+    
+    ExtendFunc.ExtendPrintWithTitle("作成",mapList)
+    ExtendFunc.ExtendPrintWithTitle("タイプ辞書",mapList.dumpToTypedDict())
+    ExtendFunc.ExtendPrintWithTitle("Json辞書",mapList.dumpToJsonDict())
+
+    ExtendFunc.saveDictToJson(path, mapList)
+
+    # # ロードする
+    map = MapHasListValue[CharacterName,VoiceMode,list[VoiceMode]].loadJson(path, CharacterName, VoiceMode,list[VoiceMode])
+    ExtendFunc.ExtendPrintWithTitle(["ロード","ペロ"],map)
+
+
+def test3():
+    chara = CharacterName(name = "あかね")
+    ExtendFunc.ExtendPrintWithTitle("作成",chara)
+    mana = AllHumanInformationDict()
+    ExtendFunc.ExtendPrintWithTitle("作成",mana)
+    mana.save()
+
+def test4():
+    t:TTSSoftwareType = "AIVoice"
+    print(t)
+    s = TTSSoftware.fromType(t)
+    print(s)
+    t1 = "hoge"
+    s1 = TTSSoftware.fromType(t1)
+    print(s1)
+
+
+
+if __name__ == "__main__":
+    # HumanInformationTest()
+    # voiceroid_apiTest()
+    # dict = Coeiroink.getCoeiroinkNameToNumberDict()
+    # pprint(dict)
+    api_dir = Path(__file__).parent / "api"
+
+    # manager = VoiceModeNamesManager()
+
+    voicemodes:list[VoiceMode] = [
+        VoiceMode(mode = "ほねほね")
+    ]
+    
+    path = api_dir /"CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json"
+    JsonAccessor.checkExistAndCreateJson(path, {})
+    
+    test4()
+
 
 
 

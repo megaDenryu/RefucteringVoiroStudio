@@ -14,14 +14,14 @@ class JsonAccessor:
         return json.dumps(input_dict, indent=4, ensure_ascii=False)
     
     @staticmethod
-    def checkExistAndCreateJson(path:Path, saveobj:dict|list):
+    def checkExistAndCreateJson(path:Path, saveobj:dict|list|None):
         try: 
             # ディレクトリが存在しない場合は作成
             if not path.parent.exists():
                 path.parent.mkdir(parents=True, exist_ok=True)
 
             # ファイルが存在しない場合は作成して内容を書き込む
-            if not path.exists():
+            if not path.exists() and saveobj is not None:
                 with open(path, mode='w') as f:
                     json.dump(saveobj, f, indent=4)
         except Exception as e:

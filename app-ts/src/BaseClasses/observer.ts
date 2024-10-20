@@ -1,8 +1,8 @@
 export class ReactiveProperty<T> {
     private _property: T;
 
-    constructor(value: T | null = null) {
-        this._property = value as T;
+    constructor(value: T) {
+        this._property = value;
     }
 
     private get property(): T {
@@ -14,7 +14,7 @@ export class ReactiveProperty<T> {
         this.executeMethods(value);
     }
 
-    private methods: Array<(T) => void> = [];
+    private methods: Array<(value: T) => void> = [];
 
     private executeMethods(value: T): void {
         for (let i = 0; i < this.methods.length; i++) {
@@ -30,7 +30,7 @@ export class ReactiveProperty<T> {
         this.property = value;
     }
 
-    public addMethod(event: (T) => void): void {
+    public addMethod(event: (value :T) => void): void {
         this.methods.push(event);
     }
 }

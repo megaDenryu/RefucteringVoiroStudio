@@ -1,5 +1,5 @@
-
 import { CharaSelectFunctionCreater } from "../UiComponent/CharaInfoSelecter/CharaSelectFunctionCreater";
+import "../UiComponent/CharaInfoSelecter/CharaInfoSelecter.css";
 
 
 
@@ -7,7 +7,8 @@ import { CharaSelectFunctionCreater } from "../UiComponent/CharaInfoSelecter/Cha
 
 console.log("test staart");
 
-const charaSelectFunction = new CharaSelectFunctionCreater();
-await charaSelectFunction.requestCharaInfoTest();
-await charaSelectFunction.requestCharaInfo();
+const charaSelectFunctionCreater = new CharaSelectFunctionCreater();
+// await charaSelectFunction.requestCharaInfoTest();
+var charaSelectFunction = await charaSelectFunctionCreater.requestAllCharaInfo();
+charaSelectFunction.component.bindParentElement(document.body);
 console.log("test done");
