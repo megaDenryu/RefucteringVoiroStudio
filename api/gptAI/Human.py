@@ -7,6 +7,8 @@ import re
 from pprint import pprint
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
+from api.gptAI.CharacterModeState import CharacterModeState
+from api.gptAI.HumanInformation import TTSSoftware
 from .gpt import ChatGPT
 from .voiceroid_api import voicevox_human
 from .voiceroid_api import Coeiroink
@@ -25,7 +27,14 @@ except ImportError:
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
 
 class Human:
-    def __init__(self,front_name:str ,voiceroid_dict, corresponding_websocket:WebSocket, prompt_setteing_num:str = "キャラ個別システム設定") -> None:
+    chara_mode_state:CharacterModeState
+    @property
+    def front_name(self): #フロントで入力してウインドウに表示されてる名前
+        return self.chara_mode_state.front_name
+    @property
+    def char_name(self): #キャラ名
+        return self.chara_mode_state.character_name
+    def __init__(self,chara_mode_state:CharacterModeState ,voiceroid_dict, corresponding_websocket:WebSocket, prompt_setteing_num:str = "キャラ個別システム設定") -> None:
         """
         @param front_name: フロントで入力してウインドウに表示されてる名前
         @param voiceroid_dict: 使用してる合成音声の種類をカウントする辞書。{"cevio":0,"voicevox":0,"AIVOICE":0}。cevioやAIVOICEの起動管理に使用。
@@ -36,22 +45,10 @@ class Human:
         self.send_image_switch = True
 
         # 以下コンストラクタのメイン処理
-
-
+        self.chara_mode_state = chara_mode_state
         self.voice_mode = "wav出力"
-        #フロントで入力してウインドウに表示されてる名前
-        self.front_name:str = front_name
-        #ボイスロイドの名前
-        self.char_name = self.setCharName(front_name)
-        print(f"char_name:{self.char_name}")
-        if "" == self.char_name:
-            #登録していないが持っている名前が入力された時の処理
-            #AIVOICEから名前を取得する
-            test_aivoice = AIVoiceHuman("test",0)
 
-            # コンストラクタの処理はここで終わり
-            
-            return
+        print(f"char_name:{self.char_name}")
         self.personal_id = 2
         # 体画像周りを準備する
         self.human_part = HumanPart(self.char_name)
@@ -72,7 +69,6 @@ class Human:
         self.sentence = ""
         self.sentence_count = 0
         self.prompt_setting_num = prompt_setteing_num
-        self.human_GPT:ChatGPT
         self.voice_system:str = self.start(prompt_setteing_num, voiceroid_dict)
 
         self.corresponding_websocket:WebSocket = corresponding_websocket
@@ -80,80 +76,39 @@ class Human:
         
     
     def start(self, prompt_setteing_num:str = "キャラ個別システム設定", voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}):#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
-        print(f"{self.char_name}のgpt起動開始")
-        self.human_GPT = ChatGPT(self.char_name, prompt_setteing_num,self.gpt_switch, self.body_parts_pathes_for_gpt)
-        print(f"{self.char_name}のgpt起動完了")
-        #nameからcevioかvoicevoxかAIVOICEか判定
         if self.voice_switch:
-            
-            if "" != cevio_human.setCharName(self.char_name):
-                tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.char_name,voiceroid_dict["cevio"])
+            if self.chara_mode_state.tts_software == TTSSoftware.CevioAI:
+                tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
                 print(f"{self.char_name}のcevio起動完了")
                 self.human_Voice.speak("起動完了")
                 return "cevio"
-            elif "" != voicevox_human.getCharNum(self.char_name):
-                tmp_voicevox = voicevox_human(self.char_name,voiceroid_dict["voicevox"])
+            elif self.chara_mode_state.tts_software == TTSSoftware.VoiceVox:
+                tmp_voicevox = voicevox_human(self.chara_mode_state,voiceroid_dict["voicevox"])
                 print(f"{self.char_name}のvoicevox起動開始")
                 self.human_Voice = tmp_voicevox
                 print(f"{self.char_name}のvoicevox起動完了")
                 self.human_Voice.speak("起動完了")
                 return "voicevox"
-            elif "" != AIVoiceHuman.setCharName(self.char_name):
-                tmp_aivoice = AIVoiceHuman.createAndUpdateALLCharaList(self.char_name,voiceroid_dict["AIVOICE"])
+            elif self.chara_mode_state.tts_software == TTSSoftware.AIVoice:
+                tmp_aivoice = AIVoiceHuman.createAndUpdateALLCharaList(self.chara_mode_state, voiceroid_dict["AIVOICE"])
                 print(f"{self.char_name}のAIVOICE起動開始")
                 self.human_Voice = tmp_aivoice
                 print(f"{self.char_name}のAIVOICE起動完了")
                 self.human_Voice.speak("起動完了")
                 return "AIVOICE"
-            elif "" != Coeiroink.getCharNum(self.char_name):
-                tmp_coeiroink = Coeiroink(self.char_name,voiceroid_dict["Coeiroink"])
+            elif self.chara_mode_state.tts_software == TTSSoftware.Coeiroink:
+                tmp_coeiroink = Coeiroink(self.chara_mode_state, voiceroid_dict["Coeiroink"])
                 print(f"{self.char_name}のcoeiroink起動開始")
                 self.human_Voice = tmp_coeiroink
                 print(f"{self.char_name}のcoeiroink起動完了")
-                # self.human_Voice.speak("起動完了")
                 return "Coeiroink"
             else:
                 return "ボイロにいない名前が入力されたので起動に失敗しました。"
         else:
             print(f"ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。")
             return "ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"
-    
-    def reStart(self):
-        #gpt
-        if self.gpt_switch:
-            print(f"{self.char_name}のgpt再起動チェックをします")
-            if hasattr(self,"human_GPT"):
-                print(f"{self.char_name}のgptが既に起動してるので再起動します")
-                self.human_GPT.reStart()
-            else:
-                print(f"{self.char_name}のgptが起動していないので起動します")
-                self.human_GPT = ChatGPT(self.char_name)
-            print(f"{self.char_name}のgpt起動完了")
-        else:
-            print(f"gpt起動しない設定なので起動しません。ONにするにはHuman.gpt_switchをTrueにしてください。")
-        #self.human_Voiceの型がcevioかvoicevoxかで分岐
-        if self.gpt_switch:
-            if cevio_human == type(self.human_Voice) :
-                print(f"{self.char_name}のcevio再起動チェックをします")
-                if hasattr(self,"human_Voice"):
-                    print(f"{self.char_name}のcevioが既に起動してるので再起動します")
-                    self.human_Voice.reStart()
-                else:
-                    print(f"{self.char_name}のcevioが起動していないので起動します")
-                    self.human_Voice = cevio_human.createAndUpdateALLCharaList(self.char_name,1)
-                print(f"{self.char_name}のcevio起動完了")
-        else:
-            print(f"ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。")
-    
-    def resetGPTPromptSetting(self, prompt_setting_num:str = "キャラ個別システム設定"):
-        self.human_GPT.resetGPTPromptSetting(prompt_setting_num)
-
-    def shutDown(self):
-        del self.human_GPT
-        if cevio_human == type(self.human_Voice):
-            self.human_Voice.shutDown()
     
     def speak(self,str:str):
         self.human_Voice.speak(str)
@@ -175,15 +130,6 @@ class Human:
             self.human_Voice.outputWaveFile(str)
         else:
             print("wav出力できるボイロが起動してないのでwav出力できませんでした。")
-
-    def generate_text(self,str:str,gpt_version = "gpt-4-1106-preview"):
-        return self.human_GPT.generate_text(str,gpt_version)
-    
-    def generate_text_simple(self,str:str,gpt_version = "gpt-4-1106-preview"):
-        return self.human_GPT.generate_text_simple(str,gpt_version)
-    
-    def generate_text_simple_json_4(self,str:str,gpt_version = "gpt-4-1106-preview"):
-        return self.human_GPT.generate_text_simple_json_4(str,gpt_version)
 
     def format_response(self,text:str):
         """

@@ -14,6 +14,7 @@ class CharacterModeState(HashableBaseModel):
     human_image: HumanImage
     voice_mode: VoiceMode
     voice_state: VoiceState | None
+    front_name: str
 
     def __init__(self, id: CharacterId, tts_software: TTSSoftwareType, character_name: CharacterName, human_image: HumanImage, voice_mode: VoiceMode, voice_state: VoiceState | None) -> None:
         self.id = id

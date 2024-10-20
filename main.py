@@ -205,7 +205,6 @@ async def read_root(path_param: str):
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint2(websocket: WebSocket, client_id: str):
     print("リクエスト検知")
-    #game_master.reStart()
     # クライアントとのコネクション確立
     await notifier.connect(websocket)
     clients_ws[client_id] = websocket
@@ -1073,20 +1072,6 @@ async def wsGptGraphEventStart(websocket: WebSocket, front_name: str):
     # pipeが完了したら通知
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
-
-@app.post("/CharaInfo")
-async def charaInfo(req):
-    """
-    @return: キャラの名前が入力されたときにボイスモードリストと画像リストを返す
-    """
-    characterName = CharacterName(req)
-    all_manager = AllHumanInformationManager.singleton()
-    voiceModeList:list[VoiceMode] = all_manager.CharaNames2VoiceModeDict_manager.chara_names2_voice_modes[characterName]
-    humanImages:list[HumanImage] = all_manager.human_images.human_images[characterName]
-
-    return {"voiceModeList": voiceModeList, "humanImages": humanImages}
-
-
 
 """
 # 問題
