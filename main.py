@@ -4,7 +4,7 @@ import random
 import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, SelectCharacterState, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
@@ -95,7 +95,7 @@ if game_master_enable:
 # Websocket用のパス
 ExtendFunc.ExtendPrint("ボイスロイドの起動")
 mana = AllHumanInformationManager.singleton()
-TTSSoftwareManager.tryStartAllTTSSoftware()
+# TTSSoftwareManager.tryStartAllTTSSoftware()
 
 ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
@@ -281,16 +281,6 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 print(f"{human_ai.char_name=}")
                 if "" != input_dict[human_ai.char_name]:
                     print(f"{input_dict[human_ai.char_name]=}")
-                    # # 文章をまず返答
-                    # json_data = json.dumps(message, ensure_ascii=False)
-                    # print(f"{json_data=}を送信します")
-                    # try:
-                    #     await notifier.push(json_data)
-                    # except Exception as e:
-                    #     print(e)
-                    #     await websocket.send_json(json_data)
-                    
-                    
                     for sentence in Human.parseSentenseList(input_dict[human_ai.char_name]):
                         for reciever in nikonama_comment_reciever_list.values():
                             reciever.checkAndStopRecieve(sentence)
@@ -1115,39 +1105,31 @@ async def AllCharaInfo():
     # mana.save()
     return mana
 
-@app.post("/AllCharaInfoCharaNames")
-async def AllCharaInfoCharaNames():
-    """
-    2. クライアントのtsでは以下のオブジェクトを生成する
-    characterNamesDict: Record<TTSSoftware, CharacterName[]>;
-    """
-    ExtendFunc.ExtendPrint("AllCharaInfoCharaNames")
-    all_manager = AllHumanInformationManager.singleton()
-    charaNames:dict[TTSSoftware, list[CharacterName]] = all_manager.chara_names_manager.chara_names
-    ExtendFunc.ExtendPrint(charaNames)
-    return charaNames
-@app.post("/AllCharaInfoHumanImages")
-async def AllCharaInfoHumanImages(req):
-    """
-    2. クライアントのtsでは以下のオブジェクトを生成する
-    humanImagesDict: Map<CharacterName, HumanImage[]>
-    """
-    ExtendFunc.ExtendPrint("AllCharaInfoHumanImages")
-    all_manager = AllHumanInformationManager.singleton()
-    humanImages:dict[CharacterName, list[HumanImage]] = all_manager.human_images.human_images
-    ExtendFunc.ExtendPrint(humanImages)
-    return  humanImages
-@app.post("/AllCharaInfoVoiceModes")
-async def AllCharaInfoVoiceModes(req):
-    """
-    2. クライアントのtsでは以下のオブジェクトを生成する
-    voiceModesDict: Map<CharacterName, VoiceMode[]>;
-    """
-    ExtendFunc.ExtendPrint("AllCharaInfoVoiceModes")
-    all_manager = AllHumanInformationManager.singleton()
-    voiceModes:dict[CharacterName, list[VoiceMode]] = all_manager.CharaNames2VoiceModeDict_manager.chara_names2_voice_modes
-    ExtendFunc.ExtendPrint(voiceModes)
-    return voiceModes
+class SelectCharacterStateReq(BaseModel):
+    selectCharacterState: SelectCharacterState
+    client_id: str
+
+
+@app.post("/DecideChara")
+async def DecideChara(req: SelectCharacterStateReq):
+    select_character_state = req.selectCharacterState
+    client_id = req.client_id
+    #name_dataに対応したHumanインスタンスを生成
+    prompt_setteing_num = "キャラ個別システム設定"
+    corresponding_websocket = clients_ws[client_id]
+    tmp_human = Human(name_data, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
+    #使用してる合成音声の種類をカウント
+    print(f"{tmp_human.voice_system=}")
+    voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
+    #humanインスタンスが完成したのでhuman_dictに登録
+    human_dict[tmp_human.char_name] = tmp_human
+    #clientにキャラクターのパーツのフォルダの画像のpathを送信
+    human_part_folder = tmp_human.image_data_for_client
+    ret_data = json.dumps(human_part_folder)
+
+    ExtendFunc.ExtendPrint("DecideChara")
+    ExtendFunc.ExtendPrint(select_character_state)
+    return {"message": "DecideChara"}
 
 
 class Item(BaseModel):

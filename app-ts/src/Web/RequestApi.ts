@@ -17,13 +17,13 @@ export class RequestAPI {
     }
 
 
-    async fetchOnDecideCharaInfo(humanNameState: SelectCharacterState) {
+    static async fetchOnDecideCharaInfo(humanNameState: SelectCharacterState) {
         //キャラインフォが決まったときに呼びdして、サーバーにキャラインフォを送り、ボイスロイドを起動して、画像データを取得する。
 
         //1. jsonに変換する
         const data = JSON.stringify(humanNameState.toDict());
         //2. 非同期fetchする
-        const response = await fetch(RequestAPI.rootURL + "DecideCharaInfo", {
+        const response = await fetch(RequestAPI.rootURL + "DecideChara", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

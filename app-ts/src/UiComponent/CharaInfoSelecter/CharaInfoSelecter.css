@@ -1,48 +1,150 @@
 .CharaSelectFunction {
     /* ピンク色の四角形を表示 */
-    width: 40%;
-    height: 90vh;
-    background-color: pink;
+    width: 600px;
+    height: 600px;
+    border-top-left-radius: 4vh;
+    border-top-right-radius: 4vh;
+    border-bottom-left-radius: 4vh;
+    border-bottom-right-radius: 4vh;
+    background-color: #fff8dd;/*dedaca
+    /** ボックスシャドウ */
+    box-shadow: 0 0 10px #ffe476;
+    display: flex;
+    flex-flow: column;
+    justify-content: center;
+    position: fixed; /* ビューポートに対して固定 */
+    top: 50%; /* ビューポートの垂直方向の中央 */
+    left: 50%; /* ビューポートの水平方向の中央 */
+    transform: translate(-50%, -50%); /* 要素の中心を基準に位置を調整 */
+    padding: 10px;
+}
+
+.AriaTTSSoftwareSelecter{
+    position: relative;
+    transform: translate(0%, -30px); /* 要素の中心を基準に位置を調整 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    left: 0%;
+    
 }
 
 .TTSSoftwareSelecter {
+    left: 50%;
+    width: 300px; /* 幅を適宜調整 */
+    padding: 10px; 
+    font-size: 16px; /* フォントサイズを調整 */
+    border: 1px solid #ffb7b7;
+    border-radius: 4px; /* 角を丸くする */
+    overflow-y: hidden; /* 横のスクロールバーを非表示にする */
+    box-sizing: border-box; /* パディングとボーダーを含めてサイズを計算 */
+    scrollbar-width: none;
+    /** ボックスシャドウ */
+    box-shadow: 0 0 10px #ffe478;
+}
+
+.TTSSoftwareSelecter.CevioAI {
+    background-color: #ffa7c4; 
+}.TTSSoftwareSelecter.AIVoice {
+    background-color: #e6b9ff7a; 
+}.TTSSoftwareSelecter.VoiceVox {
+    background-color: #c3ffcd; 
+}.TTSSoftwareSelecter.Coeiroink{
+    background-color: #f2f5fc;
+}
+
+.AriaFlexCompositeCharaSelecters {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: auto;
 }
 
-.FlexCompositeCharaSelecters {
+
+.CompositeSelecterSize {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: auto;
+    width: 180px;
+    height: 330px;
+    border-top-left-radius: 4vh;
+    border-top-right-radius: 4vh;
+    border-bottom-left-radius: 4vh;
+    border-bottom-right-radius: 4vh;
+    background-color: #dedaca;
+    /** ボックスシャドウ */
+    box-shadow: 0 0 10px #7f7035;
 }
 
-.CharacterNameSelecter {
-
+.CompositeSelecterSize:focus-within {
+    background-color: #fcfce4; /* フォーカス時の背景色を変更 */
 }
 
-.CompositeCharacterNameSelecter {
-
+.SelecterSize {
+    width: 130px;
+    height: 300px;
+    font-size: 16px; /* フォントサイズを調整 */
+    border: 1px solid #ccc; /* 枠線を追加 */
+    border-radius: 4px; /* 角を丸くする */
+    background-color: #dedaca; /* 背景色を白にする */
+    box-sizing: border-box; /* パディングとボーダーを含めてサイズを計算 */
+    scrollbar-width: none;
+    transition: background-color 0.3s ease; /* 背景色のトランジションを追加 */
 }
 
-.HumanImageSelecter {
-
+.SelecterSize:focus-within {
+    background-color: #e4fafc; /* フォーカス時の背景色を変更 */
 }
 
-.CompositeHumanImageSelecter {
-
+.SelecterSize select:focus {
+    outline: none; /* フォーカス時のアウトラインを削除 */
 }
 
-.VoicemodeSelecter {
-
+.SelecterSize select:focus-visible {
+    outline: none; /* フォーカス時のアウトラインを削除 */
 }
 
-.CompositeVoicemodeSelecter {
+.SelecterSize select:focus-out {
+    background-color: #b32c2c; /* フォーカスアウト時の背景色を変更 */
+}
 
+
+
+.AriaButton {
+    position: relative;
+    transform: translate(0%, 30px); /* 要素の中心を基準に位置を調整 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .CharacterSelectDecisionButton {
-
+    display: inline-block;
+    padding: 10px 20px; /* 内側の余白を追加 */
+    font-size: 16px; /* フォントサイズを調整 */
+    font-weight: bold; /* フォントを太字に */
+    color: #fff; /* テキストの色を白に */
+    background-color: #007bff; /* 背景色を青に */
+    border: none; /* 枠線を削除 */
+    border-radius: 4px; /* 角を丸くする */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* ボックスシャドウを追加 */
+    cursor: pointer; /* カーソルをポインタに */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* ホバー時のトランジションを追加 */
 }
+
+.CharacterSelectDecisionButton:hover {
+    background-color: #0056b3; /* ホバー時の背景色を変更 */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* ホバー時のボックスシャドウを変更 */
+}
+
+.CharacterSelectDecisionButton:active {
+    background-color: #004085; /* クリック時の背景色を変更 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* クリック時のボックスシャドウを変更 */
+}
+
+.CharacterSelectDecisionButton:focus {
+    outline: none; /* フォーカス時のアウトラインを削除 */
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* フォーカス時のボックスシャドウを追加 */
+}
+
+

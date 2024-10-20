@@ -471,16 +471,15 @@ class AllHumanInformationDict(BaseModel):
 
         
 
-class HumanNameState:
-    chara_name: CharacterName
-    nickname: NickName
+class SelectCharacterState(BaseModel):
+    tts_software: TTSSoftwareType
+    character_name: CharacterName
+    human_image: HumanImage
     voice_mode: VoiceMode
-    image: HumanImage
 
-    def __init__(self, chara_name:CharacterName, nickname:NickName, voice_mode:VoiceMode):
-        self.chara_name = chara_name
-        self.nickname = nickname
-        self.voice_mode = voice_mode
+    @staticmethod
+    def new(tts_software: TTSSoftwareType, chara_name:CharacterName, nickname:NickName, voice_mode:VoiceMode):
+        return SelectCharacterState(tts_software=tts_software, character_name=chara_name, human_image=HumanImage(folder_name=""), voice_mode=voice_mode)
     
 
 class HumanInformationTest:
