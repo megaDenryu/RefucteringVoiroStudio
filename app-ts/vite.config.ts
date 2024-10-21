@@ -16,6 +16,7 @@ export default defineConfig({
         test1012: resolve(__dirname, "test1012.html"),
         index_Human2: resolve(__dirname, "index_Human2.html"),
         setting: resolve(__dirname, "setting.html"),
+        AppVoiroStudio: resolve(__dirname, "AppVoiroStudio.html"),
       },
     },
   },
