@@ -1,4 +1,9 @@
 ///@ts-check
+import "../css/CustomFont.css";
+import "../css/setting.css"
+import "../css/style.css"
+import "../css/voiro_AI_setting.css"
+import { DragDropFile } from "./DragDropFile";
 
 // const { promises } = require("fs");
 

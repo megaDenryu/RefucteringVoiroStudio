@@ -144,6 +144,8 @@ async def read_app_ts(path_param: str):
     target = app_ts_dir / path_param
     if path_param == "":
         target = app_ts_dir / "index.html"
+    elif path_param == "newHuman":
+        target = app_ts_dir / "index_Human2.html"
     elif path_param == "option":
         target = app_ts_dir / "option.html"
     elif path_param == "test1012":
@@ -178,6 +180,7 @@ async def read_root(path_param: str):
         target = app_dir / "index_Human2.html"
 
     if path_param == "MultiHuman":
+        # 一つのウインドウに複数のキャラを出すためのページだが、大幅なリファクタが必要そうなので保留
         target = app_dir / "index_MultiHuman.html"
     
     if path_param == "settingPage":
