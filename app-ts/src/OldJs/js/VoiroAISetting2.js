@@ -1,6 +1,6 @@
 ///@ts-check
 
-class VoiroAISetting{
+export class VoiroAISetting{
     /** @type {HTMLDivElement} */ ELM_combination_name;
     /** @type {HTMLDivElement} */ ELM_body_setting;
     /** @type {HTMLInputElement} */ ELM_input_combination_name;
@@ -277,7 +277,7 @@ class VoiroAISetting{
  * アコーディオンを展開したときに見えるアコーディオンコンテンツのクラス
  * パーツ名をクリックしたときに、ボタンの色を変え、人体モデルのパーツの表示を変え、プロパティのデータも変える
  */
-class AccordionItem{
+export class AccordionItem{
 
     /** 
      * AccordionItemのエレメント全体
@@ -684,7 +684,7 @@ class AccordionItem{
 
 }
 
-class PatiSettingToggleEventObject{
+export class PatiSettingToggleEventObject{
     /** @type {HTMLElement} */
     ELM_accordion_content_pati_setting_toggle_button;
     /** @type {AccordionItem} */
@@ -830,7 +830,7 @@ class PatiSettingToggleEventObject{
 }
        
 
-class ContentButtonEventobject{
+export class ContentButtonEventobject{
 
     /** @type {string} */ image_name;
     /** @type {"on"|"off"} */ on_off;
@@ -961,7 +961,7 @@ class ContentButtonEventobject{
     }
 }
 
-class BodyCombinationAccordionManager{
+export class BodyCombinationAccordionManager{
 
     /** @type {HumanBodyManager2} */ human_body_manager;
     /** @type {VoiroAISetting} */ VoiroAISetting
@@ -1081,7 +1081,7 @@ class BodyCombinationAccordionManager{
     }
 }
 
-class CombinationContent{
+export class CombinationContent{
     /**
      * 
      * キャラの組み合わせ名を選択するアコーディオンの中身のパターンNのボタンなどを管理するクラス
@@ -1167,7 +1167,7 @@ class CombinationContent{
  * 
  * 選択したモードは各キャラのMessageBoxとMessageBoxMabagerに送信され、すべてのキャラのGPTのモードが1元管理される。
  */
-class GPTSettingButtonManagerModel {
+export class GPTSettingButtonManagerModel {
 
     /**
      * モード名：on_off 
