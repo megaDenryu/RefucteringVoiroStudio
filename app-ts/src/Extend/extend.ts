@@ -15,3 +15,32 @@ export class ExtendFunction {
     }
 }
 
+declare global {
+    interface Element {
+        getFirstHTMLElementByClassName(className: string): HTMLElement;
+        getFirstTextAreaElementByClassName(className: string): HTMLTextAreaElement;
+    }
+}
+
+Element.prototype.getFirstHTMLElementByClassName = function (className: string): HTMLElement {
+    const element = this.getElementsByClassName(className)[0];
+    if (!element) {
+        throw new Error(`Element with class name ${className} not found`);
+    }
+    if (!(element instanceof HTMLElement)) {
+        throw new Error(`Element with class name ${className} is not an HTMLElement`);
+    }
+    return element;
+};
+
+Element.prototype.getFirstTextAreaElementByClassName = function (className: string): HTMLTextAreaElement {
+    const element = this.getElementsByClassName(className)[0];
+    if (!element) {
+        throw new Error(`Element with class name ${className} not found`);
+    }
+    if (!(element instanceof HTMLTextAreaElement)) {
+        throw new Error(`Element with class name ${className} is not an HTMLTextAreaElement`);
+    }
+    return element;
+};
+

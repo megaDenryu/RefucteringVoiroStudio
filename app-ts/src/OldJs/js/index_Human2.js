@@ -669,14 +669,14 @@ function getMessageBoxByCharName(char_name) {
 function sendMessage(event) {
     event.preventDefault()
     var human_tabs = document.getElementsByClassName("human_tab")
-    inputs_dict = {}
+    let inputs_dict = {}
     for (let i=0;i<human_tabs.length;i++){
-        human_name = human_tabs[i].getElementsByClassName("human_name")[0].innerText
-        input_elem = human_tabs[i].getElementsByClassName("messageText")[0]
+        let human_name = human_tabs[i].getElementsByClassName("human_name")[0].innerText
+        let input_elem = human_tabs[i].getElementsByClassName("messageText")[0]
         inputs_dict[human_name] = input_elem.value
         input_elem.value = ""
     }
-    inputs_json = JSON.stringify(inputs_dict)
+    let inputs_json = JSON.stringify(inputs_dict)
     ws.send(inputs_json)
 
     //sendを押したキャラタブのmessageTextにフォーカスを移す。
