@@ -158,7 +158,7 @@ function tabSwitch(this: HTMLElement, event: Event): void {
         //キャラの名前を選択できるようにプルダウンかinputを追加
         this.classList.add('input_now')
         let ELM_human_name = this;
-        let human_tab = ELM_human_name.parentNode?.parentNode
+        let human_tab = ELM_human_name.parentNode?.parentNode as HTMLElement;
         //this.innerText = ""
         let input = document.createElement("input")
         input.type = "text"
@@ -292,27 +292,27 @@ function removeInputCharaName(this: HTMLElement,event:Event):void {
 
 class MessageBoxManager {
 
-    /** @type {MessageBox[]} メッセージボックスのリスト*/ 
-    message_box_list
+    /**  メッセージボックスのリスト*/ 
+    message_box_list: MessageBox[]
 
-    /** @type {ExtendedMap< string, MessageBox>}  メッセージボックスの辞書。キーはキャラのfront_name、値はメッセージボックスのインスタンス。*/
-    message_box_dict
+    /** メッセージボックスの辞書。キーはキャラのfront_name、値はメッセージボックスのインスタンス。*/
+    message_box_dict: ExtendedMap<string, MessageBox>
 
     /** @type {number} 監視しているメッセージボックスの番号を格納。-1なら監視していない。*/
-    observe_target_num
+    observe_target_num: number
 
-    /** @type {ResizeObserver} 監視対象のメッセージボックスの高さが変更されたときに、他のメッセージボックスの高さも変更するためのオブジェクト。*/
-    resizeObserver
+    /** 監視対象のメッセージボックスの高さが変更されたときに、他のメッセージボックスの高さも変更するためのオブジェクト。*/
+    resizeObserver: ResizeObserver
 
-    /** @type {ExtendedMap<string, string>} キャラのgptモードの状態を格納する辞書。キーはキャラのfront_name、値はgptモードの状態。*/
-    Map_all_char_gpt_mode_status
+    /** @type キャラのgptモードの状態を格納する辞書。キーはキャラのfront_name、値はgptモードの状態。*/
+    Map_all_char_gpt_mode_status : ExtendedMap<string, string>
 
     constructor() {
         this.message_box_list = [];
         this.message_box_dict = new ExtendedMap();
         this.observe_target_num = -1;
         this.resizeObserver = new ResizeObserver((entries) => {
-            this.setHeight(entries[0].target.style.height , this);
+            this.setHeight((entries[0].target as HTMLElement).style.height, this);
         });
         this.Map_all_char_gpt_mode_status = new ExtendedMap();
     }
@@ -407,13 +407,7 @@ class MessageBox {
     /** @type {GPTSettingButtonManagerModel}*/ gpt_setting_button_manager_model;
     /** @type {HumanTab}*/ human_window;
     
-    /**
-     * 
-     * @param {HTMLElement} message_box_elm 
-     * @param {MessageBoxManager} message_box_manager 
-     * @param {number} manage_num 
-     * @param {HTMLElement} human_tab_elm
-     */
+   
     constructor(message_box_elm:HTMLTextAreaElement, message_box_manager:MessageBoxManager, manage_num:Number, human_tab_elm:HTMLElement) {
         this.char_name = "";
         this.front_name = "";
@@ -681,94 +675,69 @@ function sendMessage(event: Event) {
     
 }
 
-/**
- * @typedef {Object} ImageInfo
- * @property {string} element - キャンバス要素の識別子
- * @property {string} img - 画像のデータ（Base64形式）
- * @property {Object} json - 画像のメタデータ
- * @property {string} json.name - 画像の名前
- * @property {number} json.x - 画像のx座標
- * @property {number} json.y - 画像のy座標
- * @property {number} json.width - 画像の幅
- * @property {number} json.height - 画像の高さ
- * @property {number} json.z_index - 画像のz_index
- * @property {string} json.口 - 口パクの文字
- */
+export interface ImageInfo {
+    element: string;
+    img: string;
+    json: {
+        name: string;
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+        z_index: number;
+        口: string; // 口パクの文字
+    };
+}
 
-/**
- * @typedef {Record<string, Record<string, string>>} AllData
- * @typedef {Record<string, Record<string, string>>} InitData
- */
+export type AllData = Record<string, Record<string, string>>;
+export type InitData = Record<string, Record<string, string>>;
 
-/**
- * @typedef {Object} InitImageInfo
- * @property {Record<string, InitData>} [property] - 動的に追加されるプロパティ
- * @property {Record<"パク"|"パチ"|"ぴょこ",Record<"開候補"|"閉",PartsPath[]>>} OnomatopeiaActionSetting
- */
+interface InitImageInfo {
+    property?: Record<string, InitData>; //todo ここのデータをちゃんと定義する必要がある。レコードではなくオブジェクトリストにするべき説濃厚
+    OnomatopeiaActionSetting: Record<"パク" | "パチ" | "ぴょこ", Record<"開候補" | "閉", PartsPath[]>>;
+}
 
-/**
- * @typedef {Object} BodyParts
- * @property {Record<string, ImageInfo>} body_parts_iamges - 体のパーツの画像のurlを格納した辞書
- * @property {InitImageInfo} init_image_info - キャラの画像の初期情報を格納した辞書
- * @property {string} front_name - フロントエンドでのキャラの名前
- * @property {string} char_name - キャラの名前
- */
+interface BodyParts {
+    body_parts_images: Record<string, ImageInfo>;
+    init_image_info: InitImageInfo;
+    front_name: string;
+    char_name: string;
+}
 
 //キャラ名を受信するときのイベント関数
 function receiveMessage(event) {
-    if(false){
-        //
-        no_image_human = document.getElementsByClassName("no_image_human")
-        human_image = no_image_human[1].document.getElementsByClassName("human_image")
-        var blob = event.data;
-        var url = URL.createObjectURL(blob)
-        var img = document.createElement("img");
-        image_human.src = url;
-        no_image_human[1].classList.remove("no_image_human")
+    //ここで行う処理の内容は、apiから受信したキャラ画像を表示する処理
+    let no_image_human = document.getElementsByClassName("no_image_human")
+    
+    let body_parts:BodyParts = JSON.parse(JSON.parse(event.data));
+    console.log(body_parts)
+    console.log(body_parts.char_name,body_parts["char_name"])
+    
+    console.log("human_listに追加:"+body_parts["char_name"])
+        
+    try{
+        humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts)
+    } catch (e) {
+        console.log(e)
+        console.log("human_listに追加失敗:"+body_parts["char_name"])
     }
-    else{
-        //ここで行う処理の内容は、apiから受信したキャラ画像を表示する処理
-        no_image_human = document.getElementsByClassName("no_image_human")
-        
-        
-        /**
-         * @type {BodyParts}
-         */
-        var body_parts = JSON.parse(JSON.parse(event.data));
-        console.log(body_parts)
-        console.log(body_parts.char_name,body_parts["char_name"])
-        
-        console.log("human_listに追加:"+body_parts["char_name"])
-            
-        if (true){
-            try{
-                humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts)
-            } catch (e) {
-                console.log(e)
-                console.log("human_listに追加失敗:"+body_parts["char_name"])
-            }
-                
-        }
-        else{
-            humans_list[body_parts["char_name"]] = new iHumanBodyManager(body_parts)
-        }
-        front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
-        console.log("front2chara_name=",front2chara_name)
-    }
+
+    front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
+    console.log("front2chara_name=",front2chara_name)
+    
 }
 
-/**
- * @typedef {Object} WavInfo
- * @property {string} path - wavファイルのパス
- * @property {string} wav_data - wavファイルのデータ（Base64形式）
- * @property {string} phoneme_time - 音素の開始時間と終了時間の情報
- * @property {string} phoneme_str - 音素の情報
- * @property {string} char_name - キャラの名前
- * @property {string} voice_system_name - 音声合成のシステムの名前
- */
+export interface WavInfo {
+    path: string; // wavファイルのパス
+    wav_data: string; // wavファイルのデータ（Base64形式）
+    phoneme_time: string; // 音素の開始時間と終了時間の情報
+    phoneme_str: string; // 音素の情報
+    char_name: string; // キャラの名前
+    voice_system_name: string; // 音声合成のシステムの名前
+}
 
 //gptで生成された会話データを受信したときのイベント関数
-async function receiveConversationData(event) {
+export async function receiveConversationData(event) {
     // console.log(typeof(event.data))
     // alert(event.data)
     var human_tab = document.getElementsByClassName('human_tab');
@@ -823,16 +792,14 @@ async function receiveConversationData(event) {
 
 /**
  * //テキストが送られてきたときの処理
- * @param {Record<string,string>} obj
- * @param {HTMLCollectionOf<Element>} human_tab
  */
-async function execText(obj,human_tab) {
+async function execText(obj: Record<string,string>, human_tab: HTMLCollectionOf<Element>) {
     console.log(obj)
     for(let i=1; i<human_tab.length;i++){
         //human_tabの中のhuman_nameを取得
         let message = document.createElement('li')
         //human_nameを取得
-        let name = human_tab[i].getElementsByClassName("human_name")[0].innerText
+        let name = human_tab[i].getFirstHTMLElementByClassName("human_name").innerText
         //message_colを取得
         let message_col = human_tab[i].getElementsByClassName("message_col")[0]
 
@@ -841,7 +808,7 @@ async function execText(obj,human_tab) {
         if(obj.hasOwnProperty(name)){
             if(typeof obj[name] == "object"){
                 console.log("上を通った")
-                for(let key in obj[name]){
+                for(let key in obj[name] as object){
                     if (key == "感情"){
                         str = `${key}:${JSON.stringify(obj[name][key])}\n\n`
                     }else{
@@ -872,10 +839,10 @@ async function execText(obj,human_tab) {
             
             //mode_integrateのmessage_colにも追加
             let message_col_integrate = document.getElementsByClassName("message_col mode_integrate")[0]
-            let message_integrate = message.cloneNode(true)
+            let message_integrate = message.cloneNode(true) as HTMLElement
             message_integrate.classList.add("message_integrate")
             //message_integrateに番号情報を追加。後で位置の再調整に使う。
-            message_integrate.setAttribute("data-tab_num",i)
+            message_integrate.setAttribute("data-tab_num", i.toString())
             //message_integrateの横のmarginに使う値
             const base_margin = 6
             //message_integrateの横位置を調整
@@ -974,8 +941,8 @@ async function execAudio(obj,audio_group, maxAudioElements = 100) {
                     console.error('Invalid lab_pos:', lab_data, "lab_pos="+lab_pos);
                     // ここで適切なエラーハンドリングを行います
                 }
-                // console.log("start_time,end_time="+[start_time,end_time]);
 
+                // todo start_timeとend_timeが定義されないまま入ってるときにバグってる可能性がある
                 if (start_time <= current_time && current_time <= end_time ) {
                     // console.log("通ってる",obj["char_name"],lab_data[lab_pos][0]);
                     try{
@@ -1061,13 +1028,13 @@ function changeMargin(){
     //todo 今は停止中。もっと良さそうな方法があれば使う。
 
     //Partyマージンを変更
-    let Party = document.getElementsByClassName("Party")[0]
+    let Party = document.getElementsByClassName("Party")[0] as HTMLElement
     let human_tabs = Party.getElementsByClassName("human_tab")
     const margin = 25 / (human_tabs.length-1)
     Party.style.marginLeft = `${margin}%`;
     Party.style.marginRight = `${margin}%`;
     //もしclass = "message"があるならそのwidthをtab数に応じて変更
-    messages = document.getElementsByClassName("message")
+    let messages = document.getElementsByClassName("message") as HTMLCollectionOf<HTMLElement>
     for (let i=0;i<messages.length;i++){
         messages[i].style.width = `${95-human_tabs.length*2.5}%`
     }
@@ -1104,49 +1071,41 @@ function canvas_process(human_tab){
     console.log("canvasの処理終了")
 }
 
-class PsdManager{
-    constructor(psd){
-        this.psd = psd
-        this.layers = psd.children
-        this.layers_name = []
-        this.layers.forEach(layer => {
-            this.layers_name.push(layer.name)
-        });
-        this.layers_name.forEach(layer_name => {
-            console.log(layer_name)
-        });
-    }
-}
 
 class DragDropObjectStatus{
-    /**
-     * 
-     * @param {*} human_images_elem 
-     * @param {HumanBodyManager2} humanBodyManager 
-     */
-    constructor(human_images_elem,humanBodyManager){
+    human_images_elem: Element;
+    humanBodyManager: HumanBodyManager2;
+    bg_image: Element;
+    human_window: Element;
+    human_image_elems: HTMLCollectionOf<HTMLElement>;
+    search_canvas_elem: HTMLElement;
+    mouse_down: boolean;
+    mouse_down_pos_x: number;
+    mouse_down_pos_y: number;
+    img_scale: number;
+    canvas_offsetLeft: number;
+    canvas_offsetTop: number;
+    
+    constructor(human_images_elem: Element,humanBodyManager:HumanBodyManager2){
         //プロパティには各画像の状態などを格納する
         this.human_images_elem = human_images_elem;
         this.humanBodyManager = humanBodyManager;
-        this.bg_image = human_images_elem.parentNode.getElementsByClassName("bg_image")[0]
-        this.human_window = human_images_elem.parentNode
-        this.human_image_elems = human_images_elem.getElementsByClassName("human_image");
-        this.search_canvas_elem = human_images_elem.parentNode.getElementsByClassName("search_canvas")[0];
+        this.bg_image = (human_images_elem.parentNode as Element).getElementsByClassName("bg_image")[0]
+        this.human_window = (human_images_elem.parentNode as Element)
+        this.human_image_elems = human_images_elem.getElementsByClassName("human_image") as HTMLCollectionOf<HTMLElement>;
+        this.search_canvas_elem = (human_images_elem.parentNode as Element).getElementsByClassName("search_canvas")[0] as HTMLElement;
         this.mouse_down = false;
         this.mouse_down_pos_x = 0;
         this.mouse_down_pos_y = 0;
         this.img_scale = 1;
 
-        var oprator_canvas = this.human_images_elem.getElementsByClassName("operator_canvas")[0];
-        oprator_canvas.dataset.scale = this.img_scale;
+        let oprator_canvas = this.human_images_elem.getElementsByClassName("operator_canvas")[0] as HTMLElement;
+        oprator_canvas.dataset.scale = this.img_scale.toString();
     }
-    handleEvent(event){
+    handleEvent(event: Event){
         switch(event.type){
             case "mousedown":
-                this.mouseDown(event);
-                break;
-            case "touchstart":
-                this.mouseDown(event);
+                this.mouseDown(event as MouseEvent);
                 break;
             case "mouseup":
                 this.mouseUp(event);
@@ -1155,15 +1114,14 @@ class DragDropObjectStatus{
                 this.mouseMove(event);
                 break;
             case "wheel":
-                this.mouseWheel(event);
+                this.mouseWheel(event as WheelEvent);
                 break;
         }
     }
     
-    mouseDown(e){
-        console.log("mouseDown")
+    mouseDown(e:MouseEvent){
         //クラス名に .drag を追加
-        e.target.classList.add("drag");
+        (e.target as Element).classList.add("drag");
         //タッチデイベントとマウスのイベントの差異を吸収
         if(e.type === "mousedown") {
             var event = e;
@@ -1174,15 +1132,17 @@ class DragDropObjectStatus{
         //要素内でのマウスをクリックした場所の相対座標を取得。
         this.mouse_down_pos_x = event.pageX;
         this.mouse_down_pos_y = event.pageY;
-        this.canvas_offsetLeft = e.target.offsetLeft;
-        this.canvas_offsetTop = e.target.offsetTop;
+        let target = e.target as HTMLElement;
+        this.canvas_offsetLeft = target?.offsetLeft;
+        this.canvas_offsetTop = target?.offsetTop;
         //console.log("mouse_down_pos_x="+[this.mouse_down_pos_x,event.pageX,e.target.offsetLeft])
         //console.log("mouse_down_pos_y="+[this.mouse_down_pos_y,event.pageY,e.target.offsetTop])
 
         //右クリックなら点を描画
         if (event.button == 2){
             console.log("右クリック")
-            var oprator_canvas = e.target.parentNode.getElementsByClassName("operator_canvas")[0]
+            let parent = target.parentNode as HTMLElement;
+            var oprator_canvas = parent?.getElementsByClassName("operator_canvas")[0]
             var canvas_rect = oprator_canvas.getBoundingClientRect()
             var x_on_canvas = e.pageX - canvas_rect.left;
             var y_on_canvas = e.pageY - canvas_rect.top;
@@ -1196,28 +1156,26 @@ class DragDropObjectStatus{
         
     }
 
-    /**
-     * 
-     * @param {Event} e 
-     */
-    mouseMove(e) {
+    
+    mouseMove(e : Event) {
         //ドラッグしている要素を取得
         //e.targetのクラスネームにdragがあるかどうかで処理を分岐させる
-        if (e.target.classList.contains("drag")){
-            var drag = e.target;
+        if ((e.target as HTMLElement)?.classList.contains("drag")){
+            let drag = e.target;
             //同様にマウスとタッチの差異を吸収
+            let ev;
             if(e.type === "mousemove") {
-                var event = e;
+                ev = e;
             } else {
-                var event = e.changedTouches[0];
+                ev = (e as TouchEvent).changedTouches[0];
             }
 
             //フリックしたときに画面を動かさないようにデフォルト動作を抑制
             e.preventDefault();
             //マウスが動いた場所に要素を動かす
             for (let i=0;i<this.human_image_elems.length;i++){
-                this.human_image_elems[i].style.left = addPixelValues(this.canvas_offsetLeft, event.pageX - this.mouse_down_pos_x + "px");
-                this.human_image_elems[i].style.top = addPixelValues(this.canvas_offsetTop, event.pageY - this.mouse_down_pos_y + "px");
+                (this.human_image_elems[i] as HTMLElement).style.left = addPixelValues(this.canvas_offsetLeft.toString(), ev.pageX - this.mouse_down_pos_x + "px");
+                (this.human_image_elems[i] as HTMLElement).style.top = addPixelValues(this.canvas_offsetTop.toString(), ev.pageY - this.mouse_down_pos_y + "px");
             }
         }
     }
@@ -1233,8 +1191,8 @@ class DragDropObjectStatus{
         }
     }
     //ホイールイベント:画像の拡大縮小
-    mouseWheel(e){
-        if (e.target.classList.contains("drag")){
+    mouseWheel(e: WheelEvent){
+        if ((e.target as Element).classList.contains("drag")){
             //ホイールの回転量を取得
             var wheel = e.deltaY;
             //ホイールの回転量に応じて画像の拡大縮小
@@ -1246,8 +1204,8 @@ class DragDropObjectStatus{
             }
             this.img_scale = this.img_scale + delta_ratio
             //opratpr_canvasのdata属性にscaleを保存
-            var oprator_canvas = this.human_images_elem.getElementsByClassName("operator_canvas")[0];
-            oprator_canvas.dataset.scale = this.img_scale;
+            var oprator_canvas = this.human_images_elem.getElementsByClassName("operator_canvas")[0] as HTMLElement;
+            oprator_canvas.dataset.scale = this.img_scale.toString();
 
             //console.log("img_scale:"+this.img_scale);
             //全ての画像のサイズは同じなので拡大縮小をする
@@ -1258,15 +1216,15 @@ class DragDropObjectStatus{
 
             //背景画像の左上角の位置を取得。しかしGBmodeでは画像が消滅してうまく取得できてない可能性がある
             // var bg_image_rect = this.bg_image.getBoundingClientRect()
-            var human_window_rect = this.human_window.getBoundingClientRect()
+            let human_window_rect = this.human_window.getBoundingClientRect()
             //マウスの絶対位置から背景画像の左上角の位置を引くことで、背景画像に対するマウスの相対位置を計算
-            var P_x = parseFloat(e.pageX,10) - parseFloat(human_window_rect.left,10)
-            var P_y = parseFloat(e.pageY,10) - parseFloat(human_window_rect.top,10)
-            var t = this.img_scale / (this.img_scale - delta_ratio)
-            var old_top = parseFloat(this.human_image_elems[0].style.top,10)
-            var old_left = parseFloat(this.human_image_elems[0].style.left,10)
-            var new_left = P_x + t * (old_left - P_x) + "px";
-            var new_top = P_y + t * (old_top - P_y) + "px";
+            let P_x = e.pageX - human_window_rect.left;
+            let P_y = e.pageY - human_window_rect.top;
+            let t = this.img_scale / (this.img_scale - delta_ratio)
+            let old_top = parseFloat(this.human_image_elems[0].style.top)
+            let old_left = parseFloat(this.human_image_elems[0].style.left)
+            let new_left = P_x + t * (old_left - P_x) + "px";
+            let new_top = P_y + t * (old_top - P_y) + "px";
             //console.log("new_left,new_top="+[new_left,new_top])
             for (let i=0;i<this.human_image_elems.length;i++){
                 //画像のサイズを変更
@@ -1287,19 +1245,15 @@ class DragDropObjectStatus{
     }
 }
 
-function addPixelValues(px1, px2) {
-    var num1 = parseInt(px1, 10);
-    var num2 = parseInt(px2, 10);
-    var sum = num1 + num2;
+function addPixelValues(px1: string, px2: string): string {
+    const num1 = parseInt(px1, 10);
+    const num2 = parseInt(px2, 10);
+    const sum = num1 + num2;
     return sum + "px";
 }
 
-/**
- * 
- * @param {Element} human_images_elem 
- * @param {HumanBodyManager2} humanBodyManager
- */
-function addMoveImageEvent(human_images_elem,humanBodyManager){
+
+function addMoveImageEvent(human_images_elem: Element, humanBodyManager: HumanBodyManager2) :void{
     //1個のdrag_and_dropクラスを動かせるようにする
     console.log("dragオブジェクトを準備する",human_images_elem);
     const drag_drop_object_status = new DragDropObjectStatus(human_images_elem,humanBodyManager);
@@ -1312,13 +1266,8 @@ function addMoveImageEvent(human_images_elem,humanBodyManager){
 }
 
 
-/**
- * Mapクラスを拡張して、追加のメソッドを提供します。
- * @extends {Map}
- * @template T1, T2
- */
-class ExtendedMap extends Map {
-    getNthKey(n) {
+class ExtendedMap<T1, T2> extends Map<T1, T2> {
+    getNthKey(n: number): T1 {
         let i = 0;
         for (let key of this.keys()) {
             if (i === n) {
@@ -1326,9 +1275,10 @@ class ExtendedMap extends Map {
             }
             i++;
         }
+        throw new Error("Index out of bounds");
     }
 
-    getNthValue(n) {
+    getNthValue(n: number): T2 {
         let i = 0;
         for (let value of this.values()) {
             if (i === n) {
@@ -1336,9 +1286,10 @@ class ExtendedMap extends Map {
             }
             i++;
         }
+        throw new Error("Index out of bounds");
     }
 
-    sort(compareFn) {
+    sort(compareFn: (a: [T1, T2], b: [T1, T2]) => number): void {
         let entries = Array.from(this.entries());
         entries.sort(compareFn);
         this.clear();
@@ -1347,7 +1298,7 @@ class ExtendedMap extends Map {
         }
     }
 
-    comvert2keysArray() {
+    convert2keysArray(): T1[] {
         let keys = Array.from(this.keys());
         console.log(keys);
         return keys;
@@ -1378,35 +1329,42 @@ function deepCopy(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
-/**
- * @typedef {Object} ZIndexRange
- * @property {number} start - 開始インデックス
- * @property {number} end - 終了インデックス
- */
+interface ZIndexRange {
+    start: number; // 開始インデックス
+    end: number;   // 終了インデックス
+}
 
-/**
- * @typedef {Object} PartInfo
- * @property {number} z_index - zインデックス
- * @property {ZIndexRange} z_index_range - zインデックスの範囲
- * @property {ExtendedMap<string, ImageInfo>} imgs - 画像データ
- * @property {Record<string, "on"|"off">} now_imgs_status - 現在の画像ステータス
- * @property {string} mode_radio_duplicate - モードラジオの重複
- * @property {string} name - 名前
- * @property {ExtendedMap<string,HTMLCanvasElement>} body_img_elemnt_map - 体の画像要素のマップ
- * @property {any} duplicate_element - 重複要素
- */
+interface PartInfo {
+    z_index: number; // zインデックス
+    z_index_range: ZIndexRange; // zインデックスの範囲
+    imgs: ExtendedMap<string, ImageInfo>; // 画像データ
+    now_imgs_status: Record<string, "on" | "off">; // 現在の画像ステータス
+    mode_radio_duplicate: string; // モードラジオの重複
+    name: string; // 名前
+    body_img_elemnt_map: ExtendedMap<string, HTMLCanvasElement>; // 体の画像要素のマップ
+    duplicate_element: any; // 重複要素
+}
 
-/** 
- * PartInfoの拡張
- * @typedef {ExtendedMap<string,any>} MapPartInfo 
- */
+type MapPartInfo = ExtendedMap<string, any>; // PartInfoの拡張
 
-/**
- * @typedef {Object} PartsPath
- * @property {string} folder_name
- * @property {string} file_name
- */
+interface PartsPath {
+    folder_name: string;
+    file_name: string;
+}
 
+interface CharaCanvasInitData {
+    width: number;
+    height: number;
+    top: number;
+    left: number;
+}
+
+type OpenClose = "open"|"close"
+type OnOff = "on"|"off"
+type PakupakuType = "口" | "パクパク" | "パチパチ" | "ぴょこぴょこ";
+type PakuType = "パク" | "パチ" | "ぴょこ";
+type MousePakuType = "口" | PakuType;
+type OpenCandidateCloseType = "開候補"|"閉"
 
 /**
      * iHumnaBodyManagerでは一つのレイヤーで一つの画像を表示していたが、
@@ -1426,70 +1384,48 @@ function deepCopy(obj) {
      * @param {object} body_parts - 体のパーツの画像のurlを格納した辞書
      **/
 class HumanBodyManager2 {
-
-    /** @type {ExtendedMap<string,PartInfo>} */
-    body_parts_info
-
-    /** @type {InitData} */
-    init_image_info
-
-    /**@type {ExtendedMap<string,Record<string,ImageInfo>>} */
-    body_parts_images
-
-    /**@type {string} */
-    mouse_folder_name
-
-    /**@type {ExtendedMap<string, string>} */
-    mouse_images = new ExtendedMap();
-
-    /**@type {string} */
-    patipati_folder_name
-
-    /**@type {ExtendedMap<string, string>} */
-    patipati_images = new ExtendedMap();
-
-    /**@type {string} */
-    pyokopyoko_folder_name
-
-    /**@type {ExtendedMap<string, string>} */
-    pyokopyoko_images = new ExtendedMap();
-
-    /**@type {Record<string,string>}*/
-    setting
-
-    /**@type {"口"|"パクパク"|"無し"} */
-    lip_sync_mode = "無し"
-
-    /** @type {Record<"パク"|"パチ"|"ぴょこ",Record<"開候補"|"閉",PartsPath[]>>} */
-    onomatopoeia_action_setting = {
+    debug: boolean;
+    front_name: string;
+    char_name: string;
+    body_parts_is_visible: ExtendedMap<string, boolean>;
+    body_parts_canvas: ExtendedMap<string, HTMLCanvasElement>;
+    chara_canvas_init_data: CharaCanvasInitData;
+    body_parts_info: ExtendedMap<string,PartInfo>
+    init_image_info: InitData
+    body_parts_images: ExtendedMap<string,Record<string,ImageInfo>>
+    mouse_folder_name: string
+    mouse_images:ExtendedMap<string, string> = new ExtendedMap();
+    patipati_folder_name: string
+    patipati_images:ExtendedMap<string, string> = new ExtendedMap();
+    pyokopyoko_folder_name: string
+    pyokopyoko_images:ExtendedMap<string, string> = new ExtendedMap();
+    setting: Record<string,string> = {}
+    lip_sync_mode:"口"|"パクパク"|"無し" = "無し"
+    onomatopoeia_action_setting:Record<"パク"|"パチ"|"ぴょこ",Record<"開候補"|"閉",PartsPath[]>> = {
         "パク":{"開候補":[],"閉":[]},
         "パチ":{"開候補":[],"閉":[]},
         "ぴょこ":{"開候補":[],"閉":[]}
     }
-
-    /** @type {Record<"パク"|"パチ"|"ぴょこ",PartsPath[]>} */
-    now_onomatopoeia_action = {
+    now_onomatopoeia_action:Record<"パク"|"パチ"|"ぴょこ",PartsPath[]> = {
         "パク":[],
         "パチ":[],
         "ぴょこ":[]
     }
+    pose_patterns: ExtendedMap<string, ExtendedMap<string, InitData>>;
+    oprator_canvas: HTMLCanvasElement;
+    human_window: Element;
+    human_images: Element;
+    prev_pakupaku: "close"|"open"|"";
+    pakupaku_info:ExtendedMap<PakupakuType, ExtendedMap<any, any>>
+    pakupaku_folder_names:ExtendedMap<any, any>
+    voiro_ai_setting: VoiroAISetting
+    
+    
 
-    /**@type {ExtendedMap<string, ExtendedMap<string, InitData>>} */
-    pose_patterns;
 
-
-    /**
-     * @param {BodyParts} body_parts - パラメータ1の説明
-     * @param {Element|null} human_window - パラメータ2の説明
-     */
-    constructor(body_parts,human_window = null){
-        /**@type {boolean} */
+    constructor(body_parts: BodyParts,human_window:Element|null = null){
         this.debug = false;
-        
-        /**@type {string} */
         this.front_name = body_parts.front_name;
-
-        /**@type {string} */
         this.char_name = body_parts["char_name"];
 
         console.log(body_parts)
@@ -1500,7 +1436,7 @@ class HumanBodyManager2 {
         //body_parts["init_image_info"]["init"]がないエラーがあるので、エラーキャッチを実装
         try{
             if ("init_image_info" in body_parts){
-                this.pose_patterns = /** @type {ExtendedMap<string, ExtendedMap<string, InitData>>} */ this.setPosePatternFromInitImageInfo(body_parts["init_image_info"]);
+                this.pose_patterns = this.setPosePatternFromInitImageInfo(body_parts["init_image_info"]);
                 if ("setting" in body_parts["init_image_info"]) {
                     this.setting = /** @type {Record<string,Record<string,string>>} */ (body_parts["init_image_info"]["setting"]);
                     this.initializeMouseMoveSetting();
@@ -1534,9 +1470,8 @@ class HumanBodyManager2 {
         let z_index_counter_end = -1;
 
         //パクパクなどをまとめて格納するためのオブジェクトを初期化
-        /** @type {ExtendedMap<string,ExtendedMap<string,string[]>>} */
         this.pakupaku_info = new ExtendedMap();
-        const pakupaku_list = ["口","パクパク","パチパチ","ぴょこぴょこ"]
+        const pakupaku_list:PakupakuType[] = ["口","パクパク","パチパチ","ぴょこぴょこ"]
         this.pakupaku_folder_names = new ExtendedMap();
         for (let pakupaku of pakupaku_list){
             this.pakupaku_info.set(pakupaku,new ExtendedMap());            
@@ -1546,7 +1481,10 @@ class HumanBodyManager2 {
         for (let key_part_name of this.body_parts_images.keys()) {
             //key_part_nameの文字列に口が含まれていたら、それを特別なプロパティに格納。promiseで行う。
 
-            const part_info = /** @type {Record<string, ImageInfo>} */ (this.body_parts_images.get(key_part_name));
+            const part_info = this.body_parts_images.get(key_part_name);
+            if (!part_info) {
+                continue;
+            }
             
             //体パーツのjsonファイルがある場合、口の情報を取得する
             for (let [part_img_name,part_img_info] of Object.entries(part_info))
@@ -1656,10 +1594,10 @@ class HumanBodyManager2 {
 
     }
 
-    setCharaCanvasInitData(){
+    setCharaCanvasInitData(): CharaCanvasInitData{
         const [max_width,max_height] = this.getMaxSizeOfBodyParts(this.body_parts_images);
 
-        const chara_canvas_init_data = {
+        const chara_canvas_init_data: CharaCanvasInitData = {
             "width":max_width,
             "height":max_height,
             "top":0,
@@ -1710,9 +1648,9 @@ class HumanBodyManager2 {
      * @param {string} combination_name - 組み合わせ名。例えば、"init","^^"など。
      * @param {string} part_name - 体のパーツグループの名前。例えば、"口"など。
      **/
-    getPartstatusInPosePattern(combination_name,part_name){
+    getPartstatusInPosePattern(combination_name,part_name): InitData | undefined{
         const pose_pattern = this.getPosePattern(combination_name);
-        const part_status = pose_pattern.get(part_name);
+        const part_status = pose_pattern?.get(part_name);
         return part_status;
     }
 
@@ -1722,20 +1660,13 @@ class HumanBodyManager2 {
      * @param {InitImageInfo} init_image_info 
      * @return {ExtendedMap<string, ExtendedMap<string, InitData>>}
      */
-    setPosePatternFromInitImageInfo(init_image_info){
-
-        /**
-         * @type {ExtendedMap<string, ExtendedMap<string, InitData>>}
-         */
-        const pose_pattern = new ExtendedMap();
-        for (const [key, value] of Object.entries(init_image_info)) {
+    setPosePatternFromInitImageInfo(init_image_info:InitImageInfo): ExtendedMap<string, ExtendedMap<string, InitData>>{
+        const pose_pattern:ExtendedMap<string, ExtendedMap<string, InitData>> = new ExtendedMap();
+        for (let [key, value] of Object.entries(init_image_info)) {
             
             if (key != "all_data"){
                 
-                /**
-                 * @type {ExtendedMap<string, InitData>}
-                 */
-                const iamge_info = new ExtendedMap(Object.entries(value).sort(
+                const iamge_info:ExtendedMap<string, InitData> = new ExtendedMap(Object.entries(value).sort(
                         (a, b) => {
                             const keyA = parseInt(a[0].split('_')[0]);
                             const keyB = parseInt(b[0].split('_')[0]);
@@ -1839,8 +1770,8 @@ class HumanBodyManager2 {
         var self = this;
         var part_canvas = document.createElement("canvas");
         //canvasの大きさを設定。場所は画面左上に設定。
-        part_canvas.width = self.chara_canvas_init_data["width"];
-        part_canvas.height = self.chara_canvas_init_data["height"];
+        part_canvas.width = Number(self.chara_canvas_init_data["width"]);
+        part_canvas.height = Number(self.chara_canvas_init_data["height"]);
         part_canvas.style.position = "absolute";
         part_canvas.style.top = String(self.chara_canvas_init_data["top"]);
         part_canvas.style.left = String(self.chara_canvas_init_data["left"]);
@@ -1937,12 +1868,12 @@ class HumanBodyManager2 {
      */
     getBodyImgElemnt(part_group_name,part_name){
         const part_info = this.getPartInfoFromPartGroupName(part_group_name);
-        const body_img_elemnt_map = part_info.body_img_elemnt_map
-        if (body_img_elemnt_map.has(part_name) == false){
+        const body_img_elemnt_map = part_info?.body_img_elemnt_map
+        if (body_img_elemnt_map?.has(part_name) == false){
             //initでoffになっているパーツの場合、まだ作られてないのでnullを返し、これから作る。
             return null;
         }
-        const body_img_elemnt = body_img_elemnt_map.get(part_name);
+        const body_img_elemnt = body_img_elemnt_map?.get(part_name);
         return body_img_elemnt;
     }
 
@@ -1979,7 +1910,7 @@ class HumanBodyManager2 {
         if (body_img == null){
             //body_imgがnullの場合、まだ作られてないので作成する。
             const part_info = this.getPartInfoFromPartGroupName(image_group);
-            const iamge_info = part_info.imgs.get(image_name);
+            const iamge_info = part_info?.imgs.get(image_name);
             // body_img = this.createBodyImageCanvas(image_group,part_info,image_name,iamge_info);
             let body_img = this.createBodyImageCanvasAndSetImgStatus(image_group,part_info,image_name,iamge_info,on_off);
             //最新の座標と大きさを設定
@@ -2121,21 +2052,21 @@ class HumanBodyManager2 {
      * @param {string} pakupaku - パクパクの名前。口ならば音素、ぱちぱちならば目の形の名前など。
      * @param {"on"|"off"} on_off - オンかオフか
      */
-    changePakuPakuImage(pakupaku_mode,pakupaku,on_off){
+    changePakuPakuImage(pakupaku_mode: PakupakuType,pakupaku: string, on_off:OnOff){
         if (this.pakupaku_info.has(pakupaku_mode)) {
-            if (this.pakupaku_info.get(pakupaku_mode).has(pakupaku)){
-                const pakupaku_folder_name = this.pakupaku_info.get(pakupaku_mode).get(pakupaku)[0];
-                const next_img_name = this.pakupaku_info.get(pakupaku_mode).get(pakupaku)[1];
+            if (this.pakupaku_info.get(pakupaku_mode)?.has(pakupaku)){
+                const pakupaku_folder_name = this.pakupaku_info.get(pakupaku_mode)?.get(pakupaku)[0];
+                const next_img_name = this.pakupaku_info.get(pakupaku_mode)?.get(pakupaku)[1];
             }
         }
     }
 
     /**
-     * @param {"パク"| "パチ" | "ぴょこ"} onomatopoeia_action_mode
-     * @param {"open"|"close"} openCloseState - 開状態の画像を操作するか閉状態を操作するか
-     * @param {"on"|"off"} on_off - 操作でオンにするかオフにするか
+     * @param {PakuType} onomatopoeia_action_mode
+     * @param {OpenClose} openCloseState - 開状態の画像を操作するか閉状態を操作するか
+     * @param {OnOff} on_off - 操作でオンにするかオフにするか
      */
-    changeOnomatopoeiaImage(onomatopoeia_action_mode, openCloseState, on_off){
+    changeOnomatopoeiaImage(onomatopoeia_action_mode:PakuType, openCloseState:OpenClose, on_off:OnOff){
         let action_setting = this.onomatopoeia_action_setting[onomatopoeia_action_mode];
         let now_onomatopoeia_list = this.now_onomatopoeia_action[onomatopoeia_action_mode];
         if (now_onomatopoeia_list == undefined) {
@@ -2180,11 +2111,7 @@ class HumanBodyManager2 {
         }
     }
 
-    /**
-     * 
-     * @param {"open"|"close"} open_close 
-     */
-    changeEyeImage(open_close){
+    changeEyeImage(open_close: OpenClose){
         console.log("目を動かす。",open_close);
         if (this.eye_images.size > 1) {
             if (this.mouse_images.has(open_close)){
@@ -2195,10 +2122,9 @@ class HumanBodyManager2 {
     }
     
     /**
-     * 
-     * @param {string} patipati_mode   - パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
+     * パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
      */
-    async PatiPatiProcess(patipati_mode){
+    async PatiPatiProcess(patipati_mode: PakupakuType){
         console.log("パチパチプロセス開始");
         //20秒ごとにパチパチをする
         while (true){
@@ -2213,10 +2139,9 @@ class HumanBodyManager2 {
     }
 
     /**
-     * 
-     * @param {"パク" | "パチ" | "ぴょこ"} patipati_mode   - パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
+     *  パクパクのモード。
      */
-    async PatiPatiProcess2(patipati_mode){
+    async PatiPatiProcess2(patipati_mode: PakuType){
         console.log("パチパチプロセス開始");
         //20秒ごとにパチパチをする
         while (true){
@@ -2231,10 +2156,9 @@ class HumanBodyManager2 {
     }
 
     /**
-     * 
-     * @param {"パク" | "パチ" | "ぴょこ"} patipati_mode   - パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
+     * パクパクのモード。
      */
-    async PyokoPyokoProcess2(patipati_mode){
+    async PyokoPyokoProcess2(patipati_mode: PakuType){
         console.log("ぴょこぴょこプロセス開始");
         //20秒ごとにぴょこぴょこをする
         while (true){
@@ -2258,10 +2182,9 @@ class HumanBodyManager2 {
     }
 
     /**
-     * 
-     * @param {string} patipati_mode   - パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
+     * パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
      */
-    async PyokoPyokoProcess(patipati_mode){
+    async PyokoPyokoProcess(patipati_mode: PakupakuType){
         console.log("ぴょこぴょこプロセス開始");
         //20秒ごとにぴょこぴょこをする
         while (true){
@@ -2311,51 +2234,32 @@ class HumanBodyManager2 {
 
     /**
      * パクパク設定で「パク」がオンになっていてパクパクを起動するようにユーザーが思っているか確認する。
-     * @returns {boolean}
      */
-    checkOnPakuPaku(){
+    checkOnPakuPaku():boolean{
         return this.onomatopoeia_action_setting["パク"]["閉"].length > 0
     }
 
-    /**
-     * 
-     * @param {"口" | "パク" | "パチ" | "ぴょこ"} onomatopoeia_action_mode 
-     */
-    setLipSyncModeToPakuPaku(onomatopoeia_action_mode){
+    setLipSyncModeToPakuPaku(onomatopoeia_action_mode: MousePakuType){
         if (onomatopoeia_action_mode == "パク"){
             this.lip_sync_mode = "パクパク";
             this.prev_pakupaku = "open";
         }
     }
 
-    /**
-     * 
-     * @param {"口" | "パク" | "パチ" | "ぴょこ"} onomatopoeia_action_mode 
-     */
-    setLipSyncModeToAIUEO(onomatopoeia_action_mode){
+    setLipSyncModeToAIUEO(onomatopoeia_action_mode: MousePakuType){
         if (onomatopoeia_action_mode == "口"){
             this.lip_sync_mode = "口";
             this.prev_pakupaku = "";
         }
     }
 
-    /**
-     * @param {"パク"| "パチ" | "ぴょこ"} onomatopoeia_action_mode
-     * @param {"開候補"|"閉"} openCloseState 
-     * @param {PartsPath} PartsPath 
-     */
-    setToOnomatopoeiaActionSetting(onomatopoeia_action_mode,openCloseState,PartsPath){
+    setToOnomatopoeiaActionSetting(onomatopoeia_action_mode: PakuType, openCloseState: OpenCandidateCloseType, PartsPath: PartsPath){
         let action_setting = this.onomatopoeia_action_setting[onomatopoeia_action_mode];
         action_setting[openCloseState].push(PartsPath);
         console.log(this.onomatopoeia_action_setting);
     }
 
-    /**
-     * @param {"パク"| "パチ" | "ぴょこ"} onomatopoeia_action_mode
-     * @param {"開候補"|"閉"} openCloseState 
-     * @param {PartsPath} PartsPath 
-     */
-    removeFromOnomatopoeiaActionSetting(onomatopoeia_action_mode, openCloseState, PartsPath){
+    removeFromOnomatopoeiaActionSetting(onomatopoeia_action_mode: PakuType, openCloseState: OpenCandidateCloseType, PartsPath: PartsPath){
         let action_setting = this.onomatopoeia_action_setting[onomatopoeia_action_mode];
         action_setting[openCloseState] = action_setting[openCloseState].filter((value) => {
             return !this.isEquivalentPartsPath(value,PartsPath);
@@ -2363,12 +2267,8 @@ class HumanBodyManager2 {
         console.log(this.onomatopoeia_action_setting)
     }
 
-    /**
-     * @param {PartsPath} PartsPath1
-     * @param {PartsPath} PartsPath2
-     * @returns {boolean} 
-     */
-    isEquivalentPartsPath(PartsPath1,PartsPath2){
+   
+    isEquivalentPartsPath(PartsPath1: PartsPath, PartsPath2: PartsPath) :boolean {
         if (PartsPath1.folder_name == PartsPath2.folder_name && PartsPath1.file_name == PartsPath2.file_name){
             return true;
         } else {
@@ -2376,10 +2276,8 @@ class HumanBodyManager2 {
         }
     }
 
-    /**
-     * @param {VoiroAISetting} vas
-     */
-    BindVoiroAISetting(vas){
+
+    BindVoiroAISetting(vas: VoiroAISetting){
         this.voiro_ai_setting = vas;
     }
 
@@ -2463,7 +2361,7 @@ function humanWsOpen(){
 var message_box_manager = new MessageBoxManager();
 const localhost = location.hostname;
 const port = "8010"
-var init_human_tab = /** @type {HTMLLIElement} */ (document.getElementsByClassName("tab human_tab")[0]);
+var init_human_tab = document.getElementsByClassName("tab human_tab")[0] as HTMLLIElement;
 addClickEvent2Tab(init_human_tab)
 //var ws = new WebSocket("ws://localhost:${port}/InputGPT")
 //var ws = new WebSocket("ws://localhost:${port}/InputPokemon");
