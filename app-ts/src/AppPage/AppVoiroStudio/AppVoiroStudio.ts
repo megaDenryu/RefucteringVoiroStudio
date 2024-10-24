@@ -1359,30 +1359,13 @@ interface CharaCanvasInitData {
     left: number;
 }
 
-type OpenClose = "open"|"close"
+type OpenClose = "open"|"close"|""
 type OnOff = "on"|"off"
 type PakupakuType = "口" | "パクパク" | "パチパチ" | "ぴょこぴょこ";
 type PakuType = "パク" | "パチ" | "ぴょこ";
 type MousePakuType = "口" | PakuType;
 type OpenCandidateCloseType = "開候補"|"閉"
 
-/**
-     * iHumnaBodyManagerでは一つのレイヤーで一つの画像を表示していたが、
-     * こちらでは一つのレイヤーで複数の画像を表示できるようにする。
-     * @class 
-     * @property {boolean} debug - デバッグモードかどうか
-     * @property {string} front_name - フロントエンドでのキャラの名前
-     * @property {string} char_name - キャラの名前
-     * @property {ExtendedMap} body_parts_images - 体のパーツの画像のurlを格納した辞書
-     * @property {ExtendedMap} body_parts_is_visible - 体のパーツのどれをvisible = tue　にするかを管理するオブジェクト
-     * @property {ExtendedMap} body_parts_canvas - 体のパーツのcanvasを格納した辞書
-     * 
-     * @property {object} mouse_images - 口パクの画像を格納した辞書
-     * @property {string} mouse_folder_name - 口パクの画像が格納されているフォルダの名前
-     * 
-     * @property {object} chara_canvas_init_data - キャラのcanvasの初期値を格納した辞書
-     * @param {object} body_parts - 体のパーツの画像のurlを格納した辞書
-     **/
 class HumanBodyManager2 {
     debug: boolean;
     front_name: string;
@@ -1415,7 +1398,7 @@ class HumanBodyManager2 {
     oprator_canvas: HTMLCanvasElement;
     human_window: Element;
     human_images: Element;
-    prev_pakupaku: "close"|"open"|"";
+    prev_pakupaku: OpenClose;
     pakupaku_info:ExtendedMap<PakupakuType, ExtendedMap<any, any>>
     pakupaku_folder_names:ExtendedMap<any, any>
     voiro_ai_setting: VoiroAISetting
@@ -1438,7 +1421,7 @@ class HumanBodyManager2 {
             if ("init_image_info" in body_parts){
                 this.pose_patterns = this.setPosePatternFromInitImageInfo(body_parts["init_image_info"]);
                 if ("setting" in body_parts["init_image_info"]) {
-                    this.setting = /** @type {Record<string,Record<string,string>>} */ (body_parts["init_image_info"]["setting"]);
+                    this.setting = (body_parts["init_image_info"]["setting"]);
                     this.initializeMouseMoveSetting();
                 }
                 if ("OnomatopeiaActionSetting" in body_parts["init_image_info"]) {
@@ -1459,7 +1442,7 @@ class HumanBodyManager2 {
             }else{
                 throw new Error("body_parts[\"init_image_info\"]がありません。")
             }
-        }catch(/** @type {any} */ e){
+        }catch(e){
             console.log(e.message);
             this.init_image_info = {};
         }
@@ -1501,28 +1484,9 @@ class HumanBodyManager2 {
                     if (pakupaku in part_json){
                         // this.pakupaku_folder_names.set(pakupaku,key_part_name);
                         const pakupaku_param = part_json[pakupaku];
-                        this.pakupaku_info.get(pakupaku).set(pakupaku_param,[key_part_name,part_img_name]);
+                        this.pakupaku_info.get(pakupaku)?.set(pakupaku_param,[key_part_name,part_img_name]);
                     }
                 }
-
-
-                // if ("口" in part_json){
-                //     this.mouse_folder_name = key_part_name;
-                //     const phoneme = part_json["口"];
-                //     this.mouse_images.set(phoneme,part_img_name);
-                // }
-
-                // if ("パチパチ" in part_json){
-                //     this.patipati_folder_name = key_part_name;
-                //     const patipati_param = part_json["パチパチ"];
-                //     this.patipati_images.set(patipati_param, part_img_name);
-                // }
-
-                // if ("ぴょこぴょこ" in part_json){
-                //     this.pyokopyoko_folder_name = key_part_name;
-                //     const pyokopyoko_param = part_json["ぴょこぴょこ"];
-                //     this.pyokopyoko_images.set(pyokopyoko_param, part_img_name);
-                // }
             }
             
             
@@ -1533,9 +1497,7 @@ class HumanBodyManager2 {
                 z_index_counter_start = z_index_counter_end + 1;
                 z_index_counter_end = z_index_counter_start + Object.keys(this.body_parts_images.get(key_part_name)).length - 1;
                 
-
-                /** @type {PartInfo} */
-                const partInfo = {
+                const partInfo: PartInfo = {
                     "z_index": (key_part_name.match(/\d+/))[0],//todo もう使わないので消す。一応確認する。
                     "z_index_range": {"start": z_index_counter_start, "end": z_index_counter_end},
                     "imgs": new ExtendedMap(Object.entries(this.body_parts_images.get(key_part_name)).sort(
@@ -1550,14 +1512,14 @@ class HumanBodyManager2 {
                     "mode_radio_duplicate": "radio",
                     "name": key_part_name,
                     "body_img_elemnt_map": new ExtendedMap(),
-                    "duplicate_element": null //'<div class="duplicate_mode"></div>'
+                    "duplicate_element": null 
                 };
 
                 this.body_parts_info.set(key_part_name, partInfo); 
             }
         }
         this.body_parts_info.sort(
-            (/** @type {string[]} */ a, /** @type {string[]} */ b) => {
+            (a, b) => {
                 const keyA = parseInt(a[0].split('_')[0]);
                 const keyB = parseInt(b[0].split('_')[0]);
                 return keyA - keyB;
@@ -1606,79 +1568,65 @@ class HumanBodyManager2 {
         return chara_canvas_init_data;
     }
 
-    /**
-     * 
-     * @param {ExtendedMap<string,Record<string,ImageInfo>>} body_parts_images 
-     * @returns 
-     */
-    getMaxSizeOfBodyParts(body_parts_images){
+    getMaxSizeOfBodyParts(body_parts_images: ExtendedMap<string, Record<string, ImageInfo>>): [number, number] {
         let max_width = 0;
         let max_height = 0;
-        let /** @type {string}*/ key_part_name; 
-        let /** @type {Record<string,ImageInfo>}*/ part_info = {};
-        for ([key_part_name,part_info] of body_parts_images.entries()){
-            let /** @type {string}*/ part_img_name;
-            let /** @type {ImageInfo}*/ part_img_info;
-            for ([part_img_name,part_img_info] of Object.entries(part_info)){
-                const width = part_img_info["json"]["width"] + part_img_info["json"]["x"];
-                const height = part_img_info["json"]["height"] + part_img_info["json"]["y"];
-                if (width > max_width){
+        let key_part_name: string;
+        let part_info: Record<string, ImageInfo>;
+    
+        for ([key_part_name, part_info] of body_parts_images.entries()) {
+            let part_img_name: string;
+            let part_img_info: ImageInfo;
+    
+            for ([part_img_name, part_img_info] of Object.entries(part_info)) {
+                const width = part_img_info.json.width + part_img_info.json.x;
+                const height = part_img_info.json.height + part_img_info.json.y;
+    
+                if (width > max_width) {
                     max_width = width;
                 }
-                if (height > max_height){
+                if (height > max_height) {
                     max_height = height;
                 }
             }
         }
-        console.log("max_width,max_height="+[max_width,max_height]);
-        return [max_width,max_height];
+        return [max_width, max_height];
     }
 
     /**
-     * 
-     * @param {string} combination_name - 組み合わせ名。例えば、"init","^^"など。
+     * 組み合わせ名。例えば、"init","^^"など。
      **/
-    getPosePattern(combination_name){
+    getPosePattern(combination_name: string):ExtendedMap<string, InitData> | undefined {
         console.log("呼び出し");
         const pose_pattern = this.pose_patterns.get(combination_name);
         return pose_pattern;
     }
 
     /**
-     * @param {string} combination_name - 組み合わせ名。例えば、"init","^^"など。
-     * @param {string} part_name - 体のパーツグループの名前。例えば、"口"など。
+     * - 組み合わせ名。例えば、"init","^^"など。
+     * - 体のパーツグループの名前。例えば、"口"など。
      **/
-    getPartstatusInPosePattern(combination_name,part_name): InitData | undefined{
+    getPartstatusInPosePattern(combination_name:string ,part_name:string ): InitData | undefined{
         const pose_pattern = this.getPosePattern(combination_name);
         const part_status = pose_pattern?.get(part_name);
         return part_status;
     }
 
-
-    /**
-     * 
-     * @param {InitImageInfo} init_image_info 
-     * @return {ExtendedMap<string, ExtendedMap<string, InitData>>}
-     */
     setPosePatternFromInitImageInfo(init_image_info:InitImageInfo): ExtendedMap<string, ExtendedMap<string, InitData>>{
         const pose_pattern:ExtendedMap<string, ExtendedMap<string, InitData>> = new ExtendedMap();
         for (let [key, value] of Object.entries(init_image_info)) {
-            
             if (key != "all_data"){
-                
                 const iamge_info:ExtendedMap<string, InitData> = new ExtendedMap(Object.entries(value).sort(
                         (a, b) => {
                             const keyA = parseInt(a[0].split('_')[0]);
                             const keyB = parseInt(b[0].split('_')[0]);
-                            //console.log(keyA, keyB);
                             return keyA - keyB;
                         }
-                    ));
+                    )) as ExtendedMap<string, InitData>;
                 
                 pose_pattern.set(key,iamge_info);
             }
         }
-        console.log("pose_pattern",pose_pattern);
         return pose_pattern;
     }
 
@@ -1856,8 +1804,8 @@ class HumanBodyManager2 {
      */
     setBodyImgElemnt(part_group_name,part_name,body_img_elemnt){
         const part_info = this.getPartInfoFromPartGroupName(part_group_name);
-        const body_img_elemnt_map = part_info.body_img_elemnt_map
-        body_img_elemnt_map.set(part_name,body_img_elemnt);
+        const body_img_elemnt_map = part_info?.body_img_elemnt_map
+        body_img_elemnt_map?.set(part_name,body_img_elemnt);
     }
 
     /**
@@ -1949,53 +1897,50 @@ class HumanBodyManager2 {
      * @param {string} image_group_name 
      * @returns {Record<string, "on"|"off">}
      */
-    getNowImgGroupStatusFromPartGroupName(image_group_name){
-        const imgs_status = this.getPartInfoFromPartGroupName(image_group_name).now_imgs_status;
+    getNowImgGroupStatusFromPartGroupName(image_group_name: string): Record<string, "on" | "off"> | undefined{
+        const imgs_status = this.getPartInfoFromPartGroupName(image_group_name)?.now_imgs_status;
         return imgs_status;
     }
 
     /**
      * 体の画像のグループ名から、オン(またはオフ)になっている画像の名前のリストを返す
-     * @param {string} image_group_name
-     * @param {"on"|"off"} on_off
-     * @returns {string[]}
      */
-    getNowOnImgNameList(image_group_name,on_off){
+    getNowOnImgNameList(image_group_name: string, on_off:OnOff): string[]{
         const imgs_status = this.getNowImgGroupStatusFromPartGroupName(image_group_name);
+        if (imgs_status == undefined){
+            return [];
+        }
         const on_img_name_list = Object.keys(imgs_status).filter((key) => imgs_status[key] === on_off);
         return on_img_name_list;
     }
 
     /**
      * 体の画像１枚がオンかオフかを返す
-     * @param {string} image_group 
-     * @param {string} image_name
-     * @returns {"on"|"off"}
      */
-    getImgStatus(image_group,image_name){
+    getImgStatus(image_group:string ,image_name:string): OnOff{
         const img_group_status = this.getNowImgGroupStatusFromPartGroupName(image_group);
+        if (img_group_status == undefined){
+            return "off";
+        }
         const img_status = img_group_status[image_name];
         return img_status;
     }
 
     /**
      * 体の画像１枚がオンかオフかを設定する
-     * @param {string} image_group
-     * @param {string} image_name
-     * @param {"on"|"off"} on_off
      */
-    setImgStatus(image_group,image_name,on_off){
+    setImgStatus(image_group:string, image_name:string ,on_off:OnOff){
         const img_group_status = this.getNowImgGroupStatusFromPartGroupName(image_group);
+        if (img_group_status == undefined){
+            return;
+        }
         img_group_status[image_name] = on_off;
     }
 
     /**
      * image_group_nameの中でimage_nameだけをオンにして、それ以外をオフにする
-     * @param {string} image_group_name 
-     * @param {string} image_name 
-     * @param {"on"|"off"} on_off 
      */
-    radioChangeImage(image_group_name,image_name,on_off){
+    radioChangeImage(image_group_name:string ,image_name:string, on_off:OnOff){
         if (on_off == "on"){
             const now_on_img_names = this.getNowOnImgNameList(image_group_name,"on");
             for (let i=0;i<now_on_img_names.length;i++){
@@ -2013,7 +1958,7 @@ class HumanBodyManager2 {
      * @param {string} char_name - キャラの名前
      * @param {string} phoneme - 音素
      */
-    changeLipImage(char_name,phoneme){
+    changeLipImage(char_name:string ,phoneme:string){
         // if (this.mouse_images.size > 1) {
         //     console.log("口を動かす。",phoneme);
         //     if (this.mouse_images.has(phoneme)){
