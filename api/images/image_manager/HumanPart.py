@@ -1,5 +1,5 @@
 from __future__ import annotations # annotationsを有効にする
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Literal, TypedDict
 import sys
 import json
 from pathlib import Path
@@ -15,8 +15,8 @@ if TYPE_CHECKING:
 
 
 class FileData(TypedDict, total=False):
-    img: Any
-    json: Any
+    img: any
+    json: any
 
 class FilePathData(TypedDict, total=False):
     img: str
@@ -107,7 +107,7 @@ class HumanPart:
         path = Path(path_str)
         file_names:list[str] = os.listdir(path)
         dict:dict[str,FileData] = {}
-        filepath_dict:dict[str, Union[str, FilePathData]] = {} #gptにファイル構造を渡すために全てのパスを文字列で取得
+        filepath_dict:dict[str, Literal["gazou","json"]|FilePathData] = {} #gptにファイル構造を渡すために全てのパスを文字列で取得
         for file_name in file_names:
             #print(file_name)
             file_path = f"{path_str}/{file_name}"

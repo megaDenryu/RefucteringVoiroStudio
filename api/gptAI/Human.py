@@ -28,8 +28,8 @@ except ImportError:
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
 
 class HumanData(TypedDict):
-    body_parts_iamges: Any
-    init_image_info: Any
+    body_parts_iamges: any
+    init_image_info: any
     front_name: str
     char_name: str
 
