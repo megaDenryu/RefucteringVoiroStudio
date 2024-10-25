@@ -1,5 +1,5 @@
 from __future__ import annotations # annotationsを有効にする
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypedDict
 import sys
 import json
 from pathlib import Path
@@ -12,6 +12,15 @@ from api.Extend.ExtendFunc import ExtendFunc
 
 if TYPE_CHECKING:
     from api.gptAI.Human import Human
+
+
+class FileData(TypedDict, total=False):
+    img: Any
+    json: Any
+
+class FilePathData(TypedDict, total=False):
+    img: str
+    json: str
 
 class HumanPart:
     def __init__(self,chara_name) -> None:
@@ -97,8 +106,8 @@ class HumanPart:
     def recursive_file_check(self,path_str:str) -> tuple[dict, dict]:
         path = Path(path_str)
         file_names:list[str] = os.listdir(path)
-        dict = {}
-        filepath_dict = {} #gptにファイル構造を渡すために全てのパスを文字列で取得
+        dict:dict[str,FileData] = {}
+        filepath_dict:dict[str, Union[str, FilePathData]] = {} #gptにファイル構造を渡すために全てのパスを文字列で取得
         for file_name in file_names:
             #print(file_name)
             file_path = f"{path_str}/{file_name}"
