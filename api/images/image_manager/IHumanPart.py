@@ -16,3 +16,12 @@ AllBodyFileInfo: TypeAlias = dict[BodyUnitKey, BodyUnitAllFileTypeInfo]
 class InitImageInfo(TypedDict):
     init: InitBodyInfo
     all_data: AllBodyFileInfo
+
+class BodyPartImages(TypedDict):
+    hoge: str
+
+class HumanData(TypedDict):
+    body_parts_iamges: BodyPartImages
+    init_image_info: InitImageInfo
+    front_name: str
+    char_name: str
