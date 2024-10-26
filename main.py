@@ -67,7 +67,7 @@ client_ids: list[str] = []
 clients_ws:dict[str,WebSocket] = {}
 setting_module = AppSettingModule()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
-human_dict:dict[CharacterId,Human] = {}
+human_dict:dict[str,Human] = {}
 #Humanクラスの生成されたインスタンスをid順に登録する辞書を作成
 human_id_dict = []
 #使用してる合成音声の種類をカウントする辞書を作成
@@ -144,6 +144,8 @@ async def read_app_ts(path_param: str):
     target = app_ts_dir / path_param
     if path_param == "":
         target = app_ts_dir / "index.html"
+    elif path_param == "newHuman":
+        target = app_ts_dir / "index_Human2.html"
     elif path_param == "option":
         target = app_ts_dir / "option.html"
     elif path_param == "test1012":
@@ -178,6 +180,7 @@ async def read_root(path_param: str):
         target = app_dir / "index_Human2.html"
 
     if path_param == "MultiHuman":
+        # 一つのウインドウに複数のキャラを出すためのページだが、大幅なリファクタが必要そうなので保留
         target = app_dir / "index_MultiHuman.html"
     
     if path_param == "settingPage":
@@ -236,7 +239,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         print(f"{tmp_human.voice_system=}")
                         voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
                         #humanインスタンスが完成したのでhuman_dictに登録
-                        human_dict[tmp_human.char_name] = tmp_human
+                        human_dict[tmp_human.char_name.name] = tmp_human
 
 
                     sentence = f"{char_name}:{serif} , "
@@ -537,7 +540,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
                 print(f"{tmp_human.voice_system=}")
                 voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
                 #humanインスタンスが完成したのでhuman_dictに登録
-                human_dict[tmp_human.char_name] = tmp_human
+                human_dict[tmp_human.char_name.name] = tmp_human
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
                 human_part_folder = tmp_human.image_data_for_client
                 await websocket.send_json(json.dumps(human_part_folder))
@@ -907,7 +910,7 @@ async def DecideChara(req: SelectCharacterStateReq):
     print(f"{tmp_human.voice_system=}")
     voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
     #humanインスタンスが完成したのでhuman_dictに登録
-    human_dict[tmp_human.id] = tmp_human
+    human_dict[tmp_human.char_name.name] = tmp_human
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
     human_part_folder = tmp_human.image_data_for_client
     ret_data = json.dumps(human_part_folder)

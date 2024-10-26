@@ -5,6 +5,7 @@ import json
 import time
 import re
 from pprint import pprint
+from typing import TypedDict
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.gptAI.CharacterModeState import CharacterModeState
@@ -26,8 +27,11 @@ try:
 except ImportError:
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
 
+
+
 class Human:
     chara_mode_state:CharacterModeState
+    image_data_for_client:HumanData
     @property
     def front_name(self): #フロントで入力してウインドウに表示されてる名前
         return self.chara_mode_state.front_name
@@ -55,12 +59,13 @@ class Human:
         self.personal_id = 2
         # 体画像周りを準備する
         self.human_part = HumanPart(self.char_name)
-        human_part_folder,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name)
-        data = {}
-        data["body_parts_iamges"] = human_part_folder["body_parts_iamges"]
-        data["init_image_info"] = human_part_folder["init_image_info"]
-        data["front_name"] = self.front_name
-        data["char_name"] = self.char_name
+        human_part_folder,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name)
+        data :HumanData= {
+            "body_parts_iamges": human_part_folder["body_parts_iamges"],
+            "init_image_info": human_part_folder["init_image_info"],
+            "front_name": self.front_name,
+            "char_name": self.char_name.name
+        }
         self.image_data_for_client = data
         # dictを正規化する
         self.response_dict:dict = {

@@ -1,5 +1,5 @@
 from __future__ import annotations # annotationsを有効にする
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal, TypedDict
 import sys
 import json
 from pathlib import Path
@@ -9,9 +9,19 @@ from pprint import pprint
 import re
 from collections import OrderedDict
 from api.Extend.ExtendFunc import ExtendFunc
+from api.images.image_manager.IHumanPart import BodyPartImages, InitImageInfo
 
 if TYPE_CHECKING:
     from api.gptAI.Human import Human
+
+
+class FileData(TypedDict, total=False):
+    img: any
+    json: any
+
+class FilePathData(TypedDict, total=False):
+    img: str
+    json: str
 
 class HumanPart:
     def __init__(self,chara_name) -> None:
@@ -94,44 +104,44 @@ class HumanPart:
             with open(file_path,mode="w",encoding="utf-8") as f:
                 json.dump(json_data, f, ensure_ascii=False, indent=4)
 
-    def recursive_file_check(self,path_str:str) -> tuple[dict, dict]:
+    def recursive_file_check(self,path_str:str) -> tuple[BodyPartImages, dict]:
         path = Path(path_str)
         file_names:list[str] = os.listdir(path)
-        dict = {}
-        filepath_dict = {} #gptにファイル構造を渡すために全てのパスを文字列で取得
+        body_parts_iamges:BodyPartImages = {} #dict[str,FileData]
+        filepath_dict:dict[str, Literal["gazou","json"]|FilePathData] = {} #gptにファイル構造を渡すために全てのパスを文字列で取得
         for file_name in file_names:
             #print(file_name)
             file_path = f"{path_str}/{file_name}"
             if os.path.isdir(file_path):
                 # directoryだったら中のファイルに対して再帰的にこの関数を実行
                 data,pathes = self.recursive_file_check(file_path)
-                dict[file_path.split("/")[-1]] = data
+                body_parts_iamges[file_path.split("/")[-1]] = data #ここのキーはfile_nameと一致するのでは？
                 filepath_dict[file_path.split("/")[-1]] = pathes
             else:
                 # fileだったら処理
-                key = file_path.split("/")[-1].split(".")[0]
-                if key not in dict.keys():
-                    dict[key] = {}
+                key = file_path.split("/")[-1].split(".")[0] #ファイル名から拡張子を取り除いたものをkeyにする
+                if key not in body_parts_iamges.keys():
+                    body_parts_iamges[key] = {}
                 if file_path.endswith(".png") or file_path.endswith(".jpg"):
                     data = self.openFile(file_path)
                     pathes = "gazou"
-                    dict[key]["img"] = data
+                    body_parts_iamges[key]["img"] = data
                     filepath_dict[file_path.split("/")[-1]] = pathes
                 elif file_path.endswith(".json"):
                     data = self.openJsonFile(file_path)
                     pathes = "json"
-                    dict[key]["json"] = data
+                    body_parts_iamges[key]["json"] = data
                     filepath_dict[file_path.split("/")[-1]] = pathes
                 else:
                     print("pngでもjsonでもないファイルがありました。")
                     print(f"{file_path=}")
-        return dict, filepath_dict
+        return body_parts_iamges, filepath_dict
     
-    def getInitImageInfo(self,path_str:str)->list[str]:
+    def getInitImageInfo(self,path_str:str)->InitImageInfo:
         """
         pathからキャラpsdの初期状態をインポートする
         """
-        init_image_info:list[str] = []
+        init_image_info:InitImageInfo
         path_str = f"{path_str}/init_image_info.json"
         path = Path(path_str)
         #jsonファイルを開く
@@ -139,7 +149,7 @@ class HumanPart:
             with open(path_str,encoding="UTF8") as f:
                 init_image_info = json.load(f)
                 #jsonファイルの中身を確認
-            # pprint(init_image_info)
+            ExtendFunc.ExtendPrint(init_image_info, "init_image_info.jsonの中身")
             return init_image_info
         except Exception as e:
             print(e)
