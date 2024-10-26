@@ -9,8 +9,9 @@ import "../css/setting.css"
 import "../css/style.css"
 import "../css/voiro_AI_setting.css"
 import { SpeechRecognition, SpeechRecognitionEvent, webkitSpeechRecognition } from "../../../src/Extend/webkitSpeechRecognition"; 
-import { DragDropFile } from "./DragDropFile";
 import { ExtendedWebSocket } from "../../Extend/extend";
+import { ExtendedMap } from "../../Extend/extend_collections";
+import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, ImageInfo, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
 
 // const { promises } = require("fs");
 
@@ -675,41 +676,18 @@ function sendMessage(event: Event) {
     
 }
 
-export interface ImageInfo {
-    element: string;
-    img: string;
-    json: {
-        name: string;
-        x: number;
-        y: number;
-        width: number;
-        height: number;
-        z_index: number;
-        口: string; // 口パクの文字
-    };
-}
-
 export type AllData = Record<string, Record<string, string>>;
-export type InitData = Record<string, Record<string, string>>;
 
-interface InitImageInfo {
-    property?: Record<string, InitData>; //todo ここのデータをちゃんと定義する必要がある。レコードではなくオブジェクトリストにするべき説濃厚
-    OnomatopeiaActionSetting: Record<"パク" | "パチ" | "ぴょこ", Record<"開候補" | "閉", PartsPath[]>>;
-}
 
-interface BodyParts {
-    body_parts_images: Record<string, ImageInfo>;
-    init_image_info: InitImageInfo;
-    front_name: string;
-    char_name: string;
-}
+
+
 
 //キャラ名を受信するときのイベント関数
 function receiveMessage(event) {
     //ここで行う処理の内容は、apiから受信したキャラ画像を表示する処理
     let no_image_human = document.getElementsByClassName("no_image_human")
     
-    let body_parts:BodyParts = JSON.parse(JSON.parse(event.data));
+    let body_parts:HumanData = JSON.parse(JSON.parse(event.data));
     console.log(body_parts)
     console.log(body_parts.char_name,body_parts["char_name"])
     
@@ -1266,44 +1244,7 @@ function addMoveImageEvent(human_images_elem: Element, humanBodyManager: HumanBo
 }
 
 
-class ExtendedMap<T1, T2> extends Map<T1, T2> {
-    getNthKey(n: number): T1 {
-        let i = 0;
-        for (let key of this.keys()) {
-            if (i === n) {
-                return key;
-            }
-            i++;
-        }
-        throw new Error("Index out of bounds");
-    }
 
-    getNthValue(n: number): T2 {
-        let i = 0;
-        for (let value of this.values()) {
-            if (i === n) {
-                return value;
-            }
-            i++;
-        }
-        throw new Error("Index out of bounds");
-    }
-
-    sort(compareFn: (a: [T1, T2], b: [T1, T2]) => number): void {
-        let entries = Array.from(this.entries());
-        entries.sort(compareFn);
-        this.clear();
-        for (let [key, value] of entries) {
-            this.set(key, value);
-        }
-    }
-
-    convert2keysArray(): T1[] {
-        let keys = Array.from(this.keys());
-        console.log(keys);
-        return keys;
-    }
-}
 
 function getNthValueFromObject(dict,n){
     return Object.values(dict)[n]
@@ -1335,10 +1276,10 @@ interface ZIndexRange {
 }
 
 interface PartInfo {
-    z_index: number; // zインデックス
+    // z_index: number; // zインデックス
     z_index_range: ZIndexRange; // zインデックスの範囲
-    imgs: ExtendedMap<string, ImageInfo>; // 画像データ
-    now_imgs_status: Record<string, "on" | "off">; // 現在の画像ステータス
+    imgs: BodyUnitVariationImagesMap; // 画像データ
+    now_imgs_status: BodyUnitValue; // 現在の画像ステータス
     mode_radio_duplicate: string; // モードラジオの重複
     name: string; // 名前
     body_img_elemnt_map: ExtendedMap<string, HTMLCanvasElement>; // 体の画像要素のマップ
@@ -1365,24 +1306,24 @@ type PakupakuType = "口" | "パクパク" | "パチパチ" | "ぴょこぴょ�
 type PakuType = "パク" | "パチ" | "ぴょこ";
 type MousePakuType = "口" | PakuType;
 type OpenCandidateCloseType = "開候補"|"閉"
+type BodyPartsImagesMap = Map<BodyUnitKey, BodyUnitVariationImages>;
 
-class HumanBodyManager2 {
+export class HumanBodyManager2 {
     debug: boolean;
     front_name: string;
     char_name: string;
     body_parts_is_visible: ExtendedMap<string, boolean>;
     body_parts_canvas: ExtendedMap<string, HTMLCanvasElement>;
     chara_canvas_init_data: CharaCanvasInitData;
-    body_parts_info: ExtendedMap<string,PartInfo>
-    init_image_info: InitData
-    body_parts_images: ExtendedMap<string,Record<string,ImageInfo>>
+    body_parts_info: ExtendedMap<BodyUnitKey,PartInfo>
+    init_image_info: PoseInfo
+    body_parts_images: BodyPartsImagesMap;
     mouse_folder_name: string
     mouse_images:ExtendedMap<string, string> = new ExtendedMap();
     patipati_folder_name: string
     patipati_images:ExtendedMap<string, string> = new ExtendedMap();
     pyokopyoko_folder_name: string
     pyokopyoko_images:ExtendedMap<string, string> = new ExtendedMap();
-    setting: Record<string,string> = {}
     lip_sync_mode:"口"|"パクパク"|"無し" = "無し"
     onomatopoeia_action_setting:Record<"パク"|"パチ"|"ぴょこ",Record<"開候補"|"閉",PartsPath[]>> = {
         "パク":{"開候補":[],"閉":[]},
@@ -1394,7 +1335,7 @@ class HumanBodyManager2 {
         "パチ":[],
         "ぴょこ":[]
     }
-    pose_patterns: ExtendedMap<string, ExtendedMap<string, InitData>>;
+    pose_patterns: ExtendedMap<PoseInfoKey, PoseInfoMap>;
     oprator_canvas: HTMLCanvasElement;
     human_window: Element;
     human_images: Element;
@@ -1406,35 +1347,32 @@ class HumanBodyManager2 {
     
 
 
-    constructor(body_parts: BodyParts,human_window:Element|null = null){
+    constructor(body_parts: HumanData,human_window:Element|null = null){
         this.debug = false;
         this.front_name = body_parts.front_name;
         this.char_name = body_parts["char_name"];
 
         console.log(body_parts)
-        
-        this.body_parts_images = new ExtendedMap(Object.entries(body_parts["body_parts_iamges"]));
+        let body_parts_iamges = body_parts["body_parts_iamges"];
+        this.body_parts_images = new ExtendedMap(Object.entries(body_parts_iamges));
         console.log(this.body_parts_images)
 
         //body_parts["init_image_info"]["init"]がないエラーがあるので、エラーキャッチを実装
         try{
             if ("init_image_info" in body_parts){
-                this.pose_patterns = this.setPosePatternFromInitImageInfo(body_parts["init_image_info"]);
-                if ("setting" in body_parts["init_image_info"]) {
-                    this.setting = (body_parts["init_image_info"]["setting"]);
-                    this.initializeMouseMoveSetting();
-                }
-                if ("OnomatopeiaActionSetting" in body_parts["init_image_info"]) {
-                    this.onomatopoeia_action_setting = deepCopy(body_parts["init_image_info"]["OnomatopeiaActionSetting"]);
+                let init_image_info = body_parts["init_image_info"];
+                this.pose_patterns = this.setPosePatternFromInitImageInfo(init_image_info);
+                if ("OnomatopeiaActionSetting" in init_image_info) {
+                    this.onomatopoeia_action_setting = deepCopy(init_image_info["OnomatopeiaActionSetting"]);
                     
                 } 
-                if ("NowOnomatopoeiaActionSetting" in body_parts["init_image_info"]) {
+                if ("NowOnomatopoeiaActionSetting" in init_image_info) {
                     // debugger;
-                    this.now_onomatopoeia_action = deepCopy(body_parts["init_image_info"]["NowOnomatopoeiaActionSetting"]);
+                    this.now_onomatopoeia_action = deepCopy(init_image_info["NowOnomatopoeiaActionSetting"]);
                     console.log(this.now_onomatopoeia_action)
                 }
-                if ("init" in body_parts["init_image_info"]){
-                    this.init_image_info = /** @type {Record<string, Record<string, string>>} */ (body_parts["init_image_info"]["init"]);
+                if ("init" in init_image_info){
+                    this.init_image_info = (init_image_info["init"]);
                     console.log(this.init_image_info)
                 }else{
                     throw new Error("body_parts[\"init_image_info\"]はあるが、body_parts[\"init_image_info\"][\"init\"]がありません。")
@@ -1448,7 +1386,7 @@ class HumanBodyManager2 {
         }
 
         //各体パーツの画像の情報を格納したオブジェクトを作成
-        this.body_parts_info = new ExtendedMap();
+        this.body_parts_info = new ExtendedMap<string, PartInfo>();
         let z_index_counter_start = 0;
         let z_index_counter_end = -1;
 
@@ -1463,7 +1401,7 @@ class HumanBodyManager2 {
         //体パーツの画像の情報を格納したオブジェクトを作成
         for (let key_part_name of this.body_parts_images.keys()) {
             //key_part_nameの文字列に口が含まれていたら、それを特別なプロパティに格納。promiseで行う。
-
+            // key_part_name:BodyUnitKey 
             const part_info = this.body_parts_images.get(key_part_name);
             if (!part_info) {
                 continue;
@@ -1473,15 +1411,8 @@ class HumanBodyManager2 {
             for (let [part_img_name,part_img_info] of Object.entries(part_info))
             {
                 const part_json = part_img_info["json"];
-                // for (let pakupaku of pakupaku_list){
-                //     if (pakupaku in part_json){
-                //         this.pakupaku_folder_names.set(pakupaku,key_part_name);
-                //         const pakupaku_param = part_json[pakupaku];
-                //         this.pakupaku_info.get(pakupaku).set(pakupaku_param,part_img_name);
-                //     }
-                // }
                 for (let pakupaku of pakupaku_list){
-                    if (pakupaku in part_json){
+                    if (pakupaku in part_json){//todo ここは通らないはずなので確認して消す
                         // this.pakupaku_folder_names.set(pakupaku,key_part_name);
                         const pakupaku_param = part_json[pakupaku];
                         this.pakupaku_info.get(pakupaku)?.set(pakupaku_param,[key_part_name,part_img_name]);
@@ -1493,22 +1424,15 @@ class HumanBodyManager2 {
             if (key_part_name == "front_name" || key_part_name == "char_name") {
                 continue;
             } else {
-                console.log(key_part_name,this.body_parts_images,this.body_parts_images.get(key_part_name))
+                console.log(key_part_name,this.body_parts_images,part_info)
                 z_index_counter_start = z_index_counter_end + 1;
-                z_index_counter_end = z_index_counter_start + Object.keys(this.body_parts_images.get(key_part_name)).length - 1;
-                
+                z_index_counter_end = z_index_counter_start + Object.keys(part_info).length - 1;
+                let a = this.pose_patterns.get("init")?.get(key_part_name);
                 const partInfo: PartInfo = {
-                    "z_index": (key_part_name.match(/\d+/))[0],//todo もう使わないので消す。一応確認する。
+                    // "z_index": (key_part_name.match(/\d+/))[0],//todo もう使わないので消す。一応確認する。
                     "z_index_range": {"start": z_index_counter_start, "end": z_index_counter_end},
-                    "imgs": new ExtendedMap(Object.entries(this.body_parts_images.get(key_part_name)).sort(
-                        (a, b) => {
-                            const keyA = parseInt(a[0].split('_')[0]);
-                            const keyB = parseInt(b[0].split('_')[0]);
-                            console.log(keyA, keyB);
-                            return keyA - keyB;
-                        }
-                    )),
-                    "now_imgs_status": deepCopy(this.pose_patterns.get("init").get(key_part_name)),
+                    "imgs": convertBodyUnitVariationImagesToMap(part_info),
+                    "now_imgs_status": deepCopy(this.pose_patterns.get("init")?.get(key_part_name)),
                     "mode_radio_duplicate": "radio",
                     "name": key_part_name,
                     "body_img_elemnt_map": new ExtendedMap(),
@@ -1568,17 +1492,11 @@ class HumanBodyManager2 {
         return chara_canvas_init_data;
     }
 
-    getMaxSizeOfBodyParts(body_parts_images: ExtendedMap<string, Record<string, ImageInfo>>): [number, number] {
+    getMaxSizeOfBodyParts(body_parts_images: BodyPartsImagesMap): [number, number] {
         let max_width = 0;
         let max_height = 0;
-        let key_part_name: string;
-        let part_info: Record<string, ImageInfo>;
-    
-        for ([key_part_name, part_info] of body_parts_images.entries()) {
-            let part_img_name: string;
-            let part_img_info: ImageInfo;
-    
-            for ([part_img_name, part_img_info] of Object.entries(part_info)) {
+        for (let [key_part_name, part_info] of body_parts_images.entries()) {
+            for (let [part_img_name, part_img_info] of Object.entries(part_info)) {
                 const width = part_img_info.json.width + part_img_info.json.x;
                 const height = part_img_info.json.height + part_img_info.json.y;
     
@@ -1596,7 +1514,7 @@ class HumanBodyManager2 {
     /**
      * 組み合わせ名。例えば、"init","^^"など。
      **/
-    getPosePattern(combination_name: string):ExtendedMap<string, InitData> | undefined {
+    getPosePattern(combination_name: string):PoseInfoMap | undefined {
         console.log("呼び出し");
         const pose_pattern = this.pose_patterns.get(combination_name);
         return pose_pattern;
@@ -1606,23 +1524,24 @@ class HumanBodyManager2 {
      * - 組み合わせ名。例えば、"init","^^"など。
      * - 体のパーツグループの名前。例えば、"口"など。
      **/
-    getPartstatusInPosePattern(combination_name:string ,part_name:string ): InitData | undefined{
+    getPartstatusInPosePattern(combination_name:string ,part_name:string ): BodyUnitValue | undefined{
         const pose_pattern = this.getPosePattern(combination_name);
         const part_status = pose_pattern?.get(part_name);
         return part_status;
     }
 
-    setPosePatternFromInitImageInfo(init_image_info:InitImageInfo): ExtendedMap<string, ExtendedMap<string, InitData>>{
-        const pose_pattern:ExtendedMap<string, ExtendedMap<string, InitData>> = new ExtendedMap();
+    setPosePatternFromInitImageInfo(init_image_info:InitImageInfo):ExtendedMap<PoseInfoKey,PoseInfoMap>{
+        const pose_pattern:ExtendedMap<string,PoseInfoMap> = new ExtendedMap();
         for (let [key, value] of Object.entries(init_image_info)) {
-            if (key != "all_data"){
-                const iamge_info:ExtendedMap<string, InitData> = new ExtendedMap(Object.entries(value).sort(
+            //todo InitImageInfoの型にPoseDictを追加して、initはその要素に変更して、↓のif文を使わなくてもPose情報を取得できるようにする。
+            if (!["all_data", "OnomatopeiaActionSetting", "nowOnomatopoeiaActionSetting"].includes(key)) {
+                const iamge_info:PoseInfoMap = new ExtendedMap(Object.entries(value).sort(
                         (a, b) => {
                             const keyA = parseInt(a[0].split('_')[0]);
                             const keyB = parseInt(b[0].split('_')[0]);
                             return keyA - keyB;
                         }
-                    )) as ExtendedMap<string, InitData>;
+                    )) as PoseInfoMap;
                 
                 pose_pattern.set(key,iamge_info);
             }
@@ -1631,29 +1550,23 @@ class HumanBodyManager2 {
     }
 
 
-    setBodyParts2Elm(){
+    setBodyParts2Elm(): void{
         var self = this
         //body_partsに対応するhtml要素を作成して、画像を各要素に配置する処理
         //各要素にはクリックしたときに別の画像に順番に切り替える処理を追加する
         console.log("画像の配置を開始")
         //各レイヤーに画像を配置するが、同じレイヤーに複数画像を配置できるようにする。
-        let promise = new Promise(function(resolve,reject){                       
-            /** @type {IterableIterator<[string, PartInfo]>} */
-            let body_parts_info_entries = self.body_parts_info.entries();
+        let promise = new Promise(function(resolve,reject){
+            let body_parts_info_entries:MapIterator<[BodyUnitKey, PartInfo]> = self.body_parts_info.entries();
 
-            for (let [part_group_name, part_info] of body_parts_info_entries) {
-
-                /** @type {IterableIterator<[string, ImageInfo]>} */
+            for (let [part_group_name/** @type {BodyUnitKey} */, part_info] of body_parts_info_entries) {
                 let image_info_entries = part_info["imgs"].entries();
-
-                for (let [part_name, iamge_info] of image_info_entries) {
+                for (let [part_name /** @type {BodyUnitVariationKey} */, iamge_info] of image_info_entries) {
                     const on_off = self.getImgStatus(part_group_name, part_name);
                     if (on_off == "off") {
                         continue;
                     } else {
-
                         let body_img = self.createBodyImageCanvasAndSetImgStatus(part_group_name,part_info,part_name,iamge_info,on_off);
-
                         //changeImage()でパーツを変更するときに使うので各パーツのelementをmap_body_parts_infoに格納する
                         self.setBodyImgElemnt(part_group_name, part_name, body_img)
                     }
@@ -1673,16 +1586,8 @@ class HumanBodyManager2 {
         })                   
     }
 
-    /**
-     * 
-     * @param {string} part_group_name
-     * @param {PartInfo} part_info : const part_info = this.getPartInfoFromPartGroupName(part_group_name);
-     * @param {string} part_name
-     * @param {ImageInfo} iamge_info : const iamge_info = part_info["imgs"].get(part_name);
-     * @param {"off" | "on"} on_off : const on_off = this.getImgStatus(part_group_name,part_name);
-     * @return {HTMLCanvasElement} body_img
-     */
-    createBodyImageCanvasAndSetImgStatus(part_group_name,part_info,part_name,iamge_info,on_off){
+    
+    createBodyImageCanvasAndSetImgStatus(part_group_name:BodyUnitKey, part_info:PartInfo, part_name:BodyUnitVariationKey, iamge_info:BodyUnitVariationImageInfo, on_off:OnOff): HTMLCanvasElement{
             //canvasを作成して、そのcanvasに画像を描画する
             let body_img = this.createBodyImageCanvas(part_group_name,part_info,part_name,iamge_info)
 
@@ -1694,13 +1599,8 @@ class HumanBodyManager2 {
 
     /**
      * canvasを作成して、そのcanvasに画像を描画すし、z-indexを設定し、human_imagesの子エレメントに追加する
-     * @param {string} part_group_name
-     * @param {PartInfo} part_info : const part_info = this.getPartInfoFromPartGroupName(part_group_name);
-     * @param {string} part_name
-     * @param {ImageInfo} iamge_info : const iamge_info = part_info["imgs"].get(part_name);
-     * @return {HTMLCanvasElement} body_img
      */
-    createBodyImageCanvas(part_group_name,part_info,part_name,iamge_info){
+    createBodyImageCanvas(part_group_name:BodyUnitKey ,part_info:PartInfo ,part_name:BodyUnitVariationKey ,iamge_info:BodyUnitVariationImageInfo): HTMLCanvasElement{
         //canvasを作成して、そのcanvasに画像を描画する
         var body_img = this.createPartCanvas()
         body_img.classList.add("human_image",`${part_group_name}_img`,`${part_name}_img`,`${this.front_name}_img`)
@@ -1711,10 +1611,7 @@ class HumanBodyManager2 {
         return body_img;
     }
 
-    /**
-     * @return {HTMLCanvasElement}
-     */
-    createPartCanvas(){
+    createPartCanvas(): HTMLCanvasElement{
         var self = this;
         var part_canvas = document.createElement("canvas");
         //canvasの大きさを設定。場所は画面左上に設定。
@@ -1732,16 +1629,16 @@ class HumanBodyManager2 {
     /**
      * 
      * @param {HTMLCanvasElement} canvas - 画像を描画するcanvas
-     * @param {ImageInfo} image_info - 体のパーツの情報を格納した辞書
+     * @param {BodyUnitVariationImageInfo} image_info - 体のパーツの情報を格納した辞書
      * 
      **/
-     drawPart(canvas,image_info){
+     drawPart(canvas:HTMLCanvasElement ,image_info:BodyUnitVariationImageInfo): void{
         var self = this;
         // console.log(image_info);
         //canvasに描画
-        const ctx = /** @type {CanvasRenderingContext2D} */(canvas.getContext('2d'));
+        const ctx:CanvasRenderingContext2D|null = canvas.getContext('2d');
         //canvasをクリア。始点( x , y ) から幅w、高さhの矩形を透明色で初期化します。
-        ctx.clearRect(0,0,canvas.width,canvas.height);
+        ctx?.clearRect(0,0,canvas.width,canvas.height);
         //body_parts_infoの中の各パーツの画像をcanvasに描画する
         const body_part4canvas = new Image();
         const src = image_info["img"];
@@ -1750,7 +1647,7 @@ class HumanBodyManager2 {
         body_part4canvas.src = `data:image/png;base64,${src}`;
         //src_dataは{"name": "1_*1.png","x": 760,"y": 398,"width": 337,"height": 477}のような形式。これの通りに画像の座標と縦横を設定する。
         body_part4canvas.onload = function(){
-            ctx.drawImage(body_part4canvas,src_data["x"],src_data["y"],src_data["width"],src_data["height"]);
+            ctx?.drawImage(body_part4canvas,src_data["x"],src_data["y"],src_data["width"],src_data["height"]);
         }
     }
 
@@ -1778,17 +1675,9 @@ class HumanBodyManager2 {
     }
 
     /**
-     * @typedef {Object} HumanBodyCanvasCssStylePosAndSize
-     * @property {string} height - The height of the operator canvas.
-     * @property {string} top - The top position of the operator canvas.
-     * @property {string} left - The left position of the operator canvas.
-     */
-
-    /**
      * 現在の体パーツのキャンバスの座標と大きさを取得する
-     * @return {HumanBodyCanvasCssStylePosAndSize}
      */
-    getOperatorCanvasCssStyle(){
+    getOperatorCanvasCssStyle():HumanBodyCanvasCssStylePosAndSize {
         return {
             "height": this.oprator_canvas.style.height,
             "top": this.oprator_canvas.style.top,
@@ -1802,7 +1691,7 @@ class HumanBodyManager2 {
      * @param {string} part_name
      * @param {HTMLCanvasElement} body_img_elemnt
      */
-    setBodyImgElemnt(part_group_name,part_name,body_img_elemnt){
+    setBodyImgElemnt(part_group_name: BodyUnitKey ,part_name:BodyUnitVariationKey ,body_img_elemnt: HTMLCanvasElement){
         const part_info = this.getPartInfoFromPartGroupName(part_group_name);
         const body_img_elemnt_map = part_info?.body_img_elemnt_map
         body_img_elemnt_map?.set(part_name,body_img_elemnt);
@@ -1810,11 +1699,8 @@ class HumanBodyManager2 {
 
     /**
      * 体のパーツの画像のhtmlエレメントを取得する
-     * @param {string} part_group_name 
-     * @param {string} part_name 
-     * @returns {HTMLCanvasElement|null}
      */
-    getBodyImgElemnt(part_group_name,part_name){
+    getBodyImgElemnt(part_group_name:BodyUnitKey ,part_name:BodyUnitVariationKey): HTMLCanvasElement|undefined{
         const part_info = this.getPartInfoFromPartGroupName(part_group_name);
         const body_img_elemnt_map = part_info?.body_img_elemnt_map
         if (body_img_elemnt_map?.has(part_name) == false){
@@ -1827,12 +1713,12 @@ class HumanBodyManager2 {
 
     /**
      * 体のパーツの画像のステータスを変更する
-     * @param {string} image_group - 画像のグループ名
-     * @param {string} image_name - 画像の名前
-     * @param {"on"|"off"} on_off - 画像をonにするかoffにするか
+     * @param {BodyUnitKey} image_group - 画像のグループ名
+     * @param {BodyUnitVariationKey} image_name - 画像の名前
+     * @param {OnOff} on_off - 画像をonにするかoffにするか
      * @param {HTMLCanvasElement} body_img - 体のパーツの画像のhtmlエレメント
      */
-    changeImgStatus(image_group, image_name, on_off, body_img){
+    changeImgStatus(image_group:BodyUnitKey, image_name:BodyUnitVariationKey, on_off:OnOff, body_img:HTMLCanvasElement){
 
         //body_imgをdisplay:noneにする
         if (on_off == "off") {
@@ -1848,17 +1734,17 @@ class HumanBodyManager2 {
      * 体のパーツ画像が設定されてるか確認し、されてる場合はchangeImgStatusし、されてない場合はcreateBodyImageCanvasを実行する
      * アコーディオンのクリックイベントで呼ばれる、キャラのパーツを変更するメソッド。
      * 
-     * @param {string} image_group - 画像のグループ名
-     * @param {string} image_name - 画像の名前
-     * @param {"on"|"off"} on_off - 画像をonにするかoffにするか
+     * @param {BodyUnitKey} image_group - 画像のグループ名
+     * @param {BodyUnitVariationKey} image_name - 画像の名前
+     * @param {OnOff} on_off - 画像をonにするかoffにするか
      * 
      **/
-    changeBodyPart(image_group,image_name,on_off){
+    changeBodyPart(image_group:BodyUnitKey ,image_name:BodyUnitVariationKey ,on_off:OnOff){
         let body_img = this.getBodyImgElemnt(image_group,image_name);
         if (body_img == null){
             //body_imgがnullの場合、まだ作られてないので作成する。
-            const part_info = this.getPartInfoFromPartGroupName(image_group);
-            const iamge_info = part_info?.imgs.get(image_name);
+            const part_info = this.getPartInfoFromPartGroupName(image_group); if (part_info == undefined){throw new Error("part_infoがundefinedです。");}
+            const iamge_info = part_info?.imgs.get(image_name); if (iamge_info == undefined){throw new Error("iamge_infoがundefinedです。");}
             // body_img = this.createBodyImageCanvas(image_group,part_info,image_name,iamge_info);
             let body_img = this.createBodyImageCanvasAndSetImgStatus(image_group,part_info,image_name,iamge_info,on_off);
             //最新の座標と大きさを設定
@@ -1887,30 +1773,29 @@ class HumanBodyManager2 {
      * @param {string} part_group_name 
      * @returns {PartInfo}
      */
-    getPartInfoFromPartGroupName(part_group_name){
+    getPartInfoFromPartGroupName(part_group_name:BodyUnitKey): PartInfo | undefined{
         const part_info = this.body_parts_info.get(part_group_name)
         return part_info;
     }
 
     /**
      * どの体のパーツがon,offになっているかのステータス辞書を返す
-     * @param {string} image_group_name 
-     * @returns {Record<string, "on"|"off">}
      */
-    getNowImgGroupStatusFromPartGroupName(image_group_name: string): Record<string, "on" | "off"> | undefined{
-        const imgs_status = this.getPartInfoFromPartGroupName(image_group_name)?.now_imgs_status;
+    getNowImgGroupStatusFromPartGroupName(image_group_name: BodyUnitKey): BodyUnitValue {
+        const imgs_status = this.getPartInfoFromPartGroupName(image_group_name)?.now_imgs_status; 
+        if(imgs_status == undefined){throw new Error("imgs_statusがundefinedです。");}
         return imgs_status;
     }
 
     /**
      * 体の画像のグループ名から、オン(またはオフ)になっている画像の名前のリストを返す
      */
-    getNowOnImgNameList(image_group_name: string, on_off:OnOff): string[]{
+    getNowOnImgNameList(image_group_name: BodyUnitKey, on_off:OnOff): BodyUnitVariationKey[]{
         const imgs_status = this.getNowImgGroupStatusFromPartGroupName(image_group_name);
         if (imgs_status == undefined){
             return [];
         }
-        const on_img_name_list = Object.keys(imgs_status).filter((key) => imgs_status[key] === on_off);
+        const on_img_name_list:BodyUnitVariationKey[] = Object.keys(imgs_status).filter((key) => imgs_status[key] === on_off);
         return on_img_name_list;
     }
 
@@ -1929,7 +1814,7 @@ class HumanBodyManager2 {
     /**
      * 体の画像１枚がオンかオフかを設定する
      */
-    setImgStatus(image_group:string, image_name:string ,on_off:OnOff){
+    setImgStatus(image_group:BodyUnitKey, image_name:BodyUnitVariationKey ,on_off:OnOff){
         const img_group_status = this.getNowImgGroupStatusFromPartGroupName(image_group);
         if (img_group_status == undefined){
             return;
@@ -1940,11 +1825,11 @@ class HumanBodyManager2 {
     /**
      * image_group_nameの中でimage_nameだけをオンにして、それ以外をオフにする
      */
-    radioChangeImage(image_group_name:string ,image_name:string, on_off:OnOff){
+    radioChangeImage(image_group_name:BodyUnitKey ,image_name:BodyUnitVariationKey, on_off:OnOff){
         if (on_off == "on"){
-            const now_on_img_names = this.getNowOnImgNameList(image_group_name,"on");
+            const now_on_img_names:BodyUnitVariationKey[] = this.getNowOnImgNameList(image_group_name,"on");
             for (let i=0;i<now_on_img_names.length;i++){
-                const now_img_name = now_on_img_names[i];
+                const now_img_name:BodyUnitVariationKey = now_on_img_names[i];
                 this.changeBodyPart(image_group_name,now_img_name,"off");
             }
             this.changeBodyPart(image_group_name,image_name,"on");
@@ -1993,11 +1878,12 @@ class HumanBodyManager2 {
 
     /**
      * 
-     * @param {string} pakupaku_mode - パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
-     * @param {string} pakupaku - パクパクの名前。口ならば音素、ぱちぱちならば目の形の名前など。
-     * @param {"on"|"off"} on_off - オンかオフか
+     * @param {PakupakuType} pakupaku_mode - パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
+     * @param {string|OnOff} pakupaku - パクパクの名前。口ならば音素、ぱちぱちならば目の形の名前など。今はOnOffだけだが、後で音素なども追加したい
+     * @param {"on"|"off"} on_off - オンかオフか 
+     * todo on_offを指定しているのに使用していないので処理を見直す
      */
-    changePakuPakuImage(pakupaku_mode: PakupakuType,pakupaku: string, on_off:OnOff){
+    changePakuPakuImage(pakupaku_mode: PakupakuType,pakupaku: string|OpenClose, on_off:OnOff){
         if (this.pakupaku_info.has(pakupaku_mode)) {
             if (this.pakupaku_info.get(pakupaku_mode)?.has(pakupaku)){
                 const pakupaku_folder_name = this.pakupaku_info.get(pakupaku_mode)?.get(pakupaku)[0];
@@ -2160,22 +2046,6 @@ class HumanBodyManager2 {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
 
-    initializeMouseMoveSetting(){
-        this.lip_sync_mode = "口";
-
-        if ("lip_sync" in this.setting){
-            const lip_sync_mode_list = ["口","パクパク","無し"];
-            if (lip_sync_mode_list.includes(this.setting["lip_sync"])){
-                this.lip_sync_mode = this.setting["lip_sync"];
-                if (this.lip_sync_mode == "パクパク"){
-                    this.prev_pakupaku = "open";
-                }
-            } else if (this.checkOnPakuPaku() == true) {
-                this.setLipSyncModeToPakuPaku("パク");
-            } 
-        }
-        
-    }
 
     /**
      * パクパク設定で「パク」がオンになっていてパクパクを起動するようにユーザーが思っているか確認する。
@@ -2240,7 +2110,7 @@ function drawFillRectInOpratorCanvas(x,y,width,height,color){
         console.log("引数",{"x":x,"y":y,"width":width,"height":height,"color":color});
 
         let oprator_canvas = document.getElementsByClassName("operator_canvas")[0];
-        var ctx = oprator_canvas.getContext('2d');
+        let ctx = (oprator_canvas as HTMLCanvasElement).getContext('2d'); if (ctx == null){throw new Error("ctxがnullです。");}
         ctx.fillStyle = color;
         ctx.fillRect(x,y,width,height);
     }
@@ -2249,7 +2119,7 @@ function drawFillRectInOpratorCanvas(x,y,width,height,color){
 function connect_ws() {
     ws = new WebSocket(`ws://${localhost}:${port}/ws/${client_id}`);
 
-    ws.onmessage = function(event) {
+    ws.onmessage = function(event:MessageEvent) {
         messageQueue.push(event);
         console.log("messageQueue=",messageQueue,"messageQueueをpushしました","isProcessing=",isProcessing);
         processMessages();
@@ -2310,7 +2180,7 @@ var init_human_tab = document.getElementsByClassName("tab human_tab")[0] as HTML
 addClickEvent2Tab(init_human_tab)
 //var ws = new WebSocket("ws://localhost:${port}/InputGPT")
 //var ws = new WebSocket("ws://localhost:${port}/InputPokemon");
-var messageQueue = /** @type {MessageEvent[]} */ ([]);
+var messageQueue:MessageEvent[] = [];
 var isProcessing = false;
 
 /** @type {Record<string,HumanBodyManager2>} */

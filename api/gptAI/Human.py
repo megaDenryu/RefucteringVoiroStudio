@@ -10,6 +10,7 @@ from typing import TypedDict
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.gptAI.CharacterModeState import CharacterModeState
 from api.gptAI.HumanInformation import TTSSoftware
+from api.images.image_manager.IHumanPart import HumanData
 from .gpt import ChatGPT
 from .voiceroid_api import voicevox_human
 from .voiceroid_api import Coeiroink
@@ -59,14 +60,7 @@ class Human:
         self.personal_id = 2
         # 体画像周りを準備する
         self.human_part = HumanPart(self.char_name)
-        human_part_folder,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name)
-        data :HumanData= {
-            "body_parts_iamges": human_part_folder["body_parts_iamges"],
-            "init_image_info": human_part_folder["init_image_info"],
-            "front_name": self.front_name,
-            "char_name": self.char_name.name
-        }
-        self.image_data_for_client = data
+        self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name, self.front_name)
         # dictを正規化する
         self.response_dict:dict = {
             self.char_name:"",

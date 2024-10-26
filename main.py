@@ -11,6 +11,7 @@ from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, InputReciever, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
+from api.images.image_manager.IHumanPart import HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
@@ -588,7 +589,7 @@ async def parserPsdFile(
     filename: str = Form(...), 
     response_mode: ResponseMode = Form(...), 
     front_name: str = Form(...)
-):
+)->HumanData|dict:
     # file_contents = await req_body.file.read()
     # filename = req_body.filename
     # response_mode = req_body.response_mode
@@ -627,20 +628,7 @@ async def parserPsdFile(
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得
         human_part = HumanPart(chara_name)
-        human_part_folder,body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name,folder)
-        # image_data_for_client = ImageData(
-        #     body_parts_iamges = human_part_folder["body_parts_iamges"],
-        #     init_image_info = human_part_folder["init_image_info"],
-        #     front_name = front_name,
-        #     char_name = chara_name
-        # )
-        # return image_data_for_client
-        image_data_for_client = {
-            "body_parts_iamges": human_part_folder["body_parts_iamges"],
-            "init_image_info": human_part_folder["init_image_info"],
-            "front_name": front_name,
-            "char_name": chara_name
-        }
+        image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, front_name ,folder)
         return image_data_for_client
         
     
