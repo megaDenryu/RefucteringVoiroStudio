@@ -78,7 +78,7 @@ export class ExtendedMap<T1, T2> extends Map<T1, T2> {
         }
     }
 
-    convert2keysArray(): T1[] {
+    comvert2keysArray(): T1[] {
         let keys = Array.from(this.keys());
         console.log(keys);
         return keys;

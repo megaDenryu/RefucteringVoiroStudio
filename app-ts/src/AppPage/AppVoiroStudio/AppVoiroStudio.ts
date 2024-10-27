@@ -12,6 +12,7 @@ import { SpeechRecognition, SpeechRecognitionEvent, webkitSpeechRecognition } fr
 import { ExtendedWebSocket } from "../../Extend/extend";
 import { ExtendedMap } from "../../Extend/extend_collections";
 import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, ImageInfo, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
+import { DragDropFile } from "./DragDropFile";
 
 // const { promises } = require("fs");
 
@@ -25,12 +26,12 @@ function addClickEvent2Tab(human_tab_elm: HTMLElement) {
         tab.addEventListener('click', tabSwitch.bind(tab), false);
     }
     // タブ識別用にdata属性を追加
-    const num:Number = message_box_manager.message_box_list.length;
-    human_tab_elm.setAttribute('data-tab_num', num);
+    const num:Number = GlobalState.message_box_manager.message_box_list.length;
+    human_tab_elm.setAttribute('data-tab_num', num.toString());
     //メッセージボックスのサイズが変更された時のイベントを追加
     var message_box_elm = human_tab_elm.getElementsByClassName("messageText")[0] as HTMLTextAreaElement;
     const front_name = (human_tab_elm.getElementsByClassName("human_name")[0] as HTMLElement).innerText
-    new MessageBox(message_box_elm,message_box_manager,num,human_tab_elm);
+    new MessageBox(message_box_elm,GlobalState.message_box_manager,num,human_tab_elm);
 }
 
 class VoiceRecognitioManager {
@@ -97,9 +98,9 @@ class VoiceRecognitioManager {
             if (user_elem.parentElement == null) {return;}
             var user_char_name = (user_elem.parentElement.getElementsByClassName("human_name")[0] as HTMLElement).innerText;
             //user_char_nameのmessage_boxを取得
-            var message_box = message_box_manager.message_box_dict.get(user_char_name);
+            var message_box = GlobalState.message_box_manager.message_box_dict.get(user_char_name);
             //message_boxにtextを追加
-            message_box.sendMessage(text);
+            message_box?.sendMessage(text);
         }
     }
 }
@@ -116,7 +117,7 @@ function tabSwitch(this: HTMLElement, event: Event): void {
         (clone.getElementsByClassName('human_name')[0] as HTMLElement).innerText = "????";
         humans_space.append(clone);
         addClickEvent2Tab(clone);
-        drag_drop_file_event_list.push(new DragDropFile(clone));
+        GlobalState.drag_drop_file_event_list.push(new DragDropFile(clone));
         //changeMargin()
     }else if(this.innerText == "x") {
         //削除ボタンが押された人のタブを削除
@@ -127,28 +128,28 @@ function tabSwitch(this: HTMLElement, event: Event): void {
 
         //ニコ生コメント受信を停止する。nikonama_comment_reciver_stopにfront_nameをfetchで送信する。
         const front_name = (delete_target_element.getElementsByClassName("human_name")[0] as HTMLElement).innerText;
-        fetch(`http://${localhost}:${port}/nikonama_comment_reciver_stop/${front_name}`, {
+        fetch(`http://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver_stop/${front_name}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ front_name: front_name })
         })
-        const char_name = front2chara_name[front_name]
+        const char_name = GlobalState.front2chara_name[front_name]
         //設定タブを開いてるならエレメントを削除し、setting_infoからも削除
         console.log("設定タブを開いてるならエレメントを削除し、setting_infoからも削除")
-        if (char_name in setting_info) {
+        if (char_name in GlobalState.setting_info) {
             console.log(char_name+"setteng_infoにあるので削除")
-            setting_info[char_name].ELM_accordion.remove();
-            delete setting_info[char_name];
+            GlobalState.setting_info[char_name].ELM_accordion.remove();
+            delete GlobalState.setting_info[char_name];
             
         }
         
         //このタブのキャラのデータを削除
-        if (char_name in humans_list) {
-            delete humans_list[char_name];
+        if (char_name in GlobalState.humans_list) {
+            delete GlobalState.humans_list[char_name];
         }
         
         //message_box_managerからも削除
-        message_box_manager.message_box_dict.delete(front_name);
+        GlobalState.message_box_manager.message_box_dict.delete(front_name);
 
     }
     else if (this.className.includes("human_name") && !this.className.includes("input_now")) {
@@ -221,26 +222,26 @@ function tabSwitch(this: HTMLElement, event: Event): void {
         (event.target as HTMLElement)?.classList.add("setting_now")
         //設定画面を表示
         const front_name = ((this.parentNode as HTMLElement)?.getElementsByClassName("human_name")[0] as HTMLElement).innerText
-        const char_name = front2chara_name[front_name]
-        if (char_name in setting_info) {
+        const char_name = GlobalState.front2chara_name[front_name]
+        if (char_name in GlobalState.setting_info) {
             console.log(char_name+"setteng_infoにある")
-            if (setting_info[char_name].ELM_accordion.classList.contains("vissible")){
-                console.log("vissibleを削除",setting_info[char_name].ELM_accordion)
-                setting_info[char_name].ELM_accordion.classList.remove("vissible")
-                setting_info[char_name].ELM_accordion.classList.add("non_vissible")
+            if (GlobalState.setting_info[char_name].ELM_accordion.classList.contains("vissible")){
+                console.log("vissibleを削除",GlobalState.setting_info[char_name].ELM_accordion)
+                GlobalState.setting_info[char_name].ELM_accordion.classList.remove("vissible")
+                GlobalState.setting_info[char_name].ELM_accordion.classList.add("non_vissible")
 
             }else{
-                console.log("vissibleを追加",setting_info[char_name].ELM_accordion)
-                setting_info[char_name].ELM_accordion.classList.remove("non_vissible")
-                setting_info[char_name].ELM_accordion.classList.add("vissible")
+                console.log("vissibleを追加",GlobalState.setting_info[char_name].ELM_accordion)
+                GlobalState.setting_info[char_name].ELM_accordion.classList.remove("non_vissible")
+                GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
             }
         } else {
             console.log(char_name+"setteng_infoにない")
-            const chara_human_body_manager = humans_list[char_name]
+            const chara_human_body_manager = GlobalState.humans_list[char_name]
             var vas = new VoiroAISetting(chara_human_body_manager);
-            humans_list[char_name].BindVoiroAISetting(vas);
-            setting_info[char_name] = vas;
-            setting_info[char_name].ELM_accordion.classList.add("vissible")
+            GlobalState.humans_list[char_name].BindVoiroAISetting(vas);
+            GlobalState.setting_info[char_name] = vas;
+            GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
 
 
 
@@ -268,7 +269,7 @@ function tabSwitch(this: HTMLElement, event: Event): void {
  * @param {Element} human_tab
  * @param {HTMLElement} ELM_human_name
  */
-function registerHumanName(human_name:string, human_tab:Element, ELM_human_name:HTMLElement) {
+export function registerHumanName(human_name:string, human_tab:Element, ELM_human_name:HTMLElement) {
     let human_window = human_tab.getElementsByClassName("human_window")[0]
     //画像が送られてきたときに画像を配置して制御するためにhuman_windowにキャラの名前のタグを付ける。
     human_window.classList.add(`${human_name}`)
@@ -279,7 +280,7 @@ function registerHumanName(human_name:string, human_tab:Element, ELM_human_name:
     //messageBoxにhuman_nameを格納
     //今のhuman_tabの番号を取得
     const tab_num = human_tab.getAttribute('data-tab_num');
-    message_box_manager.linkHumanNameAndNum(human_name,tab_num)
+    GlobalState.message_box_manager.linkHumanNameAndNum(human_name,tab_num)
 }
 
 function removeInputCharaName(this: HTMLElement,event:Event):void {
@@ -373,7 +374,7 @@ class MessageBoxManager {
      * */
     getMessageBoxByFrontName(front_name) {
         //front_nameがfront2chara_nameにない場合はnullを返す
-        if (front_name in front2chara_name) {
+        if (front_name in GlobalState.front2chara_name) {
             return this.message_box_dict.get(front_name);
         } else {
             return null;
@@ -449,7 +450,7 @@ class MessageBox {
             //コメビュモードに入る
             const room_id = message.split(":")[1];
             //websocketを開く
-            this.ws_nikonama_comment_reciver = new WebSocket(`ws://${localhost}:${port}/nikonama_comment_reciver/${room_id}/${front_name}`);
+            this.ws_nikonama_comment_reciver = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver/${room_id}/${front_name}`);
             this.ws_nikonama_comment_reciver.onmessage = this.receiveNikoNamaComment.bind(this);
             //メッセージボックスの中身を削除
             this.message_box_elm.value = "";
@@ -459,7 +460,7 @@ class MessageBox {
             //コメビュモードに入る
             const room_id = message.split("https://live.nicovideo.jp/watch/")[1];
             //websocketを開く
-            this.ws_nikonama_comment_reciver = new WebSocket(`ws://${localhost}:${port}/nikonama_comment_reciver/${room_id}/${front_name}`);
+            this.ws_nikonama_comment_reciver = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver/${room_id}/${front_name}`);
             this.ws_nikonama_comment_reciver.onmessage = this.receiveNikoNamaComment.bind(this);
             //メッセージボックスの中身を削除
             this.message_box_elm.value = "";
@@ -470,7 +471,7 @@ class MessageBox {
             const video_id = message.split("https://www.youtube.com/watch?v=")[1];
             console.log(video_id)
             //websocketを開く
-            this.ws_youtube_comment_reciver = new ExtendedWebSocket(`ws://${localhost}:${port}/YoutubeCommentReceiver/${video_id}/${front_name}`);
+            this.ws_youtube_comment_reciver = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/YoutubeCommentReceiver/${video_id}/${front_name}`);
             this.ws_youtube_comment_reciver.onmessage = this.receiveYoutubeLiveComment.bind(this);
             //接続を完了するまで待つ
             this.ws_youtube_comment_reciver.onopen = () => {
@@ -494,7 +495,7 @@ class MessageBox {
             const video_id = message.split("https://www.twitch.tv/")[1];
             console.log(video_id,front_name)
             //Postを送信してRunTwitchCommentReceiverを実行
-            await fetch(`http://${localhost}:${port}/RunTwitchCommentReceiver`, {
+            await fetch(`http://${GlobalState.localhost}:${GlobalState.port}/RunTwitchCommentReceiver`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ video_id: video_id, front_name: front_name })
@@ -503,7 +504,7 @@ class MessageBox {
             await new Promise(resolve => setTimeout(resolve, 3000));
 
             //websocketを開く
-            this.ws_twitch_comment_reciver = new ExtendedWebSocket(`ws://${localhost}:${port}/TwitchCommentReceiver/${video_id}/${front_name}`);
+            this.ws_twitch_comment_reciver = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/TwitchCommentReceiver/${video_id}/${front_name}`);
             this.ws_twitch_comment_reciver.onmessage = this.receiveNikoNamaComment.bind(this);
             //接続を完了するまで待つ
             this.ws_twitch_comment_reciver.onopen = () => {
@@ -520,7 +521,7 @@ class MessageBox {
         }
         else if (message.includes("ツイッチコメント停止:")) {
             console.log("コメント受信停止します")
-            fetch(`http://${localhost}:${port}/StopTwitchCommentReceiver`, {
+            fetch(`http://${GlobalState.localhost}:${GlobalState.port}/StopTwitchCommentReceiver`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ front_name: front_name })
@@ -551,7 +552,7 @@ class MessageBox {
         if (char_name == this.char_name) {
             this.sendMessage(comment);
         } else {
-            let message_box = message_box_manager.getMessageBoxByCharName(char_name)
+            let message_box = GlobalState.message_box_manager.getMessageBoxByCharName(char_name)
             if (message_box == null) {
                 this.sendMessage(comment);
             } else {
@@ -569,7 +570,7 @@ class MessageBox {
         if (char_name == this.char_name) {
             this.sendMessage(comment);
         } else {
-            let message_box = message_box_manager.getMessageBoxByCharName(char_name)
+            let message_box = GlobalState.message_box_manager.getMessageBoxByCharName(char_name)
             if (message_box == null) {
                 this.sendMessage(comment);
             } else {
@@ -596,7 +597,7 @@ class MessageBox {
             "message" : message_dict,
             "gpt_mode" : this.message_box_manager.getAllGptModeByDict()
         }
-        ws.send(JSON.stringify(send_data));
+        GlobalState.ws.send(JSON.stringify(send_data));
     }
 }
 
@@ -651,7 +652,7 @@ class HumanTab {
 }
 
 function getMessageBoxByCharName(char_name) {
-    return message_box_manager.message_box_dict.get(char_name);
+    return GlobalState.message_box_manager.message_box_dict.get(char_name);
 }
 
 //キャラ名を送信するときのイベント関数
@@ -666,7 +667,7 @@ function sendMessage(event: Event) {
         input_elem.value = ""
     }
     let inputs_json = JSON.stringify(inputs_dict)
-    ws.send(inputs_json)
+    GlobalState.ws.send(inputs_json)
 
     //sendを押したキャラタブのmessageTextにフォーカスを移す。
     let ELM_input_area = (event.target as HTMLElement)?.closest(".input_area")
@@ -694,14 +695,14 @@ function receiveMessage(event) {
     console.log("human_listに追加:"+body_parts["char_name"])
         
     try{
-        humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts)
+        GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts)
     } catch (e) {
         console.log(e)
         console.log("human_listに追加失敗:"+body_parts["char_name"])
     }
 
-    front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
-    console.log("front2chara_name=",front2chara_name)
+    GlobalState.front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
+    console.log("front2chara_name=",GlobalState.front2chara_name)
     
 }
 
@@ -709,7 +710,7 @@ export interface WavInfo {
     path: string; // wavファイルのパス
     wav_data: string; // wavファイルのデータ（Base64形式）
     phoneme_time: string; // 音素の開始時間と終了時間の情報
-    phoneme_str: string; // 音素の情報
+    phoneme_str: string[][]; // 音素の情報
     char_name: string; // キャラの名前
     voice_system_name: string; // 音声合成のシステムの名前
 }
@@ -737,7 +738,7 @@ export async function receiveConversationData(event) {
 
         //gptからの音声だった場合は終了を通知。
         const front_name = getNthKeyFromObject(sentence, 0)
-        const message_box = message_box_manager.getMessageBoxByFrontName(front_name);
+        const message_box = GlobalState.message_box_manager.getMessageBoxByFrontName(front_name);
         if (message_box) {
             const human_gpt_routine_ws = message_box.gpt_setting_button_manager_model.human_gpt_routine_ws_dict[front_name];
             human_gpt_routine_ws.sendJson({ "gpt_voice_complete": "complete" });
@@ -873,7 +874,7 @@ async function execAudioList(obj,audio_group) {
  * @param {Number} maxAudioElements 
  * @returns 
  */
-async function execAudio(obj,audio_group, maxAudioElements = 100) {
+async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:number = 100) {
     //wavファイルをバイナリー形式で開き、base64エンコードした文字列を取得
     var wav_binary = obj["wav_data"]
     //wavファイルをbase64エンコードした文字列をaudioタグのsrcに設定
@@ -887,7 +888,7 @@ async function execAudio(obj,audio_group, maxAudioElements = 100) {
 
     // audio_group内のaudioエレメントが上限を超えたら、最初のエレメントを削除
     while (audio_group.childElementCount > maxAudioElements) {
-        audio_group.removeChild(audio_group.firstElementChild);
+        audio_group.removeChild(audio_group.firstElementChild ?? (() => { throw new Error("audio_groupの子要素が存在しません") })());
     }
 
     audio.load();
@@ -895,7 +896,7 @@ async function execAudio(obj,audio_group, maxAudioElements = 100) {
     //audioの長さを取得
     const time_length = audio.duration * 1000;
     //labdataの最後の要素の終了時間を取得
-    const last_end_time = lab_data[lab_data.length-1][2] * 1000;
+    const last_end_time = Number(lab_data[lab_data.length-1][2]) * 1000;
     let ratio = 1;
     if (voice_system_name == "Coeiroink") {
         ratio = time_length / last_end_time;
@@ -908,23 +909,26 @@ async function execAudio(obj,audio_group, maxAudioElements = 100) {
     await new Promise((resolve) => {
         audio.onended = resolve;
         audio.play().then(() => {
-            var intervalId = setInterval(() => {
-                var current_time = audio.currentTime * 1000;
-                // console.log("current_time="+current_time, "lab_pos="+lab_pos);
-                
-                if (lab_data[lab_pos] !== undefined) {
-                    var start_time = lab_data[lab_pos][1] * 1000 * ratio;
-                    var end_time = lab_data[lab_pos][2] * 1000 * ratio;
+            let intervalId = setInterval(() => {
+                let current_time = audio.currentTime * 1000;
+                let start_time = 0;
+                let end_time = 100;
+
+                if (lab_pos in lab_data) {
+                    start_time = Number(lab_data[lab_pos][1]) * 1000 * ratio;
+                    end_time = Number(lab_data[lab_pos][2]) * 1000 * ratio;
                 } else {
                     console.error('Invalid lab_pos:', lab_data, "lab_pos="+lab_pos);
                     // ここで適切なエラーハンドリングを行います
+                    //audioの再生を止める
+                    audio.pause();
                 }
 
                 // todo start_timeとend_timeが定義されないまま入ってるときにバグってる可能性がある
                 if (start_time <= current_time && current_time <= end_time ) {
                     // console.log("通ってる",obj["char_name"],lab_data[lab_pos][0]);
                     try{
-                        humans_list[obj["char_name"]].changeLipImage(obj["char_name"],lab_data[lab_pos][0]);
+                        GlobalState.humans_list[obj["char_name"]].changeLipImage(obj["char_name"],lab_data[lab_pos][0]);
                     } catch (e) {
                         console.log(e)
                         console.log(("口画像が設定されていない"))
@@ -939,7 +943,7 @@ async function execAudio(obj,audio_group, maxAudioElements = 100) {
                 if (lab_pos >= lab_data.length) {
                     //終わったら口パクを終了して口を閉じる
                     try{
-                        humans_list[obj["char_name"]].changeLipImage(obj["char_name"],"end");
+                        GlobalState.humans_list[obj["char_name"]].changeLipImage(obj["char_name"],"end");
                     } catch (e) {
                         console.log(e)
                         console.log(("口画像が設定されていない"))
@@ -966,18 +970,18 @@ async function async_receiveConversationData(event){
  * ただし、処理中は次のイベントを処理しない
  **/
 async function processMessages() {
-    console.log("メッセージからprocessMessages()を呼び出しました、isProcessing=",isProcessing)
-    if (isProcessing || messageQueue.length === 0) {
+    console.log("メッセージからprocessMessages()を呼び出しました、isProcessing=",GlobalState.isProcessing)
+    if (GlobalState.isProcessing || GlobalState.messageQueue.length === 0) {
         // 処理中 or キューが空なら何もしない
         console.log("処理中 or キューが空なので何もしない")
         return;
     }
     // 処理を実行するので処理中フラグを立てる
-    isProcessing = true;
+    GlobalState.isProcessing = true;
     // キューからイベントを取り出して処理する
-    var new_event = messageQueue.shift();
+    var new_event = GlobalState.messageQueue.shift();
     await receiveConversationData(new_event);
-    isProcessing = false;
+    GlobalState.isProcessing = false;
     console.log("次のprocessMessages()を呼び出します")
     processMessages();
 }            
@@ -986,13 +990,13 @@ async function processMessages() {
 
 
 function sendHumanName(human_name) {
-    if (human_ws.readyState !== WebSocket.OPEN) {
+    if (GlobalState.human_ws.readyState !== WebSocket.OPEN) {
         humanWsOpen();
-        human_ws.onopen = function(e) {
-            human_ws.send(human_name);
+        GlobalState.human_ws.onopen = function(e) {
+            GlobalState.human_ws.send(human_name);
         };
     }
-    human_ws.send(human_name);
+    GlobalState.human_ws.send(human_name);
 }
 
 function clearText(button) {
@@ -1381,7 +1385,7 @@ export class HumanBodyManager2 {
                 throw new Error("body_parts[\"init_image_info\"]がありません。")
             }
         }catch(e){
-            console.log(e.message);
+            console.log((e as Error).message);
             this.init_image_info = {};
         }
 
@@ -1700,14 +1704,14 @@ export class HumanBodyManager2 {
     /**
      * 体のパーツの画像のhtmlエレメントを取得する
      */
-    getBodyImgElemnt(part_group_name:BodyUnitKey ,part_name:BodyUnitVariationKey): HTMLCanvasElement|undefined{
+    getBodyImgElemnt(part_group_name:BodyUnitKey ,part_name:BodyUnitVariationKey): HTMLCanvasElement|null{
         const part_info = this.getPartInfoFromPartGroupName(part_group_name);
         const body_img_elemnt_map = part_info?.body_img_elemnt_map
         if (body_img_elemnt_map?.has(part_name) == false){
             //initでoffになっているパーツの場合、まだ作られてないのでnullを返し、これから作る。
             return null;
         }
-        const body_img_elemnt = body_img_elemnt_map?.get(part_name);
+        const body_img_elemnt = body_img_elemnt_map?.get(part_name) ?? (() => {throw new Error("body_img_elemntがundefinedです。")})();
         return body_img_elemnt;
     }
 
@@ -1941,16 +1945,6 @@ export class HumanBodyManager2 {
             }
         }
     }
-
-    changeEyeImage(open_close: OpenClose){
-        console.log("目を動かす。",open_close);
-        if (this.eye_images.size > 1) {
-            if (this.mouse_images.has(open_close)){
-                const next_img_name = this.mouse_images.get(open_close);
-                this.radioChangeImage(this.mouse_folder_name, next_img_name, "on")
-            }
-        }
-    }
     
     /**
      * パクパクのモード。pakupaku_listの中から選べる。"口","パクパク","パチパチ","ぴょこぴょこ"など。
@@ -2054,7 +2048,7 @@ export class HumanBodyManager2 {
         return this.onomatopoeia_action_setting["パク"]["閉"].length > 0
     }
 
-    setLipSyncModeToPakuPaku(onomatopoeia_action_mode: MousePakuType){
+    setLipSyncModeToPakuPaku(onomatopoeia_action_mode: PatiMode){
         if (onomatopoeia_action_mode == "パク"){
             this.lip_sync_mode = "パクパク";
             this.prev_pakupaku = "open";
@@ -2101,6 +2095,1290 @@ export class HumanBodyManager2 {
 }
 
 
+export class VoiroAISetting{
+    chara_human_body_manager: HumanBodyManager2;
+    ELM_combination_name: HTMLDivElement;
+    ELM_body_setting: HTMLDivElement;
+    ELM_input_combination_name: HTMLInputElement;
+    ELM_combination_box: HTMLLIElement;
+    ELM_accordion: HTMLElement;
+    accordion_item_dict: Record<string, AccordionItem>;
+    ELM_combination_candidate: HTMLUListElement | null;
+
+
+    /**
+     * @param {HumanBodyManager2}chara_human_body_manager
+     */
+    constructor(chara_human_body_manager:HumanBodyManager2){
+        console.log("VoiroAISetting constructor")
+        this.ELM_body_setting = document.querySelector(".body_setting") ?? (() => { throw new Error("Element with class 'body_setting' not found"); })();
+        this.chara_human_body_manager = chara_human_body_manager;
+
+        var [ELM_accordion,accordion_item_dict] = this.createAccordion();
+        this.ELM_accordion = ELM_accordion
+        this.accordion_item_dict = accordion_item_dict
+        this.ELM_body_setting.append(this.ELM_accordion);
+
+        //オノマトペアクションの初期状態を設定する
+        // todo ここで開閉ボタンを自動で押し、ぴょこ等も自動で押す処理を実装する
+        this.setOnomatopeiaButtonToInitState();
+        // todo ここでオンボタンをオンにする処理を実装する
+        this.setOnBodyButtonToNowOnomatopeiaState();
+
+    }
+
+    
+    createAccordion():[HTMLElement,Record<string,AccordionItem>]{
+        var ELM_accordion = document.createElement("ul");
+        ELM_accordion.classList.add("accordion");
+        console.log(this.chara_human_body_manager)
+
+        //組み合わせ名を表示する要素を追加
+        this.ELM_combination_box = this.createElmCombinatioBox()
+        ELM_accordion.appendChild(this.ELM_combination_box)
+
+        var map = this.chara_human_body_manager.body_parts_info;
+        
+        /** @type {Record<string,AccordionItem>} */
+        var accordion_item_dict = {};
+
+        for (const [key, value] of map){
+            //keyは体のパーツの名前、valueはそのパーツの画像群の配列
+            let accordion_item = new AccordionItem(key, this.ELM_body_setting, this.chara_human_body_manager);
+
+            let ELM_accordion_item = accordion_item.html_doc.querySelector(".accordion_item") as HTMLUListElement;
+
+            console.log(ELM_accordion_item);
+            let ELM_accordion_item_name = accordion_item.html_doc.getElementsByClassName("accordion_item_name")[0];
+            ELM_accordion_item_name.addEventListener("click",accordion_item);
+            accordion_item_dict[key] = accordion_item;
+            console.log(ELM_accordion,ELM_accordion_item);
+            ELM_accordion.appendChild(ELM_accordion_item);
+            accordion_item.ELM = ELM_accordion_item;
+        }
+        //組み合わせ名を入力するinput要素を追加
+        this.ELM_input_combination_name = /** @type {HTMLInputElement} */ (this.createElmInputCombinationName());
+        ELM_accordion.appendChild(this.ELM_input_combination_name);
+
+        return [ELM_accordion,accordion_item_dict];
+    }
+
+    /**
+     * @returns {HTMLLIElement} ELM_combination_box
+     */
+    createElmCombinatioBox():HTMLLIElement{
+        //boxを作成
+        this.ELM_combination_box = document.createElement("li");
+        this.ELM_combination_box.classList.add("combination_box","accordion_tab","open");
+
+        //nameを作成
+        this.ELM_combination_name = this.createElmCombinatioName();
+        this.ELM_combination_box.appendChild(this.ELM_combination_name);
+
+        //候補を作成
+        this.ELM_combination_candidate = document.createElement("ul");
+        this.ELM_combination_candidate.classList.add("combination_candidate");
+        this.ELM_combination_box.appendChild(this.ELM_combination_candidate);
+            //イベントハンドラーを追加
+        const bcanm = new BodyCombinationAccordionManager(this.chara_human_body_manager, this, this.ELM_combination_box, this.ELM_combination_name, this.ELM_combination_candidate);
+        this.ELM_combination_box.addEventListener("click",bcanm);
+
+        return this.ELM_combination_box;
+    }
+
+    /**
+     * "名無しの組み合わせ"というテキストを持つ、クラス名が "combination_name" の div 要素を作成します。
+     * @returns {HTMLDivElement} "combination_name" クラスと "名無しの組み合わせ" テキストを持つ div 要素
+     */
+    createElmCombinatioName():HTMLDivElement{
+        var ELM_combination_name = document.createElement("div");
+        ELM_combination_name.classList.add("combination_name");
+        ELM_combination_name.innerText = "名無しの組み合わせ";
+        return ELM_combination_name;
+    }
+
+
+    /**
+     * @returns {HTMLInputElement} "input_combination_name" クラスを持つ input 要素
+     */
+    createElmInputCombinationName():HTMLInputElement{
+        var ELM_input_combination_name = document.createElement("input");
+        ELM_input_combination_name.type = "text";
+        ELM_input_combination_name.classList.add("input_combination_name");
+        ELM_input_combination_name.placeholder = "組み合わせ名を入力";
+        ELM_input_combination_name.addEventListener("keypress",this.saveCombinationName.bind(this));
+        return ELM_input_combination_name;
+    }
+
+    /**
+     * 
+     * @param {KeyboardEvent} event
+     * @returns {void}
+     */
+    saveCombinationName(event:KeyboardEvent):void {
+        if (event.key == "Enter"){
+            console.log("Enterが押されたよ")
+            const combination_name = this.ELM_input_combination_name.value;
+            this.ELM_combination_name.innerText = combination_name;
+            this.ELM_input_combination_name.value = "";
+            //サーバーに組み合わせ名を送信する
+            this.sendCombinationName(combination_name);
+        }
+    }
+
+    /**
+     * 
+     * @param {string} combination_name
+     * @returns {void}
+     */
+    sendCombinationName(combination_name:string):void{
+        console.log("sendCombinationNameを呼び出したよ")
+        const all_now_images = this.getAllNowImages()
+        const data = {
+            "chara_name":this.chara_human_body_manager.char_name,
+            "front_name":this.chara_human_body_manager.front_name,
+            "combination_name":combination_name,
+            "combination_data":all_now_images
+        }
+        //all_now_imagesをサーバーに送信する
+        //websocketを作成
+        var ws_combi_img_sender = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/img_combi_save`)
+        ws_combi_img_sender.onopen = function(event){
+            console.log("img_combi_saveが開かれた。このデータを送る。",data)
+            ws_combi_img_sender.send(JSON.stringify(data));
+        }
+        //websocketを閉じる
+        ws_combi_img_sender.onclose = function(event){
+            console.log("img_combi_saveが閉じられたよ")
+        }
+        //サーバーからメッセージを受け取ったとき
+        ws_combi_img_sender.onmessage = function(event){
+            console.log("img_combi_saveからメッセージを受け取ったよ")
+            console.log(event.data)
+        }
+    }
+
+    getAllNowImages():Record<string, Record<string, "on" | "off">>{
+        let image_status_dict:Record<string, Record<string, "on" | "off">> = {};
+        for (const [key_name, accordion_item] of Object.entries(this.accordion_item_dict)){
+            
+            
+            let part_dict_on_off = /** @type {Record<string,"on"|"off">} */( {} );
+
+            for (const [key, value] of Object.entries(accordion_item.accordion_content_handler_list)){
+                part_dict_on_off[key] = value.on_off;
+            }
+            image_status_dict[key_name] = part_dict_on_off;
+        }
+        return image_status_dict;    
+    }
+
+    /**
+     * 
+     * @param {string} body_part_name
+     * @param {string} image_name
+     * @returns {void}
+     * todo: 使用箇所探索不能
+     */
+    setBodyPartImage(body_part_name:string ,image_name:string):void {
+        this.accordion_item_dict[body_part_name].setBodyPartImage(image_name);
+    }
+
+    /** 
+     * @param {string} group_name
+     * @param {string} content_name
+     * @param {"on"|"off"} on_off
+     */
+    setGroupButtonOnOff(group_name:string, content_name:string, on_off:"on"|"off"):void {
+        this.accordion_item_dict[group_name].setGroupButtonOnOff(content_name,on_off);
+    }
+
+    /**
+     * @param {string} group_name
+     * @param {"パク" | "パチ" | "ぴょこ"} onomatopoeia_mode
+     * @param {"on" | "off"} on_off
+     */
+    setOnomatpeiaModeButtonOnOff(group_name:string, onomatopoeia_mode:"パク" | "パチ" | "ぴょこ" , on_off:"on" | "off"):void {
+        let accordion_item = this.accordion_item_dict[group_name];
+        accordion_item.setOnomatpeiaModeButtonOnOff(onomatopoeia_mode, on_off);
+    }
+
+    /** 
+     * @param {string} group_name
+     * @param {string} content_name
+     * @param {"open"|"close"} open_close
+     */
+    setOnomatpeiaButtonOnOff(group_name:string, content_name:string, open_close:"open"|"close"):void {
+        let handler_list = this.accordion_item_dict[group_name].accordion_content_handler_list;
+        let handler = handler_list[content_name];
+        let pati_setting_toggle_event_object = handler.pati_setting_toggle_event_object;
+        pati_setting_toggle_event_object.setButtonOpenClose(open_close);
+
+    }
+
+    /**
+     * todo パチパク設定
+     */
+    setOnomatopeiaButtonToInitState(){
+        
+        let key:"パク" | "パチ" | "ぴょこ";
+        let openCloseState:"開候補" | "閉";
+
+        for (key in this.chara_human_body_manager.onomatopoeia_action_setting){
+            let action_setting = this.chara_human_body_manager.onomatopoeia_action_setting[key];
+            for (openCloseState in action_setting){
+                let parts_list = action_setting[openCloseState];
+                
+                let open_close:"open"|"close" = "open";
+                if (openCloseState == "閉"){
+                    open_close = "close";
+                }
+
+                for (let parts_path of parts_list){
+                    // debugger;
+                    this.setOnomatpeiaModeButtonOnOff(parts_path.folder_name, key, "on")
+                    this.setOnomatpeiaButtonOnOff(parts_path.folder_name, parts_path.file_name, open_close)
+                }
+            }
+            if (key == "パク" && action_setting["閉"].length > 0){
+                // リップシンクをオンにするかどうかの処理
+                this.chara_human_body_manager.setLipSyncModeToPakuPaku(key);
+            }
+        }
+    }
+
+    /**
+     * todo オノマトペアクションでオンにしていた体パーツをオンにする
+     */
+    setOnBodyButtonToNowOnomatopeiaState(){
+        let key:"パク" | "パチ" | "ぴょこ";
+        for (key in this.chara_human_body_manager.now_onomatopoeia_action){
+            let parts_list = this.chara_human_body_manager.now_onomatopoeia_action[key];
+            for (let parts_path of parts_list){
+                this.setGroupButtonOnOff(parts_path.folder_name, parts_path.file_name, "on");
+            }
+        }
+    }
+
+}
+
+type PatiMode = "口"|"パク"|"パチ"|"ぴょこ"|"無";
+
+/**
+ * アコーディオンを展開したときに見えるアコーディオンコンテンツのクラス
+ * パーツ名をクリックしたときに、ボタンの色を変え、人体モデルのパーツの表示を変え、プロパティのデータも変える
+ */
+export class AccordionItem{
+    name_acordion:string;
+    Parent_ELM_body_setting:HTMLElement;
+    chara_human_body_manager:HumanBodyManager2;
+
+    ELM:HTMLUListElement; //AccordionItemのエレメント全体
+    ELM_accordion_item_name:HTMLDivElement;
+    ELM_accordion_contents:HTMLUListElement;
+    ELMs_accordion_content:HTMLCollection;
+    contents_name_list:string[];
+    statu_open_close:string;
+    accordion_content_handler_list:Record<string, ContentButtonEventobject>;
+    radio_mode:boolean; //このアコーディオンがラジオモードかどうか 
+    image_item_status:Record<string,"on"|"off">;
+    pati_setting_mode:PatiMode;
+    html_doc:Document;
+
+    /**
+     * 
+     * @param {string} name_acordion           body_setting要素内のアコーディオンの名前は、対応する画像名と同じにする
+     * @param {HTMLElement} Parent_ELM_body_setting  body_settingの要素
+     * @param {HumanBodyManager2} chara_human_body_manager
+     */
+    constructor(name_acordion:string, Parent_ELM_body_setting:HTMLElement, chara_human_body_manager:HumanBodyManager2){
+        //引数の登録
+        this.name_acordion = name_acordion;
+        this.Parent_ELM_body_setting = Parent_ELM_body_setting;
+        this.chara_human_body_manager = chara_human_body_manager;
+        //this.contents_name_list = [...this.chara_human_body_manager.body_parts_info.get(name_acordion).get("imgs").keys()]
+        const part_info:PartInfo = this.chara_human_body_manager.body_parts_info.get(name_acordion) ?? (() => { throw new Error("PartInfo not found"); })();
+        this.contents_name_list = part_info.imgs.comvert2keysArray();
+        
+        console.log(this.contents_name_list)
+        this.statu_open_close = "close";
+        this.accordion_content_handler_list = {};
+        //accordion_sampleを複製
+        const HTML_str_accordion_sample = `
+        <li class = "accordion_item close layer ">
+            <div class="accordion_item_name accordion_tab">
+                <div class="initial_display_object">
+                    <div class="name_string">頭</div>
+                    <div class="pati_setting">パチパク設定</div>
+                </div>
+                <div class="pati_setting_radio-buttons non_vissible">
+                    <div class="pati_setting_radio-button kuchi">口</div>
+                    <div class="pati_setting_radio-button kuchi">パク</div>
+                    <div class="pati_setting_radio-button kuchi">パチ</div>
+                    <div class="pati_setting_radio-button kuchi">ぴょこ</div>
+                    <div class="pati_setting_radio-button kuchi on">無</div>
+                </div>
+            </div>
+            <ul class = "accordion_contents non_vissible">
+                <li class = "accordion_content body_part_image_name accordion_tab sample">
+                    <div class="accordion_content_name_string">1.png</div>
+                    <div class="accordion_content_pati_setting_toggle_button open">開</div>
+                </li>
+            </ul>
+        </li>
+        `;
+        this.html_doc = ElementCreater.createNewDocumentFromHTMLString(HTML_str_accordion_sample)
+        //名前を設定
+        this.setAccordionItemName(name_acordion);
+        this.radio_mode = false;
+        this.setPatiSettingAction()
+        //アコーディオンの中身を作成
+        var [ELM_accordion_contents,accordion_content_handler_list] = this.createELMAccordionContents(name_acordion);
+        this.ELM_accordion_contents = ELM_accordion_contents;
+        this.ELM_accordion_item_name = this.html_doc.querySelector(".accordion_item_name") as HTMLDivElement;
+        console.log(this.ELM_accordion_item_name)
+        this.accordion_content_handler_list = accordion_content_handler_list;
+        //オンになってるボタンがあるかどうか
+        this.checkHasOnContentButton();
+    }
+
+    setPatiSettingAction(){
+        this.setOpenPatiSettingAction();
+        this.setClickPatiSettingAction();
+    }
+
+    setClickPatiSettingAction(){
+        console.log("setClickPatiSettingActionが動いた")
+        let ELMs_radio_button = this.html_doc.getElementsByClassName("pati_setting_radio-button") as HTMLCollectionOf<HTMLElement>;
+        console.log(ELMs_radio_button)
+        for (let i = 0; i < ELMs_radio_button.length; i++) {
+            let ELM_radio_button:HTMLElement = ELMs_radio_button[i];
+            console.log(ELM_radio_button)
+            ELM_radio_button.addEventListener("click", (event:MouseEvent) => {
+                console.log("pati_setting_radio-buttonがクリックされたよ")
+                event.stopPropagation();
+                let ELM_pati_setting_radio_buttons = (event.target as HTMLElement)?.parentElement ?? (() => { throw new Error("Element with class 'pati_setting_radio-buttons' not found"); })();
+                let innerELMs_radio_button = ELM_pati_setting_radio_buttons.getElementsByClassName("pati_setting_radio-button");
+
+                //クリックしたら、他のボタンをオフにする。オフになったとき色も変える
+                console.log(innerELMs_radio_button)
+                for (let j = 0; j < innerELMs_radio_button.length; j++) {
+                    innerELMs_radio_button[j].classList.remove("on");
+                }
+                //クリックしたボタンがオンの場合はオフにし、オフの場合はオンにする
+                ELM_radio_button.classList.toggle("on");
+                this.pati_setting_mode = ELM_radio_button.innerText as PatiMode;
+
+                //todo:ここでnow_onomatopoeia_actionを取得し設定
+                if (["パク","パチ","ぴょこ"].includes(this.pati_setting_mode)){
+                    this.reflectOnItemToNowOnomatopoeiaAction(this.pati_setting_mode as "パク" | "パチ" | "ぴょこ");
+                }
+                //全ての開閉状態を反映する
+                this.reflectOnomatopoeiaActionViewStateToHumanModel();
+            });
+        }
+    }
+
+    /**
+     * @param {"パク" | "パチ" | "ぴょこ"} onomatopoeia_mode
+     * @param {"on" | "off"} on_off
+     */
+    setOnomatpeiaModeButtonOnOff(onomatopoeia_mode:"パク" | "パチ" | "ぴょこ", on_off:"on" | "off"): void {
+        // debugger;
+        let ELMs_radio_button = this.ELM_accordion_item_name.getElementsByClassName("pati_setting_radio-button") as HTMLCollectionOf<HTMLElement>;
+        console.log(ELMs_radio_button)
+        for (let i = 0; i < ELMs_radio_button.length; i++) {
+            let ELM_radio_button = ELMs_radio_button[i];
+            if (ELM_radio_button.innerText == onomatopoeia_mode){
+                if (on_off == "on"){
+                    ELM_radio_button.classList.add("on");
+                } else {
+                    ELM_radio_button.classList.remove("on");
+                }
+            } else {
+                ELM_radio_button.classList.remove("on");
+            }
+        }
+    }
+
+    /**
+     * 今のアコーディオンの中身の状態を取得し、オンになっているものをnow_onomatopoeia_actionに反映する。オフになっているものは削除する。
+     * なので先に今のアコーディオンに入っているパーツをすべて削除し、その後に反映する
+     */
+    reflectOnItemToNowOnomatopoeiaAction(onomatopoeia_action_mode:PatiMode): void {
+        if (["パク","パチ","ぴょこ"].includes(onomatopoeia_action_mode) == false){
+            return;
+        }
+
+        let content_status_dict = this.getContentStatusDict()
+        //now_onomatopoeia_actionからこのアコーディオンのパーツを削除
+        let all_content_list = Object.keys(content_status_dict);
+        for (let content of all_content_list){
+            let part_path = {
+                folder_name: this.name_acordion,
+                file_name: content
+            }
+            this.chara_human_body_manager.now_onomatopoeia_action[onomatopoeia_action_mode] = this.chara_human_body_manager.now_onomatopoeia_action[onomatopoeia_action_mode].filter(
+                (path) => this.chara_human_body_manager.isEquivalentPartsPath(path,part_path) == false
+                );
+        }
+
+        //"on"を持つキーを取得
+        let on_content_list = Object.keys(content_status_dict).filter((key) => content_status_dict[key] == "on");
+        for (let on_content of on_content_list){
+            let part_path = {
+                folder_name: this.name_acordion,
+                file_name: on_content
+            }
+            this.chara_human_body_manager.now_onomatopoeia_action[onomatopoeia_action_mode].push(part_path);
+        }
+
+        this.chara_human_body_manager.setLipSyncModeToPakuPaku(onomatopoeia_action_mode)
+        
+    }
+
+    reflectOnomatopoeiaActionViewStateToHumanModel(){
+        for (const [key, value] of Object.entries(this.accordion_content_handler_list)){
+            
+            const pati_setting_toggle_event_object = /**@type {PatiSettingToggleEventObject} */(value.pati_setting_toggle_event_object);
+            //オノマトペアクションリストのすべてと開閉を探索して、このパーツパスを削除
+            pati_setting_toggle_event_object.removePartsPathFromOnomatopoeiaActionSetting();
+
+            //オノマトペアクションリストの現在の選択アクションに対してこのパーツパスを追加
+            const now_state = pati_setting_toggle_event_object.now_state;
+            pati_setting_toggle_event_object.reflectOnomatopoeiaActionState(now_state);
+        }
+    }
+
+
+    setOpenPatiSettingAction(){
+        
+        let ELM_pati_setting = this.html_doc.querySelector(".pati_setting");
+        let ELM_radio_buttons = this.html_doc.querySelector(".pati_setting_radio-buttons");
+        ELM_pati_setting?.addEventListener("click", (event) => {
+            event.stopPropagation();
+            ELM_radio_buttons?.classList.toggle("non_vissible");
+        });
+    }
+    
+    /**
+     * 
+     * @param {Event} event
+     */
+    handleEvent(event){
+        console.log("AccordionItemがクリックされたよ",this.ELM)
+        //clickイベントの場合。アコーディオンの開閉を行う
+        if(event.type == "click"){
+            var ELM_accordion_item = this.ELM
+            console.log(ELM_accordion_item)
+            if (this.statu_open_close == "close") {
+                ELM_accordion_item.classList.replace("close", "open");
+                this.statu_open_close = "open";
+                // @ts-ignore
+                ELM_accordion_item.querySelector(".accordion_contents").classList.remove("non_vissible");
+            } else {
+                ELM_accordion_item.classList.replace("open", "close");
+                this.statu_open_close = "close";
+                // @ts-ignore
+                ELM_accordion_item.querySelector(".accordion_contents").classList.add("non_vissible");
+            }
+        }
+        //hoverしたとき色を変える
+        if(event.type == "mouseover"){
+            console.log("mouseover")
+            this.ELM.classList.add("hover");
+        }
+    }
+
+
+    // /**
+    //  * 
+    //  * @param {string} image_name 
+    //  */
+    // imageStatusChange(image_name) {
+    //     if (this.image_item_status[image_name] == "on") {
+    //         this.image_item_status[image_name] = "off";
+    //         this.changeELMAccordionContent(image_name)
+    //         this.chara_human_body_manager.changeBodyPart(image_name,"off");
+    //     } else {
+    //         this.image_item_status[image_name] = "on";
+    //         this.chara_human_body_manager.changeBodyPart(image_name,"on");
+    //     }
+    // }
+
+    // /**
+    //  * アコーディオンのエレメントの最新の状態をプロパティに反映する
+    //  */
+    // loadNowAccordionELMStatus(){
+    //     //todo: コードが適当なので確認すること
+    //     for (let i = 0; i < this.ELMs_accordion_content.length; i++) {
+    //         let image_name = this.ELMs_accordion_content[i].id;
+    //         this.image_item_status[image_name] = this.ELMs_accordion_content[i].value;
+    //     }
+
+    // }
+
+    /**
+     * 
+     * @param {string} name_acordion 
+     */
+    setAccordionItemName(name_acordion){
+        //accordion_item_nameを変更
+        // "1_10_葵_10_素体"などが入るので、最初の"1_10_"などを削除し、途中の数字も削除
+        //数字（\d+）とそれに続くアンダースコア（_*）をすべて削除します。その後、アンダースコアをスペースに置換します。
+        const new_name_acordion = name_acordion.replace( /\d+_+/g, '').replace(/_/g, ' ');
+        // @ts-ignore
+        this.html_doc.querySelector(".accordion_item_name").querySelector(".name_string").innerText = new_name_acordion;
+    }
+
+    /**
+     * 
+     * @param {string} name_acordion 
+     * @returns {[HTMLUListElement,Record<string, ContentButtonEventobject>]} ELM_accordion_contents,accordion_content_handler_list
+     */
+    createELMAccordionContents(name_acordion:string):[HTMLUListElement,Record<string, ContentButtonEventobject>] {
+        //this.contents_name_listには画像の名前が入っている。ELM_accordion_contentを複製してELM_accordion_contentsに追加する。
+        let ELM_accordion_contents = this.html_doc.querySelector(".accordion_contents") as HTMLUListElement;
+        const ELM_accordion_content = this.html_doc.querySelector(".accordion_content") as HTMLLIElement;
+
+        let accordion_content_handler_list:Record<string,ContentButtonEventobject> = {};
+        for (let i = 0; i < this.contents_name_list.length; i++) {
+            //ELM_accordion_contentを複製
+            let ELM_accordion_content_clone = ELM_accordion_content.cloneNode(true) as HTMLLIElement;
+            // ELM_accordion_content_clone.innerText = this.contents_name_list[i];
+            ELM_accordion_content_clone.getFirstHTMLElementByClassName("accordion_content_name_string").innerText = this.contents_name_list[i];
+            //画像の名前から、画像のパスを取得
+            //let image_path = this.chara_human_body_manager.map_body_parts_info.get(name_acordion)["imgs"].get(this.contents_name_list[i]);
+            const image_name = this.contents_name_list[i];
+            //アコーディオンの中身のボタンにイベントハンドラーを追加
+            let content_button_event_object = new ContentButtonEventobject(image_name, "off", ELM_accordion_content_clone,this);
+            ELM_accordion_content_clone.addEventListener("click", content_button_event_object);
+            ELM_accordion_content_clone.classList.remove("sample");
+
+            let ELM_accordion_content_pati_setting_toggle_button = ELM_accordion_content_clone.getFirstHTMLElementByClassName("accordion_content_pati_setting_toggle_button");
+            let pati_setting_toggle_button_event_object = new PatiSettingToggleEventObject(ELM_accordion_content_pati_setting_toggle_button, this, content_button_event_object);
+
+            //アコーディオンの中身を追加
+            ELM_accordion_contents.appendChild(ELM_accordion_content_clone);
+            //console.log(ELM_accordion_content_clone);
+            accordion_content_handler_list[image_name] = content_button_event_object;
+        }
+        
+        // @ts-ignore html_docからsampleクラスを持つ要素を削除
+        this.html_doc.querySelector(".sample").remove();
+        
+
+        return [ELM_accordion_contents,accordion_content_handler_list];
+    }
+
+    getContentStatusDict(): Record<string,"on"|"off">{
+        /** @type {Record<string,"on"|"off">} */
+        var item_status_dict = {};
+        for (const [key, value] of Object.entries(this.accordion_content_handler_list)){
+            item_status_dict[key] = value.on_off;
+        }
+        return item_status_dict;
+    }
+
+    /**
+     * @param {Record<string,"on"|"off">} image_item_status
+     * @returns {number}
+     */
+    countOnContentButton(image_item_status: Record<string,"on"|"off"> ): number{
+        var count = 0;
+        for (const [key, value] of Object.entries(image_item_status)){
+            if (value == "on"){
+                count += 1;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * ONになっているボタンがあるかどうかをチェックし、アコーディオンのcssクラスを変える
+     */
+    checkHasOnContentButton():void{
+        // console.log("checkHasOnContentButtonが動いた: " + new Date());
+        const image_item_status = this.getContentStatusDict();
+        const count_on_content_button = this.countOnContentButton(image_item_status);
+        const ELM_accordion_item_name = this.ELM_accordion_item_name;
+        // console.log(this.ELM_accordion_contents);
+        // console.log(this.html_doc);
+        // console.log(ELM_accordion_item_name);
+        if (count_on_content_button > 0){
+            if (ELM_accordion_item_name.classList.contains("has_on_content_button") == false){
+                ELM_accordion_item_name.classList.add("has_on_content_button");
+            }
+        } else {
+            if (ELM_accordion_item_name.classList.contains("has_on_content_button") == true){
+                ELM_accordion_item_name.classList.remove("has_on_content_button");
+            }
+        }
+    }
+    /**
+     * @param {string} image_name 
+     */
+    setBodyPartImage(image_name:string) {
+        this.accordion_content_handler_list[image_name].clickEvent();
+    }
+
+    /** 
+     * @param {string} content_name
+     * @param {"on"|"off"} on_off
+     */
+    setGroupButtonOnOff(content_name:string, on_off:"on"|"off"): void{
+        if (content_name != ""){
+            const accordion_content_handler = this.accordion_content_handler_list[content_name];
+            accordion_content_handler.setButtonOnOff(on_off);
+        } else {
+            this.setAllButtonOff();
+        }
+    }
+
+    setAllButtonOff():void{
+        for (const [key, value] of Object.entries(this.accordion_content_handler_list)){
+            value.setButtonOnOff("off");
+        }
+    }
+
+}
+
+export class PatiSettingToggleEventObject{
+    ELM_accordion_content_pati_setting_toggle_button:HTMLElement;
+    parent_accordion_item_instance:AccordionItem;
+    human_body_manager:HumanBodyManager2;
+    image_name:string;
+    now_state:"open"|"close" = "open";
+    content_button_event_object:ContentButtonEventobject;
+
+    constructor(
+        ELM_accordion_content_pati_setting_toggle_button:HTMLElement, 
+        parent_accordion_item_instance:AccordionItem,
+        content_button_event_object:ContentButtonEventobject
+    ){
+        this.ELM_accordion_content_pati_setting_toggle_button = ELM_accordion_content_pati_setting_toggle_button;
+        this.parent_accordion_item_instance = parent_accordion_item_instance;
+        this.human_body_manager = parent_accordion_item_instance.chara_human_body_manager;
+        this.ELM_accordion_content_pati_setting_toggle_button.addEventListener("click",this);
+        this.image_name = content_button_event_object.image_name;
+        this.content_button_event_object = content_button_event_object;
+        this.content_button_event_object.bindPatiSettingToggleEventObject(this);
+        this.now_state = this.pullInitStateFromDataStorage();
+    }
+
+    handleEvent(event:Event){
+        //下のボタンにイベントを伝えない
+        event.stopPropagation();
+        //イベント
+        if (this.ELM_accordion_content_pati_setting_toggle_button?.classList.contains("open") == true){
+            this.setButtonOpenClose("close");
+        } else {
+            this.setButtonOpenClose("open");
+        }
+        this.reflectOnomatopoeiaActionState(this.now_state);
+        
+    }
+
+    setButtonOpenClose(open_close: "open" | "close"){
+        if (open_close == "open"){
+            this.ELM_accordion_content_pati_setting_toggle_button?.classList.replace("close","open");
+            this.ELM_accordion_content_pati_setting_toggle_button.innerText = "開";
+        } else if (open_close == "close"){
+            this.ELM_accordion_content_pati_setting_toggle_button?.classList.replace("open","close");
+            this.ELM_accordion_content_pati_setting_toggle_button.innerText = "閉";
+        }
+        this.now_state = open_close;
+    }
+
+    reflectOnomatopoeiaActionState(open_close: "open" | "close"){
+        //パチパク設定のモードによって、human_body_managerのプロパティを変える
+        const parts_path:PartsPath = {
+            folder_name: this.parent_accordion_item_instance.name_acordion,
+            file_name: this.image_name
+        }
+        console.log(this.parent_accordion_item_instance.pati_setting_mode)
+        if (this.parent_accordion_item_instance.pati_setting_mode == "口"){
+            
+        } else if (["パク","パチ","ぴょこ"].includes(this.parent_accordion_item_instance.pati_setting_mode)){
+            console.log("パチパク設定のモードによって、human_body_managerのプロパティを変える")
+            
+            const mode:"パク"|"パチ"|"ぴょこ" = this.parent_accordion_item_instance.pati_setting_mode as "パク"|"パチ"|"ぴょこ";
+            if (open_close == "open"){
+                //開候補リストに登録
+                this.human_body_manager.setToOnomatopoeiaActionSetting(mode,"開候補", parts_path)
+                this.human_body_manager.removeFromOnomatopoeiaActionSetting(mode,"閉", parts_path)
+            } else if (open_close == "close"){
+                this.human_body_manager.removeFromOnomatopoeiaActionSetting(mode,"開候補", parts_path)
+                this.human_body_manager.setToOnomatopoeiaActionSetting(mode,"閉", parts_path)
+            }
+        } else if (this.parent_accordion_item_instance.pati_setting_mode == "無"){
+            
+        }
+
+        //新しい状態をサーバーに送信する
+        this.sendOnomatopoeiaNewStateToDataStorage();
+    }
+
+    sendOnomatopoeiaNewStateToDataStorage(){
+        /**
+         * onomatopoeia_action_settingの新しい状態をサーバーに送信する.
+         * サーバー側でデータを保存するためにはinit_image_infoに到達するための情報が必要。
+         */
+        const data = {
+            "chara_name":this.human_body_manager.char_name,
+            "front_name":this.human_body_manager.front_name,
+            "pati_setting":this.human_body_manager.onomatopoeia_action_setting,
+            "now_onomatopoeia_action":this.human_body_manager.now_onomatopoeia_action,
+        }
+
+        console.log("パチパク設定データ",data)
+
+        //Postで送信する
+        const url = `http://${GlobalState.localhost}:${GlobalState.port}/pati_setting`
+        fetch(url, {
+            method: 'POST',
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+
+    }
+
+    /** todo: 未実装。データストレージから初期状態を取得する
+     * @returns {"open"|"close"}
+     */
+    pullInitStateFromDataStorage(): "open" | "close"{
+        return "open";
+    }
+
+    removePartsPathFromOnomatopoeiaActionSetting(){
+        for (let mode of ["パク","パチ","ぴょこ"]){
+            const parts_path = {
+                folder_name: this.parent_accordion_item_instance.name_acordion,
+                file_name: this.image_name
+            }
+            this.human_body_manager.removeFromOnomatopoeiaActionSetting(mode as "パク"|"パチ"|"ぴょこ" ,"開候補", parts_path)
+            this.human_body_manager.removeFromOnomatopoeiaActionSetting(mode as "パク"|"パチ"|"ぴょこ" ,"閉", parts_path)
+        }
+    
+    }
+
+}
+       
+
+export class ContentButtonEventobject{
+
+    image_name:string;
+    on_off:"on"|"off";
+    ELM_accordion_content:HTMLElement;
+    parent_accordion_item_instance:AccordionItem;
+    chara_human_body_manager:HumanBodyManager2;
+    pati_setting_toggle_event_object:PatiSettingToggleEventObject;
+
+    /**
+     * 各コンテンツのボタンのイベントハンドラーに追加するクラス
+     * このクラスとコンテンツボタンはAccordionContent.createELMAccordionContents一対一で作成される。
+     */
+    constructor(image_name:string, on_off:"on"|"off", ELM_accordion_content:HTMLElement ,parent_accordion_item_instance:AccordionItem){
+        this.image_name = image_name;
+        this.on_off = on_off;
+        this.ELM_accordion_content = ELM_accordion_content;
+        this.parent_accordion_item_instance = parent_accordion_item_instance;
+        this.chara_human_body_manager = parent_accordion_item_instance.chara_human_body_manager;
+        //このコンテンツが最初からオンになってるかどうかをチェックする
+        //this.checkInitContentStatus();
+        this.checkContentStatus();
+    }
+
+    handleEvent(event:Event): void{
+        //clickイベントの場合
+        // console.log("ContentButtonEventobjectクリックしたよ")
+        if(event.type == "click"){
+            this.clickEvent();
+        }
+        //hoverしたとき色を変える
+        if(event.type == "mouseover"){
+            this.ELM_accordion_content.classList.add("hover");
+        }
+    }
+
+    clickEvent(){
+        // console.log("ContentButtonEventobjectクリックしたよ")
+        const accordion_name = this.parent_accordion_item_instance.name_acordion;
+        //ボタンの色を変え,プロパティのデータを変える
+        // console.log(this.ELM_accordion_content);
+        if(this.on_off == "off"){
+            this.ELM_accordion_content.classList.add("on_accordion_content");
+            this.chara_human_body_manager.changeBodyPart(accordion_name,this.image_name,"on");
+            this.on_off = "on";
+            //他のボタンでonになっているものをoffにする
+            if (this.parent_accordion_item_instance.radio_mode == true) {
+                for (const [key, value] of Object.entries(this.parent_accordion_item_instance.accordion_content_handler_list)){
+                    // console.log(key,value)
+                    if (key != this.image_name){
+                        value.ELM_accordion_content.classList.remove("on_accordion_content");
+                        value.parent_accordion_item_instance.chara_human_body_manager.changeBodyPart(accordion_name,key,"off");
+                        value.on_off = "off";
+                    }
+                }
+            }
+            // now_onomatopoeia_actionを更新。パチパク設定のモードがパク、パチ、ぴょこの場合のみ反映される
+            this.parent_accordion_item_instance.reflectOnItemToNowOnomatopoeiaAction(this.parent_accordion_item_instance.pati_setting_mode);
+
+        } else {
+            this.ELM_accordion_content.classList.remove("on_accordion_content");
+            this.chara_human_body_manager.changeBodyPart(accordion_name,this.image_name,"off");
+            this.on_off = "off";
+            // now_onomatopoeia_actionを更新。パチパク設定のモードがパク、パチ、ぴょこの場合のみ反映される
+            this.parent_accordion_item_instance.reflectOnItemToNowOnomatopoeiaAction(this.parent_accordion_item_instance.pati_setting_mode);
+        }
+        this.parent_accordion_item_instance.checkHasOnContentButton();
+    }
+
+    setButtonOnOff(on_off:"on"|"off"): void{
+        const accordion_name = this.parent_accordion_item_instance.name_acordion;
+        if (on_off == "on"){
+            this.ELM_accordion_content.classList.add("on_accordion_content");
+            this.chara_human_body_manager.changeBodyPart(accordion_name,this.image_name,"on");
+            this.on_off = "on";
+            //他のボタンでonになっているものをoffにする
+            if (this.parent_accordion_item_instance.radio_mode == true) {
+                for (const [key, value] of Object.entries(this.parent_accordion_item_instance.accordion_content_handler_list)){
+                    console.log(key,value)
+                    if (key != this.image_name){
+                        value.ELM_accordion_content.classList.remove("on_accordion_content");
+                        value.parent_accordion_item_instance.chara_human_body_manager.changeBodyPart(accordion_name,key,"off");
+                        value.on_off = "off";
+                    }
+                }
+            }
+        } else {
+            this.ELM_accordion_content.classList.remove("on_accordion_content");
+            this.chara_human_body_manager.changeBodyPart(accordion_name,this.image_name,"off");
+            this.on_off = "off";
+        }
+        this.parent_accordion_item_instance.checkHasOnContentButton();
+    }
+
+    /**
+     * @returns {void}
+     */
+    checkContentStatus(){
+        //HumanBodyManager2のプロパティのデータとアコーディオンの状態を比較して、アコーディオンの状態を変える
+        const accordion_name = this.parent_accordion_item_instance.name_acordion;
+        const on_off = this.chara_human_body_manager.getImgStatus(accordion_name,this.image_name);
+        if (on_off == "on"){
+            this.ELM_accordion_content.classList.add("on_accordion_content");
+            this.on_off = "on";
+        } else {
+            this.ELM_accordion_content.classList.remove("on_accordion_content");
+            this.on_off = "off";
+        }
+    }
+
+    /**オノマトペアクションコントローラーをバインドする
+     * @param {PatiSettingToggleEventObject} pati_setting_toggle_event_object
+     */
+    bindPatiSettingToggleEventObject(pati_setting_toggle_event_object){
+        this.pati_setting_toggle_event_object = pati_setting_toggle_event_object;   
+    }
+}
+
+export class BodyCombinationAccordionManager{
+
+    /** @type {HumanBodyManager2} */ human_body_manager;
+    /** @type {VoiroAISetting} */ VoiroAISetting
+    /** @type {HTMLElement} */ ELM_combination_box
+    /** @type {HTMLElement} */ ELM_combination_name
+    /** @type {HTMLElement} */ ELM_combination_candidate
+    /** @type {HTMLElement} */ ELM_now_combination_name
+    /** 
+     * 組み合わせ名のアコーディオンの開閉状態を管理するMap。番号でも状態を取得したいのでMapを使う。オンのパターンの名前だけだとそれができないので。
+     * todo: 未使用プロパティ
+     * @type {ExtendedMap<string,*>} 
+     */
+     combination_box_status
+    /** @type {ExtendedMap<string,CombinationContent>} */ conbination_contents
+
+    
+    /**
+     * VoiroAISetting.ELM_combination_nameを押したらアコーディオンが開いて、human_body_manager.pose_patternsの組み合わせ名が全て表示される
+     * キャラの組み合わせ名を選択するアコーディオンを管理するクラス
+     * 
+     * @param {HumanBodyManager2} human_body_manager
+     * @param {VoiroAISetting} VoiroAISetting
+     * @param {HTMLElement} ELM_combination_box
+     * @param {HTMLElement} ELM_combination_name
+     * @param {HTMLElement} ELM_combination_candidate
+     */
+    constructor(human_body_manager, VoiroAISetting, ELM_combination_box, ELM_combination_name, ELM_combination_candidate){
+        this.human_body_manager = human_body_manager;
+        this.VoiroAISetting = VoiroAISetting;
+        this.ELM_combination_box = ELM_combination_box;
+        console.log("bcamを作成した",this.ELM_combination_box)
+        this.ELM_now_combination_name = ELM_combination_name;
+        this.ELM_combination_candidate = ELM_combination_candidate;
+        this.combination_box_status = new ExtendedMap(); 
+        this.conbination_contents = new ExtendedMap();
+        console.log("setAllCombinationを呼び出す")
+        this.setAllCombination()
+    }
+
+    /**
+     * @param {Event} event
+     * @returns {void}
+     */
+    handleEvent(event){
+        if(event.type == "click"){
+            console.log("BodyCombinationAccordionManagerがクリックされたよ")
+            console.log(this)
+            console.log(this.ELM_combination_box)
+            if (this.ELM_combination_box.classList.contains("close") == true){
+                this.ELM_combination_box.classList.replace("close","open");
+                this.setCombinationCandidateVisivility("open");
+            } else {
+                this.ELM_combination_box.classList.replace("open","close");
+                this.setCombinationCandidateVisivility("close");
+            }
+            
+        }
+    }
+
+    getCombinationBoxStatus(combination_name:string): "on" | "off"{
+        return this.combination_box_status.get(combination_name);
+    }
+    setAllCombination(){
+        //human_body_manager.pose_patternsの組み合わせ名を全てアコーディオンに追加する
+        const pose_patterns = this.human_body_manager.pose_patterns;
+        console.log(pose_patterns)
+        for (const [combination_name, combination_data] of pose_patterns.entries()){
+            //settingとOnomatopeiaActionSettingは特別なのでアコーディオンに追加しない
+            if (["setting","OnomatopeiaActionSetting","NowOnomatopoeiaActionSetting"].includes(combination_name) == true){
+                continue;
+            }
+
+            console.log(combination_name)
+            this.addCombination(combination_name);
+        }
+    }
+
+    /**
+     * @param {string} combination_name
+     * @returns {void}
+     */
+    addCombination(combination_name:string): void{
+        //human_body_manager.pose_patternsの組み合わせ名をアコーディオンに追加する
+        var combination_content = new CombinationContent(combination_name, this, this.human_body_manager);
+        var ELM_combination_content = combination_content.ELM_combination_name_button;
+        ELM_combination_content.addEventListener("click",combination_content);
+        this.ELM_combination_candidate.appendChild(ELM_combination_content);
+        this.conbination_contents.set(combination_name,combination_content);
+    }
+
+    /**
+     * @param {"open"|"close"} open_close
+     * @returns {void}
+     */
+    setCombinationCandidateVisivility(open_close: "open" | "close"): void{
+        if (open_close == "open"){
+            this.ELM_combination_candidate.classList.remove("non_vissible");
+        } else {
+            this.ELM_combination_candidate.classList.add("non_vissible");
+        }
+    }
+}
+
+export class CombinationContent{
+    combination_name:string;
+    body_combination_accordion_manager:BodyCombinationAccordionManager;
+    human_body_manager:HumanBodyManager2;
+    ELM_combination_name_button:HTMLElement;
+    on_off:"on"|"off";
+    /**
+     * キャラの組み合わせ名を選択するアコーディオンの中身のパターンNのボタンなどを管理するクラス
+     */
+    constructor(combination_name:string, body_combination_accordion_manager:BodyCombinationAccordionManager, human_body_manager:HumanBodyManager2){
+        this.combination_name = combination_name;
+        this.body_combination_accordion_manager = body_combination_accordion_manager;
+        this.human_body_manager = human_body_manager;
+        
+        this.ELM_combination_name_button = this.createELMCombinationNameButton();
+        this.ELM_combination_name_button.addEventListener("click",this);
+        this.on_off = "off";
+
+    }
+    
+    /**
+     * クリックした時に
+     * 1:AccordionCombinationのELM_now_combination_nameのinnerTextを変更する
+     * 2:VoiroAISettingの各アコーディオンのボタンをクリックするイベント発生さえて以下を実現する。
+     * - human_body_managerのpose_patternを変更する
+     * - human_body_managerのbody_partを変更する
+     * 
+     * HumanBodyManager2に対応させやすいようにするためにも
+     * - AccordionCombinationがVoiroidAISettingを操作し、VoiroidAISettingがHumanBodyManagerを操作するようにする
+     * 今はHumanBodyManagerの操作者は
+     * - 1:AccordionCombination
+     * - 2:文章による口パク制御
+     * - 3:人間がボタンをVoiroidAISettingのクリックしたとき
+     * - 4:gptによる「手を上げる」などの操作。
+     * がある。
+     * @param {Event} event 
+     */
+    handleEvent(event){
+        if(event.type == "click"){
+            //AccordionCombinationのELM_now_combination_nameのinnerTextを変更する
+            this.body_combination_accordion_manager.ELM_now_combination_name.innerText = this.combination_name;
+            //VoiroAISettingの各アコーディオンのボタンをクリックするイベント発生させて以下を実現する。
+            //human_body_managerのpose_patternを変更する
+            //human_body_managerのbody_partを変更する
+            console.log("CombinationContentがクリックされたよ,ボタン名＝",this.combination_name,"現在の状態:",this.human_body_manager.pose_patterns)
+            let combination_data = this.getCombinationData() ?? (() => {throw new Error("組み合わせデータが見つかりません")})();
+            for (const [body_group, part_candidate_info] of combination_data.entries()){
+                //part_candidate_info = {10_体:"on"}のようなjson
+                // console.log(body_group," なのだ ",part_candidate_info,"を適用する。現在の状態:",this.human_body_manager.pose_patterns)
+                //part_candidate_info = {10_体:"on"}のようなjsonのキーと値を取得する
+                for (const [image_name, on_off] of Object.entries(part_candidate_info)){
+                    // console.log(image_name, on_off)
+                    this.body_combination_accordion_manager.VoiroAISetting.setGroupButtonOnOff(body_group, image_name, on_off);
+                }
+            }
+        }
+        console.log("コンビネーション適用完了！現在の状態:",this.human_body_manager.pose_patterns)
+    }
+
+    createELMCombinationNameButton(){
+        var ELM_combination_name_button = document.createElement("li");
+        ELM_combination_name_button.classList.add("combination_name_button","accordion_tab","off");
+        ELM_combination_name_button.innerText = this.combination_name;
+        console.log(ELM_combination_name_button);
+        return ELM_combination_name_button;
+    }
+
+     getCombinationData(){
+        const pose_pattern = this.human_body_manager.getPosePattern(this.combination_name);
+        return pose_pattern;
+    }
+}
+
+/**
+ * GPTの設定を管理するクラス
+ * got_settingエレメントをクリックすると開く。
+ * gptのモードが列挙されたボタンがある。
+ * 
+ * 選択したモードは各キャラのMessageBoxとMessageBoxMabagerに送信され、すべてのキャラのGPTのモードが1元管理される。
+ */
+export class GPTSettingButtonManagerModel {
+
+    //モード名：on_off のMap
+    gpt_setting_status:ExtendedMap<string,"on"|"off">;
+
+    /** todo
+     * モード名：ボタンのDOM
+     **/
+    Map_ELM_gpt_setting_button:ExtendedMap<string,HTMLElement>;
+    message_box:MessageBox;
+    front_name :string;
+    gpt_mode_name_list:string[];
+    ELM_gpt_setting:HTMLUListElement;
+    gpt_mode_accordion_open_close_button:HTMLElement;
+    human_gpt_routine_ws_dict:Record<string, ExtendedWebSocket> = {};
+
+    constructor(front_name:string, message_box:MessageBox, gpt_mode_name_list:string[]) {
+        this.front_name = front_name;
+        this.message_box = message_box;
+        this.gpt_mode_name_list = gpt_mode_name_list;
+
+        const human_tab:Element = this.message_box.message_box_elm.closest(".human_tab") ?? (() => {throw new Error("human_tabが見つかりません")})();
+        this.ELM_gpt_setting = human_tab.querySelector(".gpt_setting") as HTMLUListElement;
+
+        this.gpt_setting_status = this.getGPTSettingStatus(gpt_mode_name_list);
+        this.Map_ELM_gpt_setting_button = this.getMapELMGPTSettingButton(gpt_mode_name_list);
+        this.Map_ELM_gpt_setting_button.forEach((value, key, map) => {
+            let ELM_gpt_setting_button = value;
+            const mode_name = key;
+            ELM_gpt_setting_button.addEventListener("click", (/** @type {Event} */ event) => { 
+                this.clickEvent(event, mode_name);
+            });
+        });
+        this.gpt_mode_accordion_open_close_button = (this.ELM_gpt_setting.querySelector(".gpt_mode_accordion_open_close_button")) ?? (() => {throw new Error("gpt_mode_accordion_open_close_buttonが見つかりません")})();
+        this.gpt_mode_accordion_open_close_button.addEventListener("click", this.open_closeAcordion.bind(this));
+
+        //ELM_gpt_settingからfocusが外れたときに、gpt_mode_accordion_open_close_buttonをcloseにする
+        this.ELM_gpt_setting.addEventListener("focusout", this.closeAccordion.bind(this));
+    }
+
+    
+    getGPTSettingStatus(gpt_mode_name_list:string[] ): ExtendedMap<string,"on"|"off"> {
+        let gpt_setting_status = new ExtendedMap<string,"on"|"off">();
+        for (let i = 0; i < gpt_mode_name_list.length; i++) {
+            gpt_setting_status.set(gpt_mode_name_list[i], "off");
+        }
+        return gpt_setting_status;
+    }
+
+    getMapELMGPTSettingButton(gpt_mode_name_list:string[] ) :ExtendedMap<string,HTMLElement>{
+        let Map_ELM_gpt_setting_button = new ExtendedMap<string,HTMLElement>();
+        for (let i = 0; i < gpt_mode_name_list.length; i++) {
+            let ELM_gpt_setting_button = this.createELMGPTSettingButton(gpt_mode_name_list[i]);
+            Map_ELM_gpt_setting_button.set(gpt_mode_name_list[i], ELM_gpt_setting_button);
+        }
+        return Map_ELM_gpt_setting_button;
+    }
+
+    createELMGPTSettingButton(mode:string): HTMLElement {
+        //<li class="bar_button gpt_mode" style="display: ;">off</li> などを作成する
+        let ELM_gpt_setting_button = document.createElement("li");
+        ELM_gpt_setting_button.classList.add("bar_button", "gpt_mode", "off", "non_vissible");
+        ELM_gpt_setting_button.innerText = mode;
+        //human_tabからgpt_settingに追加する
+        this.ELM_gpt_setting.appendChild(ELM_gpt_setting_button);
+        return ELM_gpt_setting_button;
+    }
+
+    open_closeAcordion():void {
+        if (this.gpt_mode_accordion_open_close_button.classList.contains("close") == true) {
+            this.openAccordion();
+        } else {
+            this.closeAccordion();
+        }
+    }
+    closeAccordion() :void {
+        this.gpt_mode_accordion_open_close_button.classList.replace("open", "close");
+        this.Map_ELM_gpt_setting_button.forEach((value, key, map) => {
+            let ELM_gpt_setting_button = value;
+            ELM_gpt_setting_button.classList.add("non_vissible");
+        });
+    }
+
+    openAccordion() :void {
+        this.gpt_mode_accordion_open_close_button.classList.replace("close", "open");
+        this.Map_ELM_gpt_setting_button.forEach((value, key, map) => {
+            let ELM_gpt_setting_button = value;
+            ELM_gpt_setting_button.classList.remove("non_vissible");
+        });
+    }
+
+    clickEvent(event: Event, mode:string): void {
+        console.log("GPTSettingButtonManaerModelがクリックされたよ")
+        console.log(event, mode)
+        this.radioChangeGPTSettingStatus(mode);
+        this.radioChangeButtonView(mode);
+        this.sendGPTSettingStatus(mode);
+        this.sendGPTSettingStatus2Server(mode);
+        if (mode == "individual_process0501dev") {
+            alert("individual_process0501devがクリックされた")
+            this.startGptRoutine();
+        }
+    }
+
+    radioChangeGPTSettingStatus(target_mode:string): void {
+        this.gpt_mode_name_list.forEach(
+            (mode) => {
+                if (mode == target_mode) {
+                    this.setGPTSettingStatus(mode, "on");
+                } else {
+                    this.setGPTSettingStatus(mode, "off");
+                }
+            }
+        )
+    }
+
+    setGPTSettingStatus(mode:string ,on_off:"on"|"off"):void {
+        this.gpt_setting_status.set(mode, on_off);
+        if (on_off == "on") {
+            this.message_box.setGptMode(mode);
+        }
+    }
+
+    radioChangeButtonView(mode:string):void {
+        this.gpt_mode_name_list.forEach(
+            (mode) => {
+                if (this.gpt_setting_status.get(mode) == "on") {
+                    this.setButtonView(mode, "on");
+                    this.gpt_mode_accordion_open_close_button.innerText = `GPT : ${mode}`;
+                } else {
+                    this.setButtonView(mode, "off");
+                }
+            }
+        )
+    }
+
+    setButtonView(mode:string, on_off:"on"|"off"):void {
+        const ELM_gpt_setting_button = this.Map_ELM_gpt_setting_button.get(mode) ?? (() => {throw new Error("ELM_gpt_setting_buttonが見つかりません")})();
+        if (on_off == "off") {
+            ELM_gpt_setting_button.classList.remove("on");
+            ELM_gpt_setting_button.classList.add("off");
+        } else {
+            ELM_gpt_setting_button.classList.remove("off");
+            ELM_gpt_setting_button.classList.add("on");
+        }
+    }
+
+    /**
+     * @param {string} mode
+     * @returns {void}
+     */
+    sendGPTSettingStatus(mode) {
+        this.message_box.gpt_mode = mode;
+    }
+
+    /**
+     * @param {string} mode
+     * @returns {void}
+     */
+    sendGPTSettingStatus2Server(mode) { 
+        //websocketを作成
+        var ws_gpt_mode_sender = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/gpt_mode`)
+        ws_gpt_mode_sender.onopen =  ( _ ) => {
+            const data = {[this.front_name]: mode}
+            console.log("gpt_modeが開かれた。このデータを送る。", mode)
+            ws_gpt_mode_sender.send(JSON.stringify(data));
+            ws_gpt_mode_sender.close();
+        }
+        //websocketを閉じる
+        ws_gpt_mode_sender.onclose = function (event) {
+            console.log("gpt_modeが閉じられたよ")
+        }
+        //サーバーからメッセージを受け取ったとき。今は使ってない。
+        ws_gpt_mode_sender.onmessage = function (event) {
+            console.log("gpt_modeからメッセージを受け取ったよ")
+            console.log(event.data)
+            ws_gpt_mode_sender.close();
+        }
+    }
+    startGptRoutine() {
+        alert("startGptRoutineが呼ばれた")
+        const front_name = this.front_name;
+        let ws_gpt_routine = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/gpt_routine/${front_name}`);
+        ws_gpt_routine.onopen = (event) => {
+            console.log("gpt_routineが開かれた")
+        }
+        ws_gpt_routine.onclose = (event) => {
+            console.log("gpt_routineが閉じられた")
+        }
+        ws_gpt_routine.onmessage = (event) => {
+            console.log("gpt_routineからメッセージを受け取った")
+            console.log(event.data)
+            GlobalState.messageQueue.push(event);
+            console.log("messageQueue=",GlobalState.messageQueue,"messageQueueをpushしました","isProcessing=",GlobalState.isProcessing);
+            processMessages();
+            console.log("messageQueue=",GlobalState.messageQueue,"イベントを一つとりだした後のmessageQueueです");
+        }
+        this.human_gpt_routine_ws_dict[front_name] = ws_gpt_routine;
+    }
+}
+
+
+
+
+
+
 
 
 function drawFillRectInOpratorCanvas(x,y,width,height,color){
@@ -2117,13 +3395,13 @@ function drawFillRectInOpratorCanvas(x,y,width,height,color){
 }
 
 function connect_ws() {
-    ws = new WebSocket(`ws://${localhost}:${port}/ws/${client_id}`);
+    GlobalState.ws = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/ws/${GlobalState.client_id}`);
 
-    ws.onmessage = function(event:MessageEvent) {
-        messageQueue.push(event);
-        console.log("messageQueue=",messageQueue,"messageQueueをpushしました","isProcessing=",isProcessing);
+    GlobalState.ws.onmessage = function(event:MessageEvent) {
+        GlobalState.messageQueue.push(event);
+        console.log("messageQueue=",GlobalState.messageQueue,"messageQueueをpushしました","isProcessing=",GlobalState.isProcessing);
         processMessages();
-        console.log("messageQueue=",messageQueue,"イベントを一つとりだした後のmessageQueueです");
+        console.log("messageQueue=",GlobalState.messageQueue,"イベントを一つとりだした後のmessageQueueです");
     };
 
     ws.onclose = closeEventProcces_ws;
@@ -2139,9 +3417,9 @@ function closeEventProcces_ws(event) {
     setTimeout(connect_ws, 1000);
 }
 
-async function getClientId() {
+async function getClientId(): Promise<string> {
     return new Promise((resolve, reject) => {
-        const ws = new WebSocket(`ws://${localhost}:${port}/id_create`);
+        const ws = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/id_create`);
         ws.onmessage = function(event) {
             console.log("data.id", event.data);
             ws.close();  // WebSocketの接続を閉じる
@@ -2156,7 +3434,7 @@ async function getClientId() {
 function chara_name2front_name(chara_name){
     //front2chara_nameのvalueがchara_nameと一致するkeyを取得する
     //この関数は、front2chara_nameオブジェクトのキーの中で、そのキーに対応する値がchara_nameと一致する最初のキーを返します。
-    var front_name = Object.keys(front2chara_name).find(key => front2chara_name[key] === chara_name);
+    var front_name = Object.keys(GlobalState.front2chara_name).find(key => GlobalState.front2chara_name[key] === chara_name);
     if (front_name === undefined){
         //一致するキーがない場合は、"no_front_name"を返す
         return "no_front_name";
@@ -2165,55 +3443,93 @@ function chara_name2front_name(chara_name){
 }
 
 function humanWsOpen(){
-    human_ws = new WebSocket(`ws://${localhost}:${port}/human/${client_id}`);
-    human_ws.onmessage = receiveMessage;
+    GlobalState.human_ws = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/human/${GlobalState.client_id}`);
+    GlobalState.human_ws.onmessage = receiveMessage;
     console.log("human_wsが接続されました。");
 }
 
 
+export class GlobalState {
+    static message_box_manager = new MessageBoxManager();
+    static localhost = location.hostname;
+    static port = "8010";
+    static init_human_tab = document.getElementsByClassName("tab human_tab")[0] as HTMLLIElement;
+    static messageQueue: MessageEvent[] = [];
+    static isProcessing = false;
+    static humans_list: Record<string, HumanBodyManager2> = {};
+    static front2chara_name: Record<string, string> = {};
+    static setting_info: Record<string, VoiroAISetting> = {};
+    static first_human_tab = document.getElementsByClassName("tab human_tab")[0];
+    static drag_drop_file_event_list: DragDropFile[] = [new DragDropFile(GlobalState.first_human_tab)];
+    static client_id: string;
+    static ws: WebSocket;
+    static human_ws: WebSocket;
+    static test = 0;
 
-//ここから下がメイン処理
-var message_box_manager = new MessageBoxManager();
-const localhost = location.hostname;
-const port = "8010"
-var init_human_tab = document.getElementsByClassName("tab human_tab")[0] as HTMLLIElement;
-addClickEvent2Tab(init_human_tab)
-//var ws = new WebSocket("ws://localhost:${port}/InputGPT")
-//var ws = new WebSocket("ws://localhost:${port}/InputPokemon");
-var messageQueue:MessageEvent[] = [];
-var isProcessing = false;
+    static async initialize() {
+        addClickEvent2Tab(GlobalState.init_human_tab);
+        console.log("ドラッグアンドドロップイベントを追加しました。");
 
-/** @type {Record<string,HumanBodyManager2>} */
-var humans_list = {};
-/** @type {Record<string,string>} */
-var front2chara_name = {};
-/** @type {Record<string,VoiroAISetting>} */
-var setting_info = {}; //どのキャラの設定がオンになっているかを管理する
+        GlobalState.client_id = await getClientId();
+        GlobalState.ws = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/ws/${GlobalState.client_id}`);
+        GlobalState.ws.onmessage = function(event) {
+            GlobalState.messageQueue.push(event);
+            console.log("messageQueue=", GlobalState.messageQueue, "messageQueueをpushしました", "isProcessing=", GlobalState.isProcessing);
+            processMessages();
+            console.log("messageQueue=", GlobalState.messageQueue, "イベントを一つとりだした後のmessageQueueです");
+        };
+        GlobalState.ws.onclose = closeEventProcces_ws;
 
-let first_human_tab = document.getElementsByClassName("tab human_tab")[0];
-/**@type {DragDropFile[]} */
-let drag_drop_file_event_list = [new DragDropFile(first_human_tab)];
-console.log("ドラッグアンドドロップイベントを追加しました。");
+        humanWsOpen();
+    }
+}
+
+// メイン処理の開始
+GlobalState.initialize();
 
 
-//これらの変数はグローバル変数にする必要がある
-let client_id;
-var ws;
-var human_ws;
-var test = 0;
+// //ここから下がメイン処理
+// var message_box_manager = new MessageBoxManager();
+// const localhost = location.hostname;
+// const port = "8010"
+// var init_human_tab = document.getElementsByClassName("tab human_tab")[0] as HTMLLIElement;
+// addClickEvent2Tab(init_human_tab)
+// //var ws = new WebSocket("ws://localhost:${port}/InputGPT")
+// //var ws = new WebSocket("ws://localhost:${port}/InputPokemon");
+// var messageQueue:MessageEvent[] = [];
+// var isProcessing = false;
 
-getClientId().then(recieve_client_id => {
-    client_id = recieve_client_id;
-    ws = new WebSocket(`ws://${localhost}:${port}/ws/${client_id}`);
-    ws.onmessage = function(event) {
-        messageQueue.push(event);
-        console.log("messageQueue=",messageQueue,"messageQueueをpushしました","isProcessing=",isProcessing);
-        processMessages();
-        console.log("messageQueue=",messageQueue,"イベントを一つとりだした後のmessageQueueです");
-    };
-    ws.onclose = closeEventProcces_ws;
+// /** @type {Record<string,HumanBodyManager2>} */
+// var humans_list = {};
+// /** @type {Record<string,string>} */
+// var front2chara_name = {};
+// /** @type {Record<string,VoiroAISetting>} */
+// var setting_info = {}; //どのキャラの設定がオンになっているかを管理する
 
-    humanWsOpen();
+// let first_human_tab = document.getElementsByClassName("tab human_tab")[0];
+// /**@type {DragDropFile[]} */
+// let drag_drop_file_event_list = [new DragDropFile(first_human_tab)];
+// console.log("ドラッグアンドドロップイベントを追加しました。");
+
+
+// //これらの変数はグローバル変数にする必要がある
+// let client_id;
+// var ws;
+// var human_ws;
+// var test = 0;
+
+// getClientId().then(recieve_client_id => {
+//     client_id = recieve_client_id;
+//     ws = new WebSocket(`ws://${localhost}:${port}/ws/${client_id}`);
+//     ws.onmessage = function(event) {
+//         messageQueue.push(event);
+//         console.log("messageQueue=",messageQueue,"messageQueueをpushしました","isProcessing=",isProcessing);
+//         processMessages();
+//         console.log("messageQueue=",messageQueue,"イベントを一つとりだした後のmessageQueueです");
+//     };
+//     ws.onclose = closeEventProcces_ws;
+
+//     humanWsOpen();
     
     
-});
+// });
