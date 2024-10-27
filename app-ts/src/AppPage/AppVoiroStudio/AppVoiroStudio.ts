@@ -3,11 +3,6 @@ import "../../../src/OldJs/css/setting.css"
 import "../../../src/OldJs/css/style.css"
 import "../../../src/OldJs/css/voiro_AI_setting.css"
 
-///@ts-check
-import "../css/CustomFont.css";
-import "../css/setting.css"
-import "../css/style.css"
-import "../css/voiro_AI_setting.css"
 import { SpeechRecognition, SpeechRecognitionEvent, webkitSpeechRecognition } from "../../../src/Extend/webkitSpeechRecognition"; 
 import { ExtendedWebSocket } from "../../Extend/extend";
 import { ExtendedMap } from "../../Extend/extend_collections";
@@ -3460,13 +3455,14 @@ export class GlobalState {
     static front2chara_name: Record<string, string> = {};
     static setting_info: Record<string, VoiroAISetting> = {};
     static first_human_tab = document.getElementsByClassName("tab human_tab")[0];
-    static drag_drop_file_event_list: DragDropFile[] = [new DragDropFile(GlobalState.first_human_tab)];
+    static drag_drop_file_event_list: DragDropFile[]|null;
     static client_id: string;
     static ws: WebSocket;
     static human_ws: WebSocket;
     static test = 0;
 
     static async initialize() {
+        GlobalState.drag_drop_file_event_list= [new DragDropFile(GlobalState.first_human_tab)]
         addClickEvent2Tab(GlobalState.init_human_tab);
         console.log("ドラッグアンドドロップイベントを追加しました。");
 
@@ -3485,7 +3481,9 @@ export class GlobalState {
 }
 
 // メイン処理の開始
-GlobalState.initialize();
+document.addEventListener('DOMContentLoaded', () => {
+    GlobalState.initialize();
+});
 
 
 // //ここから下がメイン処理

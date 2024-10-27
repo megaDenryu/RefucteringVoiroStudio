@@ -33,8 +33,7 @@ export interface SpeechRecognitionAlternative {
     confidence: number;
 }
 
-export declare var webkitSpeechRecognition: {
+export const webkitSpeechRecognition: {
     prototype: SpeechRecognition;
     new (): SpeechRecognition;
-};
-
+} = (window as any).webkitSpeechRecognition;

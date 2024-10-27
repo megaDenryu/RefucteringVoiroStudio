@@ -589,7 +589,7 @@ async def parserPsdFile(
     filename: str = Form(...), 
     response_mode: ResponseMode = Form(...), 
     front_name: str = Form(...)
-)->HumanData|dict:
+):
     # file_contents = await req_body.file.read()
     # filename = req_body.filename
     # response_mode = req_body.response_mode
