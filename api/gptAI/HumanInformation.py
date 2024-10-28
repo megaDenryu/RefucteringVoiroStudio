@@ -21,6 +21,10 @@ class TTSSoftware(Enum):
         return [software.value for software in TTSSoftware]
     
     @staticmethod
+    def get_all_software() -> list["TTSSoftware"]:
+        return [TTSSoftware(software) for software in TTSSoftware]
+    
+    @staticmethod
     def toType(ttsSotWare:"TTSSoftware")->TTSSoftwareType:
         return ttsSotWare.value
     @staticmethod
@@ -117,6 +121,8 @@ class VoiceModeNamesManager:
         if self.voice_mode_list[software] != voice_modes:
             ExtendFunc.saveListToJson(path, voice_modes)
         
+
+
 class CharaNameManager:
     api_dir: Path
     chara_names: dict[TTSSoftware, list[CharacterName]]
@@ -159,6 +165,15 @@ class CharaNameManager:
         JsonAccessor.checkExistAndCreateJson(path, [])
         chara_names_list = [chara_name.name for chara_name in chara_names]
         ExtendFunc.saveListToJson(path, chara_names_list)
+
+    def getTTSSoftware(self,charaName:CharacterName)->TTSSoftwareType:
+        """
+        キャラ名からTTSSoftwareを取得します。
+        """
+        for software in TTSSoftware.get_all_software():
+            if charaName in self.chara_names[software]:
+                return software.value
+        raise ValueError(f"キャラ名{charaName}はどのソフトウェアにも存在しません。")
 
 class CharaNamaeVoiceModePair(BaseModel):
     chara_name: CharacterName
@@ -221,6 +236,18 @@ class  CharaNames2VoiceModeDictManager:
         JsonAccessor.checkExistAndCreateJson(path, {})
         voice_mode_list = [CharaNamaeVoiceModePair(chara_name=chara_name, voice_modes=voice_modes[chara_name]) for chara_name in voice_modes]
         ExtendFunc.saveBaseModelToJson(path, CharaNamaeVoiceModePairList(charaNameAndVoiceModesPair=voice_mode_list))
+
+    def getVoiceMode(self, Chara_name:CharacterName)->VoiceMode:
+        """
+        キャラ名からボイスモードを取得します。
+        """
+        for pair in self.charaNameAndVoiceModesPairList.charaNameAndVoiceModesPair:
+            if pair.chara_name == Chara_name:
+                try:
+                    return pair.voice_modes[0]
+                except IndexError as e:
+                    raise ValueError(f"キャラ名{Chara_name}にはボイスモードが存在しません。")
+        raise ValueError(f"キャラ名{Chara_name}はどのソフトウェアにも存在しません。")
 
 class NicknamesManager:
     """
@@ -334,6 +361,8 @@ class NicknamesManager:
         フロントでのキャラ名からHumanインスタンスのキャラ名に変換する関数
         """
         try:
+            ExtendFunc.ExtendPrintWithTitle("ニックネーム一覧",self.nicknames)
+            ExtendFunc.ExtendPrintWithTitle("ニックネーム一覧",self.nickname2Charaname)
             return self.nickname2Charaname[NickName(name=front_name)]
         except Exception as e:
             print(f"{front_name}は対応するキャラがサーバーに登録されていません。")
@@ -389,6 +418,12 @@ class HumanImagesManager:
         JsonAccessor.checkExistAndCreateJson(path, {})
         human_images_dict = {chara_name.name:[human_image.folder_name for human_image in human_images] for chara_name, human_images in human_images.items()}
         ExtendFunc.saveDictToJson(path, human_images_dict)
+
+    def getDefaultHumanImage(self, chara_name:CharacterName)->HumanImage:
+        """
+        キャラ名に対応するデフォルトの立ち絵を取得します。
+        """
+        return self.human_images[chara_name][0]
 
 class AllHumanInformationManager:
     instance: "AllHumanInformationManager|None" = None
@@ -488,8 +523,8 @@ class SelectCharacterState(BaseModel):
     voice_mode: VoiceMode
 
     @staticmethod
-    def new(tts_software: TTSSoftwareType, chara_name:CharacterName, nickname:NickName, voice_mode:VoiceMode):
-        return SelectCharacterState(tts_software=tts_software, character_name=chara_name, human_image=HumanImage(folder_name=""), voice_mode=voice_mode)
+    def new(tts_software: TTSSoftwareType, chara_name:CharacterName, human_image: HumanImage, voice_mode:VoiceMode):
+        return SelectCharacterState(tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
     
 
 class HumanInformationTest:

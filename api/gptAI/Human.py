@@ -56,14 +56,14 @@ class Human:
         self.chara_mode_state = chara_mode_state
         self.voice_mode = "wav出力"
 
-        print(f"char_name:{self.char_name}")
+        print(f"char_name:{self.char_name.name}")
         self.personal_id = 2
         # 体画像周りを準備する
         self.human_part = HumanPart(self.char_name)
         self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name, self.front_name)
         # dictを正規化する
         self.response_dict:dict = {
-            self.char_name:"",
+            self.char_name.name:"",
             "感情":"",
             "コード":"",
             "json返答":""
