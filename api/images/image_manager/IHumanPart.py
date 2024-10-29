@@ -30,11 +30,15 @@ class NowOnomatopoeiaActionSetting(TypedDict):
     パチ:list[BodyFolderFileName]
     ぴょこ:list[BodyFolderFileName]
 
+class HumanDataSetting(TypedDict):
+    lip_sync: Literal['パクパク']
+
 class InitImageInfo(TypedDict):
     init: PoseInfo
     all_data: AllBodyFileInfo
     OnomatopeiaActionSetting:OnomatopeiaActionSetting
-    nowOnomatopoeiaActionSetting:NowOnomatopoeiaActionSetting
+    NowOnomatopoeiaActionSetting:NowOnomatopoeiaActionSetting
+    setting: HumanDataSetting|None
 
 ImageBinary: TypeAlias = bytes #画像のバイナリデータ。strかもしれないが要検証
 ImageName: TypeAlias = str #画像のファイル名。"3_ﾌﾞﾝﾌﾞﾝ.png"など
@@ -53,6 +57,7 @@ class BodyUnitVariationImageInfo (TypedDict):
 
 BodyUnitVariationImages: TypeAlias = dict[BodyUnitVariationKey, BodyUnitVariationImageInfo]
 BodyPartsImages: TypeAlias = dict[BodyUnitKey, BodyUnitVariationImages]
+
 class HumanData(TypedDict):
     body_parts_iamges: BodyPartsImages
     init_image_info: InitImageInfo

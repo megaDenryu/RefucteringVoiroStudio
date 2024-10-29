@@ -33,6 +33,8 @@ class TTSSoftware(Enum):
             if ttsSoftware.value == ttsSotWareType:
                 return TTSSoftware(ttsSotWareType)
         raise ValueError(f"TTSSoftwareに{ttsSotWareType}は存在しません。")
+    def equal(self, ttsSoftware:TTSSoftwareType)->bool:
+        return self.value == ttsSoftware
 
 class CharacterName(HashableBaseModel):
     name: str

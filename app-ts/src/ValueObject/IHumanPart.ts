@@ -35,11 +35,16 @@ export interface NowOnomatopoeiaActionSetting {
     ぴょこ: BodyFolderFileName[];
 }
 
+export interface HumanDataSetting {
+    lip_sync: "パクパク"
+}
+
 export interface InitImageInfo {
     init: PoseInfo;
     all_data: AllBodyFileInfo;
     OnomatopeiaActionSetting:OnomatopeiaActionSetting;
-    nowOnomatopoeiaActionSetting:NowOnomatopoeiaActionSetting;
+    NowOnomatopoeiaActionSetting:NowOnomatopoeiaActionSetting;
+    setting: HumanDataSetting|null;
 }
 
 export type ImageBinary = Uint8Array; // 画像のバイナリデータ。strかもしれないが要検証

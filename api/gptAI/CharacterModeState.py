@@ -37,7 +37,7 @@ class CharacterModeState(HashableBaseModel):
             human_image=select_character_state.human_image,
             voice_mode=select_character_state.voice_mode,
             voice_state=None,
-            front_name=None
+            front_name=None # todo[HumanWindowのIdによる管理] ここがNoneだとクライアント側でhuman_windowを見つけられなくなる。IDに移行することで解決したい。
         )
     
     @staticmethod
@@ -61,6 +61,7 @@ class CharacterModeState(HashableBaseModel):
             ExtendFunc.ExtendPrintWithTitle("キャラクターの情報", select)
             try:
                 mode = CharacterModeState.new(select)
+                mode.front_name = front_name
                 ExtendFunc.ExtendPrintWithTitle("キャラクターモード", mode)
                 return mode
             except Exception as e:

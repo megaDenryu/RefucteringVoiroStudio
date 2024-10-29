@@ -75,32 +75,31 @@ class Human:
 
         self.corresponding_websocket:WebSocket = corresponding_websocket
 
-        
     
     def start(self, prompt_setteing_num:str = "キャラ個別システム設定", voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}):#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
-            if self.chara_mode_state.tts_software == TTSSoftware.CevioAI:
+            if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
                 tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
                 print(f"{self.char_name}のcevio起動完了")
                 self.human_Voice.speak("起動完了")
                 return "cevio"
-            elif self.chara_mode_state.tts_software == TTSSoftware.VoiceVox:
+            elif TTSSoftware.VoiceVox.equal(self.chara_mode_state.tts_software):
                 tmp_voicevox = voicevox_human(self.chara_mode_state,voiceroid_dict["voicevox"])
                 print(f"{self.char_name}のvoicevox起動開始")
                 self.human_Voice = tmp_voicevox
                 print(f"{self.char_name}のvoicevox起動完了")
                 self.human_Voice.speak("起動完了")
                 return "voicevox"
-            elif self.chara_mode_state.tts_software == TTSSoftware.AIVoice:
+            elif TTSSoftware.AIVoice.equal(self.chara_mode_state.tts_software):
                 tmp_aivoice = AIVoiceHuman.createAndUpdateALLCharaList(self.chara_mode_state, voiceroid_dict["AIVOICE"])
                 print(f"{self.char_name}のAIVOICE起動開始")
                 self.human_Voice = tmp_aivoice
                 print(f"{self.char_name}のAIVOICE起動完了")
                 self.human_Voice.speak("起動完了")
                 return "AIVOICE"
-            elif self.chara_mode_state.tts_software == TTSSoftware.Coeiroink:
+            elif TTSSoftware.Coeiroink.equal(self.chara_mode_state.tts_software):
                 tmp_coeiroink = Coeiroink(self.chara_mode_state, voiceroid_dict["Coeiroink"])
                 print(f"{self.char_name}のcoeiroink起動開始")
                 self.human_Voice = tmp_coeiroink
