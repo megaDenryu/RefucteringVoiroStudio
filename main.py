@@ -220,7 +220,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             for name in recieve_gpt_mode_dict.keys():
                 gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
             input = ""
-            input_dict = {}
+            input_dict:dict[str,str] = {}
             json_data = json.dumps(message, ensure_ascii=False)
             #await notifier.push(json_data)
             inputer = ""
@@ -268,9 +268,9 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 print(f"{input_dict=}")
                 await epic.appendMessageAndNotify(input_dict)
                 print(f"{human_ai.char_name=}")
-                if "" != input_dict[human_ai.char_name]:
-                    print(f"{input_dict[human_ai.char_name]=}")
-                    for sentence in Human.parseSentenseList(input_dict[human_ai.char_name]):
+                if "" != input_dict[human_ai.char_name.name]:
+                    print(f"{input_dict[human_ai.char_name.name]=}")
+                    for sentence in Human.parseSentenseList(input_dict[human_ai.char_name.name]):
                         for reciever in nikonama_comment_reciever_list.values():
                             reciever.checkAndStopRecieve(sentence)
                             
@@ -287,7 +287,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         # await websocket.send_json(json.dumps(wav_info))
                         await websocket.send_json(json.dumps(send_data))
                     # daiaryに保存
-                    diary.insertTodayMemo(input_dict[human_ai.char_name])
+                    diary.insertTodayMemo(input_dict[human_ai.char_name.name])
             
     # セッションが切れた場合
     except WebSocketDisconnect:
@@ -627,7 +627,7 @@ async def parserPsdFile(
     
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得
-        human_part = HumanPart(chara_name)
+        human_part = HumanPart(CharacterName(name = chara_name))
         image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, front_name ,folder)
         return image_data_for_client
         

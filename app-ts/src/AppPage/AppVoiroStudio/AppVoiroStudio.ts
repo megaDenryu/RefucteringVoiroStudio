@@ -8,6 +8,7 @@ import { ExtendedWebSocket } from "../../Extend/extend";
 import { ExtendedMap } from "../../Extend/extend_collections";
 import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, ImageInfo, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
 import { DragDropFile } from "./DragDropFile";
+import { ElementCreater } from "../../UiComponent/Base/ui_component_base";
 
 // const { promises } = require("fs");
 
@@ -49,7 +50,7 @@ class VoiceRecognitioManager {
     }
 
     static singlton(): VoiceRecognitioManager {
-        if(VoiceRecognitioManager.instance = null){
+        if(VoiceRecognitioManager.instance == null){
             VoiceRecognitioManager.instance = new VoiceRecognitioManager();
         }
         return VoiceRecognitioManager.instance!;
@@ -112,7 +113,7 @@ function tabSwitch(this: HTMLElement, event: Event): void {
         (clone.getElementsByClassName('human_name')[0] as HTMLElement).innerText = "????";
         humans_space.append(clone);
         addClickEvent2Tab(clone);
-        GlobalState.drag_drop_file_event_list.push(new DragDropFile(clone));
+        GlobalState.drag_drop_file_event_list?.push(new DragDropFile(clone));
         //changeMargin()
     }else if(this.innerText == "x") {
         //削除ボタンが押された人のタブを削除
@@ -140,6 +141,7 @@ function tabSwitch(this: HTMLElement, event: Event): void {
         
         //このタブのキャラのデータを削除
         if (char_name in GlobalState.humans_list) {
+            console.log(char_name+"humans_listにあるので削除")
             delete GlobalState.humans_list[char_name];
         }
         
@@ -232,6 +234,8 @@ function tabSwitch(this: HTMLElement, event: Event): void {
             }
         } else {
             console.log(char_name+"setteng_infoにない")
+            console.log(GlobalState.humans_list)
+            if (!(char_name in GlobalState.humans_list)) {return;}
             const chara_human_body_manager = GlobalState.humans_list[char_name]
             var vas = new VoiroAISetting(chara_human_body_manager);
             GlobalState.humans_list[char_name].BindVoiroAISetting(vas);
@@ -682,7 +686,7 @@ export type AllData = Record<string, Record<string, string>>;
 function receiveMessage(event) {
     //ここで行う処理の内容は、apiから受信したキャラ画像を表示する処理
     let no_image_human = document.getElementsByClassName("no_image_human")
-    
+
     let body_parts:HumanData = JSON.parse(JSON.parse(event.data));
     console.log(body_parts)
     console.log(body_parts.char_name,body_parts["char_name"])
@@ -691,6 +695,7 @@ function receiveMessage(event) {
         
     try{
         GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts)
+        console.log("human_listに追加成功:",GlobalState.humans_list)
     } catch (e) {
         console.log(e)
         console.log("human_listに追加失敗:"+body_parts["char_name"])
@@ -1360,7 +1365,8 @@ export class HumanBodyManager2 {
         try{
             if ("init_image_info" in body_parts){
                 let init_image_info = body_parts["init_image_info"];
-                this.pose_patterns = this.setPosePatternFromInitImageInfo(init_image_info);
+                let pose_patterns = this.setPosePatternFromInitImageInfo(init_image_info);
+                this.pose_patterns = pose_patterns;
                 if ("OnomatopeiaActionSetting" in init_image_info) {
                     this.onomatopoeia_action_setting = deepCopy(init_image_info["OnomatopeiaActionSetting"]);
                     
@@ -1426,7 +1432,6 @@ export class HumanBodyManager2 {
                 console.log(key_part_name,this.body_parts_images,part_info)
                 z_index_counter_start = z_index_counter_end + 1;
                 z_index_counter_end = z_index_counter_start + Object.keys(part_info).length - 1;
-                let a = this.pose_patterns.get("init")?.get(key_part_name);
                 const partInfo: PartInfo = {
                     // "z_index": (key_part_name.match(/\d+/))[0],//todo もう使わないので消す。一応確認する。
                     "z_index_range": {"start": z_index_counter_start, "end": z_index_counter_end},
@@ -1533,7 +1538,7 @@ export class HumanBodyManager2 {
         const pose_pattern:ExtendedMap<string,PoseInfoMap> = new ExtendedMap();
         for (let [key, value] of Object.entries(init_image_info)) {
             //todo InitImageInfoの型にPoseDictを追加して、initはその要素に変更して、↓のif文を使わなくてもPose情報を取得できるようにする。
-            if (!["all_data", "OnomatopeiaActionSetting", "nowOnomatopoeiaActionSetting"].includes(key)) {
+            if (!["all_data", "OnomatopeiaActionSetting", "NowOnomatopoeiaActionSetting", "setting"].includes(key)) {
                 const iamge_info:PoseInfoMap = new ExtendedMap(Object.entries(value).sort(
                         (a, b) => {
                             const keyA = parseInt(a[0].split('_')[0]);
@@ -2152,7 +2157,7 @@ export class VoiroAISetting{
             accordion_item.ELM = ELM_accordion_item;
         }
         //組み合わせ名を入力するinput要素を追加
-        this.ELM_input_combination_name = /** @type {HTMLInputElement} */ (this.createElmInputCombinationName());
+        this.ELM_input_combination_name = this.createElmInputCombinationName();
         ELM_accordion.appendChild(this.ELM_input_combination_name);
 
         return [ELM_accordion,accordion_item_dict];
@@ -2986,32 +2991,25 @@ export class ContentButtonEventobject{
 
 export class BodyCombinationAccordionManager{
 
-    /** @type {HumanBodyManager2} */ human_body_manager;
-    /** @type {VoiroAISetting} */ VoiroAISetting
-    /** @type {HTMLElement} */ ELM_combination_box
-    /** @type {HTMLElement} */ ELM_combination_name
-    /** @type {HTMLElement} */ ELM_combination_candidate
-    /** @type {HTMLElement} */ ELM_now_combination_name
+    human_body_manager:HumanBodyManager2;
+    VoiroAISetting:VoiroAISetting;
+    ELM_combination_box:HTMLElement;
+    ELM_combination_name:HTMLElement;
+    ELM_combination_candidate:HTMLElement;
+    ELM_now_combination_name:HTMLElement;
     /** 
      * 組み合わせ名のアコーディオンの開閉状態を管理するMap。番号でも状態を取得したいのでMapを使う。オンのパターンの名前だけだとそれができないので。
      * todo: 未使用プロパティ
-     * @type {ExtendedMap<string,*>} 
      */
-     combination_box_status
-    /** @type {ExtendedMap<string,CombinationContent>} */ conbination_contents
+     combination_box_status:ExtendedMap<string, "on" | "off">;
+    conbination_contents:ExtendedMap<string,CombinationContent>;
 
     
     /**
      * VoiroAISetting.ELM_combination_nameを押したらアコーディオンが開いて、human_body_manager.pose_patternsの組み合わせ名が全て表示される
      * キャラの組み合わせ名を選択するアコーディオンを管理するクラス
-     * 
-     * @param {HumanBodyManager2} human_body_manager
-     * @param {VoiroAISetting} VoiroAISetting
-     * @param {HTMLElement} ELM_combination_box
-     * @param {HTMLElement} ELM_combination_name
-     * @param {HTMLElement} ELM_combination_candidate
      */
-    constructor(human_body_manager, VoiroAISetting, ELM_combination_box, ELM_combination_name, ELM_combination_candidate){
+    constructor(human_body_manager:HumanBodyManager2, VoiroAISetting:VoiroAISetting, ELM_combination_box:HTMLElement, ELM_combination_name:HTMLElement, ELM_combination_candidate:HTMLElement){
         this.human_body_manager = human_body_manager;
         this.VoiroAISetting = VoiroAISetting;
         this.ELM_combination_box = ELM_combination_box;
@@ -3028,7 +3026,7 @@ export class BodyCombinationAccordionManager{
      * @param {Event} event
      * @returns {void}
      */
-    handleEvent(event){
+    handleEvent(event:Event): void{
         if(event.type == "click"){
             console.log("BodyCombinationAccordionManagerがクリックされたよ")
             console.log(this)
@@ -3045,10 +3043,11 @@ export class BodyCombinationAccordionManager{
     }
 
     getCombinationBoxStatus(combination_name:string): "on" | "off"{
-        return this.combination_box_status.get(combination_name);
+        return this.combination_box_status.get(combination_name)?? (() => {throw new Error("組み合わせ名が見つかりません")})();
     }
-    setAllCombination(){
+    setAllCombination(): void{
         //human_body_manager.pose_patternsの組み合わせ名を全てアコーディオンに追加する
+        console.log( this.human_body_manager)
         const pose_patterns = this.human_body_manager.pose_patterns;
         console.log(pose_patterns)
         for (const [combination_name, combination_data] of pose_patterns.entries()){
@@ -3056,16 +3055,11 @@ export class BodyCombinationAccordionManager{
             if (["setting","OnomatopeiaActionSetting","NowOnomatopoeiaActionSetting"].includes(combination_name) == true){
                 continue;
             }
-
             console.log(combination_name)
             this.addCombination(combination_name);
         }
     }
 
-    /**
-     * @param {string} combination_name
-     * @returns {void}
-     */
     addCombination(combination_name:string): void{
         //human_body_manager.pose_patternsの組み合わせ名をアコーディオンに追加する
         var combination_content = new CombinationContent(combination_name, this, this.human_body_manager);
@@ -3075,10 +3069,6 @@ export class BodyCombinationAccordionManager{
         this.conbination_contents.set(combination_name,combination_content);
     }
 
-    /**
-     * @param {"open"|"close"} open_close
-     * @returns {void}
-     */
     setCombinationCandidateVisivility(open_close: "open" | "close"): void{
         if (open_close == "open"){
             this.ELM_combination_candidate.classList.remove("non_vissible");
@@ -3123,9 +3113,8 @@ export class CombinationContent{
      * - 3:人間がボタンをVoiroidAISettingのクリックしたとき
      * - 4:gptによる「手を上げる」などの操作。
      * がある。
-     * @param {Event} event 
      */
-    handleEvent(event){
+    handleEvent(event:Event){
         if(event.type == "click"){
             //AccordionCombinationのELM_now_combination_nameのinnerTextを変更する
             this.body_combination_accordion_manager.ELM_now_combination_name.innerText = this.combination_name;
@@ -3399,7 +3388,7 @@ function connect_ws() {
         console.log("messageQueue=",GlobalState.messageQueue,"イベントを一つとりだした後のmessageQueueです");
     };
 
-    ws.onclose = closeEventProcces_ws;
+    GlobalState.ws.onclose = closeEventProcces_ws;
 }
 
 function closeEventProcces_ws(event) {

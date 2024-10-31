@@ -9,23 +9,20 @@ from pprint import pprint
 import re
 from collections import OrderedDict
 from api.Extend.ExtendFunc import ExtendFunc
+from api.gptAI.HumanInfoValueObject import CharacterName
 from api.images.image_manager.IHumanPart import BodyPartsImages, AllBodyFileInfo, HumanData, InitImageInfo
 
 if TYPE_CHECKING:
     from api.gptAI.Human import Human
 
-
-class FileData(TypedDict, total=False):
-    img: any
-    json: any
-
-class FilePathData(TypedDict, total=False):
-    img: str
-    json: str
-
 class HumanPart:
-    def __init__(self,chara_name) -> None:
-        self.name = chara_name #キャラの名前。フロントネームからキャラネームに変換済みの物を入れる。
+    chara_name:CharacterName
+    @property
+    def name(self)->str:
+        return self.chara_name.name
+    def __init__(self,chara_name:CharacterName) -> None:
+        self.chara_name = chara_name
+         #キャラの名前。フロントネームからキャラネームに変換済みの物を入れる。
         self.emotion_list = [
             "普通",
             "嬉しい",
@@ -59,7 +56,7 @@ class HumanPart:
             CharFilePathDict[chara_name] = [folder_name]
         ExtendFunc.saveDictToJson(CharFilePath_path,CharFilePathDict)
 
-    def getHumanAllParts(self, human_char_name:str, front_name:str, psd_num = 0)-> tuple[HumanData, AllBodyFileInfo]:
+    def getHumanAllParts(self, human_char_name:str, front_name:str, psd_num = 0) -> tuple[HumanData, AllBodyFileInfo]:
         #入力名からキャラの正式名を取得
         char_file_path = self.setCharFilePath(human_char_name,psd_num)
         #キャラの正式名からキャラの体パーツフォルダの画像のpathを取得
