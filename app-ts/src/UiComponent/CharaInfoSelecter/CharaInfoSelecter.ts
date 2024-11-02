@@ -372,7 +372,7 @@ export class CharacterSelectDecisionButton implements IHasComponent {
     onPushButton = new ReactiveProperty<boolean>(false);
 
     constructor() {
-        const button = ElementCreater.createButtonElement("決定",() => {
+        const button = ElementCreater.createButtonElement("▷決定▷",() => {
             this.onPushButton.set(true);
         });
         this.component = new BaseComponent(button);
@@ -385,24 +385,39 @@ export class CharacterSelectDecisionButton implements IHasComponent {
 }
 
 
+export class CharaSelecterDeleteButton implements IHasComponent {
+    component: BaseComponent;
+    onPushButton = new ReactiveProperty<boolean>(false);
 
+    constructor() {
+        const button = ElementCreater.createButtonElement("◁閉じる◁",() => {
+            this.onPushButton.set(true);
+        });
+        this.component = new BaseComponent(button);
+        this.component.addCSSClass("CharaSelecterDeleteButton");
+    }
 
+    addOnPushButton(method: () => void): void {
+        this.onPushButton.addMethod(method);
+    }
+}
 
 
 export class CharaSelectFunction implements IHasComponent {
     private readonly Def = HtmlElementInput.new(
         `
             <div class="CharaSelectFunction">
-                <div class="AriaTTSSoftwareSelecter">
-                </div>
+                <div class="AriaTTSSoftwareSelecter"></div>
                 <div class="AriaFlexCompositeCharaSelecters"></div>
                 <div class="AriaButton"></div>
+                <div class="AriaDeleteButton"></div>
             </div>
         `,
         {
             "AriaTTSSoftwareSelecter":"AriaTTSSoftwareSelecter",
             "AriaFlexCompositeCharaSelecters":"AriaFlexCompositeCharaSelecters",
-            "AriaButton":"AriaButton"
+            "AriaButton":"AriaButton",
+            "AriaDeleteButton":"AriaDeleteButton"
         }
     );
 
@@ -415,6 +430,11 @@ export class CharaSelectFunction implements IHasComponent {
     private compositehumanImageSelecter: CompositeHumanImageSelecter;
     private compositeVoiceModeSelecter: CompositeVoiceModeSelecter;
     private characterSelectDecisionButton: CharacterSelectDecisionButton;
+    private characterSelecterDeleteButton: CharaSelecterDeleteButton;
+    private _onReceiveDecideCharacterResponse = new ReactiveProperty<boolean>(false);
+
+    private human_tab: HumanTab;
+    public registerHumanName: (human_name:string, human_tab:Element, ELM_human_name:HTMLElement) => void;
 
     get defaultTTSSoftWare(): TTSSoftware {
         //defaultCharacterNameが選択されているTTSSoftwareを返す
@@ -457,6 +477,10 @@ export class CharaSelectFunction implements IHasComponent {
         throw new Error("全てのキャラにボイスモードがあるはずなので、ここには来ないはず");
     }
 
+    get ELM_human_name(): HTMLElement {
+        return document.getElementById("human_name");
+    }
+
     constructor(
         characterNamesDict: Record<TTSSoftware, CharacterName[]>, 
         humanImagesDict: Map<CharacterName, HumanImage[]>,
@@ -471,25 +495,27 @@ export class CharaSelectFunction implements IHasComponent {
         this.compositehumanImageSelecter = new CompositeHumanImageSelecter(humanImagesDict, this.defaultCharacterName, this.defaultHumanImage);
         this.compositeVoiceModeSelecter = new CompositeVoiceModeSelecter(voiceModesDict, this.defaultCharacterName, this.defaultVoiceMode);
         this.characterSelectDecisionButton = new CharacterSelectDecisionButton();
+        this.characterSelecterDeleteButton = new CharaSelecterDeleteButton();
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
         this.start();
     }
 
-    start(): void {
+    private start(): void {
         this.initSetChildElement();
         this.definitionBehavior();
         this.component.addCSSClass("CharaSelectFunction");
     }
 
-    initSetChildElement(): void {
+    private initSetChildElement(): void {
         this.component.createArrowBetweenComponents(this, this.ttsSoftwareSelecter, this.Def.classNames.AriaTTSSoftwareSelecter);                //TTSSoftセレクター
         this.component.createArrowBetweenComponents(this, this.compositeCharacterNameSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);     //キャラクター名セレクター
         this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);        //人間の画像セレクター
         this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);         //ボイスモードセレクター
-        this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, "AriaButton");      //決定ボタン
+        this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, this.Def.classNames.AriaButton);      //決定ボタン
+        this.component.createArrowBetweenComponents(this, this.characterSelecterDeleteButton, this.Def.classNames.AriaDeleteButton);      //削除ボタン
     }
 
-    definitionBehavior(): void {
+    private definitionBehavior(): void {
         //tts選択をすると、そのttsのキャラセレクターが表示される
         this.ttsSoftwareSelecter.addOnSelectedSoftwareChanged( (tts_software) => {
             this.compositeCharacterNameSelecter.selectedSoftware.set(tts_software);
@@ -508,9 +534,13 @@ export class CharaSelectFunction implements IHasComponent {
         this.characterSelectDecisionButton.addOnPushButton(() => {
             this.decideCharacter();
         });
+        //削除ボタンを押すと、ウィンドウが削除される
+        this.characterSelecterDeleteButton.addOnPushButton(() => {
+            this.deleteWiondow();
+        });
     }
 
-    async decideCharacter(): Promise<void> {
+    private async decideCharacter(): Promise<void> {
         //キャラクターが決定されたときの処理
         const selectState = new SelectCharacterState(
             this.ttsSoftwareSelecter.selectedSoftware, 
@@ -521,14 +551,29 @@ export class CharaSelectFunction implements IHasComponent {
         //情報をまとめてサーバーにPostでリクエストを投げる
         console.log("キャラクターが決定されました");
         console.log(selectState);
-        await RequestAPI.fetchOnDecideCharaInfo(selectState);
+        this.registerHumanName(selectState.character_name.name, this.human_tab.component.element, this.ELM_human_name);
+        let response_json = await RequestAPI.fetchOnDecideCharaInfo(selectState);
+        console.log(response_json);
+        this._onReceiveDecideCharacterResponse.set(response_json);
         //サーバーから返ってきた情報を元に、キャラクターを生成する
 
         //送るapiエンドポイントの名前は
         
     }
 
+    public addOnReceiveDecideCharacterResponse(method: (response: any) => void): void {
+        this._onReceiveDecideCharacterResponse.addMethod(method);
+    }
+
+    
+
     private fetchCharaInfo(): void {
         
+    }
+
+    private deleteWiondow(): void {
+        //ウィンドウを削除する
+        //このクラスインスタンスを削除する
+        document.body.removeChild(this.component.element);
     }
 }
