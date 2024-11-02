@@ -543,7 +543,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
                 #humanインスタンスが完成したのでhuman_dictに登録
                 human_dict[tmp_human.char_name.name] = tmp_human
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
-                human_part_folder = tmp_human.image_data_for_client
+                human_part_folder:HumanData = tmp_human.image_data_for_client
                 await websocket.send_json(json.dumps(human_part_folder))
             except Exception as e:
                 print(e)
@@ -887,8 +887,10 @@ class SelectCharacterStateReq(BaseModel):
 
 @app.post("/DecideChara")
 async def DecideChara(req: SelectCharacterStateReq):
+
     select_character_state = req.selectCharacterState
     character_mode_state:CharacterModeState = CharacterModeState.new(select_character_state)
+    character_mode_state.front_name = character_mode_state.character_name.name
     client_id = req.client_id
     #name_dataに対応したHumanインスタンスを生成
     prompt_setteing_num = "キャラ個別システム設定"
@@ -900,12 +902,12 @@ async def DecideChara(req: SelectCharacterStateReq):
     #humanインスタンスが完成したのでhuman_dictに登録
     human_dict[tmp_human.char_name.name] = tmp_human
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
-    human_part_folder = tmp_human.image_data_for_client
+    human_part_folder:HumanData = tmp_human.image_data_for_client
     ret_data = json.dumps(human_part_folder)
 
     ExtendFunc.ExtendPrint("DecideChara")
     ExtendFunc.ExtendPrint(select_character_state)
-    return {"message": "DecideChara"}
+    return ret_data
 
 
 class Item(BaseModel):

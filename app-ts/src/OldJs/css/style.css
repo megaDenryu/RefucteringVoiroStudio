@@ -60,7 +60,13 @@ color:#FFF;
     display: none;
 }
 .tab.human_name{
-    flex-grow: 15;
+    flex-grow: 8;
+    list-style:none;
+    text-align:center;
+    cursor:pointer;
+}
+.tab.human_select_panel{
+    flex-grow: 7;
     list-style:none;
     text-align:center;
     cursor:pointer;

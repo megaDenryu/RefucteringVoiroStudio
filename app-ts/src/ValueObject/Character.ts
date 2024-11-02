@@ -1,5 +1,5 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
-import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ISelectCharacterState, IVoiceMode } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ISelectCharacterState, ISelectCharacterStateReq, IVoiceMode } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
@@ -155,6 +155,43 @@ export class SelectCharacterState implements IValueObject<SelectCharacterState> 
     }
 
     includes(others: SelectCharacterState[]): boolean {
+        for (const other of others) {
+            if (this.equals(other) === true) return true;
+        }
+        return false;
+    }
+}
+
+export class SelectCharacterStateReq implements IValueObject<SelectCharacterStateReq> {
+    private readonly selectCharacterState: SelectCharacterState;
+    private readonly client_id: string;
+
+    constructor(selectCharacterState: SelectCharacterState, client_id: string) {
+        this.selectCharacterState = selectCharacterState;
+        this.client_id = client_id;
+    }
+
+    toDict(): ISelectCharacterStateReq {
+        return {
+            selectCharacterState: this.selectCharacterState.toDict(),
+            client_id: this.client_id
+        };
+    }
+
+    static fromDict(selectCharacterStateReq: ISelectCharacterStateReq): SelectCharacterStateReq {
+        return new SelectCharacterStateReq(
+            SelectCharacterState.fromDict(selectCharacterStateReq.selectCharacterState),
+            selectCharacterStateReq.client_id
+        );
+    }
+
+    equals(other: SelectCharacterStateReq): boolean {
+        if (this.selectCharacterState.equals(other.selectCharacterState) === false) return false;
+        if (this.client_id !== other.client_id) return false;
+        return true;
+    }
+
+    includes(others: SelectCharacterStateReq[]): boolean {
         for (const other of others) {
             if (this.equals(other) === true) return true;
         }

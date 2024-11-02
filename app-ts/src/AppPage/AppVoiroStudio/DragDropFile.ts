@@ -9,7 +9,7 @@
 
 import { GlobalState, HumanBodyManager2, registerHumanName } from "./AppVoiroStudio"
 
-export class DragDropFile{
+class DragDropFile{
 
     human_tab: Element
     human_window: Element

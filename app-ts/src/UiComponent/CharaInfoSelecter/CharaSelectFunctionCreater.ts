@@ -2,6 +2,8 @@ import { TTSSoftware, CharacterName, HumanImage, VoiceMode, AllHumanInformationD
 import { CharaSelectFunction } from "./CharaInfoSelecter";
 import { IAllHumanInformationDict } from "./ICharacterInfo";
 
+import "./CharaInfoSelecter.css";
+
 interface CharaInfoResponse {
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
     humanImagesDict: Map<CharacterName, HumanImage[]>;
@@ -91,5 +93,12 @@ export class CharaSelectFunctionCreater {
             this.voiceModesDict
         );
         return charaSelectFunction;
+    }
+
+    static async init(element: HTMLElement) {
+        const charaSelectFunctionCreater = new CharaSelectFunctionCreater();
+        let charaSelectFunction = await charaSelectFunctionCreater.requestAllCharaInfo();
+        charaSelectFunction.component.bindParentElement(element);
+        console.log("CharaSelectFunction created");
     }
 }

@@ -41,3 +41,8 @@ export interface ISelectCharacterState {
     human_image: IHumanImage,
     voice_mode: IVoiceMode
 }
+
+export interface ISelectCharacterStateReq {
+    selectCharacterState: ISelectCharacterState;
+    client_id: string;
+}
