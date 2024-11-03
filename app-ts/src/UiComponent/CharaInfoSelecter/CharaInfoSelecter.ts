@@ -2,6 +2,7 @@ import { ReactiveProperty } from "../../BaseClasses/observer";
 import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
 import { CharacterName, HumanImage, SelectCharacterState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
+import { HumanTab } from "../HumanDisplay/HumanWindow";
 
 
 
@@ -484,11 +485,13 @@ export class CharaSelectFunction implements IHasComponent {
     constructor(
         characterNamesDict: Record<TTSSoftware, CharacterName[]>, 
         humanImagesDict: Map<CharacterName, HumanImage[]>,
-        voiceModesDict: Map<CharacterName, VoiceMode[]>
+        voiceModesDict: Map<CharacterName, VoiceMode[]>,
+        human_tab: HumanTab,
     ) {
         this.characterNamesDict = characterNamesDict;
         this.humanImagesDict = humanImagesDict;
         this.voiceModesDict = voiceModesDict;
+        this.human_tab = human_tab;
 
         this.ttsSoftwareSelecter = new TTSSoftwareSelecter(this.defaultTTSSoftWare);
         this.compositeCharacterNameSelecter = new CompositeCharacterNameSelecter(characterNamesDict, this.defaultTTSSoftWare, this.defaultCharacterName);
@@ -543,6 +546,7 @@ export class CharaSelectFunction implements IHasComponent {
     private async decideCharacter(): Promise<void> {
         //キャラクターが決定されたときの処理
         const selectState = new SelectCharacterState(
+            this.human_tab.characterId,
             this.ttsSoftwareSelecter.selectedSoftware, 
             this.compositeCharacterNameSelecter.selectedCharacterName, 
             this.compositehumanImageSelecter.selectedHumanImage,
@@ -551,7 +555,8 @@ export class CharaSelectFunction implements IHasComponent {
         //情報をまとめてサーバーにPostでリクエストを投げる
         console.log("キャラクターが決定されました");
         console.log(selectState);
-        this.registerHumanName(selectState.character_name.name, this.human_tab.component.element, this.ELM_human_name);
+        // this.registerHumanName(selectState.character_name.name, this.human_tab.component.element, this.ELM_human_name);
+        this.human_tab.registerHumanName(selectState.character_name.name);
         let response_json = await RequestAPI.fetchOnDecideCharaInfo(selectState);
         console.log(response_json);
         this._onReceiveDecideCharacterResponse.set(response_json);

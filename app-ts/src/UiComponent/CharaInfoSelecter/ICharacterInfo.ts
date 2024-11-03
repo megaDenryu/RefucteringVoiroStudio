@@ -1,4 +1,4 @@
-import { TTSSoftware } from "../../ValueObject/Character";
+import { CharacterId, TTSSoftware } from "../../ValueObject/Character";
 
 
 export interface ICharacterName {
@@ -36,6 +36,7 @@ export interface IAllHumanInformationDict {
 }
 
 export interface ISelectCharacterState {
+    id: CharacterId,
     tts_software: TTSSoftware,
     character_name: ICharacterName, 
     human_image: IHumanImage,

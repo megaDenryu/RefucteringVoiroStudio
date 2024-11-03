@@ -115,7 +115,6 @@ export const HtmlElementInput = {
 } as const;
 
 export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = Readonly<Record<string,string>> > {
-    className: string[];
     id: string;
     element: HTMLElement;
     vertex: Vertex; // コンポーネントグラフでの頂点
@@ -123,13 +122,21 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
     childCompositeCluster: CompositeComponentCluster | null = null;
     parentComponentCluster: CompositeComponentCluster | null = null;
 
-    constructor(HTMLElementInput: HTMLElement, className: string[] = [], vertexViewContent: any | null = null) {
-        this.className = className;
+    get ClassNames(): string[] {
+        return Array.from(this.element.classList);
+    }
+
+    static actualClassNames(element: Element): string[] {
+        return Array.from(element.classList);
+    }
+
+    constructor(HTMLElementInput: HTMLElement, addClassName: string[] = [], vertexViewContent: any | null = null) {
         this.id = ExtendFunction.uuid();
         this.element = HTMLElementInput;
         this.vertexViewContent = vertexViewContent;
         this.vertex = new Vertex(this.id, this, this.vertexViewContent);
         this.parentComponentCluster = null;
+        this.addCSSClass(addClassName);
     }
 
     
@@ -207,25 +214,29 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent, parentClass);
     }
 
+    setCSSClass(classNames: string[] | string): void {
+        if (typeof classNames === 'string') {
+            this.element.className = classNames;
+        } else {
+            this.element.className = classNames.join(' ');
+        }
+        
+    }
 
     addCSSClass(classNames: string[] | string): void {
         if (typeof classNames === 'string') {
-            this.className.push(classNames);
-            this.element.className = classNames;
+            this.element.classList.add(classNames);
         } else {
-            this.className.push(...classNames);
-            this.element.className = classNames.join(' ');
+            this.element.classList.add(...classNames)
         }
     }
 
 
     removeCSSClass(classNames: string[] | string): void {
         if (typeof classNames === 'string') {
-            this.className = this.className.filter(className => className !== classNames);
-            this.element.className = this.className.join(' ');
+            this.element.classList.remove(classNames);
         } else {
-            this.className = this.className.filter(className => !classNames.includes(className));
-            this.element.className = this.className.join(' ');
+            this.element.classList.remove(...classNames);
         }
     }
 

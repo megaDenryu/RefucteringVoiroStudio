@@ -3,11 +3,9 @@ from typing import TypeAlias
 
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, SelectCharacterState, VoiceMode, TTSSoftwareType
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, SelectCharacterState, VoiceMode, TTSSoftwareType, CharacterId
 from api.gptAI.VoiceController import VoiceState
 from uuid import uuid4
-
-CharacterId: TypeAlias = int
 
 class CharacterModeState(HashableBaseModel):
     id: CharacterId
@@ -28,7 +26,7 @@ class CharacterModeState(HashableBaseModel):
     
     @staticmethod
     def new(select_character_state: SelectCharacterState) -> "CharacterModeState":
-        id = uuid4().int
+        id = uuid4().__str__()
         ExtendFunc.ExtendPrintWithTitle("キャラクターモードのID", id)
         return CharacterModeState(
             id=id,
@@ -57,7 +55,7 @@ class CharacterModeState(HashableBaseModel):
             ExtendFunc.ExtendPrintWithTitle("デフォルト画像", human_image)
             voice_mode = manager.CharaNames2VoiceModeDict_manager.getVoiceMode(chara_name)
             ExtendFunc.ExtendPrintWithTitle("ボイスモード", voice_mode)
-            select = SelectCharacterState(tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
+            select = SelectCharacterState(id = uuid4().__str__(), tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
             ExtendFunc.ExtendPrintWithTitle("キャラクターの情報", select)
             try:
                 mode = CharacterModeState.new(select)

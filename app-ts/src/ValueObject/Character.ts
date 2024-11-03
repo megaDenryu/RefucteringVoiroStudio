@@ -1,6 +1,7 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
 import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ISelectCharacterState, ISelectCharacterStateReq, IVoiceMode } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
+export type CharacterId = String;
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
 export class TTSSoftwareEnum {
@@ -110,18 +111,20 @@ export class HumanImage extends BaseValueObject {
 }
 
 export class SelectCharacterState implements IValueObject<SelectCharacterState> {
-    
+    public readonly id: CharacterId;
     public readonly tts_software: TTSSoftware;
     public readonly character_name: CharacterName;
     public readonly human_image: HumanImage;
     public readonly voice_mode: VoiceMode;
 
     constructor(
+        id: CharacterId,
         tts_software: TTSSoftware,
         character_name: CharacterName, 
         human_image: HumanImage,
         voice_mode: VoiceMode
     ) {
+        this.id = id;
         this.character_name = character_name;
         this.voice_mode = voice_mode;
         this.human_image = human_image;
@@ -130,6 +133,7 @@ export class SelectCharacterState implements IValueObject<SelectCharacterState> 
 
     toDict(): ISelectCharacterState {
         return {
+            id: this.id,
             tts_software: this.tts_software,
             character_name: this.character_name.toDict(),
             human_image: this.human_image.toDict(),
@@ -139,6 +143,7 @@ export class SelectCharacterState implements IValueObject<SelectCharacterState> 
 
     static fromDict(selectCharacterState: ISelectCharacterState): SelectCharacterState {
         return new SelectCharacterState(
+            selectCharacterState.id,
             TTSSoftwareEnum.check(selectCharacterState.tts_software),
             CharacterName.fromDict(selectCharacterState.character_name),
             HumanImage.fromDict(selectCharacterState.human_image),

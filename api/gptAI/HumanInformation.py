@@ -445,18 +445,19 @@ class AllHumanInformationDict(BaseModel):
         return AllHumanInformationDict(**data)
 
 
-
+CharacterId: TypeAlias = str
         
 
 class SelectCharacterState(BaseModel):
+    id: CharacterId
     tts_software: TTSSoftwareType
     character_name: CharacterName
     human_image: HumanImage
     voice_mode: VoiceMode
 
     @staticmethod
-    def new(tts_software: TTSSoftwareType, chara_name:CharacterName, human_image: HumanImage, voice_mode:VoiceMode):
-        return SelectCharacterState(tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
+    def new(id: CharacterId ,tts_software: TTSSoftwareType, chara_name:CharacterName, human_image: HumanImage, voice_mode:VoiceMode):
+        return SelectCharacterState(id = id,tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
     
 
 class HumanInformationTest:

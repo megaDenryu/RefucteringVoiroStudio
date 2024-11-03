@@ -10,33 +10,26 @@ import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariati
 import { ElementCreater } from "../../UiComponent/Base/ui_component_base";
 import { CharaSelectFunctionCreater } from "../../UiComponent/CharaInfoSelecter/CharaSelectFunctionCreater";
 import { RequestAPI } from "../../Web/RequestApi";
+import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
 
 // const { promises } = require("fs");
 
 
-function addClickEvent2Tab(human_tab_elm: HTMLElement) {
+export function addClickEvent2Tab(human_tab_elm: HTMLElement):MessageBox {
     // タブに対してクリックイベントを適用
-    const tabs = human_tab_elm.getElementsByClassName('tab');
-    human_tab_elm.addEventListener('click', tabSwitch.bind(human_tab_elm), false);
-    for(let i = 0; i < tabs.length; i++) {
-        let tab = tabs[i] as HTMLElement;
-        tab.addEventListener('click', tabSwitch.bind(tab), false);
-    }
     // タブ識別用にdata属性を追加
     const num:Number = GlobalState.message_box_manager.message_box_list.length;
     human_tab_elm.setAttribute('data-tab_num', num.toString());
     //メッセージボックスのサイズが変更された時のイベントを追加
     var message_box_elm = human_tab_elm.getElementsByClassName("messageText")[0] as HTMLTextAreaElement;
     const front_name = (human_tab_elm.getElementsByClassName("human_name")[0] as HTMLElement).innerText
-    new MessageBox(message_box_elm,GlobalState.message_box_manager,num,human_tab_elm);
+    return new MessageBox(message_box_elm,GlobalState.message_box_manager,num,human_tab_elm);
 }
 
-class VoiceRecognitioManager {
+export class VoiceRecognitioManager {
     private static instance:VoiceRecognitioManager|null = null;
     public user_number: number;
     public recognition: SpeechRecognition;
-
-    
 
     constructor(){
         //音声認識
@@ -113,8 +106,8 @@ function tabSwitch(this: HTMLElement, event: Event): void {
         clone.classList.add("tab");
         (clone.getElementsByClassName('human_name')[0] as HTMLElement).innerText = "????";
         humans_space.append(clone);
-        addClickEvent2Tab(clone);
-        GlobalState.drag_drop_file_event_list?.push(new DragDropFile(clone));
+        let messageBox = addClickEvent2Tab(clone);
+        GlobalState.drag_drop_file_event_list?.push(new DragDropFile(messageBox.human_tab));
         //changeMargin()
     }else if(this.innerText == "x") {
         //削除ボタンが押された人のタブを削除
@@ -179,7 +172,7 @@ function tabSwitch(this: HTMLElement, event: Event): void {
     }
     else if (this.innerText == "キャラ選択パネル"){
         let element = document.body;
-        CharaSelectFunctionCreater.init(element);
+        // CharaSelectFunctionCreater.init(element, humanTab);
     }
     else if (this.innerText == "npc") {
         //npcの場合、userに変更され、他のuserはnpcに変更される
@@ -227,7 +220,6 @@ function tabSwitch(this: HTMLElement, event: Event): void {
                 console.log("vissibleを削除",GlobalState.setting_info[char_name].ELM_accordion)
                 GlobalState.setting_info[char_name].ELM_accordion.classList.remove("vissible")
                 GlobalState.setting_info[char_name].ELM_accordion.classList.add("non_vissible")
-
             }else{
                 console.log("vissibleを追加",GlobalState.setting_info[char_name].ELM_accordion)
                 GlobalState.setting_info[char_name].ELM_accordion.classList.remove("non_vissible")
@@ -242,9 +234,6 @@ function tabSwitch(this: HTMLElement, event: Event): void {
             GlobalState.humans_list[char_name].BindVoiroAISetting(vas);
             GlobalState.setting_info[char_name] = vas;
             GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
-
-
-
         }
         
     } else if (this.className.includes("gpt_setting")) {
@@ -283,12 +272,7 @@ export function registerHumanName(human_name:string, human_tab:Element, ELM_huma
     GlobalState.message_box_manager.linkHumanNameAndNum(human_name,tab_num)
 }
 
-export function registerHumanName2(human_name:string, human_tab:HumanTab):void {
-    let human_window = human_tab.human_window_elm
-
-}
-
-function removeInputCharaName(this: HTMLElement,event:Event):void {
+export function removeInputCharaName(this: HTMLElement,event:Event):void {
     //thisはinputがbindされている
     console.log("blur")
     let parent_elem = this.parentNode as HTMLElement
@@ -297,7 +281,7 @@ function removeInputCharaName(this: HTMLElement,event:Event):void {
     this.remove();
 }
 
-class MessageBoxManager {
+export class MessageBoxManager {
 
     /**  メッセージボックスのリスト*/ 
     message_box_list: MessageBox[]
@@ -305,14 +289,27 @@ class MessageBoxManager {
     /** メッセージボックスの辞書。キーはキャラのfront_name、値はメッセージボックスのインスタンス。*/
     message_box_dict: ExtendedMap<string, MessageBox>
 
-    /** @type {number} 監視しているメッセージボックスの番号を格納。-1なら監視していない。*/
+    /** 監視しているメッセージボックスの番号を格納。-1なら監視していない。*/
     observe_target_num: number
 
     /** 監視対象のメッセージボックスの高さが変更されたときに、他のメッセージボックスの高さも変更するためのオブジェクト。*/
     resizeObserver: ResizeObserver
 
-    /** @type キャラのgptモードの状態を格納する辞書。キーはキャラのfront_name、値はgptモードの状態。*/
+    /** キャラのgptモードの状態を格納する辞書。キーはキャラのfront_name、値はgptモードの状態。*/
     Map_all_char_gpt_mode_status : ExtendedMap<string, string>
+
+    get humanTabList(): HumanTab[] {
+        return this.message_box_list.map((message_box) => message_box.human_tab);
+    }
+
+    get humanTabDict(): Record<string, HumanTab> {
+        const dict = {};
+        for (let message_box of this.message_box_list) {
+            if (message_box.front_name == null) {continue;}
+            dict[message_box.front_name] = message_box.human_tab;
+        }
+        return dict;
+    }
 
     constructor() {
         this.message_box_list = [];
@@ -351,7 +348,7 @@ class MessageBoxManager {
     linkHumanNameAndNum(front_name,tab_num) {
         const message_box = this.message_box_list[tab_num];
         this.message_box_dict.set(front_name,message_box);
-        message_box.front_name = front_name;
+        message_box.human_tab.humanName.front_name = front_name;
         message_box.setGptMode("off");
         const gpt_mode_name_list = ["off","individual_process0501dev","SimpleWait4","SimpleWait3.5","low","high","test"];
         message_box.gpt_setting_button_manager_model = new GPTSettingButtonManagerModel(front_name, message_box, gpt_mode_name_list)
@@ -397,10 +394,9 @@ class MessageBoxManager {
 }
 
 
-class MessageBox {
+export class MessageBox {
     //message_box単体のクラス
     public char_name: string;
-    public front_name: string;
     public gpt_mode: string;
     public message_box_elm: HTMLTextAreaElement;
     public parent_ELM_input_area: HTMLElement|null
@@ -411,22 +407,25 @@ class MessageBox {
     public ws_nikonama_comment_reciver: WebSocket;
     public ws_youtube_comment_reciver: ExtendedWebSocket;
     public ws_twitch_comment_reciver: ExtendedWebSocket;
-    /** @type {GPTSettingButtonManagerModel}*/ gpt_setting_button_manager_model;
-    /** @type {HumanTab}*/ human_window;
+    gpt_setting_button_manager_model: GPTSettingButtonManagerModel;
+    human_tab: HumanTab;
+
+    get front_name(): string|null {
+        return this.human_tab.humanName.front_name;
+    }
     
    
     constructor(message_box_elm:HTMLTextAreaElement, message_box_manager:MessageBoxManager, manage_num:Number, human_tab_elm:HTMLElement) {
         this.char_name = "";
-        this.front_name = "";
         this.gpt_mode = "";
         this.message_box_elm = message_box_elm;
         this.parent_ELM_input_area = this.message_box_elm.closest(".input_area");
         this.ELM_send_button = this.parent_ELM_input_area?.getElementsByClassName("send_button")[0] as HTMLElement;
         this.ELM_delete_button = this.parent_ELM_input_area?.getElementsByClassName("delete_button")[0] as HTMLElement;
         this.message_box_manager = message_box_manager;
-        this.human_window = new HumanTab(human_tab_elm, this.front_name);
+        this.human_tab = new HumanTab(human_tab_elm);
         //メッセージボックスマネージャーにこのメッセージボックスを登録
-        this.manage_num = this.message_box_manager.setMessageBox(this)
+        this.manage_num = this.message_box_manager.setMessageBox(this);
         if(manage_num != this.manage_num) {
             alert("message_box_managerに登録された番号と、message_boxの番号が一致しません。")
         }
@@ -535,7 +534,7 @@ class MessageBox {
             });
         }
         else if (message.includes("背景オン:") || message.includes("GBmode:") || message.includes("MBmode:") || message.includes("BBmode:")) {
-            this.human_window.changeBackgroundMode(message);
+            this.human_tab.changeBackgroundMode(message);
         }
         else {
             //メッセージを送信する
@@ -563,7 +562,6 @@ class MessageBox {
             } else {
                 message_box.sendMessage(comment);
             }
-
         }
     }
 
@@ -581,9 +579,7 @@ class MessageBox {
             } else {
                 message_box.sendMessage(comment);
             }
-
         }
-    
     }
 
     /**
@@ -597,6 +593,7 @@ class MessageBox {
     sendMessage(message) {
         //メッセージを送信する
         const message_dict = {}
+        if (this.front_name == null) {return;}
         message_dict[this.front_name] = message;
         const send_data = {
             "message" : message_dict,
@@ -604,56 +601,6 @@ class MessageBox {
         }
         GlobalState.ws.send(JSON.stringify(send_data));
     }
-}
-
-class HumanTab {
-    human_tab_elm: HTMLElement;
-    human_window_elm: HTMLElement;
-    front_name: string;
-    // モードとクラス名の対応を定義
-    bg_modes: Record<string, { display: string, className: string }> = {
-        "背景オン:": { display: "block", className: "" },
-        "GBmode:": { display: "none", className: "green_back" },
-        "MBmode:": { display: "none", className: "maze_back" },
-        "BBmode:": { display: "none", className: "blue_back" },
-        // 新しいモードを追加する場合はここに追記
-    };
-
-    /**
-     * 
-     * @param {HTMLElement} human_tab_elm 
-     * @param {string} front_name 
-     */
-    constructor(human_tab_elm,front_name) {
-        this.human_tab_elm = human_tab_elm;
-        this.human_window_elm = human_tab_elm.getElementsByClassName("human_window")[0];
-        this.front_name = front_name;
-    }
-
-    /**
-     *  @param {"背景オン:"|"GBmode:"|"MBmode:"|"BBmode:"} mode_key
-     */
-    changeBackgroundMode(mode_key) {
-        let ELM_human_tab = this.human_window_elm.closest(".human_tab");
-        let ELM_bg_image = ELM_human_tab?.getElementsByClassName("bg_images")[0] as HTMLElement;
-        const ELM_human = ELM_human_tab?.getElementsByClassName("human")[0];
-
-        // 全ての可能な背景クラスを削除
-        ELM_human?.classList.remove("green_back", "maze_back", "blue_back");
-
-        const mode = this.bg_modes[mode_key];
-
-        if (mode) {
-            // ELM_bg_imageの表示状態を更新
-            ELM_bg_image.style.display = mode.display;
-
-            // 必要ならクラス名を追加
-            if (mode.className) {
-                ELM_human?.classList.add(mode.className);
-            }
-        }
-    }
-
 }
 
 function getMessageBoxByCharName(char_name) {
@@ -995,7 +942,7 @@ async function processMessages() {
 
 
 
-function sendHumanName(human_name) {
+export function sendHumanName(human_name) {
     if (GlobalState.human_ws.readyState !== WebSocket.OPEN) {
         humanWsOpen();
         GlobalState.human_ws.onopen = function(e) {
@@ -3197,6 +3144,7 @@ export class GPTSettingButtonManagerModel {
             });
         });
         this.gpt_mode_accordion_open_close_button = (this.ELM_gpt_setting.querySelector(".gpt_mode_accordion_open_close_button")) ?? (() => {throw new Error("gpt_mode_accordion_open_close_buttonが見つかりません")})();
+        console.log("gptクリックいべんとを追加する")
         this.gpt_mode_accordion_open_close_button.addEventListener("click", this.open_closeAcordion.bind(this));
 
         //ELM_gpt_settingからfocusが外れたときに、gpt_mode_accordion_open_close_buttonをcloseにする
@@ -3232,6 +3180,7 @@ export class GPTSettingButtonManagerModel {
     }
 
     open_closeAcordion():void {
+        console.log("open_closeAcordionが呼ばれた")
         if (this.gpt_mode_accordion_open_close_button.classList.contains("close") == true) {
             this.openAccordion();
         } else {
@@ -3440,23 +3389,22 @@ function humanWsOpen(){
 
 
 
-class DragDropFile{
-
-    human_tab: Element
-    human_window: Element
-    human_name: HTMLElement
+export class DragDropFile{
+    humanTab:HumanTab
+    get human_tab(): Element { return this.humanTab.component.element; }
+    get human_window(): Element { return this.humanTab.humanWindow.component.element; }
+    get human_name(): HTMLElement { return this.humanTab.humanName.component.element ; }
     human_images: Element
     target_voiceroid_front_name: string
 
-    constructor(human_tab: Element){
-        this.human_tab = human_tab;
-        this.human_window = this.human_tab.getElementsByClassName("human_window")[0];
-        this.human_name = this.human_tab.getFirstHTMLElementByClassName("human_name");
+
+    constructor(humanTab:HumanTab){
+        this.humanTab = humanTab;
         this.human_images = this.human_tab.getElementsByClassName("human_images")[0];
         this.target_voiceroid_front_name = "????";
-        human_tab.addEventListener("click", this);
-        human_tab.addEventListener("drop", this);
-        human_tab.addEventListener("dragover", this);
+        this.human_tab.addEventListener("click", this);
+        this.human_tab.addEventListener("drop", this);
+        this.human_tab.addEventListener("dragover", this);
 
     }
 
@@ -3568,7 +3516,7 @@ class DragDropFile{
                                 "init_image_info": init_image_info
                             }
 
-                            registerHumanName(front_name,this.human_tab,this.human_name)
+                            this.humanTab.registerHumanName(front_name)
                             GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts,this.human_window)
                             GlobalState.front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
                         })
@@ -3816,56 +3764,12 @@ export class GlobalState {
 
 // メイン処理の開始
 
-await GlobalState.initialize();
-GlobalState.drag_drop_file_event_list.push(new DragDropFile(GlobalState.first_human_tab));
-console.log("DOMContentLoadedが呼ばれた");
-// document.addEventListener('DOMContentLoaded', () => {
-//     GlobalState.drag_drop_file_event_list.push(new DragDropFile(GlobalState.first_human_tab))
-// });
+export async function main() {
+
+    await GlobalState.initialize();
+    GlobalState.drag_drop_file_event_list.push(new DragDropFile(GlobalState.message_box_manager.message_box_list[0].human_tab));
+}
 
 
-// //ここから下がメイン処理
-// var message_box_manager = new MessageBoxManager();
-// const localhost = location.hostname;
-// const port = "8010"
-// var init_human_tab = document.getElementsByClassName("tab human_tab")[0] as HTMLLIElement;
-// addClickEvent2Tab(init_human_tab)
-// //var ws = new WebSocket("ws://localhost:${port}/InputGPT")
-// //var ws = new WebSocket("ws://localhost:${port}/InputPokemon");
-// var messageQueue:MessageEvent[] = [];
-// var isProcessing = false;
-
-// /** @type {Record<string,HumanBodyManager2>} */
-// var humans_list = {};
-// /** @type {Record<string,string>} */
-// var front2chara_name = {};
-// /** @type {Record<string,VoiroAISetting>} */
-// var setting_info = {}; //どのキャラの設定がオンになっているかを管理する
-
-// let first_human_tab = document.getElementsByClassName("tab human_tab")[0];
-// /**@type {DragDropFile[]} */
-// let drag_drop_file_event_list = [new DragDropFile(first_human_tab)];
-// console.log("ドラッグアンドドロップイベントを追加しました。");
 
 
-// //これらの変数はグローバル変数にする必要がある
-// let client_id;
-// var ws;
-// var human_ws;
-// var test = 0;
-
-// getClientId().then(recieve_client_id => {
-//     client_id = recieve_client_id;
-//     ws = new WebSocket(`ws://${localhost}:${port}/ws/${client_id}`);
-//     ws.onmessage = function(event) {
-//         messageQueue.push(event);
-//         console.log("messageQueue=",messageQueue,"messageQueueをpushしました","isProcessing=",isProcessing);
-//         processMessages();
-//         console.log("messageQueue=",messageQueue,"イベントを一つとりだした後のmessageQueueです");
-//     };
-//     ws.onclose = closeEventProcces_ws;
-
-//     humanWsOpen();
-    
-    
-// });

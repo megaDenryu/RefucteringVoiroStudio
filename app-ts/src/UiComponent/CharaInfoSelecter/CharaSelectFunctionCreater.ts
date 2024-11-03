@@ -3,6 +3,7 @@ import { CharaSelectFunction } from "./CharaInfoSelecter";
 import { IAllHumanInformationDict } from "./ICharacterInfo";
 
 import "./CharaInfoSelecter.css";
+import { HumanTab } from "../HumanDisplay/HumanWindow";
 
 interface CharaInfoResponse {
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
@@ -31,6 +32,7 @@ export class CharaSelectFunctionCreater {
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
     humanImagesDict: Map<CharacterName, HumanImage[]>;
     voiceModesDict: Map<CharacterName, VoiceMode[]>;
+    humanTab: HumanTab;
 
     get apiURLTest() {
         return this.rootURL + "AllCharaInfoTest";
@@ -40,7 +42,8 @@ export class CharaSelectFunctionCreater {
         return this.rootURL + "AllCharaInfo";
     }
 
-    constructor() {
+    constructor(humanTab: HumanTab) {
+        this.humanTab = humanTab;
     }
 
     async requestCharaInfoTest() {
@@ -90,13 +93,14 @@ export class CharaSelectFunctionCreater {
         const charaSelectFunction = new CharaSelectFunction(
             this.characterNamesDict,
             this.humanImagesDict,
-            this.voiceModesDict
+            this.voiceModesDict,
+            this.humanTab
         );
         return charaSelectFunction;
     }
 
-    static async init(element: HTMLElement) {
-        const charaSelectFunctionCreater = new CharaSelectFunctionCreater();
+    static async init(element: HTMLElement, humanTab: HumanTab) {
+        const charaSelectFunctionCreater = new CharaSelectFunctionCreater(humanTab);
         let charaSelectFunction = await charaSelectFunctionCreater.requestAllCharaInfo();
         charaSelectFunction.component.bindParentElement(element);
         console.log("CharaSelectFunction created");
