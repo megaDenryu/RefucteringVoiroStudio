@@ -1,15 +1,10 @@
-/**
- * human_tab: Element
- * human_window: Element
- * human_name: HTMLElement
- * human_images: Element
- * 
- */
 
-import { addClickEvent2Tab, DragDropFile, GlobalState, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
+
+import { addClickEvent2Tab, DragDropFile, GlobalState, HumanBodyManager2, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
 import { ReactiveProperty } from "../../BaseClasses/observer";
 import { ExtendFunction } from "../../Extend/extend";
 import { CharacterId, SelectCharacterState } from "../../ValueObject/Character";
+import { HumanData } from "../../ValueObject/IHumanPart";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 import { CharaSelectFunctionCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
 
@@ -139,6 +134,11 @@ export class HumanTab implements IHasComponent {
     charaSelectPanelStart() {
         let element = document.body;
         CharaSelectFunctionCreater.init(element, this);
+    }
+
+    createHuman(humanData: HumanData){
+        GlobalState.humans_list[humanData["char_name"]] = new HumanBodyManager2(humanData,this.humanWindow.component.element);
+        GlobalState.front2chara_name[humanData["front_name"]] = humanData["char_name"]
     }
 
 }

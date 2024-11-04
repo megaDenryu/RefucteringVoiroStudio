@@ -3,6 +3,9 @@ import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHa
 import { CharacterName, HumanImage, SelectCharacterState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../HumanDisplay/HumanWindow";
+import { HumanData } from "../../ValueObject/IHumanPart";
+import { ZIndexManager } from "../../AppPage/AppVoiroStudio/ZIndexManager";
+import { DragMover, IDragAble } from "../Base/DragableComponent";
 
 
 
@@ -404,7 +407,7 @@ export class CharaSelecterDeleteButton implements IHasComponent {
 }
 
 
-export class CharaSelectFunction implements IHasComponent {
+export class CharaSelectFunction implements IHasComponent, IDragAble {
     private readonly Def = HtmlElementInput.new(
         `
             <div class="CharaSelectFunction">
@@ -432,7 +435,8 @@ export class CharaSelectFunction implements IHasComponent {
     private compositeVoiceModeSelecter: CompositeVoiceModeSelecter;
     private characterSelectDecisionButton: CharacterSelectDecisionButton;
     private characterSelecterDeleteButton: CharaSelecterDeleteButton;
-    private _onReceiveDecideCharacterResponse = new ReactiveProperty<boolean>(false);
+    private _onReceiveDecideCharacterResponse = new ReactiveProperty<HumanData|null>(null);
+    private _dragMover: DragMover;
 
     private human_tab: HumanTab;
     public registerHumanName: (human_name:string, human_tab:Element, ELM_human_name:HTMLElement) => void;
@@ -478,10 +482,6 @@ export class CharaSelectFunction implements IHasComponent {
         throw new Error("全てのキャラにボイスモードがあるはずなので、ここには来ないはず");
     }
 
-    get ELM_human_name(): HTMLElement {
-        return document.getElementById("human_name");
-    }
-
     constructor(
         characterNamesDict: Record<TTSSoftware, CharacterName[]>, 
         humanImagesDict: Map<CharacterName, HumanImage[]>,
@@ -510,12 +510,18 @@ export class CharaSelectFunction implements IHasComponent {
     }
 
     private initSetChildElement(): void {
+        this.setZIndex();
         this.component.createArrowBetweenComponents(this, this.ttsSoftwareSelecter, this.Def.classNames.AriaTTSSoftwareSelecter);                //TTSSoftセレクター
         this.component.createArrowBetweenComponents(this, this.compositeCharacterNameSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);     //キャラクター名セレクター
         this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);        //人間の画像セレクター
         this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);         //ボイスモードセレクター
         this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, this.Def.classNames.AriaButton);      //決定ボタン
         this.component.createArrowBetweenComponents(this, this.characterSelecterDeleteButton, this.Def.classNames.AriaDeleteButton);      //削除ボタン
+        this._dragMover = new DragMover(this);
+    }
+
+    private setZIndex(): void {
+        this.component.element.style.zIndex = ZIndexManager.CharaSelectFunction.toString();
     }
 
     private definitionBehavior(): void {
@@ -557,16 +563,18 @@ export class CharaSelectFunction implements IHasComponent {
         console.log(selectState);
         // this.registerHumanName(selectState.character_name.name, this.human_tab.component.element, this.ELM_human_name);
         this.human_tab.registerHumanName(selectState.character_name.name);
-        let response_json = await RequestAPI.fetchOnDecideCharaInfo(selectState);
+        let response_json:HumanData = await RequestAPI.fetchOnDecideCharaInfo(selectState);
         console.log(response_json);
-        this._onReceiveDecideCharacterResponse.set(response_json);
+        // this._onReceiveDecideCharacterResponse.set(response_json);
         //サーバーから返ってきた情報を元に、キャラクターを生成する
+        this.human_tab.createHuman(response_json);
 
-        //送るapiエンドポイントの名前は
+        //ウィンドウを削除する
+        this.deleteWiondow();
         
     }
 
-    public addOnReceiveDecideCharacterResponse(method: (response: any) => void): void {
+    public addOnReceiveDecideCharacterResponse(method: (response: HumanData|null) => void): void {
         this._onReceiveDecideCharacterResponse.addMethod(method);
     }
 

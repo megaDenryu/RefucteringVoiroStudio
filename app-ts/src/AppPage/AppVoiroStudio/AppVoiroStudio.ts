@@ -11,6 +11,7 @@ import { ElementCreater } from "../../UiComponent/Base/ui_component_base";
 import { CharaSelectFunctionCreater } from "../../UiComponent/CharaInfoSelecter/CharaSelectFunctionCreater";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
+import { ZIndexManager } from "./ZIndexManager";
 
 // const { promises } = require("fs");
 
@@ -1624,7 +1625,7 @@ export class HumanBodyManager2 {
         //canvasにクラスを追加
         oprator_canvas.classList.add("human_image","operator_canvas",`${self.front_name}_img`);
         //canvasのstyleを設定。ONE_imgエレメントの位置に合わせる。
-        oprator_canvas.style.zIndex = String(50000);
+        oprator_canvas.style.zIndex = String(ZIndexManager.HumanOperatorCanvas);
         //canvasをhuman_imagesクラスに追加
         var human_images_elem = this.human_window.getElementsByClassName("human_images")[0];
         human_images_elem.appendChild(oprator_canvas);

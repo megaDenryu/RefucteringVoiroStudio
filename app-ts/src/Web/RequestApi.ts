@@ -1,4 +1,5 @@
 import { SelectCharacterState, SelectCharacterStateReq } from "../ValueObject/Character";
+import { HumanData } from "../ValueObject/IHumanPart";
 
 
 export class RequestAPI {
@@ -35,7 +36,7 @@ export class RequestAPI {
     }
 
 
-    static async fetchOnDecideCharaInfo(humanNameState: SelectCharacterState) {
+    static async fetchOnDecideCharaInfo(humanNameState: SelectCharacterState):Promise<HumanData> {
         //キャラインフォが決まったときに呼びdして、サーバーにキャラインフォを送り、ボイスロイドを起動して、画像データを取得する。
         let req = new SelectCharacterStateReq(humanNameState, this.client_id);
 
@@ -50,16 +51,17 @@ export class RequestAPI {
             },
             body: data
         })
-        .then(response => response.json())
-        .then(json => {
-                console.log(json);
-                return json;
-            })
-        .catch((error) => {
-                console.error('Error:', error);
-            });
-        return response;
 
+        const json:string = await response.json();
+        const dict = JSON.parse(json);
+        //3. jsonをHumanDataに変換する
+        const humanData:HumanData = {
+            body_parts_iamges: dict.body_parts_iamges,
+            init_image_info: dict.init_image_info,
+            front_name: dict.front_name,
+            char_name: dict.char_name
+        }
+        return humanData;
     }
 
 

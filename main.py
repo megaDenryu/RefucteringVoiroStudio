@@ -876,7 +876,7 @@ async def AllCharaInfoTest():
 async def AllCharaInfo():
     # TTSSoftwareManager.updateAllCharaList()
     mana = AllHumanInformationDict()
-    ExtendFunc.ExtendPrint(mana)
+    # ExtendFunc.ExtendPrint(mana)
     # mana.save()
     return mana
 
