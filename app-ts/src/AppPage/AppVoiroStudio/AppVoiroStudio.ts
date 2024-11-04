@@ -6,7 +6,7 @@ import "../../../src/OldJs/css/voiro_AI_setting.css"
 import { SpeechRecognition, SpeechRecognitionEvent, webkitSpeechRecognition } from "../../../src/Extend/webkitSpeechRecognition"; 
 import { ExtendedWebSocket } from "../../Extend/extend";
 import { ExtendedMap } from "../../Extend/extend_collections";
-import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
+import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, CharaCreateData, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
 import { ElementCreater } from "../../UiComponent/Base/ui_component_base";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
@@ -3365,18 +3365,10 @@ export class DragDropFile{
                             body: formData
                         })
                         .then(response => response.json())
-                        .then(data => {
-                            const { body_parts_iamges, init_image_info, front_name, char_name } = data;
-                            const body_parts:HumanData = {
-                                "front_name": front_name,
-                                "char_name": char_name,
-                                "body_parts_iamges": body_parts_iamges,
-                                "init_image_info": init_image_info
-                            }
+                        .then(json => {
+                            const charaCreateData:CharaCreateData = JSON.parse(json);
+                            this.humanTab.createHuman(charaCreateData);
 
-                            this.humanTab.registerHumanName(front_name)
-                            GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts,this.human_window)
-                            GlobalState.front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
                         })
                         .catch(error => console.error(error));
                     }
