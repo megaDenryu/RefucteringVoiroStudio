@@ -447,36 +447,3 @@ class AllHumanInformationDict(BaseModel):
 
 CharacterId: TypeAlias = str
         
-
-class SelectCharacterState(BaseModel):
-    id: CharacterId
-    tts_software: TTSSoftwareType
-    character_name: CharacterName
-    human_image: HumanImage
-    voice_mode: VoiceMode
-
-    @staticmethod
-    def new(id: CharacterId ,tts_software: TTSSoftwareType, chara_name:CharacterName, human_image: HumanImage, voice_mode:VoiceMode):
-        return SelectCharacterState(id = id,tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
-
-    @staticmethod
-    def fromDict(data:"ISelectCharacterState")->"SelectCharacterState":
-        return SelectCharacterState(id = data["id"], tts_software = data["tts_software"], character_name = CharacterName(**data["character_name"]), human_image = HumanImage(**data["human_image"]), voice_mode = VoiceMode(**data["voice_mode"]))
-
-class ISelectCharacterState(TypedDict):
-    id: CharacterId
-    tts_software: TTSSoftwareType
-    character_name: ICharacterName
-    human_image: IHumanImage
-    voice_mode: IVoiceMode    
-
-class HumanInformationTest:
-    def __init__(self):
-        self.test2()
-
-
-    
-    def test2(self):
-        name = CharacterName(name="test")
-        name2 = CharacterName(name="test")
-        print(name == name2)

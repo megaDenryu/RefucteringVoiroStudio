@@ -4,8 +4,8 @@ import random
 import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
-from api.gptAI.CharacterModeState import CharacterModeState, CharacterId
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, ISelectCharacterState, SelectCharacterState, TTSSoftware, VoiceMode
+from api.gptAI.CharacterModeState import CharacterModeState, CharacterId, ICharacterModeState
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
@@ -204,7 +204,7 @@ async def read_root(path_param: str):
 
 class MessageUnit(TypedDict):
     text: str
-    selectCharacterState: ISelectCharacterState|None
+    characterModeState: ICharacterModeState|None
 
 MessageDict = dict[CharacterId, MessageUnit]  # CharacterIdの型をstrと仮定
 
@@ -233,9 +233,9 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             #await notifier.push(json_data)
             inputer = ""
             for character_id,message_unit in message.items():
-                if message_unit["selectCharacterState"] == None:
+                if message_unit["characterModeState"] == None:
                     continue
-                characterModeState = CharacterModeState.newFromISelectCharacterState(message_unit["selectCharacterState"])
+                characterModeState = CharacterModeState.fromDict(message_unit["characterModeState"])
                 # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
                 if character_id not in human_dict:
                     #サーバーだけを再起動したときにここを通るのでhuman_dictを作り直す
@@ -649,7 +649,7 @@ OnomatopeiaMode = Literal["パク", "パチ", "ぴょこ"]
 Status = Literal["開候補", "閉"]
 
 class PatiSetting(BaseModel):
-    characterModeState:SelectCharacterState
+    characterModeState:CharacterModeState
     chara_name: str
     front_name: str
     pati_setting: dict#Dict[OnomatopeiaMode, Dict[Status, List[PartsPath]]]
@@ -689,7 +689,7 @@ async def ws_combi_img_reciver(websocket: WebSocket):
             #受け取ったデータをjsonに保存する
             if type(data) == dict:
                 #受け取ったデータをjsonに保存する
-                characterModeState:ISelectCharacterState = data["characterModeState"]
+                characterModeState:ICharacterModeState = data["characterModeState"]
                 json_data = data["combination_data"]
                 human_name = data["chara_name"]
                 combination_name = data["combination_name"]

@@ -1,21 +1,21 @@
 
-from typing import TypeAlias
+from typing import TypeAlias, TypedDict
 
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import ICharacterName, IHumanImage, IVoiceMode
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, ISelectCharacterState, SelectCharacterState, VoiceMode, TTSSoftwareType, CharacterId
-from api.gptAI.VoiceController import VoiceState
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, VoiceMode, TTSSoftwareType, CharacterId
+from api.gptAI.VoiceController import IVoiceState, VoiceState
 from uuid import uuid4
 
-class ICharacterModeState(TypeAlias):
+class ICharacterModeState(TypedDict):
     id: CharacterId
     tts_software: TTSSoftwareType
     character_name: ICharacterName
     human_image: IHumanImage
     voice_mode: IVoiceMode
-    voice_state: VoiceState | None
-    front_name: str | None
+    voice_state: IVoiceState
+    front_name: str
 
 class CharacterModeState(HashableBaseModel):
     id: CharacterId
@@ -23,8 +23,8 @@ class CharacterModeState(HashableBaseModel):
     character_name: CharacterName
     human_image: HumanImage
     voice_mode: VoiceMode
-    voice_state: VoiceState | None
-    front_name: str | None = None
+    voice_state: VoiceState
+    front_name: str
 
     def __hash__(self) -> int:
         return hash(self.id)
@@ -33,20 +33,6 @@ class CharacterModeState(HashableBaseModel):
         if not isinstance(o, CharacterModeState):
             return False
         return self.id == o.id
-    
-    @staticmethod
-    def new(select_character_state: SelectCharacterState) -> "CharacterModeState":
-        id = uuid4().__str__()
-        ExtendFunc.ExtendPrintWithTitle("キャラクターモードのID", id)
-        return CharacterModeState(
-            id=id,
-            tts_software=select_character_state.tts_software,
-            character_name=select_character_state.character_name,
-            human_image=select_character_state.human_image,
-            voice_mode=select_character_state.voice_mode,
-            voice_state=None,
-            front_name=None # todo[HumanWindowのIdによる管理] ここがNoneだとクライアント側でhuman_windowを見つけられなくなる。IDに移行することで解決したい。
-        )
     
     @staticmethod
     def newFromFrontName(front_name: str) -> "CharacterModeState":
@@ -62,10 +48,8 @@ class CharacterModeState(HashableBaseModel):
             tts_software = manager.chara_names_manager.getTTSSoftware(chara_name)
             human_image = manager.human_images.getDefaultHumanImage(chara_name)
             voice_mode = manager.CharaNames2VoiceModeDict_manager.getVoiceMode(chara_name)
-            select = SelectCharacterState(id = uuid4().__str__(), tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
-            ExtendFunc.ExtendPrintWithTitle("キャラクターの情報", select)
             try:
-                mode = CharacterModeState.new(select)
+                mode = CharacterModeState(id = uuid4().__str__(), tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode, voice_state=VoiceState.empty(), front_name=front_name)
                 mode.front_name = front_name
                 ExtendFunc.ExtendPrintWithTitle("キャラクターモード", mode)
                 return mode
@@ -78,12 +62,18 @@ class CharacterModeState(HashableBaseModel):
             ExtendFunc.ExtendPrint(e)
             ExtendFunc.ExtendPrint("デフォルトが存在しない場合について検討（画像がないなど）")
             raise ValueError("デフォルトが存在しない場合について検討（画像がないなど）")
-
+    
     @staticmethod
-    def newFromISelectCharacterState(i_select_character_state: ISelectCharacterState) -> "CharacterModeState":
-        scs = SelectCharacterState.fromDict(i_select_character_state)
-        return CharacterModeState.new(scs)
-
+    def fromDict(data: ICharacterModeState) -> "CharacterModeState":
+        return CharacterModeState(
+            id = data["id"], 
+            tts_software=data["tts_software"], 
+            character_name=CharacterName(**data["character_name"]), 
+            human_image=HumanImage(**data["human_image"]), 
+            voice_mode=VoiceMode(**data["voice_mode"]), 
+            voice_state=VoiceState(**data["voice_state"]), 
+            front_name=data["front_name"]
+            )
         
     
     
