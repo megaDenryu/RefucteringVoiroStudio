@@ -3,7 +3,7 @@ from typing import TypeAlias
 
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, SelectCharacterState, VoiceMode, TTSSoftwareType, CharacterId
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, ISelectCharacterState, SelectCharacterState, VoiceMode, TTSSoftwareType, CharacterId
 from api.gptAI.VoiceController import VoiceState
 from uuid import uuid4
 
@@ -72,7 +72,10 @@ class CharacterModeState(HashableBaseModel):
             ExtendFunc.ExtendPrint("デフォルトが存在しない場合について検討（画像がないなど）")
             raise ValueError("デフォルトが存在しない場合について検討（画像がないなど）")
 
-        
+    @staticmethod
+    def newFromISelectCharacterState(i_select_character_state: ISelectCharacterState) -> "CharacterModeState":
+        scs = SelectCharacterState.fromDict(i_select_character_state)
+        return CharacterModeState.new(scs)
 
         
     

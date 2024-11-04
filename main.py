@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.CharacterModeState import CharacterModeState, CharacterId
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, SelectCharacterState, TTSSoftware, VoiceMode
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, ISelectCharacterState, SelectCharacterState, TTSSoftware, VoiceMode
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
@@ -30,7 +30,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
-from typing import Dict, List, Any, Literal
+from typing import Dict, List, Any, Literal, TypedDict
 
 import mimetypes
 
@@ -68,7 +68,7 @@ client_ids: list[str] = []
 clients_ws:dict[str,WebSocket] = {}
 setting_module = AppSettingModule()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
-human_dict:dict[str,Human] = {}
+human_dict:dict[CharacterId,Human] = {}
 #Humanクラスの生成されたインスタンスをid順に登録する辞書を作成
 human_id_dict = []
 #使用してる合成音声の種類をカウントする辞書を作成
@@ -108,8 +108,8 @@ async def shutdown_event():
     # ここに終了処理を書く
     # cevioを起動していたら終了させる
     cevio_shutdowned = False
-    for name in human_dict.keys():
-        human = human_dict[name]
+    for characterId in human_dict.keys():
+        human = human_dict[characterId]
         if cevio_shutdowned==False and human.voice_system == "cevio":
             try:
                 #human.human_Voice.kill_cevio()
@@ -202,7 +202,15 @@ async def read_root(path_param: str):
     # ファイルを読み込み、Content-Typeとともにレスポンスとして返す
     return FileResponse(str(target), media_type=content_type)
 
+class MessageUnit(TypedDict):
+    text: str
+    selectCharacterState: ISelectCharacterState|None
 
+MessageDict = dict[CharacterId, MessageUnit]  # CharacterIdの型をstrと仮定
+
+class SendData(TypedDict):
+    message: MessageDict
+    gpt_mode: dict[str,str]
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint2(websocket: WebSocket, client_id: str):
@@ -214,63 +222,54 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
     try:
         while True:
             # クライアントからメッセージの受け取り
-            datas = json.loads(await websocket.receive_text()) 
+            datas:SendData = json.loads(await websocket.receive_text()) 
             message = datas["message"]
             recieve_gpt_mode_dict = Human.convertDictKeyToCharName(datas["gpt_mode"])
-            for name in recieve_gpt_mode_dict.keys():
-                gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
+            for character_id in recieve_gpt_mode_dict.keys():
+                gpt_mode_dict[character_id] = recieve_gpt_mode_dict[character_id]
             input = ""
-            input_dict:dict[str,str] = {}
+            input_dict:dict[CharacterId,str] = {}
             json_data = json.dumps(message, ensure_ascii=False)
             #await notifier.push(json_data)
             inputer = ""
-            for name,serif in message.items():
-                if "選択中" in name:
-                    pass
-                else:
-                    # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
-                    char_name = Human.setCharName(name)
-                    if char_name not in human_dict:
-                        #サーバーだけを再起動したときにここを通るのでhuman_dictを作り直す
-                        #name_dataに対応したHumanインスタンスを生成
-                        prompt_setteing_num = "キャラ個別システム設定"
-                        corresponding_websocket = clients_ws[client_id]
-                        tmp_human = Human(name, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
-                        #使用してる合成音声の種類をカウント
-                        print(f"{tmp_human.voice_system=}")
-                        voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
-                        #humanインスタンスが完成したのでhuman_dictに登録
-                        human_dict[tmp_human.char_name.name] = tmp_human
+            for character_id,message_unit in message.items():
+                if message_unit["selectCharacterState"] == None:
+                    continue
+                characterModeState = CharacterModeState.newFromISelectCharacterState(message_unit["selectCharacterState"])
+                # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
+                if character_id not in human_dict:
+                    #サーバーだけを再起動したときにここを通るのでhuman_dictを作り直す
+                    #name_dataに対応したHumanインスタンスを生成
+                    prompt_setteing_num = "キャラ個別システム設定"
+                    corresponding_websocket = clients_ws[client_id]
+                    
+                    
+                    tmp_human = Human(characterModeState, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
+                    #使用してる合成音声の種類をカウント
+                    print(f"{tmp_human.voice_system=}")
+                    voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
+                    #humanインスタンスが完成したのでhuman_dictに登録
+                    human_dict[tmp_human.char_name.name] = tmp_human
 
 
-                    sentence = f"{char_name}:{serif} , "
-                    input_dict[char_name] = serif
-                    input = input + sentence
-                    # インプットしたキャラの名前を取得
-                    if "" != serif:
-                        inputer = char_name
+                sentence = f"{characterModeState.character_name.name}:{message_unit} , "
+                input_dict[character_id] = message_unit["text"]
+                input = input + sentence
+                # インプットしたキャラの名前を取得
+                if "" != message_unit:
+                    inputer = character_id
             print(f"input:{input}")
 
-            #human_dictのキーをランダムな順番に並べ替えた配列を作成。userではないAIの名前リスト
-            human_dict_keys = list(human_dict.keys())
-            if True == human_queue_shuffle:
-                random.shuffle(human_dict_keys)
-            if inputer in human_dict_keys:
-                human_dict_keys.remove(inputer)
-            pprint(f"{human_dict_keys=}")
-
             #inputerの音声を生成
-            for name in [inputer]:
+            for character_id in [inputer]:
                 #gptには投げない
-                print(f"ユーザー：{name}の返答を生成します")
-                human_ai:Human = human_dict[name]
-                print("yukarinetに投げます")
-                print(f"{input_dict=}")
+                print(f"ユーザー：{character_id}の返答を生成します")
+                human_ai:Human = human_dict[character_id]
                 await epic.appendMessageAndNotify(input_dict)
                 print(f"{human_ai.char_name=}")
-                if "" != input_dict[human_ai.char_name.name]:
-                    print(f"{input_dict[human_ai.char_name.name]=}")
-                    for sentence in Human.parseSentenseList(input_dict[human_ai.char_name.name]):
+                if "" != input_dict[character_id]:
+                    print(f"{input_dict[character_id]=}")
+                    for sentence in Human.parseSentenseList(input_dict[character_id]):
                         for reciever in nikonama_comment_reciever_list.values():
                             reciever.checkAndStopRecieve(sentence)
                             
@@ -287,7 +286,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         # await websocket.send_json(json.dumps(wav_info))
                         await websocket.send_json(json.dumps(send_data))
                     # daiaryに保存
-                    diary.insertTodayMemo(input_dict[human_ai.char_name.name])
+                    diary.insertTodayMemo(input_dict[character_id])
             
     # セッションが切れた場合
     except WebSocketDisconnect:
@@ -541,7 +540,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
                 print(f"{tmp_human.voice_system=}")
                 voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
                 #humanインスタンスが完成したのでhuman_dictに登録
-                human_dict[tmp_human.char_name.name] = tmp_human
+                human_dict[tmp_human.id] = tmp_human
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
                 human_part_folder:HumanData = tmp_human.image_data_for_client
                 await websocket.send_json(json.dumps(human_part_folder))
@@ -645,6 +644,7 @@ OnomatopeiaMode = Literal["パク", "パチ", "ぴょこ"]
 Status = Literal["開候補", "閉"]
 
 class PatiSetting(BaseModel):
+    characterModeState:SelectCharacterState
     chara_name: str
     front_name: str
     pati_setting: dict#Dict[OnomatopeiaMode, Dict[Status, List[PartsPath]]]
@@ -654,13 +654,14 @@ class PatiSetting(BaseModel):
 
 @app.post("/pati_setting")
 async def pati_setting(req: PatiSetting):
+    characterModeState = req.characterModeState
     chara_name = req.chara_name
     front_name = req.front_name
     pati_setting = req.pati_setting
     now_onomatopoeia_action = req.now_onomatopoeia_action
     
     try:
-        human:Human = human_dict[chara_name]
+        human:Human = human_dict[characterModeState.id]
         human.saveHumanImageCombination(pati_setting,"OnomatopeiaActionSetting")
         human.saveHumanImageCombination(now_onomatopoeia_action,"NowOnomatopoeiaActionSetting")
         return {"message": "オノマトペアクション設定の保存に成功しました"}
@@ -683,10 +684,11 @@ async def ws_combi_img_reciver(websocket: WebSocket):
             #受け取ったデータをjsonに保存する
             if type(data) == dict:
                 #受け取ったデータをjsonに保存する
+                characterModeState:ISelectCharacterState = data["characterModeState"]
                 json_data = data["combination_data"]
                 human_name = data["chara_name"]
                 combination_name = data["combination_name"]
-                human:Human = human_dict[human_name]
+                human:Human = human_dict[characterModeState["id"]]
                 #jsonファイルを保存する
                 print("jsonファイルを保存します")
                 try:
@@ -900,7 +902,7 @@ async def DecideChara(req: SelectCharacterStateReq):
     print(f"{tmp_human.voice_system=}")
     voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
     #humanインスタンスが完成したのでhuman_dictに登録
-    human_dict[tmp_human.char_name.name] = tmp_human
+    human_dict[tmp_human.id] = tmp_human
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
     human_part_folder:HumanData = tmp_human.image_data_for_client
     ret_data = json.dumps(human_part_folder)

@@ -7,8 +7,9 @@ import { CharacterId, SelectCharacterState } from "../../ValueObject/Character";
 import { HumanData } from "../../ValueObject/IHumanPart";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 import { CharaSelectFunctionCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
+import { IAddHumanButton, IBodySettingButton, IDeleteHumanButton, IHumanName, IHumanSelectPanelStartButton, IHumanTab, IHumanWindow, IMicToggleButton } from "./IHumanWindow";
 
-export class HumanTab implements IHasComponent {
+export class HumanTab implements IHasComponent,IHumanTab {
 
     component: BaseComponent;
     humanWindow: HumanWindow;
@@ -143,7 +144,7 @@ export class HumanTab implements IHasComponent {
 
 }
 
-export class HumanWindow implements IHasComponent {
+export class HumanWindow implements IHasComponent, IHumanWindow {
     component: BaseComponent;
     constructor(element: HTMLElement) {
         this.component = new BaseComponent(element);
@@ -154,7 +155,7 @@ export class HumanWindow implements IHasComponent {
     }
 }
 
-export class DeleteHumanButton implements IHasComponent {
+export class DeleteHumanButton implements IHasComponent, IDeleteHumanButton {
     component: BaseComponent;
     onClick:ReactiveProperty<boolean> = new ReactiveProperty(false);
     constructor(element: HTMLElement) {
@@ -166,7 +167,7 @@ export class DeleteHumanButton implements IHasComponent {
     }
 }
 
-export class HumanName implements IHasComponent {
+export class HumanName implements IHasComponent, IHumanName {
     component: BaseComponent;
     front_name: string|null = null;
     onClick:ReactiveProperty<boolean> = new ReactiveProperty(false);
@@ -216,7 +217,7 @@ export class HumanName implements IHasComponent {
     }
 }
 
-export class HumanSelectPanelStartButton implements IHasComponent {
+export class HumanSelectPanelStartButton implements IHasComponent, IHumanSelectPanelStartButton {
     component: BaseComponent;
     _onClick:ReactiveProperty<boolean> = new ReactiveProperty(false);
     constructor(element: HTMLElement) {
@@ -228,7 +229,7 @@ export class HumanSelectPanelStartButton implements IHasComponent {
     }
 }
 
-export class BodySettingButton implements IHasComponent {
+export class BodySettingButton implements IHasComponent, IBodySettingButton {
     component: BaseComponent;
     toggle: boolean = false;
     humanTab: HumanTab;
@@ -259,7 +260,7 @@ export class BodySettingButton implements IHasComponent {
             console.log(GlobalState.humans_list)
             if (!(char_name in GlobalState.humans_list)) {return;}
             const chara_human_body_manager = GlobalState.humans_list[char_name]
-            var vas = new VoiroAISetting(chara_human_body_manager);
+            var vas = new VoiroAISetting(chara_human_body_manager, this.humanTab);
             GlobalState.humans_list[char_name].BindVoiroAISetting(vas);
             GlobalState.setting_info[char_name] = vas;
             GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
@@ -268,7 +269,7 @@ export class BodySettingButton implements IHasComponent {
 
 }
 
-export class MicToggleButton implements IHasComponent {
+export class MicToggleButton implements IHasComponent, IMicToggleButton {
     component: BaseComponent;
     
     mode: "npc"|"user" = "npc";
@@ -311,7 +312,7 @@ export class MicToggleButton implements IHasComponent {
     }
 }
 
-export class AddHumanButton implements IHasComponent {
+export class AddHumanButton implements IHasComponent, IAddHumanButton {
     component: BaseComponent;
     constructor(element: HTMLElement) {
         this.component = new BaseComponent(element);

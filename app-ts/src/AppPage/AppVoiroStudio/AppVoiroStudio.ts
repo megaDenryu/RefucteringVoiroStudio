@@ -12,6 +12,9 @@ import { CharaSelectFunctionCreater } from "../../UiComponent/CharaInfoSelecter/
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
 import { ZIndexManager } from "./ZIndexManager";
+import { MessageDict, SendData } from "../../ValueObject/DataSend";
+import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
+import { CharacterNameSelecter } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 
 // const { promises } = require("fs");
 
@@ -96,155 +99,8 @@ export class VoiceRecognitioManager {
     }
 }
 
-
+// todo 削除する
 function tabSwitch(this: HTMLElement, event: Event): void {
-    if (this.innerText == "+") {
-        const humans_space: HTMLElement = document.getElementsByClassName('humans_space')[0] as HTMLElement;
-        // 追加タブを追加
-        const tab: HTMLElement = humans_space.querySelector(".init_tab") as HTMLElement;
-        const clone: HTMLElement = tab.cloneNode(true) as HTMLElement;
-        clone.classList.remove("init_tab");
-        clone.classList.add("tab");
-        (clone.getElementsByClassName('human_name')[0] as HTMLElement).innerText = "????";
-        humans_space.append(clone);
-        let messageBox = addClickEvent2Tab(clone);
-        GlobalState.drag_drop_file_event_list?.push(new DragDropFile(messageBox.human_tab));
-        //changeMargin()
-    }else if(this.innerText == "x") {
-        //削除ボタンが押された人のタブを削除
-        let delete_target_element: HTMLElement | null  = this.parentNode?.parentNode as HTMLElement;
-        delete_target_element?.remove()
-        //changeMargin()
-        //別のタブにアクティブを移す処理
-
-        //ニコ生コメント受信を停止する。nikonama_comment_reciver_stopにfront_nameをfetchで送信する。
-        const front_name = (delete_target_element.getElementsByClassName("human_name")[0] as HTMLElement).innerText;
-        fetch(`http://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver_stop/${front_name}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ front_name: front_name })
-        })
-        const char_name = GlobalState.front2chara_name[front_name]
-        //設定タブを開いてるならエレメントを削除し、setting_infoからも削除
-        console.log("設定タブを開いてるならエレメントを削除し、setting_infoからも削除")
-        if (char_name in GlobalState.setting_info) {
-            console.log(char_name+"setteng_infoにあるので削除")
-            GlobalState.setting_info[char_name].ELM_accordion.remove();
-            delete GlobalState.setting_info[char_name];
-            
-        }
-        
-        //このタブのキャラのデータを削除
-        if (char_name in GlobalState.humans_list) {
-            console.log(char_name+"humans_listにあるので削除")
-            delete GlobalState.humans_list[char_name];
-        }
-        
-        //message_box_managerからも削除
-        GlobalState.message_box_manager.message_box_dict.delete(front_name);
-
-    }
-    else if (this.className.includes("human_name") && !this.className.includes("input_now")) {
-        //キャラの名前を選択できるようにプルダウンかinputを追加
-        this.classList.add('input_now')
-        let ELM_human_name = this;
-        let human_tab = ELM_human_name.parentNode?.parentNode as HTMLElement;
-        //this.innerText = ""
-        let input = document.createElement("input")
-        input.type = "text"
-        input.enterKeyHint = "enter"
-        //pc版
-        input.addEventListener("keydown", function(event) 
-        {
-            console.log(this)
-            if (event.key === "Enter") {
-                //removeInputCharaNameイベントを解除する
-                input.removeEventListener("blur", removeInputCharaName.bind(input));
-                const human_name = input.value;
-                registerHumanName(human_name, human_tab, ELM_human_name)
-                sendHumanName(human_name)
-                input.remove();
-            }
-        });
-        //フォーカスが外れたときにinputを削除
-        input.addEventListener("blur", removeInputCharaName.bind(input));
-        ELM_human_name.appendChild(input);
-        input.focus();
-    }
-    else if (this.innerText == "キャラ選択パネル"){
-        let element = document.body;
-        // CharaSelectFunctionCreater.init(element, humanTab);
-    }
-    else if (this.innerText == "npc") {
-        //npcの場合、userに変更され、他のuserはnpcに変更される
-        
-        //他のuserがあれば、npcに変更
-        let user_elms = document.getElementsByClassName("tab user");
-        if (user_elms.length > 0){
-            let user:HTMLElement = user_elms[0] as HTMLElement;
-            user.innerText = "npc";
-            user.classList.remove("user");
-            user.classList.add("npc");
-            VoiceRecognitioManager.singlton().deleteEventOnEnd();
-        }
-        
-        //自分はuserに変更
-        this.innerText = "user";
-        this.classList.remove("npc");
-        this.classList.add("user");
-        //音声認識を開始
-        var vrm = VoiceRecognitioManager.singlton()
-        vrm.user_number = 1;
-        vrm.start();
-
-        
-    }
-    else if (this.innerText == "user") {
-        //音声認識を停止
-        const vrm = VoiceRecognitioManager.singlton()
-        vrm.deleteEventOnEnd();
-        //自分はnpcに変更
-        this.innerText = "npc";
-        //classも変更
-        this.classList.remove("user");
-        this.classList.add("npc");
-        vrm.user_number = 0;   
-    }
-    else if (this.innerText == "設定") {
-        (event.target as HTMLElement)?.classList.add("setting_now")
-        //設定画面を表示
-        const front_name = ((this.parentNode as HTMLElement)?.getElementsByClassName("human_name")[0] as HTMLElement).innerText
-        const char_name = GlobalState.front2chara_name[front_name]
-        if (char_name in GlobalState.setting_info) {
-            console.log(char_name+"setteng_infoにある")
-            if (GlobalState.setting_info[char_name].ELM_accordion.classList.contains("vissible")){
-                console.log("vissibleを削除",GlobalState.setting_info[char_name].ELM_accordion)
-                GlobalState.setting_info[char_name].ELM_accordion.classList.remove("vissible")
-                GlobalState.setting_info[char_name].ELM_accordion.classList.add("non_vissible")
-            }else{
-                console.log("vissibleを追加",GlobalState.setting_info[char_name].ELM_accordion)
-                GlobalState.setting_info[char_name].ELM_accordion.classList.remove("non_vissible")
-                GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
-            }
-        } else {
-            console.log(char_name+"setteng_infoにない")
-            console.log(GlobalState.humans_list)
-            if (!(char_name in GlobalState.humans_list)) {return;}
-            const chara_human_body_manager = GlobalState.humans_list[char_name]
-            var vas = new VoiroAISetting(chara_human_body_manager);
-            GlobalState.humans_list[char_name].BindVoiroAISetting(vas);
-            GlobalState.setting_info[char_name] = vas;
-            GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
-        }
-        
-    } else if (this.className.includes("gpt_setting")) {
-        //gptの設定画アコーディオンを表示
-
-    }
-    else {
-        //キャラ名の場合
-
-    }
     //アクティブにする
     var active = document.getElementsByClassName('is-active')[0];
     if (active) {
@@ -363,7 +219,7 @@ export class MessageBoxManager {
         this.Map_all_char_gpt_mode_status.set(front_name, gpt_mode);
     }
 
-    getAllGptModeByDict() {
+    getAllGptModeByDict(): Record<string, string> {
         const gpt_mode_dict = {};
         for (let [key, value] of this.Map_all_char_gpt_mode_status) {
             gpt_mode_dict[key] = value;
@@ -593,10 +449,13 @@ export class MessageBox {
 
     sendMessage(message) {
         //メッセージを送信する
-        const message_dict = {}
+        const message_dict:MessageDict = {}
         if (this.front_name == null) {return;}
-        message_dict[this.front_name] = message;
-        const send_data = {
+        message_dict[this.front_name] = {
+            "text": message,
+            "selectCharacterState": this.human_tab.selectCharacterState?.toDict() ?? null
+        };
+        const send_data:SendData = {
             "message" : message_dict,
             "gpt_mode" : this.message_box_manager.getAllGptModeByDict()
         }
@@ -2050,6 +1909,7 @@ export class HumanBodyManager2 {
 
 
 export class VoiroAISetting{
+    humanTab: IHumanTab;
     chara_human_body_manager: HumanBodyManager2;
     ELM_combination_name: HTMLDivElement;
     ELM_body_setting: HTMLDivElement;
@@ -2059,11 +1919,8 @@ export class VoiroAISetting{
     accordion_item_dict: Record<string, AccordionItem>;
     ELM_combination_candidate: HTMLUListElement | null;
 
-
-    /**
-     * @param {HumanBodyManager2}chara_human_body_manager
-     */
-    constructor(chara_human_body_manager:HumanBodyManager2){
+    constructor(chara_human_body_manager:HumanBodyManager2, humanTab: IHumanTab){
+        this.humanTab = humanTab;
         console.log("VoiroAISetting constructor")
         this.ELM_body_setting = document.querySelector(".body_setting") ?? (() => { throw new Error("Element with class 'body_setting' not found"); })();
         this.chara_human_body_manager = chara_human_body_manager;
@@ -2189,6 +2046,7 @@ export class VoiroAISetting{
         console.log("sendCombinationNameを呼び出したよ")
         const all_now_images = this.getAllNowImages()
         const data = {
+            "characterModeState":this.humanTab.selectCharacterState?.toDict(),
             "chara_name":this.chara_human_body_manager.char_name,
             "front_name":this.chara_human_body_manager.front_name,
             "combination_name":combination_name,
@@ -2698,6 +2556,7 @@ export class AccordionItem{
 }
 
 export class PatiSettingToggleEventObject{
+    humanTab: HumanTab;
     ELM_accordion_content_pati_setting_toggle_button:HTMLElement;
     parent_accordion_item_instance:AccordionItem;
     human_body_manager:HumanBodyManager2;
@@ -2708,8 +2567,10 @@ export class PatiSettingToggleEventObject{
     constructor(
         ELM_accordion_content_pati_setting_toggle_button:HTMLElement, 
         parent_accordion_item_instance:AccordionItem,
-        content_button_event_object:ContentButtonEventobject
+        content_button_event_object:ContentButtonEventobject,
+        humanTab:HumanTab
     ){
+        this.humanTab = humanTab;
         this.ELM_accordion_content_pati_setting_toggle_button = ELM_accordion_content_pati_setting_toggle_button;
         this.parent_accordion_item_instance = parent_accordion_item_instance;
         this.human_body_manager = parent_accordion_item_instance.chara_human_body_manager;
@@ -2779,6 +2640,7 @@ export class PatiSettingToggleEventObject{
          * サーバー側でデータを保存するためにはinit_image_infoに到達するための情報が必要。
          */
         const data = {
+            "characterModeState":this.humanTab.selectCharacterState?.toDict(),
             "chara_name":this.human_body_manager.char_name,
             "front_name":this.human_body_manager.front_name,
             "pati_setting":this.human_body_manager.onomatopoeia_action_setting,
