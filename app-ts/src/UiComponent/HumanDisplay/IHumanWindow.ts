@@ -1,4 +1,4 @@
-import { CharacterId, SelectCharacterState } from "../../ValueObject/Character";
+import { CharacterId, CharacterModeState } from "../../ValueObject/Character";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 
 
@@ -12,7 +12,7 @@ export interface IHumanTab extends IHasComponent{
     micToggleButton: IMicToggleButton
     addHumanButton: IAddHumanButton
     characterId: CharacterId;
-    selectCharacterState: SelectCharacterState|null;
+    selectCharacterState: CharacterModeState|null;
 }
 
 export interface IHumanWindow extends IHasComponent{

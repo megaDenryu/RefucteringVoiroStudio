@@ -1,4 +1,4 @@
-import { SelectCharacterState, SelectCharacterStateReq } from "../ValueObject/Character";
+import { CharacterModeState, CharacterModeStateReq } from "../ValueObject/Character";
 import { HumanData } from "../ValueObject/IHumanPart";
 
 
@@ -36,9 +36,9 @@ export class RequestAPI {
     }
 
 
-    static async fetchOnDecideCharaInfo(humanNameState: SelectCharacterState):Promise<HumanData> {
+    static async fetchOnDecideCharaInfo(humanNameState: CharacterModeState):Promise<HumanData> {
         //キャラインフォが決まったときに呼びdして、サーバーにキャラインフォを送り、ボイスロイドを起動して、画像データを取得する。
-        let req = new SelectCharacterStateReq(humanNameState, this.client_id);
+        let req = new CharacterModeStateReq(humanNameState, this.client_id);
 
         //1. jsonに変換する
         const data = JSON.stringify(req.toDict());

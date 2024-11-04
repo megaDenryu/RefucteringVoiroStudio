@@ -1,11 +1,12 @@
 import { ReactiveProperty } from "../../BaseClasses/observer";
 import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
-import { CharacterName, HumanImage, SelectCharacterState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
+import { CharacterName, HumanImage, CharacterModeState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../HumanDisplay/HumanWindow";
 import { HumanData } from "../../ValueObject/IHumanPart";
 import { ZIndexManager } from "../../AppPage/AppVoiroStudio/ZIndexManager";
 import { DragMover, IDragAble } from "../Base/DragableComponent";
+import { VoiceState } from "../../ValueObject/VoiceState";
 
 
 
@@ -436,7 +437,7 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
     private characterSelectDecisionButton: CharacterSelectDecisionButton;
     private characterSelecterDeleteButton: CharaSelecterDeleteButton;
     private _onReceiveDecideCharacterResponse = new ReactiveProperty<HumanData|null>(null);
-    private dragMover: DragMover;
+    dragMover: DragMover;
 
     private human_tab: HumanTab;
     public registerHumanName: (human_name:string, human_tab:Element, ELM_human_name:HTMLElement) => void;
@@ -551,12 +552,14 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
 
     private async decideCharacter(): Promise<void> {
         //キャラクターが決定されたときの処理
-        const selectState = new SelectCharacterState(
+        const selectState = new CharacterModeState(
             this.human_tab.characterId,
             this.ttsSoftwareSelecter.selectedSoftware, 
             this.compositeCharacterNameSelecter.selectedCharacterName, 
             this.compositehumanImageSelecter.selectedHumanImage,
-            this.compositeVoiceModeSelecter.selectedVoiceMode
+            this.compositeVoiceModeSelecter.selectedVoiceMode,
+            new VoiceState(1),
+            this.compositeCharacterNameSelecter.selectedCharacterName.name
         );
         //情報をまとめてサーバーにPostでリクエストを投げる
         console.log("キャラクターが決定されました");

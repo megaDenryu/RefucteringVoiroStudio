@@ -3,9 +3,19 @@ from typing import TypeAlias
 
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
+from api.gptAI.HumanInfoValueObject import ICharacterName, IHumanImage, IVoiceMode
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, ISelectCharacterState, SelectCharacterState, VoiceMode, TTSSoftwareType, CharacterId
 from api.gptAI.VoiceController import VoiceState
 from uuid import uuid4
+
+class ICharacterModeState(TypeAlias):
+    id: CharacterId
+    tts_software: TTSSoftwareType
+    character_name: ICharacterName
+    human_image: IHumanImage
+    voice_mode: IVoiceMode
+    voice_state: VoiceState | None
+    front_name: str | None
 
 class CharacterModeState(HashableBaseModel):
     id: CharacterId
@@ -50,11 +60,8 @@ class CharacterModeState(HashableBaseModel):
             ExtendFunc.ExtendPrintWithTitle("キャラクターが見つかりました", chara_name)
             # キャラクターのでふぁるとモードとデフォルト画像などを取得
             tts_software = manager.chara_names_manager.getTTSSoftware(chara_name)
-            ExtendFunc.ExtendPrintWithTitle("TTSソフトウェア", tts_software)
             human_image = manager.human_images.getDefaultHumanImage(chara_name)
-            ExtendFunc.ExtendPrintWithTitle("デフォルト画像", human_image)
             voice_mode = manager.CharaNames2VoiceModeDict_manager.getVoiceMode(chara_name)
-            ExtendFunc.ExtendPrintWithTitle("ボイスモード", voice_mode)
             select = SelectCharacterState(id = uuid4().__str__(), tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
             ExtendFunc.ExtendPrintWithTitle("キャラクターの情報", select)
             try:

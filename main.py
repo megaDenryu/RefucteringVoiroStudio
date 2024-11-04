@@ -11,7 +11,7 @@ from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, InputReciever, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
-from api.images.image_manager.IHumanPart import HumanData
+from api.images.image_manager.IHumanPart import CharaCreateData, HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
@@ -264,6 +264,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             for character_id in [inputer]:
                 #gptには投げない
                 print(f"ユーザー：{character_id}の返答を生成します")
+                ExtendFunc.ExtendPrint(character_id)
                 human_ai:Human = human_dict[character_id]
                 await epic.appendMessageAndNotify(input_dict)
                 print(f"{human_ai.char_name=}")
@@ -543,6 +544,10 @@ async def human_pict(websocket: WebSocket, client_id: str):
                 human_dict[tmp_human.id] = tmp_human
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
                 human_part_folder:HumanData = tmp_human.image_data_for_client
+                charaCreateData:CharaCreateData = {
+                    "humanData":human_part_folder,
+                    "characterModeState":chara_mode_state
+                }
                 await websocket.send_json(json.dumps(human_part_folder))
             except Exception as e:
                 print(e)
@@ -882,16 +887,13 @@ async def AllCharaInfo():
     # mana.save()
     return mana
 
-class SelectCharacterStateReq(BaseModel):
-    selectCharacterState: SelectCharacterState
+class CharacterModeStateReq(BaseModel):
+    characterModeState: CharacterModeState
     client_id: str
 
-
 @app.post("/DecideChara")
-async def DecideChara(req: SelectCharacterStateReq):
-
-    select_character_state = req.selectCharacterState
-    character_mode_state:CharacterModeState = CharacterModeState.new(select_character_state)
+async def DecideChara(req: CharacterModeStateReq):
+    character_mode_state:CharacterModeState = req.characterModeState
     character_mode_state.front_name = character_mode_state.character_name.name
     client_id = req.client_id
     #name_dataに対応したHumanインスタンスを生成
@@ -906,9 +908,6 @@ async def DecideChara(req: SelectCharacterStateReq):
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
     human_part_folder:HumanData = tmp_human.image_data_for_client
     ret_data = json.dumps(human_part_folder)
-
-    ExtendFunc.ExtendPrint("DecideChara")
-    ExtendFunc.ExtendPrint(select_character_state)
     return ret_data
 
 

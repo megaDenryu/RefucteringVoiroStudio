@@ -3,7 +3,7 @@
 import { addClickEvent2Tab, DragDropFile, GlobalState, HumanBodyManager2, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
 import { ReactiveProperty } from "../../BaseClasses/observer";
 import { ExtendFunction } from "../../Extend/extend";
-import { CharacterId, SelectCharacterState } from "../../ValueObject/Character";
+import { CharacterId, CharacterModeState } from "../../ValueObject/Character";
 import { HumanData } from "../../ValueObject/IHumanPart";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 import { CharaSelectFunctionCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
@@ -22,7 +22,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
 
     characterId: CharacterId;
 
-    selectCharacterState: SelectCharacterState|null = null;
+    selectCharacterState: CharacterModeState|null = null;
     character
     // モードとクラス名の対応を定義
     bg_modes: Record<string, { display: string, className: string }> = {

@@ -6,15 +6,13 @@ import "../../../src/OldJs/css/voiro_AI_setting.css"
 import { SpeechRecognition, SpeechRecognitionEvent, webkitSpeechRecognition } from "../../../src/Extend/webkitSpeechRecognition"; 
 import { ExtendedWebSocket } from "../../Extend/extend";
 import { ExtendedMap } from "../../Extend/extend_collections";
-import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, ImageInfo, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
+import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
 import { ElementCreater } from "../../UiComponent/Base/ui_component_base";
-import { CharaSelectFunctionCreater } from "../../UiComponent/CharaInfoSelecter/CharaSelectFunctionCreater";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
 import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
-import { CharacterNameSelecter } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 
 // const { promises } = require("fs");
 
@@ -26,7 +24,6 @@ export function addClickEvent2Tab(human_tab_elm: HTMLElement):MessageBox {
     human_tab_elm.setAttribute('data-tab_num', num.toString());
     //メッセージボックスのサイズが変更された時のイベントを追加
     var message_box_elm = human_tab_elm.getElementsByClassName("messageText")[0] as HTMLTextAreaElement;
-    const front_name = (human_tab_elm.getElementsByClassName("human_name")[0] as HTMLElement).innerText
     return new MessageBox(message_box_elm,GlobalState.message_box_manager,num,human_tab_elm);
 }
 
@@ -459,6 +456,9 @@ export class MessageBox {
             "message" : message_dict,
             "gpt_mode" : this.message_box_manager.getAllGptModeByDict()
         }
+        let ret = JSON.stringify(send_data);
+        console.log("ret")
+        console.log(ret)
         GlobalState.ws.send(JSON.stringify(send_data));
     }
 }
@@ -1955,7 +1955,7 @@ export class VoiroAISetting{
 
         for (const [key, value] of map){
             //keyは体のパーツの名前、valueはそのパーツの画像群の配列
-            let accordion_item = new AccordionItem(key, this.ELM_body_setting, this.chara_human_body_manager);
+            let accordion_item = new AccordionItem(key, this.ELM_body_setting, this.chara_human_body_manager, this.humanTab);
 
             let ELM_accordion_item = accordion_item.html_doc.querySelector(".accordion_item") as HTMLUListElement;
 
@@ -2196,6 +2196,7 @@ export class AccordionItem{
     image_item_status:Record<string,"on"|"off">;
     pati_setting_mode:PatiMode;
     html_doc:Document;
+    humanTab: IHumanTab;
 
     /**
      * 
@@ -2203,7 +2204,8 @@ export class AccordionItem{
      * @param {HTMLElement} Parent_ELM_body_setting  body_settingの要素
      * @param {HumanBodyManager2} chara_human_body_manager
      */
-    constructor(name_acordion:string, Parent_ELM_body_setting:HTMLElement, chara_human_body_manager:HumanBodyManager2){
+    constructor(name_acordion:string, Parent_ELM_body_setting:HTMLElement, chara_human_body_manager:HumanBodyManager2, humanTab: IHumanTab){
+        this.humanTab = humanTab;
         //引数の登録
         this.name_acordion = name_acordion;
         this.Parent_ELM_body_setting = Parent_ELM_body_setting;
@@ -2468,7 +2470,7 @@ export class AccordionItem{
             ELM_accordion_content_clone.classList.remove("sample");
 
             let ELM_accordion_content_pati_setting_toggle_button = ELM_accordion_content_clone.getFirstHTMLElementByClassName("accordion_content_pati_setting_toggle_button");
-            let pati_setting_toggle_button_event_object = new PatiSettingToggleEventObject(ELM_accordion_content_pati_setting_toggle_button, this, content_button_event_object);
+            let pati_setting_toggle_button_event_object = new PatiSettingToggleEventObject(ELM_accordion_content_pati_setting_toggle_button, this, content_button_event_object, this.humanTab);
 
             //アコーディオンの中身を追加
             ELM_accordion_contents.appendChild(ELM_accordion_content_clone);
@@ -2556,7 +2558,7 @@ export class AccordionItem{
 }
 
 export class PatiSettingToggleEventObject{
-    humanTab: HumanTab;
+    humanTab: IHumanTab;
     ELM_accordion_content_pati_setting_toggle_button:HTMLElement;
     parent_accordion_item_instance:AccordionItem;
     human_body_manager:HumanBodyManager2;
@@ -2568,7 +2570,7 @@ export class PatiSettingToggleEventObject{
         ELM_accordion_content_pati_setting_toggle_button:HTMLElement, 
         parent_accordion_item_instance:AccordionItem,
         content_button_event_object:ContentButtonEventobject,
-        humanTab:HumanTab
+        humanTab:IHumanTab
     ){
         this.humanTab = humanTab;
         this.ELM_accordion_content_pati_setting_toggle_button = ELM_accordion_content_pati_setting_toggle_button;
