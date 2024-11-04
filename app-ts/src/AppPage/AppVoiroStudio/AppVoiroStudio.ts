@@ -13,6 +13,7 @@ import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
 import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
+import { CharacterModeState } from "../../ValueObject/Character";
 
 // const { promises } = require("fs");
 
@@ -500,7 +501,10 @@ function receiveMessage(event) {
     //ここで行う処理の内容は、apiから受信したキャラ画像を表示する処理
     let no_image_human = document.getElementsByClassName("no_image_human")
 
-    let body_parts:HumanData = JSON.parse(JSON.parse(event.data));
+    let charaCreateData:CharaCreateData = JSON.parse(JSON.parse(event.data));
+    let body_parts:HumanData = charaCreateData.humanData;
+    const characterModeState:CharacterModeState = charaCreateData.characterModeState;
+
     console.log(body_parts)
     console.log(body_parts.char_name,body_parts["char_name"])
     
@@ -516,6 +520,10 @@ function receiveMessage(event) {
 
     GlobalState.front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
     console.log("front2chara_name=",GlobalState.front2chara_name)
+
+    //CharacterModeStateの登録
+    let humanTab:HumanTab = GlobalState.message_box_manager.message_box_dict.get(characterModeState.front_name)?.human_tab ?? (() => {throw new Error("human_tabが見つかりませんでした。")})();
+    humanTab.selectCharacterState = characterModeState;
     
 }
 

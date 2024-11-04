@@ -4,8 +4,8 @@ import random
 import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
-from api.gptAI.CharacterModeState import CharacterModeState, CharacterId, ICharacterModeState
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode
+from api.gptAI.CharacterModeState import CharacterModeState, ICharacterModeState
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode, CharacterId
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
@@ -633,7 +633,12 @@ async def parserPsdFile(
         # パーツを取得
         human_part = HumanPart(CharacterName(name = chara_name))
         image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, front_name ,folder)
-        return image_data_for_client
+        charaCreateData:CharaCreateData = {
+            "humanData":image_data_for_client,
+            "characterModeState":CharacterModeState.newFromFrontName(front_name)
+        }
+        
+        return charaCreateData
         
     
     elif response_mode == ResponseMode.FrontName_noNeedBodyParts:
