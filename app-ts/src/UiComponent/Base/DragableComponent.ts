@@ -12,14 +12,12 @@ export class DragMover {
     private _startY: number;
     private _offsetX: number;
     private _offsetY: number;
-    private _lastX: number;
-    private _lastY: number;
 
     constructor(iHasComponent: IHasComponent) {
         this._iHasComponent = iHasComponent;
         this._iHasComponent.component.element.addEventListener('mousedown', this.onMouseDown.bind(this));
-        this._iHasComponent.component.element.addEventListener('mousemove', this.onMouseMove.bind(this));
-        this._iHasComponent.component.element.addEventListener('mouseup', this.onMouseUp.bind(this));
+        document.addEventListener('mousemove', this.onMouseMove.bind(this));
+        document.addEventListener('mouseup', this.onMouseUp.bind(this));
     }
 
     private onMouseDown(e: MouseEvent) {
@@ -28,23 +26,18 @@ export class DragMover {
         this._startY = e.clientY;
         this._offsetX = this._iHasComponent.component.element.offsetLeft;
         this._offsetY = this._iHasComponent.component.element.offsetTop;
-        this._lastX = this._startX;
-        this._lastY = this._startY;
     }
 
     private onMouseMove(e: MouseEvent) {
         if (this._dragging) {
-            let deltaX = e.clientX - this._lastX;
-            let deltaY = e.clientY - this._lastY;
+            const deltaX = e.clientX - this._startX;
+            const deltaY = e.clientY - this._startY;
             this._iHasComponent.component.element.style.left = (this._offsetX + deltaX) + 'px';
             this._iHasComponent.component.element.style.top = (this._offsetY + deltaY) + 'px';
-            this._lastX = e.clientX;
-            this._lastY = e.clientY;
         }
     }
 
     private onMouseUp() {
         this._dragging = false;
     }
-
 }
