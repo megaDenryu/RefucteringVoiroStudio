@@ -1,7 +1,7 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
 import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ISelectCharacterState, ISelectCharacterStateReq, IVoiceMode } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
-export type CharacterId = String;
+export type CharacterId = string;
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
 export class TTSSoftwareEnum {

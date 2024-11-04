@@ -6,7 +6,7 @@ from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel, Map
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IVoiceMode, NickName, TTSSoftware, VoiceMode, TTSSoftwareType
+from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NickName, TTSSoftware, VoiceMode, TTSSoftwareType
 from api.images.image_manager.HumanPart import HumanPart
 
 class VoiceModeNamesManager:
@@ -458,7 +458,17 @@ class SelectCharacterState(BaseModel):
     @staticmethod
     def new(id: CharacterId ,tts_software: TTSSoftwareType, chara_name:CharacterName, human_image: HumanImage, voice_mode:VoiceMode):
         return SelectCharacterState(id = id,tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode)
-    
+
+    @staticmethod
+    def fromDict(data:"ISelectCharacterState")->"SelectCharacterState":
+        return SelectCharacterState(id = data["id"], tts_software = data["tts_software"], character_name = CharacterName(**data["character_name"]), human_image = HumanImage(**data["human_image"]), voice_mode = VoiceMode(**data["voice_mode"]))
+
+class ISelectCharacterState(TypedDict):
+    id: CharacterId
+    tts_software: TTSSoftwareType
+    character_name: ICharacterName
+    human_image: IHumanImage
+    voice_mode: IVoiceMode    
 
 class HumanInformationTest:
     def __init__(self):

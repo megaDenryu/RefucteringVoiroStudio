@@ -436,7 +436,7 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
     private characterSelectDecisionButton: CharacterSelectDecisionButton;
     private characterSelecterDeleteButton: CharaSelecterDeleteButton;
     private _onReceiveDecideCharacterResponse = new ReactiveProperty<HumanData|null>(null);
-    private _dragMover: DragMover;
+    private dragMover: DragMover;
 
     private human_tab: HumanTab;
     public registerHumanName: (human_name:string, human_tab:Element, ELM_human_name:HTMLElement) => void;
@@ -517,7 +517,7 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
         this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);         //ボイスモードセレクター
         this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, this.Def.classNames.AriaButton);      //決定ボタン
         this.component.createArrowBetweenComponents(this, this.characterSelecterDeleteButton, this.Def.classNames.AriaDeleteButton);      //削除ボタン
-        this._dragMover = new DragMover(this);
+        this.dragMover = new DragMover(this);
     }
 
     private setZIndex(): void {
