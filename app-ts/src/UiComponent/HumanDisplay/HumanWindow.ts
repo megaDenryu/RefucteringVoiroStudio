@@ -4,7 +4,7 @@ import { addClickEvent2Tab, DragDropFile, GlobalState, HumanBodyManager2, sendHu
 import { ReactiveProperty } from "../../BaseClasses/observer";
 import { ExtendFunction } from "../../Extend/extend";
 import { CharacterId, CharacterModeState } from "../../ValueObject/Character";
-import { HumanData } from "../../ValueObject/IHumanPart";
+import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 import { CharaSelectFunctionCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
 import { IAddHumanButton, IBodySettingButton, IDeleteHumanButton, IHumanName, IHumanSelectPanelStartButton, IHumanTab, IHumanWindow, IMicToggleButton } from "./IHumanWindow";
@@ -137,9 +137,14 @@ export class HumanTab implements IHasComponent,IHumanTab {
         CharaSelectFunctionCreater.init(element, this);
     }
 
-    createHuman(humanData: HumanData){
+    createHuman(charaCreateData:CharaCreateData){
+        const humanData:HumanData = charaCreateData.humanData;
         GlobalState.humans_list[humanData["char_name"]] = new HumanBodyManager2(humanData,this.humanWindow.component.element);
         GlobalState.front2chara_name[humanData["front_name"]] = humanData["char_name"]
+        
+        const characterModeState:CharacterModeState = charaCreateData.characterModeState;
+        this.selectCharacterState = characterModeState;
+
     }
 
 }

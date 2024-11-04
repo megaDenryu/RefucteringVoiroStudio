@@ -3,7 +3,7 @@ import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHa
 import { CharacterName, HumanImage, CharacterModeState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../HumanDisplay/HumanWindow";
-import { HumanData } from "../../ValueObject/IHumanPart";
+import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
 import { ZIndexManager } from "../../AppPage/AppVoiroStudio/ZIndexManager";
 import { DragMover, IDragAble } from "../Base/DragableComponent";
 import { VoiceState } from "../../ValueObject/VoiceState";
@@ -566,7 +566,7 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
         console.log(selectState);
         // this.registerHumanName(selectState.character_name.name, this.human_tab.component.element, this.ELM_human_name);
         this.human_tab.registerHumanName(selectState.character_name.name);
-        let response_json:HumanData = await RequestAPI.fetchOnDecideCharaInfo(selectState);
+        let response_json:CharaCreateData = await RequestAPI.fetchOnDecideCharaInfo(selectState);
         console.log(response_json);
         // this._onReceiveDecideCharacterResponse.set(response_json);
         //サーバーから返ってきた情報を元に、キャラクターを生成する

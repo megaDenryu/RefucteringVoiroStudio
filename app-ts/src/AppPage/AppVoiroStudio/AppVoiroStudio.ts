@@ -3366,14 +3366,7 @@ export class DragDropFile{
                         })
                         .then(response => response.json())
                         .then(data => {
-                            console.log(data)
                             const { body_parts_iamges, init_image_info, front_name, char_name } = data;
-                            // これで、dataから各データが新しい変数に格納されます。
-                            // body_parts_images, init_image_info, front_name, char_nameという名前の変数が作成され、それぞれに対応するデータが格納されます
-
-                            /**
-                             * @type {BodyParts}
-                             */
                             const body_parts:HumanData = {
                                 "front_name": front_name,
                                 "char_name": char_name,

@@ -548,7 +548,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
                     "humanData":human_part_folder,
                     "characterModeState":chara_mode_state
                 }
-                await websocket.send_json(json.dumps(human_part_folder))
+                await websocket.send_json(json.dumps(charaCreateData))
             except Exception as e:
                 print(e)
                 traceback.print_exc()
@@ -894,7 +894,6 @@ class CharacterModeStateReq(BaseModel):
 @app.post("/DecideChara")
 async def DecideChara(req: CharacterModeStateReq):
     character_mode_state:CharacterModeState = req.characterModeState
-    character_mode_state.front_name = character_mode_state.character_name.name
     client_id = req.client_id
     #name_dataに対応したHumanインスタンスを生成
     prompt_setteing_num = "キャラ個別システム設定"
@@ -907,7 +906,11 @@ async def DecideChara(req: CharacterModeStateReq):
     human_dict[tmp_human.id] = tmp_human
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
     human_part_folder:HumanData = tmp_human.image_data_for_client
-    ret_data = json.dumps(human_part_folder)
+    charaCreateData:CharaCreateData = {
+        "humanData":human_part_folder,
+        "characterModeState":character_mode_state
+    }
+    ret_data = json.dumps(charaCreateData)
     return ret_data
 
 
