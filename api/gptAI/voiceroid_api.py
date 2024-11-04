@@ -20,8 +20,7 @@ from typing import Optional
 import sys
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.gptAI.CharacterModeState import CharacterModeState
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
 
 import subprocess
 import winreg

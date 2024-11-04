@@ -1,4 +1,5 @@
 import { ExtendedMap } from "../Extend/extend_collections";
+import { ICharacterModeState } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { CharacterModeState } from "./Character";
 
 export type BodyUnitKey = string; // 足、腕、胴、頭、口に順番識別用番号などが付いたもの。例：3_30_耳　4_40_腕など
@@ -91,7 +92,7 @@ export interface HumanData {
 
 export interface CharaCreateData{
     humanData: HumanData;
-    characterModeState: CharacterModeState;
+    characterModeState: ICharacterModeState;
 }
 
 export interface HumanBodyCanvasCssStylePosAndSize {

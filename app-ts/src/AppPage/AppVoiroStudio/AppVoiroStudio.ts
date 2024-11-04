@@ -451,7 +451,7 @@ export class MessageBox {
         if (this.front_name == null) {return;}
         message_dict[this.front_name] = {
             "text": message,
-            "selectCharacterState": this.human_tab.selectCharacterState?.toDict() ?? null
+            "characterModeState": this.human_tab.characterModeState?.toDict() ?? null
         };
         const send_data:SendData = {
             "message" : message_dict,
@@ -503,10 +503,7 @@ function receiveMessage(event) {
 
     let charaCreateData:CharaCreateData = JSON.parse(JSON.parse(event.data));
     let body_parts:HumanData = charaCreateData.humanData;
-    const characterModeState:CharacterModeState = charaCreateData.characterModeState;
-
-    console.log(body_parts)
-    console.log(body_parts.char_name,body_parts["char_name"])
+    const characterModeState:CharacterModeState = CharacterModeState.fromDict(charaCreateData.characterModeState);
     
     console.log("human_listに追加:"+body_parts["char_name"])
         
@@ -523,7 +520,7 @@ function receiveMessage(event) {
 
     //CharacterModeStateの登録
     let humanTab:HumanTab = GlobalState.message_box_manager.message_box_dict.get(characterModeState.front_name)?.human_tab ?? (() => {throw new Error("human_tabが見つかりませんでした。")})();
-    humanTab.selectCharacterState = characterModeState;
+    humanTab.characterModeState = characterModeState;
     
 }
 
@@ -2054,7 +2051,7 @@ export class VoiroAISetting{
         console.log("sendCombinationNameを呼び出したよ")
         const all_now_images = this.getAllNowImages()
         const data = {
-            "characterModeState":this.humanTab.selectCharacterState?.toDict(),
+            "characterModeState":this.humanTab.characterModeState?.toDict(),
             "chara_name":this.chara_human_body_manager.char_name,
             "front_name":this.chara_human_body_manager.front_name,
             "combination_name":combination_name,
@@ -2650,7 +2647,7 @@ export class PatiSettingToggleEventObject{
          * サーバー側でデータを保存するためにはinit_image_infoに到達するための情報が必要。
          */
         const data = {
-            "characterModeState":this.humanTab.selectCharacterState?.toDict(),
+            "characterModeState":this.humanTab.characterModeState?.toDict(),
             "chara_name":this.human_body_manager.char_name,
             "front_name":this.human_body_manager.front_name,
             "pati_setting":this.human_body_manager.onomatopoeia_action_setting,

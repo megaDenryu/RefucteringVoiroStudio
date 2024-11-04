@@ -12,7 +12,7 @@ export interface IHumanTab extends IHasComponent{
     micToggleButton: IMicToggleButton
     addHumanButton: IAddHumanButton
     characterId: CharacterId;
-    selectCharacterState: CharacterModeState|null;
+    characterModeState: CharacterModeState|null;
 }
 
 export interface IHumanWindow extends IHasComponent{

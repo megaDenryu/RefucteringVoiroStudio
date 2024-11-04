@@ -4,14 +4,13 @@ import random
 import sys
 from pathlib import Path
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
-from api.gptAI.CharacterModeState import CharacterModeState, ICharacterModeState
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, TTSSoftware, VoiceMode, CharacterId
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, InputReciever, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
-from api.images.image_manager.IHumanPart import CharaCreateData, HumanData
+from api.images.image_manager.IHumanPart import HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
@@ -202,6 +201,10 @@ async def read_root(path_param: str):
     # ファイルを読み込み、Content-Typeとともにレスポンスとして返す
     return FileResponse(str(target), media_type=content_type)
 
+class CharaCreateData(TypedDict):
+    humanData: HumanData
+    characterModeState: ICharacterModeState
+
 class MessageUnit(TypedDict):
     text: str
     characterModeState: ICharacterModeState|None
@@ -223,7 +226,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
         while True:
             # クライアントからメッセージの受け取り
             datas:SendData = json.loads(await websocket.receive_text()) 
-            message = datas["message"]
+            message:MessageDict = datas["message"]
             recieve_gpt_mode_dict = Human.convertDictKeyToCharName(datas["gpt_mode"])
             for character_id in recieve_gpt_mode_dict.keys():
                 gpt_mode_dict[character_id] = recieve_gpt_mode_dict[character_id]
@@ -546,7 +549,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
                 human_part_folder:HumanData = tmp_human.image_data_for_client
                 charaCreateData:CharaCreateData = {
                     "humanData":human_part_folder,
-                    "characterModeState":chara_mode_state
+                    "characterModeState":chara_mode_state.toDict()
                 }
                 await websocket.send_json(json.dumps(charaCreateData))
             except Exception as e:
@@ -635,7 +638,7 @@ async def parserPsdFile(
         image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, front_name ,folder)
         charaCreateData:CharaCreateData = {
             "humanData":image_data_for_client,
-            "characterModeState":CharacterModeState.newFromFrontName(front_name)
+            "characterModeState":CharacterModeState.newFromFrontName(front_name).toDict()
         }
         
         return charaCreateData
@@ -913,7 +916,7 @@ async def DecideChara(req: CharacterModeStateReq):
     human_part_folder:HumanData = tmp_human.image_data_for_client
     charaCreateData:CharaCreateData = {
         "humanData":human_part_folder,
-        "characterModeState":character_mode_state
+        "characterModeState":character_mode_state.toDict()
     }
     ret_data = json.dumps(charaCreateData)
     return ret_data

@@ -1,9 +1,9 @@
 import { ICharacterModeState } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
-import { CharacterId, CharacterName, CharacterModeState } from "./Character";
+import { CharacterId } from "./Character";
 
 interface MessageUnit {
     text: string;
-    selectCharacterState: ICharacterModeState|null;
+    characterModeState: ICharacterModeState|null;
 
 }
 

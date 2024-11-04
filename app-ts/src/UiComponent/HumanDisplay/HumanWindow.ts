@@ -22,7 +22,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
 
     characterId: CharacterId;
 
-    selectCharacterState: CharacterModeState|null = null;
+    characterModeState: CharacterModeState|null = null;
     character
     // モードとクラス名の対応を定義
     bg_modes: Record<string, { display: string, className: string }> = {
@@ -142,8 +142,8 @@ export class HumanTab implements IHasComponent,IHumanTab {
         GlobalState.humans_list[humanData["char_name"]] = new HumanBodyManager2(humanData,this.humanWindow.component.element);
         GlobalState.front2chara_name[humanData["front_name"]] = humanData["char_name"]
         
-        const characterModeState:CharacterModeState = charaCreateData.characterModeState;
-        this.selectCharacterState = characterModeState;
+        const characterModeState:CharacterModeState = CharacterModeState.fromDict(charaCreateData.characterModeState);
+        this.characterModeState = characterModeState;
 
     }
 

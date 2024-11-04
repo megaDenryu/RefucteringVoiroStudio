@@ -8,8 +8,7 @@ from pprint import pprint
 from typing import TypedDict
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
-from api.gptAI.CharacterModeState import CharacterModeState
-from api.gptAI.HumanInformation import TTSSoftware
+from api.gptAI.HumanInformation import CharacterModeState, TTSSoftware
 from api.images.image_manager.IHumanPart import HumanData
 from .gpt import ChatGPT
 from .voiceroid_api import voicevox_human

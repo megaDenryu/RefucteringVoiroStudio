@@ -150,15 +150,15 @@ export class CharacterModeState implements IValueObject<CharacterModeState> {
         };
     }
 
-    static fromDict(selectCharacterState: ICharacterModeState): CharacterModeState {
+    static fromDict(characterModeState: ICharacterModeState): CharacterModeState {
         return new CharacterModeState(
-            selectCharacterState.id,
-            TTSSoftwareEnum.check(selectCharacterState.tts_software),
-            CharacterName.fromDict(selectCharacterState.character_name),
-            HumanImage.fromDict(selectCharacterState.human_image),
-            VoiceMode.fromDict(selectCharacterState.voice_mode),
-            VoiceState.fromDict(selectCharacterState.voice_state),
-            selectCharacterState.front_name
+            characterModeState.id,
+            TTSSoftwareEnum.check(characterModeState.tts_software),
+            CharacterName.fromDict(characterModeState.character_name),
+            HumanImage.fromDict(characterModeState.human_image),
+            VoiceMode.fromDict(characterModeState.voice_mode),
+            VoiceState.fromDict(characterModeState.voice_state),
+            characterModeState.front_name
         );
     }
 

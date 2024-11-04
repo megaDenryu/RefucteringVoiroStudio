@@ -1,6 +1,6 @@
 from typing import Literal, TypedDict, TypeAlias
 
-from api.gptAI.CharacterModeState import CharacterModeState
+# from api.gptAI.HumanInformation import CharacterModeState
 
 BodyUnitKey: TypeAlias = str #足、腕、胴、頭、口に順番識別用番号などが付いたもの。例：3_30_耳　4_40_腕など
 BodyUnitVariationKey: TypeAlias = str #口(笑顔)、口(驚き)など,"130_ほほえみ"　など
@@ -66,6 +66,4 @@ class HumanData(TypedDict):
     front_name: str
     char_name: str
 
-class CharaCreateData(TypedDict):
-    humanData: HumanData
-    characterModeState: CharacterModeState
+
