@@ -4,6 +4,8 @@ import { IAllHumanInformationDict } from "./ICharacterInfo";
 
 import "./CharaInfoSelecter.css";
 import { HumanTab } from "../HumanDisplay/HumanWindow";
+import { CharaModeChangeFunction } from "./CharaModeSelecter";
+import { VoMap } from "../../Extend/extend_collections";
 
 interface CharaInfoResponse {
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
@@ -30,8 +32,8 @@ export class CharaSelectFunctionCreater {
     }
     allHumanInformationDict: AllHumanInformationDict;
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
-    humanImagesDict: Map<CharacterName, HumanImage[]>;
-    voiceModesDict: Map<CharacterName, VoiceMode[]>;
+    humanImagesDict: VoMap<CharacterName, HumanImage[]>;
+    voiceModesDict: VoMap<CharacterName, VoiceMode[]>;
     humanTab: HumanTab;
 
     get apiURLTest() {
@@ -79,14 +81,13 @@ export class CharaSelectFunctionCreater {
         await charaInfo;
     }
 
-    async requestAllCharaInfo(): Promise<CharaSelectFunction> {
+    async requestAllCharaInfo(): Promise<void> {
         var data = await this.fetchHumanInformation();
         console.log(data);
         this.allHumanInformationDict = new AllHumanInformationDict(data);
         this.characterNamesDict = this.allHumanInformationDict.getCharacterNamesDict();
         this.humanImagesDict = this.allHumanInformationDict.getHumanImagesDict();
         this.voiceModesDict = this.allHumanInformationDict.getVoiceModesDict();
-        return this.createCharaSelectFunction();
     }
 
     createCharaSelectFunction(): CharaSelectFunction {
@@ -99,10 +100,30 @@ export class CharaSelectFunctionCreater {
         return charaSelectFunction;
     }
 
+    createCharaModeChangeFunction(tts_software: TTSSoftware, chara_name: CharacterName ): CharaModeChangeFunction {
+        const charaModeChangeFunction = new CharaModeChangeFunction(
+            tts_software,
+            chara_name,
+            this.characterNamesDict,
+            this.humanImagesDict,
+            this.voiceModesDict,
+            this.humanTab
+        );
+        return charaModeChangeFunction;
+    }
+
     static async init(element: HTMLElement, humanTab: HumanTab) {
         const charaSelectFunctionCreater = new CharaSelectFunctionCreater(humanTab);
-        let charaSelectFunction = await charaSelectFunctionCreater.requestAllCharaInfo();
-        charaSelectFunction.component.bindParentElement(element);
-        console.log("CharaSelectFunction created");
+        await charaSelectFunctionCreater.requestAllCharaInfo();
+        if (charaSelectFunctionCreater.humanTab.characterModeState) {
+            const charaSelectFunction = charaSelectFunctionCreater.createCharaModeChangeFunction(
+                charaSelectFunctionCreater.humanTab.characterModeState.tts_software,
+                charaSelectFunctionCreater.humanTab.characterModeState.character_name
+            );
+            charaSelectFunction.component.bindParentElement(element);
+        } else {
+            const charaSelectFunction = charaSelectFunctionCreater.createCharaSelectFunction();
+            charaSelectFunction.component.bindParentElement(element);
+        }
     }
 }

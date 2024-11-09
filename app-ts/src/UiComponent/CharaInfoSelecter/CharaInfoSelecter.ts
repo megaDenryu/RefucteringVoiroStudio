@@ -7,6 +7,7 @@ import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
 import { ZIndexManager } from "../../AppPage/AppVoiroStudio/ZIndexManager";
 import { DragMover, IDragAble } from "../Base/DragableComponent";
 import { VoiceState } from "../../ValueObject/VoiceState";
+import { VoMap } from "../../Extend/extend_collections";
 
 
 
@@ -201,14 +202,14 @@ export class HumanImageSelecter implements IHasComponent {
 
 export class CompositeHumanImageSelecter implements IHasComponent {
     public readonly component: BaseComponent;
-    private readonly humanImagesDict: Map<CharacterName, HumanImage[]>;
-    private readonly humanImageSelecterDict: Map<CharacterName, HumanImageSelecter>;
+    private readonly humanImagesDict: VoMap<CharacterName, HumanImage[]>;
+    private readonly humanImageSelecterDict: VoMap<CharacterName, HumanImageSelecter>;
     //変化したときに表示するセレクターを変える
     public readonly selectedCharacterName: ReactiveProperty<CharacterName>;
     private _selectedHumanImage: HumanImage;
     public get selectedHumanImage(): HumanImage { return this._selectedHumanImage; }
 
-    constructor(humanImagesDict: Map<CharacterName, HumanImage[]>, defaultCharacterName: CharacterName, defaultHumanImage: HumanImage) {
+    constructor(humanImagesDict: VoMap<CharacterName, HumanImage[]>, defaultCharacterName: CharacterName, defaultHumanImage: HumanImage) {
         this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.humanImagesDict = humanImagesDict;
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
@@ -232,8 +233,8 @@ export class CompositeHumanImageSelecter implements IHasComponent {
         `;
     }
 
-    private createHumanImageSelecter(humanImagesDict: Map<CharacterName, HumanImage[]>): Map<CharacterName, HumanImageSelecter> {
-        const humanImageSelecterMap: Map<CharacterName, HumanImageSelecter> = new Map();
+    private createHumanImageSelecter(humanImagesDict: VoMap<CharacterName, HumanImage[]>): VoMap<CharacterName, HumanImageSelecter> {
+        const humanImageSelecterMap: VoMap<CharacterName, HumanImageSelecter> = new VoMap();
         for (const [characterName, humanImages] of humanImagesDict.entries()) {
             const humanImageSelecter = new HumanImageSelecter(humanImages);
             humanImageSelecter.addOnHumanImageChanged((humanImage) => {this._selectedHumanImage = humanImage;});
@@ -309,8 +310,8 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
     component: BaseComponent;
     public readonly selectedCharacterName: ReactiveProperty<CharacterName>;
     private _selectedVoiceMode: VoiceMode;
-    private voiceModesDict: Map<CharacterName, VoiceMode[]>;
-    private voiceModeSelecterDict: Map<CharacterName, VoicemodeSelecter>;
+    private voiceModesDict: VoMap<CharacterName, VoiceMode[]>;
+    private voiceModeSelecterDict: VoMap<CharacterName, VoicemodeSelecter>;
 
     get selectedVoiceMode(): VoiceMode { return this._selectedVoiceMode; }
     get HTMLInput(): string {
@@ -319,7 +320,7 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
         `;
     }
 
-    constructor(cvoiceModesDict: Map<CharacterName, VoiceMode[]>, defaultCharacterName: CharacterName, defaultVoiceMode: VoiceMode) {
+    constructor(cvoiceModesDict: VoMap<CharacterName, VoiceMode[]>, defaultCharacterName: CharacterName, defaultVoiceMode: VoiceMode) {
         this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
         this._selectedVoiceMode = defaultVoiceMode;
@@ -337,8 +338,8 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
         this.component.addCSSClass(["CompositeVoiceModeSelecter","CompositeSelecterSize"]);
     }
 
-    private createVoiceModeSelecter(voiceModesDict: Map<CharacterName, VoiceMode[]>): Map<CharacterName, VoicemodeSelecter> {
-        const voiceModeSelecter: Map<CharacterName, VoicemodeSelecter> = new Map();
+    private createVoiceModeSelecter(voiceModesDict: VoMap<CharacterName, VoiceMode[]>): VoMap<CharacterName, VoicemodeSelecter> {
+        const voiceModeSelecter: VoMap<CharacterName, VoicemodeSelecter> = new VoMap();
         for (const [characterName, voiceModes] of voiceModesDict.entries()) {
             voiceModeSelecter.set(characterName, new VoicemodeSelecter(characterName, voiceModes));
         }
@@ -427,8 +428,8 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
     );
 
     private characterNamesDict: Record<TTSSoftware, CharacterName[]>
-    private humanImagesDict: Map<CharacterName, HumanImage[]>;
-    private voiceModesDict: Map<CharacterName, VoiceMode[]>;
+    private humanImagesDict: VoMap<CharacterName, HumanImage[]>;
+    private voiceModesDict: VoMap<CharacterName, VoiceMode[]>;
     public readonly component: BaseComponent<typeof this.Def["classNames"]>;
     private ttsSoftwareSelecter: TTSSoftwareSelecter;
     private compositeCharacterNameSelecter: CompositeCharacterNameSelecter;
@@ -485,8 +486,8 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
 
     constructor(
         characterNamesDict: Record<TTSSoftware, CharacterName[]>, 
-        humanImagesDict: Map<CharacterName, HumanImage[]>,
-        voiceModesDict: Map<CharacterName, VoiceMode[]>,
+        humanImagesDict: VoMap<CharacterName, HumanImage[]>,
+        voiceModesDict: VoMap<CharacterName, VoiceMode[]>,
         human_tab: HumanTab,
     ) {
         this.characterNamesDict = characterNamesDict;

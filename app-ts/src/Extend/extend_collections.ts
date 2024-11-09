@@ -1,3 +1,5 @@
+import { IValueObject } from "../BaseClasses/base_value_object";
+
 export {};
 
 declare global {
@@ -82,5 +84,44 @@ export class ExtendedMap<T1, T2> extends Map<T1, T2> {
         let keys = Array.from(this.keys());
         console.log(keys);
         return keys;
+    }
+}
+
+export class VoMap<K extends IValueObject<K>, V>{
+
+    private map: Map<string, V>;
+    private mapK: Map<K, V>;
+
+    constructor() {
+        this.map = new Map<string, V>();
+        this.mapK = new Map<K, V>();
+    }
+
+    public generateKey(key: K): string {
+        return key.hashCode();
+        //return JSON.stringify(key);
+    }
+
+    public set(key: K, value: V): this {
+        this.map.set(this.generateKey(key), value);
+        this.mapK.set(key, value);
+        return this;
+    }
+
+    public get(key: K): V | undefined {
+        return this.map.get(this.generateKey(key));
+    }
+
+    has(key: K): boolean {
+        return this.map.has(this.generateKey(key));
+    }
+
+    delete(key: K): boolean {
+        return this.map.delete(this.generateKey(key));
+    }
+
+    entries(): IterableIterator<[K, V]> {
+        let entries = this.mapK.entries();
+        return entries;
     }
 }

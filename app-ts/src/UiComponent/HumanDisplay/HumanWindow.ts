@@ -140,7 +140,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
     createHuman(charaCreateData:CharaCreateData){
         const humanData:HumanData = charaCreateData.humanData;
         GlobalState.humans_list[humanData["char_name"]] = new HumanBodyManager2(humanData,this.humanWindow.component.element);
-        GlobalState.front2chara_name[humanData["front_name"]] = humanData["char_name"]
+        GlobalState.front2chara_name[humanData["front_name"]] = humanData["char_name"];
         
         const characterModeState:CharacterModeState = CharacterModeState.fromDict(charaCreateData.characterModeState);
         this.characterModeState = characterModeState;

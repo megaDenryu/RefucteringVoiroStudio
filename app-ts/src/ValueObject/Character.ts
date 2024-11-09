@@ -1,4 +1,5 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
+import { VoMap } from "../Extend/extend_collections";
 import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ICharacterModeState, IVoiceMode, ICharacterModeStateReq } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { VoiceState } from "./VoiceState";
 
@@ -170,6 +171,10 @@ export class CharacterModeState implements IValueObject<CharacterModeState> {
         return true;
     }
 
+    hashCode(): string {
+        return this.tts_software + this.character_name.name + this.human_image.folder_name + this.voice_mode.mode;
+    }
+
     includes(others: CharacterModeState[]): boolean {
         for (const other of others) {
             if (this.equals(other) === true) return true;
@@ -205,6 +210,10 @@ export class CharacterModeStateReq implements IValueObject<CharacterModeStateReq
         if (this.characterModeState.equals(other.characterModeState) === false) return false;
         if (this.client_id !== other.client_id) return false;
         return true;
+    }
+
+    hashCode(): string {
+        return this.characterModeState.hashCode() + this.client_id;
     }
 
     includes(others: CharacterModeStateReq[]): boolean {
@@ -269,8 +278,8 @@ export class AllHumanInformationDict {
         return characterNamesDict;
     }
 
-    public getHumanImagesDict(): Map<CharacterName, HumanImage[]> {
-        const humanImagesDict = new Map<CharacterName, HumanImage[]>();
+    public getHumanImagesDict(): VoMap<CharacterName, HumanImage[]> {
+        const humanImagesDict = new VoMap<CharacterName, HumanImage[]>();
         for (const ttsSoftware of TTSSoftwareEnum.values) {
             this.data[ttsSoftware].human_informations.forEach(humanInformation => {
                 humanImagesDict.set(humanInformation.chara_name, humanInformation.images);
@@ -279,8 +288,8 @@ export class AllHumanInformationDict {
         return humanImagesDict;
     }
 
-    public getVoiceModesDict(): Map<CharacterName, VoiceMode[]> {
-        const voiceModesDict = new Map<CharacterName, VoiceMode[]>();
+    public getVoiceModesDict(): VoMap<CharacterName, VoiceMode[]> {
+        const voiceModesDict = new VoMap<CharacterName, VoiceMode[]>();
         for (const ttsSoftware of TTSSoftwareEnum.values) {
             this.data[ttsSoftware].human_informations.forEach(humanInformation => {
                 voiceModesDict.set(humanInformation.chara_name, humanInformation.voice_modes);

@@ -239,6 +239,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 if message_unit["characterModeState"] == None:
                     continue
                 characterModeState = CharacterModeState.fromDict(message_unit["characterModeState"])
+                ExtendFunc.ExtendPrintWithTitle("characterModeState",characterModeState)
                 # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
                 if character_id not in human_dict:
                     #サーバーだけを再起動したときにここを通るのでhuman_dictを作り直す

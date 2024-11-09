@@ -1,5 +1,6 @@
 export interface IValueObject<T> {
     equals(other: T): boolean;
+    hashCode(): string;
     includes(others: T[]): boolean;
 }
 
@@ -12,6 +13,15 @@ export class BaseValueObject implements IValueObject<BaseValueObject> {
             if (this[key] !== other[key]) return false;
         }
         return true;
+    }
+
+    hashCode(): string {
+        //全てのプロパティを文字列にして連結したものを返す
+        let hash = "";
+        for (const key in this) {
+            hash += this[key].toString();
+        }
+        return hash;
     }
 
     includes(others: BaseValueObject[]): boolean {
