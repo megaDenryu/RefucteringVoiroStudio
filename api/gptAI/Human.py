@@ -118,16 +118,16 @@ class Human:
         str = TextConverter.convertReadableJapanaeseSentense(str)
         if cevio_human == type(self.human_Voice):
             print("cevioでwav出力します")
-            self.human_Voice.outputWaveFile(str)
+            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif AIVoiceHuman == type(self.human_Voice):
             print("AIvoiceでwav出力します")
-            self.human_Voice.outputWaveFile(str)
+            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif voicevox_human == type(self.human_Voice):
             print("voicevoxでwav出力します")
-            self.human_Voice.outputWaveFile(str)
+            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif Coeiroink == type(self.human_Voice):
             print("coeiroinkでwav出力します")
-            self.human_Voice.outputWaveFile(str)
+            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         else:
             print("wav出力できるボイロが起動してないのでwav出力できませんでした。")
 

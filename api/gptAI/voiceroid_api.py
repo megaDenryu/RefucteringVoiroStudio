@@ -95,10 +95,11 @@ class cevio_human:
             print("cevioで喋ります")
             state = self.talker.Speak(text)
             state.Wait()
-    def outputWaveFile(self,content:str):
+    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):
         """
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
+        self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
         #output_wav_info_listを初期化
@@ -334,7 +335,7 @@ class voicevox_human:
             'speaker': self.mode,
             'text': text
         }
-        pprint(params)
+        ExtendFunc.ExtendPrintWithTitle("ボイボ音声パラメ",params)
         query_dict:Dict[str, Any] = requests.post(self.query_url, params=params).json()
         return query_dict
     
@@ -428,10 +429,11 @@ class voicevox_human:
 
         p.terminate()
     
-    def outputWaveFile(self,content:str):
+    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):
         """
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
+        self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
         #output_wav_info_listを初期化
@@ -724,10 +726,11 @@ class AIVoiceHuman:
             self.onTTSSoftware = False
             return
 
-    def outputWaveFile(self,content:str):
+    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):
         """
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
+        self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
         #output_wav_info_listを初期化
@@ -805,9 +808,13 @@ class AIVoiceHuman:
     
     def setVoiceChara(self):
         #ボイスを琴葉 葵に設定する
-        if self.aivoice_name is not None:
-            return
-        self.tts_control.CurrentVoicePresetName=self.aivoice_name
+        ExtendFunc.ExtendPrintWithTitle(f"ボイスを{self.aivoice_name}に設定します", self.aivoice_name)
+        try:
+            self.tts_control.CurrentVoicePresetName=self.aivoice_name
+            ExtendFunc.ExtendPrintWithTitle("AIボイス変更",f"ボイスを{self.aivoice_name}に設定しました")
+        except Exception as e:
+            ExtendFunc.ExtendPrintWithTitle("AIボイス変更",f"ボイスを{self.aivoice_name}に設定できませんでした")
+            ExtendFunc.ExtendPrint(e)
     
     def convertPythonList(self,CsArr):
         list = []
@@ -1329,11 +1336,12 @@ class Coeiroink:
 
         p.terminate()
     
-    def outputWaveFile(self,content:str):
+    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):
         """
         todo : 声色インク用の改造が終わってないので、この関数は未完成
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
+        self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
         #output_wav_info_listを初期化

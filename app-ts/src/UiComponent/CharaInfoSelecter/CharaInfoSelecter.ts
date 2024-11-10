@@ -282,7 +282,9 @@ export class VoicemodeSelecter implements IHasComponent {
         this._selectedVoiceMode = new ReactiveProperty<VoiceMode>(defaultVoiceMode);
         const HTMLElementInput = ElementCreater.createSelectElement(VoiceModes.map(VoiceMode => VoiceMode.mode), this.calcBoxSize());
         HTMLElementInput.addEventListener('change', (event) => {
-            this._selectedVoiceMode.set(new VoiceMode((event.target as HTMLSelectElement).value));
+            const voice_mode_name = (event.target as HTMLSelectElement).value;
+            const voice_mode = VoiceModes.find(voiceMode => voiceMode.mode === voice_mode_name) ?? (() => {throw new Error("VoiceModeが見つかりませんでした")})();
+            this._selectedVoiceMode.set(voice_mode);
         });
         this.component = new BaseComponent(HTMLElementInput);
         this.component.addCSSClass(["VoicemodeSelecter", "SelecterSize"]);
@@ -320,12 +322,13 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
         `;
     }
 
-    constructor(cvoiceModesDict: VoMap<CharacterName, VoiceMode[]>, defaultCharacterName: CharacterName, defaultVoiceMode: VoiceMode) {
+    constructor(voiceModesDict: VoMap<CharacterName, VoiceMode[]>, defaultCharacterName: CharacterName, defaultVoiceMode: VoiceMode) {
         this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
         this._selectedVoiceMode = defaultVoiceMode;
-        this.voiceModesDict = cvoiceModesDict;
-        this.voiceModeSelecterDict = this.createVoiceModeSelecter(cvoiceModesDict);
+        this.voiceModesDict = voiceModesDict;
+        console.log(voiceModesDict);
+        this.voiceModeSelecterDict = this.createVoiceModeSelecter(voiceModesDict);
         this.start();
     }
     

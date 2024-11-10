@@ -3379,17 +3379,13 @@ export class DragDropFile{
                     }
                 } else if (file.type == "image/png" || file.type == "image/jpeg" || file.type == "image/gif") {
                     console.log("画像ファイルです。")
-                    if (file.name.includes("背景")) {
-                        
-                        let ELM_bg_image = this.human_window.getElementsByClassName("bg_image")[0];
-                        // 背景画像の場合、ELM_bg_imageの画像を変更する
-                        console.log("背景画像です。")
-                        const reader = new FileReader();
-                        reader.readAsDataURL(file);
-                        reader.onload = () => {
-                            (ELM_bg_image as HTMLImageElement).src = reader.result as string;
-                        }
-
+                    let ELM_bg_image = this.human_window.getElementsByClassName("bg_image")[0];
+                    // 背景画像の場合、ELM_bg_imageの画像を変更する
+                    console.log("背景画像です。")
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = () => {
+                        (ELM_bg_image as HTMLImageElement).src = reader.result as string;
                     }
                 } else if (file.name.endsWith('.json')) {
                     console.log("jsonファイルです。")

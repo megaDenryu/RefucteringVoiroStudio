@@ -254,8 +254,10 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                     voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
                     #humanインスタンスが完成したのでhuman_dictに登録
                     human_dict[tmp_human.char_name.name] = tmp_human
-
-
+                else:
+                    tmp_human = human_dict[character_id]
+                    tmp_human.chara_mode_state = characterModeState
+                
                 sentence = f"{characterModeState.character_name.name}:{message_unit} , "
                 input_dict[character_id] = message_unit["text"]
                 input = input + sentence

@@ -72,9 +72,8 @@ export class HumanTab implements IHasComponent,IHumanTab {
      *  @param {"背景オン:"|"GBmode:"|"MBmode:"|"BBmode:"} mode_key
      */
     changeBackgroundMode(mode_key) {
-        let ELM_human_tab = this.human_window_elm.closest(".human_tab");
-        let ELM_bg_image = ELM_human_tab?.getElementsByClassName("bg_images")[0] as HTMLElement;
-        const ELM_human = ELM_human_tab?.getElementsByClassName("human")[0];
+        const ELM_human = this.component.element.getElementsByClassName("human")[0] as HTMLElement;
+        const ELM_bg_image = this.component.element.getElementsByClassName("bg_images")[0] as HTMLElement;
 
         // 全ての可能な背景クラスを削除
         ELM_human?.classList.remove("green_back", "maze_back", "blue_back");
