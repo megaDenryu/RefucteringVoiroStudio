@@ -270,6 +270,9 @@ class HumanPart:
         # chara_name_list = HumanPart.getAllCharacterName()
 
         path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/CharFilePath.json")
+        # pathが存在しない場合は作成する
+        if not os.path.exists(path):
+            ExtendFunc.saveDictToJson(path,{})
         chara_name_dict = ExtendFunc.loadJsonToDict(path)
         for chara_name in chara_name_dict:
             HumanPart.checkNameExistInVoiroCharaImageFolderAndCreate(chara_name)

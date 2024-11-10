@@ -42,7 +42,8 @@ class cevio_human:
     @property
     def cevio_name(self):
         if self.chara_mode_state is None:
-            raise Exception("chara_mode_stateがNoneです")
+            return None
+            # raise Exception("chara_mode_stateがNoneです")
         return self.chara_mode_state.voice_mode.mode
     
     onTTSSoftware:bool = False #CevioAIが起動しているかどうか
@@ -662,7 +663,8 @@ class AIVoiceHuman:
     @property
     def aivoice_name(self):
         if self.chara_mode_state is None:
-            raise Exception("chara_mode_stateがNoneです")
+            return None
+            # raise Exception("chara_mode_stateがNoneです")
         return self.chara_mode_state.voice_mode.mode
     onTTSSoftware:bool = False #AIVoiceが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #AIVoiceがインストールされているかどうか
@@ -1611,6 +1613,8 @@ class TTSSoftwareManager:
             ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストを更新します。")
             tmp_human.updateAllCharaList()
         else:
+            onTTSSoftwareDict = TTSSoftwareManager._instance.onTTSSoftwareDict[ttss]
+            ExtendFunc.ExtendPrintWithTitle(f"{ttss}の起動状況",onTTSSoftwareDict)
             ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストの更新に失敗しました。",tmp_human)
         
      
