@@ -635,6 +635,7 @@ async def parserPsdFile(
     parser = PsdParserMain(folder,psd_file)
     # CharFilePath.jsonにファイル名を追加
     HumanPart.writeCharFilePathToNewPSDFileName(chara_name,folder_name)
+    AllHumanInformationManager.singleton().load()
     
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得

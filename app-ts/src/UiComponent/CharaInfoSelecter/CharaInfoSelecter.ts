@@ -441,6 +441,7 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
     private characterSelectDecisionButton: CharacterSelectDecisionButton;
     private characterSelecterDeleteButton: CharaSelecterDeleteButton;
     private _onReceiveDecideCharacterResponse = new ReactiveProperty<HumanData|null>(null);
+    private _noHumanImage = false;
     dragMover: DragMover;
 
     private human_tab: HumanTab;
@@ -459,6 +460,10 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
     get defaultCharacterName(): CharacterName {
         //defaultHumanImageが選択されているCharacterNameを返す
         for (const [characterName, humanImage] of this.humanImagesDict.entries()) {
+            if (this._noHumanImage) {
+                return characterName;
+            }
+
             if (humanImage.includes(this.defaultHumanImage)) {
                 return characterName;
             }
@@ -474,6 +479,8 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
                 return humanImage[0];
             }
         }
+        this._noHumanImage = true;
+        return new HumanImage("NoHumanImage");
         throw new Error("No HumanImage");
     }
 

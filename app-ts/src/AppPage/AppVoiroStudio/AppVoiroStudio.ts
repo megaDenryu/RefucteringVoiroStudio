@@ -3371,7 +3371,7 @@ export class DragDropFile{
                         })
                         .then(response => response.json())
                         .then(json => {
-                            const charaCreateData:CharaCreateData = JSON.parse(json);
+                            const charaCreateData:CharaCreateData = json;
                             this.humanTab.createHuman(charaCreateData);
 
                         })
