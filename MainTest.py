@@ -7,7 +7,7 @@ from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanInformationTest, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 
 
