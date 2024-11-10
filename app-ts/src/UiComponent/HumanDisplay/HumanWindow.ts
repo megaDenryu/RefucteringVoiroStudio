@@ -29,9 +29,9 @@ export class HumanTab implements IHasComponent,IHumanTab {
     // モードとクラス名の対応を定義
     bg_modes: Record<string, { display: string, className: string }> = {
         "背景オン:": { display: "block", className: "" },
-        "GBmode:": { display: "none", className: "green_back" },
-        "MBmode:": { display: "none", className: "maze_back" },
-        "BBmode:": { display: "none", className: "blue_back" },
+        "GBmode:": { display: "block", className: "green_back" },
+        "MBmode:": { display: "block", className: "maze_back" },
+        "BBmode:": { display: "block", className: "blue_back" },
         // 新しいモードを追加する場合はここに追記
     };
 
