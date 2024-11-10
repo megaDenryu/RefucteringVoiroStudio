@@ -16,6 +16,7 @@ export class DragMover {
     constructor(iHasComponent: IHasComponent) {
         this._iHasComponent = iHasComponent;
         this._iHasComponent.component.element.addEventListener('mousedown', this.onMouseDown.bind(this));
+        this._iHasComponent.component.element.addEventListener('dragstart', this.onDragStart.bind(this));
         document.addEventListener('mousemove', this.onMouseMove.bind(this));
         document.addEventListener('mouseup', this.onMouseUp.bind(this));
     }
@@ -39,5 +40,9 @@ export class DragMover {
 
     private onMouseUp() {
         this._dragging = false;
+    }
+
+    private onDragStart(e: DragEvent) {
+        e.preventDefault();
     }
 }

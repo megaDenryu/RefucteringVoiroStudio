@@ -41,3 +41,12 @@ export interface IAddHumanButton extends IHasComponent{
     component: BaseComponent;
 }
 
+export interface IBackGroundImage extends IHasComponent{
+    component: BaseComponent;
+
+    setBackGroundImage(readerResult: string): void;
+}
+
+export interface IBackGroundImages extends IHasComponent{
+    component: BaseComponent;
+}

@@ -5,9 +5,10 @@ import { ReactiveProperty } from "../../BaseClasses/observer";
 import { ExtendFunction } from "../../Extend/extend";
 import { CharacterId, CharacterModeState } from "../../ValueObject/Character";
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
-import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
+import { DragMover } from "../Base/DragableComponent";
+import { BaseComponent, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
 import { CharaSelectFunctionCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
-import { IAddHumanButton, IBodySettingButton, IDeleteHumanButton, IHumanName, IHumanSelectPanelStartButton, IHumanTab, IHumanWindow, IMicToggleButton } from "./IHumanWindow";
+import { IAddHumanButton, IBackGroundImage, IBackGroundImages, IBodySettingButton, IDeleteHumanButton, IHumanName, IHumanSelectPanelStartButton, IHumanTab, IHumanWindow, IMicToggleButton } from "./IHumanWindow";
 
 export class HumanTab implements IHasComponent,IHumanTab {
 
@@ -19,6 +20,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
     bodySettingButton: BodySettingButton;
     micToggleButton: MicToggleButton;
     addHumanButton: AddHumanButton;
+    backGroundImages: BackGroundImages;
 
     characterId: CharacterId;
 
@@ -59,6 +61,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
         this.bodySettingButton = new BodySettingButton(human_tab_elm.getFirstHTMLElementByClassName("body_setting_button"),this);
         this.micToggleButton = new MicToggleButton(human_tab_elm.getFirstHTMLElementByClassName("mic_toggle_button"));
         this.addHumanButton = new AddHumanButton(human_tab_elm.getFirstHTMLElementByClassName("add_human_button"));
+        this.backGroundImages = new BackGroundImages(human_tab_elm.getFirstHTMLElementByClassName("bg_images"));
         this.characterId = ExtendFunction.uuid();
         this.Initialize();
     }
@@ -337,4 +340,33 @@ export class AddHumanButton implements IHasComponent, IAddHumanButton {
     }
 
 
+}
+
+export class BackGroundImage implements IHasComponent, IBackGroundImage {
+    private readonly Def = `<img class="bg_image" src="" alt="">`;
+    component: BaseComponent;
+    dragMover: DragMover;
+    constructor(readerResult: string) {
+        this.component = BaseComponent.createElementByString(this.Def);
+        this.setBackGroundImage(readerResult);
+        this.dragMover = new DragMover(this);
+    }
+
+    setBackGroundImage(readerResult: string) {
+        (this.component.element as HTMLImageElement).src = readerResult;
+    }
+}
+
+export class BackGroundImages implements IHasComponent, IBackGroundImages {
+    component: BaseComponent;
+    backGroundImages: BackGroundImage[] = [];
+    constructor(element: HTMLElement) {
+        this.component = new BaseComponent(element);
+    }
+
+    addBackGroundImage(readerResult: string) {
+        let bg_image = new BackGroundImage(readerResult);
+        this.component.createArrowBetweenComponents(this, bg_image);
+        this.backGroundImages.push(bg_image);
+    }
 }
