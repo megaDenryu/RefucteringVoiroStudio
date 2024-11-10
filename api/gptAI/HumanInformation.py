@@ -372,6 +372,8 @@ class AllHumanInformationManager:
 
 
     def __init__(self):
+        self.load()
+    def load(self):
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
         
         self.voice_mode_names_manager = VoiceModeNamesManager()
@@ -400,13 +402,13 @@ class HumanInformation(BaseModel):
     images: list[HumanImage]
 
     def __init__(self, chara_name:CharacterName):
-        ExtendFunc.ExtendPrintWithTitle("名前",chara_name)
-        ExtendFunc.ExtendPrint(chara_name)
-        ExtendFunc.ExtendPrint("ニックネームロード")
+        # ExtendFunc.ExtendPrintWithTitle("名前",chara_name)
+        # ExtendFunc.ExtendPrint(chara_name)
+        # ExtendFunc.ExtendPrint("ニックネームロード")
         nicknames = self.loadNicknames(chara_name)
-        ExtendFunc.ExtendPrint("ボイスモードロード")
+        # ExtendFunc.ExtendPrint("ボイスモードロード")
         voice_modes = self.loadVoiceModes(chara_name)
-        ExtendFunc.ExtendPrint("イメージロード")
+        # ExtendFunc.ExtendPrint("イメージロード")
         images = self.loadImages(chara_name)
         super().__init__(chara_name=chara_name, nicknames=nicknames, voice_modes=voice_modes, images=images)
 

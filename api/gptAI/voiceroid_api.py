@@ -49,8 +49,7 @@ class cevio_human:
     onTTSSoftware:bool = False #CevioAIが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #CevioAiがインストールされているかどうか
     def __init__(self, chara_mode_state:CharacterModeState|None, started_cevio_num:int) -> None:
-        if chara_mode_state is not None:
-            self.chara_mode_state = chara_mode_state
+        self.chara_mode_state = chara_mode_state
         
         self.cevioStart(started_cevio_num)
         self.output_wav_info_list = []
@@ -669,8 +668,7 @@ class AIVoiceHuman:
     onTTSSoftware:bool = False #AIVoiceが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #AIVoiceがインストールされているかどうか
     def __init__(self, chara_mode_state:CharacterModeState|None, started_AIVoice_num:int) -> None:
-        if chara_mode_state is not None:
-            self.chara_mode_state = chara_mode_state
+        self.chara_mode_state = chara_mode_state
         self.start()
     
     @staticmethod

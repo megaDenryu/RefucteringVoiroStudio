@@ -92,8 +92,9 @@ pprint(app_setting)
 # print("アプリ起動完了")
 # Websocket用のパス
 ExtendFunc.ExtendPrint("ボイスロイドの起動")
+TTSSoftwareManager.tryStartAllTTSSoftware()
+TTSSoftwareManager.updateAllCharaList()
 mana = AllHumanInformationManager.singleton()
-# TTSSoftwareManager.tryStartAllTTSSoftware()
 
 ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
@@ -892,9 +893,10 @@ async def AllCharaInfoTest():
 
 @app.post("/AllCharaInfo")
 async def AllCharaInfo():
-    # TTSSoftwareManager.updateAllCharaList()
+    TTSSoftwareManager.updateAllCharaList()
+    AllHumanInformationManager.singleton().load() #変更があるかもしれないのでリロード
     mana = AllHumanInformationDict()
-    # ExtendFunc.ExtendPrint(mana)
+    ExtendFunc.ExtendPrint(mana)
     # mana.save()
     return mana
 
