@@ -224,7 +224,8 @@ class NicknamesManager:
         for charaName in charaNames:
             if charaName not in charaNameList or charaName not in self.nicknames:
                 #ファイルパス一覧に追加する
-                self.nicknames[charaName] = [NickName(name = charaName.name)]
+                if charaName not in self.nicknames[charaName]:
+                    self.nicknames[charaName].append(NickName(name = charaName.name))
         
         #上書き保存する
         self.updateNicknames(self.nicknames)
