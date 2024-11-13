@@ -8,7 +8,8 @@ from pprint import pprint
 from typing import TypedDict
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
-from api.gptAI.HumanInformation import CharacterModeState, TTSSoftware
+from api.gptAI.HumanInfoValueObject import CharacterName, NickName
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
 from api.images.image_manager.IHumanPart import HumanData
 from .gpt import ChatGPT
 from .voiceroid_api import voicevox_human
@@ -198,31 +199,26 @@ class Human:
                 print(e)
     
     @staticmethod
-    def getNameList()->dict[str,str]:
+    def getNameList()->dict[NickName, CharacterName]:
         """
         キャラ名のリストを返す
         """
-        # C:\Users\t-yamanaka\VoiroStudio\api\CharSettingJson\NameListForHuman.jsonを現在のC:\Users\t-yamanaka\VoiroStudio\api\gptAI\Human.pyからの相対パスで取得
-        api_dir = Path(__file__).parent.parent
-        name_list_path = api_dir / "CharSettingJson" / "NameListForHuman.json"
-
-        with open(name_list_path, "r", encoding="utf-8") as f:
-            name_list = json.load(f)
-    
-        return name_list
+        allHumanInformationManager = AllHumanInformationManager.singleton()
+        return allHumanInformationManager.nick_names_manager.nickname2Charaname
 
     @staticmethod
-    def setCharName(name:str)->str:
+    def setCharName(front_name:str)->CharacterName:
         """
         front_nameからchar_nameに変換する関数
         """
+        nickName = NickName(name = front_name)
         name_list = Human.getNameList()
         
         try:
-            return name_list[name]
+            return name_list[nickName]
         except Exception as e:
-            print(f"{name}は対応するキャラがサーバーに登録されていません。")
-            return name
+            ExtendFunc.ExtendPrint(f"{nickName}は対応するキャラがサーバーに登録されていません。")
+            raise e
     
     @staticmethod
     def pickFrontName(filename:str):
@@ -231,8 +227,9 @@ class Human:
         """
         name_list = Human.getNameList()
         for front_name_candidate in name_list.keys():
-            if front_name_candidate in filename:
-                return front_name_candidate
+            if front_name_candidate.name in filename:
+                charaName = AllHumanInformationManager.singleton().nick_names_manager.nickname2Charaname[front_name_candidate]
+                return charaName
         return "名前が無効です"
     
     @staticmethod
@@ -241,10 +238,10 @@ class Human:
         コメントに含まれる名前がキャラ名リストに含まれているか確認する
         """
         name_list = Human.getNameList()
-        for name in name_list:
-            target = f"{atmark_type}{name}"
+        for nickName in name_list:
+            target = f"{atmark_type}{nickName.name}"
             if target in comment:
-                return name
+                return Human.setCharName(nickName.name)
         return "名前が無効です"
 
     

@@ -1,3 +1,6 @@
+from typing import Literal
+from api.gptAI.HumanInfoValueObject import CharacterName
+from api.gptAI.HumanInformation import AllHumanInformationManager
 from ..gptAI.Human import Human
 from api.DataStore.JsonAccessor import JsonAccessor
 import json
@@ -24,7 +27,7 @@ class NiconamaUserLinkVoiceroidModule:
             return "キャラ名は登録されていませんでした"
     
     
-    def registerNikonamaUserIdToCharaName(self,comment,NikonamaUserId)->str:
+    def registerNikonamaUserIdToCharaName(self,comment,NikonamaUserId)->CharacterName | Literal['名前が無効です'] :
         chara_name = self.getCharaNameFromComment(comment)
         if chara_name != "名前が無効です":
             self.saveNikonamaUserIdToCharaName(NikonamaUserId, chara_name)
@@ -38,16 +41,14 @@ class NiconamaUserLinkVoiceroidModule:
         コメントから@の後ろのキャラ名を取得する
         """
         if "@" in comment:
-            name = Human.checkCommentNameInNameList("@",comment)
+            chara_name = Human.checkCommentNameInNameList("@",comment)
         elif "＠" in comment:
-            name = Human.checkCommentNameInNameList("＠",comment)
+            chara_name = Human.checkCommentNameInNameList("＠",comment)
         else:
             return "名前が無効です"
 
-        if name != "名前が無効です":
-            chara_name = Human.setCharName(name)
+        if chara_name != "名前が無効です":
             return chara_name
-        
         return "名前が無効です"
              
     

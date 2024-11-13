@@ -92,8 +92,8 @@ pprint(app_setting)
 # print("アプリ起動完了")
 # Websocket用のパス
 ExtendFunc.ExtendPrint("ボイスロイドの起動")
-TTSSoftwareManager.tryStartAllTTSSoftware()
-TTSSoftwareManager.updateAllCharaList()
+# TTSSoftwareManager.tryStartAllTTSSoftware()
+# TTSSoftwareManager.updateAllCharaList()
 mana = AllHumanInformationManager.singleton()
 
 ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
@@ -306,50 +306,50 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
         notifier.remove(websocket)
 
 
-@app.websocket("/old_nikonama_comment_reciver/{room_id}/{front_name}")
-async def old_nicowebsocket_endpoint(websocket: WebSocket, room_id: str, front_name: str):
-    await websocket.accept()
-    char_name = Human.setCharName(front_name)
-    print(f"{char_name}で{room_id}のニコ生コメント受信開始")
-    update_room_id_query = {
-        "ニコ生コメントレシーバー設定": {
-            "生放送URL":room_id
-        }
-    }
-    JsonAccessor.updateAppSettingJson(update_room_id_query)
-    end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
-    nikonama_comment_reciever = NicoNamaCommentReciever(room_id,end_keyword)
-    nikonama_comment_reciever_list[char_name] = nikonama_comment_reciever
-    nulvm = NiconamaUserLinkVoiceroidModule()
+# @app.websocket("/old_nikonama_comment_reciver/{room_id}/{front_name}")
+# async def old_nicowebsocket_endpoint(websocket: WebSocket, room_id: str, front_name: str):
+#     await websocket.accept()
+#     char_name = Human.setCharName(front_name)
+#     print(f"{char_name}で{room_id}のニコ生コメント受信開始")
+#     update_room_id_query = {
+#         "ニコ生コメントレシーバー設定": {
+#             "生放送URL":room_id
+#         }
+#     }
+#     JsonAccessor.updateAppSettingJson(update_room_id_query)
+#     end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
+#     nikonama_comment_reciever = NicoNamaCommentReciever(room_id,end_keyword)
+#     nikonama_comment_reciever_list[char_name] = nikonama_comment_reciever
+#     nulvm = NiconamaUserLinkVoiceroidModule()
 
-    async for comment in nikonama_comment_reciever.get_comments():
-        pprint(comment)
-        if "user_id" in comment:
-            user_id = comment["user_id"]
-            if "@" in comment["comment"] or "＠" in comment["comment"]:
-                print("ユーザーIDとキャラ名を紐づけます")
-                char_name = nulvm.registerNikonamaUserIdToCharaName(comment["comment"],user_id)
+#     async for comment in nikonama_comment_reciever.get_comments():
+#         pprint(comment)
+#         if "user_id" in comment:
+#             user_id = comment["user_id"]
+#             if "@" in comment["comment"] or "＠" in comment["comment"]:
+#                 print("ユーザーIDとキャラ名を紐づけます")
+#                 char_name = nulvm.registerNikonamaUserIdToCharaName(comment["comment"],user_id)
 
-            comment["char_name"] = nulvm.getCharaNameByNikonamaUser(user_id)
+#             comment["char_name"] = nulvm.getCharaNameByNikonamaUser(user_id)
         
-            if "/info 3" in comment["comment"]:
-                comment["comment"] = comment["comment"].replace("/info 3","")
+#             if "/info 3" in comment["comment"]:
+#                 comment["comment"] = comment["comment"].replace("/info 3","")
             
-        await websocket.send_text(json.dumps(comment))
+#         await websocket.send_text(json.dumps(comment))
 
-@app.post("/old_nikonama_comment_reciver_stop/{front_name}")
-async def old_nikonama_comment_reciver_stop(front_name: str):
-    char_name = Human.setCharName(front_name)
-    if char_name in nikonama_comment_reciever_list:
-        print(f"{front_name}のニコ生コメント受信停止")
-        nikonama_comment_reciever = nikonama_comment_reciever_list[char_name]
-        nikonama_comment_reciever.stopRecieve()
-        return
+# @app.post("/old_nikonama_comment_reciver_stop/{front_name}")
+# async def old_nikonama_comment_reciver_stop(front_name: str):
+#     char_name = Human.setCharName(front_name)
+#     if char_name in nikonama_comment_reciever_list:
+#         print(f"{front_name}のニコ生コメント受信停止")
+#         nikonama_comment_reciever = nikonama_comment_reciever_list[char_name]
+#         nikonama_comment_reciever.stopRecieve()
+#         return
 
 @app.websocket("/nikonama_comment_reciver/{room_id}/{front_name}")
 async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, front_name: str):
     await websocket.accept()
-    char_name = Human.setCharName(front_name)
+    char_name = Human.setCharName((front_name))
     print(f"{char_name}で{room_id}のニコ生コメント受信開始")
     update_room_id_query = {
         "ニコ生コメントレシーバー設定": {
@@ -359,7 +359,7 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, fro
     JsonAccessor.updateAppSettingJson(update_room_id_query)
     end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
     ndgr_client = newNikonamaCommentReciever(room_id, end_keyword)
-    new_nikonama_comment_reciever_list[char_name] = ndgr_client
+    new_nikonama_comment_reciever_list[char_name.name] = ndgr_client
     nulvm = NiconamaUserLinkVoiceroidModule()
 
     async for NDGRComment in ndgr_client.streamComments():
@@ -407,7 +407,10 @@ async def getYoutubeComment(websocket: WebSocket, video_id: str, front_name: str
                 print(f"{char_name}で{video_id}のYoutubeコメント受信開始")
                 #コメント受信を開始
                 ycr = YoutubeCommentReciever(video_id=video_id)
-                YoutubeCommentReciever_list[char_name] = ycr
+                if char_name == "名前が無効です":
+                    ExtendFunc.ExtendPrint("名前が無効です")
+                    return
+                YoutubeCommentReciever_list[char_name.name] = ycr
                 async for comment in ycr.fetch_comments(ycr.video_id):
                     print(f"478:{comment=}") # {'author': 'ぴっぴ', 'datetime': '2024-04-20 16:48:47', 'message': 'はろー'}
                     author = comment["author"]
@@ -442,7 +445,7 @@ async def runTwitchCommentReceiver(req:TwitchCommentReceiver):
     print(f"{char_name}でTwitchコメント受信開始")
     TWTITCH_ACCESS_TOKEN = TwitchBot.getAccessToken()
     twitchBot = TwitchBot(video_id, TWTITCH_ACCESS_TOKEN)
-    twitchBotList[char_name] = twitchBot
+    twitchBotList[char_name.name] = twitchBot
     twitchBot.run()
     # return {"message":"Twitchコメント受信開始"}
 
@@ -454,8 +457,8 @@ async def stopTwitchCommentReceiver(req:StopTwitchCommentReceiver):
     print("Twitchコメント受信停止")
     front_name = req.front_name
     chara_name = Human.setCharName(front_name)
-    await twitchBotList[chara_name].stop()
-    twitchBotList.pop(chara_name)
+    await twitchBotList[chara_name.name].stop()
+    twitchBotList.pop(chara_name.name)
     return {"message":"Twitchコメント受信停止"}
 
 @app.websocket("/TwitchCommentReceiver/{video_id}/{front_name}")
@@ -463,7 +466,7 @@ async def twitchCommentReceiver(websocket: WebSocket, video_id: str, front_name:
     ExtendFunc.ExtendPrint("TwitchCommentReceiver")
     await websocket.accept()
     char_name = Human.setCharName(front_name)
-    message_queue:asyncio.Queue[TwitchMessageUnit] = twitchBotList[char_name].message_queue
+    message_queue:asyncio.Queue[TwitchMessageUnit] = twitchBotList[char_name.name].message_queue
     nulvm = NiconamaUserLinkVoiceroidModule()
     try:
         while True and char_name in twitchBotList:
@@ -606,25 +609,22 @@ async def parserPsdFile(
     # response_mode = req_body.response_mode
     # front_name = req_body.front_name
     file_contents = await file.read()
-    print("ファイル受け取り完了")
-    if response_mode == ResponseMode.noFrontName_needBodyParts:
-        front_name = Human.pickFrontName(filename)
-        #todo front_nameがない場合の処理
-        if front_name == "名前が無効です":
-            return {"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください"}
+    print("ファイル受け取り完了")        
     # psdファイルが送られてくるので取得
-    chara_name = Human.setCharName(front_name)
+    chara_name = Human.pickFrontName(filename)
+    if chara_name == "名前が無効です":
+        return {"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください"}
     # ファイルの保存先を指定
     api_dir = Path(__file__).parent.parent.parent / 'api'
     folder_name = f"{filename.split('.')[0]}"
-    folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name / folder_name)
+    folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name.name / folder_name)
 
     # 保存先のフォルダが存在するか確認。存在する場合はフォルダ名を変更。ゆかり1,ゆかり2があればゆかり3を作成する感じ。
     file_counter = 0
     while os.path.exists(folder):
         file_counter = file_counter + 1
         folder_name = f"{filename.split('.')[0]}_{file_counter}"
-        folder = folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name / folder_name)
+        folder = folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name.name / folder_name)
     os.makedirs(folder)
     psd_file = f"{folder}\\{filename}"
     # ファイルの内容を保存
@@ -639,8 +639,8 @@ async def parserPsdFile(
     
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得
-        human_part = HumanPart(CharacterName(name = chara_name))
-        image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, front_name ,folder)
+        human_part = HumanPart(chara_name)
+        image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, front_name ,folder)
         charaCreateData:CharaCreateData = {
             "humanData":image_data_for_client,
             "characterModeState":CharacterModeState.newFromFrontName(front_name).toDict()

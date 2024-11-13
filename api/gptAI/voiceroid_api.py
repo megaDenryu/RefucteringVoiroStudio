@@ -1551,7 +1551,12 @@ class TTSSoftwareManager:
         TTSSoftware.Coeiroink:TTSSoftwareInstallState.NotInstalled
     }
 
-    HasTTSStateDict:dict[TTSSoftware,HasTTSState] = {}
+    HasTTSStateDict:dict[TTSSoftware,HasTTSState|None] = {
+        TTSSoftware.AIVoice:None,
+        TTSSoftware.CevioAI:None,
+        TTSSoftware.VoiceVox:None,
+        TTSSoftware.Coeiroink:None
+    }
 
     """
     各種ボイスロイドの起動を管理する
@@ -1600,7 +1605,9 @@ class TTSSoftwareManager:
         ボイロの起動コマンド直後にやると、声色インクとかが、非同期ではなく別プロセスで実行されてるせいで失敗することがあるのでアプデボタンを押したときに実行するようにする。また、通信に失敗した場合はエラーを投げる。
         """
         for ttss in TTSSoftware:
-            TTSSoftwareManager.updateCharaList(ttss,TTSSoftwareManager.HasTTSStateDict[ttss])
+            state = TTSSoftwareManager.HasTTSStateDict[ttss]
+            if state is not None:
+                TTSSoftwareManager.updateCharaList(ttss,state)
 
     @staticmethod
     def updateCharaList(ttss:TTSSoftware, tmp_human:HasTTSState):

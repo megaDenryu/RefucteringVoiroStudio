@@ -190,14 +190,12 @@ class NicknamesManager:
     """
     api_dir: Path
     nicknames_filepath: Path                # キャラ名とニックネームの対応リストのファイルパス
-    namelistForhumanJson_filepath: Path
     nicknames: dict[CharacterName, list[NickName]]
     nickname2Charaname: dict[NickName,CharacterName]
 
     def __init__(self):
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
         self.nicknames_filepath = self.api_dir / "CharSettingJson/NickNames.json"
-        self.namelistForhumanJson_filepath = self.api_dir / "CharSettingJson/NameListForHuman.json"
         self.nicknames = self.loadNicknames()
         self.nickname2Charaname = self.loadNickname2Charaname()
     
@@ -213,15 +211,8 @@ class NicknamesManager:
         return {CharacterName(name=name):[NickName(name=nickname) for nickname in nicknames] for name, nicknames in nicknames_dict.items()}
 
     def loadNickname2Charaname(self)->dict[NickName,CharacterName]:
-        path = self.namelistForhumanJson_filepath
-        # もしファイルが存在しない場合はファイルを作成
-        JsonAccessor.checkExistAndCreateJson(path, {})
-        nickname2Charaname_dict:dict[str, str] = ExtendFunc.loadJsonToDict(path)
-        # nicknamesの型が正常かどうかを確認
-        for nickname, charaname in nickname2Charaname_dict.items():
-            if not isinstance(nickname, str) or not isinstance(charaname, str):
-                raise TypeError(f"nicknamesの型が正常ではありません。name:{nickname}, nicknames:{charaname}")
-        return {NickName(name=nickname):CharacterName(name=charaname) for nickname, charaname in nickname2Charaname_dict.items()}
+        # キャラ名からニックネームへの辞書を逆転させる
+        return self.transformNickName2CharaName(self.nicknames)
         
     
     def tryAddCharacterNameKey(self, charaNames:list[CharacterName]):
@@ -237,24 +228,6 @@ class NicknamesManager:
         
         #上書き保存する
         self.updateNicknames(self.nicknames)
-        #辞書の関係を逆にした辞書を作成
-        self.updateNickName2CharaName(self.nicknames)    
-
-    def updateNickName2CharaName(self, nicknames: dict[CharacterName,list[NickName]]):
-        """
-        ニックネームからキャラ名への辞書を更新します。
-        新しく作ったニックネームリストをもとに、ニックネームからキャラ名への辞書を更新します。
-        既に存在するニックネームは更新されません。新しいニックネームのみ追加されます。
-        """
-        
-        for chara_name,nickname_list in nicknames.items():
-            for nickname in nickname_list:
-                if nickname not in self.nickname2Charaname:
-                    self.nickname2Charaname[nickname] = chara_name
-        path = self.namelistForhumanJson_filepath
-        JsonAccessor.checkExistAndCreateJson(path, {})
-        nickname2Charaname_dict = {nickname.name:chara_name.name for nickname, chara_name in self.nickname2Charaname.items()}
-        ExtendFunc.saveDictToJson(path, nickname2Charaname_dict)
     
     def updateNicknames(self, nicknames:dict[CharacterName, list[NickName]]):
         """
