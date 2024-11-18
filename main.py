@@ -858,11 +858,12 @@ async def wsGptGraphEventStart(websocket: WebSocket, front_name: str):
         return
     human = human_dict[chara_name]
 
-    life_process_brain = LifeProcessBrain(chara_name, websocket)
+    
     
     agenet_event_manager = AgentEventManager(chara_name, gpt_mode_dict)
     agenet_manager = AgentManager(chara_name, epic, human_dict, websocket, input_reciever)
     gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
+    life_process_brain = LifeProcessBrain(chara_name, websocket,gpt_agent)
     gpt_agent_dict[chara_name] = gpt_agent
 
     # 意思決定のパイプラインを作成

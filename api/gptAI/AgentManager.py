@@ -3307,8 +3307,9 @@ class LifeProcessBrain:
     memory:Memory
     state:LifeProcessState = LifeProcessState()
     websocket: WebSocket
+    gptAgent:"GPTAgent"
 
-    def __init__(self,chara_name:str ,websocket: WebSocket) -> None:
+    def __init__(self,chara_name:str ,websocket: WebSocket, gptAgent:"GPTAgent") -> None:
         """
         メモリーをロードor初期化
         task_graph_processをメモリーから生成
@@ -3316,6 +3317,7 @@ class LifeProcessBrain:
         """
         self.memory = Memory.loadLatestMemory(chara_name, self)
         self.websocket = websocket
+        self.gptAgent = gptAgent
         self.task_graph_process = self.memory.task_progress.task_graphs
         #すべてのタスクにLifeProcessBrainをバインド
         self.bindLifeProcessBrainToGraph(self)
