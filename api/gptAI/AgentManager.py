@@ -13,6 +13,11 @@ import asyncio
 from asyncio import Event, Queue, tasks
 import re
 
+
+
+
+
+from api.gptAI.HumanInfoValueObject import CharacterName
 from api.gptAI.HumanState import Task
 from api.Extend.ExtendSet import Interval
 from api.gptAI.Human import Human
@@ -1538,6 +1543,12 @@ class SerifAgent(Agent):
             ExtendFunc.ExtendPrint(f"{self.epic.getLatestMessage()['message'].speakers}と{self.chara_name}を比較しました。{self.epic.messageHistory[-1]['現在の日付時刻']}に追加発言があるため{output.time}の分はキャンセルします。")
             return
         ExtendFunc.ExtendPrint(f"{self.name}はすべて成功したので次のエージェントに行きます。{self.chara_name}が喋ります。")
+        await self.speakSerif(output)
+    
+    async def speakSerif(self, output:TransportedItem):
+        """
+        生成されたセリフをキャンセルできる形で送信する処理
+        """
 
         serif_list = self.getSerifList(output.Serif_data)
         if serif_list == None:
@@ -2476,6 +2487,7 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
     async def handleEventAsync(self, transported_item:ThoughtsSerifnizeTransportedItem)->ThoughtsSerifnizeTransportedItem:
         ExtendFunc.ExtendPrint(self.name,transported_item)
         output = await self.run(transported_item)
+        self.speakSerif(output)
         return output
 
     async def run(self,transported_item: ThoughtsSerifnizeTransportedItem)->ThoughtsSerifnizeTransportedItem:
@@ -2491,6 +2503,69 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
         transported_item = self.addInfoToTransportedItem(transported_item, corrected_result)
         ExtendFunc.ExtendPrint(transported_item)
         return transported_item
+    
+    async def speakSerif(self, output:TransportedItem):
+        """
+        生成されたセリフをキャンセルできる形で送信する処理
+        """
+
+        serif_list = self.getSerifList(output.Serif_data)
+        if serif_list == None:
+            return
+        for serif in serif_list:
+            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human_dict[self.agent_manager.chara_name],"gpt")
+            # await self.agent_manager.websocket.send_json(json.dumps(send_data))
+            # await self.saveSuccesSerifToMemory(serif)
+            # # 区分音声の再生が完了したかメッセージを貰う
+            # end_play_data = await self.agent_manager.websocket.receive_json()
+            # 同時に実行するコルーチンをリストにまとめます
+            tasks = [
+                self.agent_manager.websocket.send_json(json.dumps(send_data)),
+                self.saveSuccesSerifToMemory(serif),
+                self.agent_manager.websocket.receive_json()
+            ]
+
+            # asyncio.gatherを使用して全てのコルーチンが終了するのを待ちます
+            results = await asyncio.gather(*tasks)
+
+            # resultsには各コルーチンの結果が格納されています
+            end_play_data = results[2]
+            ExtendFunc.ExtendPrint(end_play_data) # { "gpt_voice_complete": "complete" }という形式でメッセージが送られてくる
+            # 区分音声の再生が完了した時点で次の音声を送る前にメモリが変わってるかチェックし、変わっていたら次の音声を送らない。
+            if self.judgeNextSerifSend(output) == False:
+                ExtendFunc.ExtendPrint("次の音声を送らない")
+                now_index = serif_list.index(serif)
+                fail_serifs = serif_list[now_index+1:]
+                self.saveFailSerifToMemory(fail_serifs)
+                return
+            
+        else:
+            # forが正常に終了した場合はelseが実行されて、メモリ解放処理を行う
+            pass
+    
+    def judgeNextSerifSend(self,ti: TransportedItem)->bool:
+        # output.time以降のメッセージリストのspeakerを列挙して自分以外がいればFalseを返す
+        judge_time = ti.time
+        # 反転しているのは最新のメッセージから見ていくため
+        for message_unit in self.epic.messageHistory[::-1]:
+            ExtendFunc.ExtendPrint(f"{message_unit['現在の日付時刻']} <= {judge_time} を確認")
+            if message_unit['現在の日付時刻'] <= judge_time:
+                ExtendFunc.ExtendPrint(f"{message_unit['現在の日付時刻']} <= {judge_time} なのでTrueを返します")
+                return True
+            ExtendFunc.ExtendPrint(f"{self.chara_name}が{message_unit['message'].speakers}に入っているか確認")
+            if self.chara_name not in message_unit["message"].speakers:
+                ExtendFunc.ExtendPrint(f"{self.chara_name}が{message_unit['message'].speakers}に入っていないためFalseを返します")
+                return False
+        return True
+
+    async def saveSuccesSerifToMemory(self,serif:str):
+        # InputRecieverのメッセージスタックに追加するために、epic経由でメッセージを追加する
+        await self.epic.appendMessageAndNotify({self.chara_name:serif})
+    
+    def saveFailSerifToMemory(self,serifs:list[str]):
+        # 失敗したセリフの情報をthinkエージェントに保存
+        self.agent_manager.think_agent.failSerifFeedBack(serifs)
+
     
     def loadAgentSetting(self)->tuple[list[ChatGptApiUnit.MessageQuery],list[ChatGptApiUnit.MessageQuery]]:
         all_template_dict: dict[str,list[ChatGptApiUnit.MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
@@ -2609,9 +2684,16 @@ class TaskExecutionTool(TaskTool):
         return taskGraph.summarizeOutputs()
 
 class NormalChatTool(TaskTool):
+    """
+    汎用チャットツール
+    """
     def __init__(self, task:Task, life_process_brain:"LifeProcessBrain") -> None:
         super().__init__(task, life_process_brain)
         self.normalChatAgenet = NormalChatAgent()
+
+    """
+    実行関数。前の出力を受け取って、結果をクライアントのボイスロイドに送信して喋る。
+    """
     async def execute(self, previows_output:TaskToolOutput)->TaskToolOutput:
         normalChatTransportedItem = NormalChatTransportedItem.init()
         normalChatTransportedItem.task = self.task
@@ -3061,6 +3143,8 @@ class TaskGraph:
         
 
     
+class 外界からの入力(BaseModel):
+    会話: str
 
         
         
@@ -3087,8 +3171,8 @@ class Memory:
     third_person_evaluation: ThirdPersonEvaluation # 第三者評価
     destination:str # 目標
     profit_vector:ProfitVector # 利益ベクトル
-    chara_name:str # キャラクター名
-    chara_setting:str # キャラクター設定
+    chara_name:CharacterName # キャラクター名
+    chara_setting:CharacterAISetting # キャラクター設定
     _life_process_brain:"LifeProcessBrain|None" # ライフプロセスの脳
     @property
     def life_process_brain(self):
@@ -3097,7 +3181,7 @@ class Memory:
         return self._life_process_brain
 
 
-    def __init__(self, chara_name:str, life_process_brain:"LifeProcessBrain") -> None:
+    def __init__(self, chara_name:CharacterName, life_process_brain:"LifeProcessBrain") -> None:
         self._life_process_brain = life_process_brain
         self.chara_name = chara_name
         self.loadInitialMemory()
@@ -3126,7 +3210,7 @@ class Memory:
         self.destinations.append(destination)
 
 
-    def createInitTaskGraph(self, chara_name:str):
+    def createInitTaskGraph(self, chara_name:CharacterName):
         # キャラクターごとの初期目標をロードして、タスクグラフを作成する。しかしそもそも目標がない場合は無理に目標を与える必要はないとも思う。本当の最初はある程度会話による記憶の入力が必要
         # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
         # したがって内面を用いて目標を生成するプロセスを書く必要がある。
@@ -3136,7 +3220,7 @@ class Memory:
         task_graph = TaskGraph(ti,self.life_process_brain)
         self.task_progress.addTaskGraph(task_graph)
     
-    def loadCharaInitialDestination(self, chara_name:str)->str:
+    def loadCharaInitialDestination(self, chara_name:CharacterName)->str:
         # キャラクターごとの初期目標をロード
         raise NotImplementedError("キャラクターごとの初期目標をロードするメソッドが未実装です")
         # 目標がない時キャラが何をするか？だめ人間なら暇なときは散歩を始めたりネットを始めたりして何かを探すが、AIは散歩もできないので、自分にとっての「不可能な目標」を設定して、それを目指すというのはどうか？
@@ -3154,11 +3238,11 @@ class Memory:
         PickleAccessor.saveMemory(self, chara_name)
 
     @staticmethod
-    def loadSelfPickle(chara_name:str, life_process_brain:"LifeProcessBrain")->"Memory | None":
+    def loadSelfPickle(chara_name:CharacterName, life_process_brain:"LifeProcessBrain")->"Memory | None":
         """
         pickleで読み込み
         """
-        memory = PickleAccessor.loadMemory(chara_name)
+        memory = PickleAccessor.loadMemory(chara_name.name)
         # memoryの型がMemoryであることを確認
         if isinstance(memory, Memory) == False:
             return None
@@ -3168,7 +3252,7 @@ class Memory:
     
 
     @staticmethod
-    def loadLatestMemory(chara_name, life_process_brain:"LifeProcessBrain")->"Memory":
+    def loadLatestMemory(chara_name: CharacterName, life_process_brain:"LifeProcessBrain")->"Memory":
         """
         最新のMemoryをロード
         """
@@ -3190,7 +3274,20 @@ class Memory:
     
     def bindLifeProcessBrain(self, life_process_brain:"LifeProcessBrain|None"):
         self._life_process_brain = life_process_brain
+
+    def addInput(self, input:外界からの入力):
+        """
+        外界からの入力を保存し、脳に反映する
+        """
+        #self.past_conversationはEpic型なので、既に会話の内容が追加されている
+        raise NotImplementedError("入力を保存するメソッドが未実装です")
         
+    def checkNeedNewTaskGraph(self)->bool:
+        """
+        新たにタスクグラフを作成する必要があるかどうかをチェック
+        """
+        raise NotImplementedError("新たにタスクグラフを作成する必要があるかどうかをチェックするメソッドが未実装です")
+        return False
 
 
 
@@ -3255,11 +3352,15 @@ class LifeProcessBrain:
 
         inputを受け取って、いろいろなチェックが終わったら実行する
         """
-        input = transported_item.recieve_messages
-        await self.runGraphProcess(input)
-        ExtendFunc.ExtendPrint("タスクグラフの実行が完了しました")
+        i外界からの入力 = 外界からの入力( 会話=transported_item.recieve_messages )
+        # メモリーにinputを保存
+        self.memory.addInput(i外界からの入力)
+        # 新たにタスクグラフを作成する必要があれば作成し、なければ何もしない
+        if self.memory.checkNeedNewTaskGraph():
+            await self.runGraphProcess(i外界からの入力)
+            ExtendFunc.ExtendPrint("タスクグラフの実行が完了しました")
 
-    async def runGraphProcess(self, input:str):
+    async def runGraphProcess(self, input:外界からの入力):
         """
         外界からの作用を入力として受け取って、目標を生成し、タスクグラフを生成し、実行する
         """
@@ -3279,7 +3380,7 @@ class LifeProcessBrain:
             "dependencies":[],
         }
         destination_tool = DestinationTool(task_destination, self)
-        output:TaskToolOutput = TaskToolOutput(None,input)
+        output:TaskToolOutput = TaskToolOutput(None,input.会話)
         destination_output = await destination_tool.execute(output)
         # タスクグラフ分解ツールを使って目標を分解するためのTaskを作成
         task_decomposition:Task = {
@@ -3304,10 +3405,9 @@ class LifeProcessBrain:
         }
         task_exec_tool = TaskExecutionTool(task_graph_exec, self)
         task_exec_output = await task_exec_tool.execute(task_graph_output)
-        
-        
 
-   
+        
+        
         
         
     
@@ -3361,23 +3461,7 @@ class AgentManagerTest:
         JsonAccessor.insertLogJsonToDict(f"test_gpt_routine_result.json", test)
         ExtendFunc.ExtendPrint(test)
     
-    def te8(self):
-        a = {"a":"b","c":"d"}
-        print("a" not in a)
-
-    def te9(self):
-        dict_a = {
-            "a":0,
-            "c":2
-        }
-        
-        print(dict_a.keys())
-        print("a" in dict_a.keys())
-    
-    def te10(self):
-        """
-        タスクのブレイクダウンのテスト
-        """
+    def タスクのブレイクダウンのテスト(self):
         input = ""
         task:Task = {
             "id":"0",
@@ -3392,6 +3476,7 @@ class AgentManagerTest:
         problem = ProblemDecomposedIntoTasks(task, previows_output)
         ti = TaskBreakingDownTransportedItem.init(problem)
         ExtendFunc.ExtendPrint(ti)
+
 
     
 

@@ -99,22 +99,7 @@ def test4():
 
 
 if __name__ == "__main__":
-    # HumanInformationTest()
-    # voiceroid_apiTest()
-    # dict = Coeiroink.getCoeiroinkNameToNumberDict()
-    # pprint(dict)
-    api_dir = Path(__file__).parent / "api"
-
-    # manager = VoiceModeNamesManager()
-
-    voicemodes:list[VoiceMode] = [
-        VoiceMode(mode = "ほねほね")
-    ]
     
-    path = api_dir /"CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json"
-    JsonAccessor.checkExistAndCreateJson(path, {})
-    
-    test4()
 
 
 

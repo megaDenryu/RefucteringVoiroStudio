@@ -874,9 +874,7 @@ async def wsGptGraphEventStart(websocket: WebSocket, front_name: str):
         agenet_event_manager.setEventQueueArrowToCreateTask(input_reciever, life_process_brain),
         agenet_event_manager.setEventQueueArrow(agenet_manager.mic_input_check_agent, agenet_manager.speaker_distribute_agent),
         agenet_event_manager.setEventQueueArrow(agenet_manager.speaker_distribute_agent, agenet_manager.non_thinking_serif_agent),
-        # agenet_event_manager.setEventQueueArrowWithTimeOutByHandler(agenet_manager.speaker_distribute_agent, agenet_manager.think_agent),
-        # agenet_event_manager.setEventQueueConfluenceArrow([agenet_manager.non_thinking_serif_agent, agenet_manager.think_agent], agenet_manager.serif_agent)
-        # agenet_event_manager.setEventQueueArrow(agenet_manager.think_agent, )
+        
     )
 
     # pipeが完了したら通知
