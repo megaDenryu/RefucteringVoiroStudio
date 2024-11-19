@@ -207,14 +207,21 @@ class TaskBrekingDownConversationUnit(BaseModel):
         )
 
 class ProblemDecomposedIntoTasks(BaseModel):
+    """
+    タスクグラフ内で解きたい問題のオブジェクト。これからtransportedItemを作ってタスク
+    """
     problem_title:str
     role_in_task_graph: str|None  #タスクグラフ内での役割または解決するべき問題
     result_of_previous_task: str|None  #前のタスクの結果
-    def __init__(self, task:Task, result_of_previous_task:"TaskToolOutput"):
-        self.problem_title = task["task_title"]
-        self.role_in_task_graph = self.TaskToRoleInTaskGraph(task)
-        self.result_of_previous_task = result_of_previous_task.task_exec_result
-    def TaskToRoleInTaskGraph(self, task:Task|None)->str:
+    @staticmethod
+    def init( task:Task, result_of_previous_task:"TaskToolOutput"):
+        return ProblemDecomposedIntoTasks(
+            problem_title = task["task_title"],
+            role_in_task_graph = ProblemDecomposedIntoTasks.TaskToRoleInTaskGraph(task),
+            result_of_previous_task = result_of_previous_task.task_exec_result
+        )
+    @staticmethod
+    def TaskToRoleInTaskGraph(task:Task|None)->str:
         if task is None:
             #todo :最初のタスクだがまだ実装していない
             raise NotImplementedError("最初のタスクの時だがまだ実装していない")
@@ -245,7 +252,7 @@ class TaskBreakingDownTransportedItem(GeneralTransportedItem):
         arbitrary_types_allowed = True
     
     @staticmethod
-    def init(problem):
+    def init(problem: ProblemDecomposedIntoTasks):
         return TaskBreakingDownTransportedItem(
             usage_purpose = "タスク分解",
             problem = problem,
@@ -2661,7 +2668,7 @@ class TaskDecompositionTool(TaskTool):
         self.task_decomposition_process_manager = TaskDecompositionProcessManager()
         
     async def execute(self, taskToolOutput:TaskToolOutput) -> TaskToolOutput:
-        problem = ProblemDecomposedIntoTasks(self.task, taskToolOutput)
+        problem = ProblemDecomposedIntoTasks.init(self.task, taskToolOutput)
         task_breaking_down_ti = TaskBreakingDownTransportedItem.init(problem)
         taskBreakingDown:TaskBreakingDownTransportedItem = await self.task_decomposition_process_manager.taskDecompositionProcess(task_breaking_down_ti)
         taskGraph = TaskGraph(taskBreakingDown,self.memory.life_process_brain)
@@ -3162,6 +3169,10 @@ class ThirdPersonEvaluation:
     # 第三者評価
     pass
 
+class CharacterAISetting:
+    def __init__(self,chara_ai_setting) -> None:
+        pass
+
 class Memory:
     behavior:dict
     destinations:list[DestinationAndProfitVector] # 目標リスト
@@ -3204,7 +3215,7 @@ class Memory:
     
     def loadCharaSetting(self):
         chara_setting_dict = JsonAccessor.loadCharSettingYaml()
-        self.chara_setting = chara_setting_dict[self.chara_name]
+        self.chara_setting = CharacterAISetting(chara_setting_dict[self.chara_name])
 
     def addDestination(self, destination:DestinationAndProfitVector):
         self.destinations.append(destination)
@@ -3220,7 +3231,7 @@ class Memory:
         task_graph = TaskGraph(ti,self.life_process_brain)
         self.task_progress.addTaskGraph(task_graph)
     
-    def loadCharaInitialDestination(self, chara_name:CharacterName)->str:
+    def loadCharaInitialDestination(self, chara_name:CharacterName)->ProblemDecomposedIntoTasks:
         # キャラクターごとの初期目標をロード
         raise NotImplementedError("キャラクターごとの初期目標をロードするメソッドが未実装です")
         # 目標がない時キャラが何をするか？だめ人間なら暇なときは散歩を始めたりネットを始めたりして何かを探すが、AIは散歩もできないので、自分にとっての「不可能な目標」を設定して、それを目指すというのはどうか？
@@ -3309,7 +3320,7 @@ class LifeProcessBrain:
     websocket: WebSocket
     gptAgent:"GPTAgent"
 
-    def __init__(self,chara_name:str ,websocket: WebSocket, gptAgent:"GPTAgent") -> None:
+    def __init__(self,chara_name:CharacterName ,websocket: WebSocket, gptAgent:"GPTAgent") -> None:
         """
         メモリーをロードor初期化
         task_graph_processをメモリーから生成
@@ -3438,7 +3449,7 @@ class GPTAgent:
 class AgentManagerTest:
     def __init__(self) -> None:
         pass
-    def te7(self):
+    def ChatGptApiUnitがちゃんと文章を送受信できるかどうかのテスト(self):
         gpt_unit = ChatGptApiUnit(True)
         test_message_query:list[ChatGptApiUnit.MessageQuery] = [
             {
@@ -3474,11 +3485,28 @@ class AgentManagerTest:
             "tool_query":"目標を決定する",
             "dependencies":[],
         }
-        previows_output = TaskToolOutput(None,input)
-        problem = ProblemDecomposedIntoTasks(task, previows_output)
+        previows_output = TaskToolOutput(None,input) # 最初のタスクアウトプットで、空とする
+        problem = ProblemDecomposedIntoTasks.init(task, previows_output)
         ti = TaskBreakingDownTransportedItem.init(problem)
         ExtendFunc.ExtendPrint(ti)
+        return ti
 
+    def 目標や利益ベクトルをを計算するツールのテスト(self):
+        destination_tool = DestinationTool(task, None)
+        previows_output = TaskToolOutput(None,"最初のタスク")
+        result = asyncio.run(destination_tool.execute(previows_output))
+        ExtendFunc.ExtendPrint(result)
+        pass
+
+    def タスク分解ツールの結果をもとにタスクグラフを生成するテスト(self):
+        pass
+
+    def 目標や利益ベクトルをもとに文章を生成してタスクを処理するテスト(self):
+        task_exec_tool = TaskExecutionTool(task, None)
+        previows_output = TaskToolOutput(None,"最初のタスク")
+        result = asyncio.run(task_exec_tool.execute(previows_output))
+        ExtendFunc.ExtendPrint(result)
+        pass
 
     
 
