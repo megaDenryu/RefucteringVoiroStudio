@@ -14,3 +14,5 @@ class GptModeManager:
             return self._gpt_mode_dict[character]
         except KeyError:
             return "off"
+    def 特定のモードが動いてるか確認(self,mode:GptMode)->bool:
+        return mode in self._gpt_mode_dict.values()

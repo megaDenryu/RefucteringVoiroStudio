@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 from enum import Enum
 from api.DataStore.PickleAccessor import PickleAccessor
+from api.InstanceManager.InsatanceManagerInterface import InstanceManagerInterface
 from api.gptAI.HumanBaseModel import DestinationAndProfitVector, ProfitVector, 目標と利益ベクトル
 from fastapi import WebSocket
 from openai import OpenAI, AsyncOpenAI, AssistantEventHandler
@@ -29,6 +30,8 @@ from typing import Coroutine, Literal, Protocol
 from typing import Any, Dict, get_type_hints, get_origin,TypeVar, Generic
 from typing_extensions import TypedDict
 from pydantic import BaseModel, validator
+
+from api.gptAI.InputReciever import InputReciever
 
 
 class ChatGptApiUnit:
@@ -350,8 +353,9 @@ Human→AgentManager→Agent→AgentRoutine
 """
 
 class AgentManager:
+    human:Human
     _message_memory:list[MassageHistoryUnit] = []
-    input_reciever:"InputReciever"
+    input_reciever:InputReciever
     speaker_distribute_agent:"SpeakerDistributeAgent"
     mic_input_check_agent:"MicInputJudgeAgent"
     think_agent:"ThinkAgent"
@@ -359,21 +363,20 @@ class AgentManager:
     non_thinking_serif_agent:"NonThinkingSerifAgent"
     GPTModeSetting:dict[str,str] = {}
     def __init__(
-            self,chara_name:str, 
-            epic:Epic, 
-            human_dict:dict[str,Human], 
+            self,human:Human, 
+            instanceManagerInterface:InstanceManagerInterface,
             websocket:WebSocket,
-            input_reciever:"InputReciever",
             ):
-        self.chara_name:str = chara_name
-        self.epic = epic
-        self.human_dict:dict[str,Human] = human_dict
-        self.chara_dict:dict[str,Agent] = {}
-        self._message_memory:list[MassageHistoryUnit] = epic.messageHistory
+        self.human = human
+        self.chara_name = human.char_name.name
+        self.epic = instanceManagerInterface.epic
+        # self.human_dict:dict[str,Human] = human_dict
+        self.humanInstanceContainer = instanceManagerInterface.humanInstances
+        self._message_memory:list[MassageHistoryUnit] = instanceManagerInterface.epic.messageHistory
         self.replace_dict = self.loadReplaceDict(self.chara_name)
         self.prepareAgents(self.replace_dict)
         self.websocket = websocket
-        self.input_reciever = input_reciever
+        self.input_reciever = instanceManagerInterface.inputReciever
         self.GPTModeSetting = JsonAccessor.loadAppSetting()["GPT設定"]
 
     @property
@@ -551,14 +554,14 @@ class Agent:
         pass
 
 class InputReciever():
-    def __init__(self,epic:Epic, gpt_agent_dict:dict[str,"GPTAgent"], gpt_mode_dict:dict[str,str]):
+    def __init__(self, instanceManagerInterface:InstanceManagerInterface):#epic:Epic, gpt_agent_dict:dict[str,GPTAgent], gpt_mode_dict:dict[str,str]):
         self.name = "入力受付エージェント"
-        self.epic = epic
-        self.gpt_agent_dict = gpt_agent_dict
+        self.epic = instanceManagerInterface.epic
+        self.gpt_agent_dict = instanceManagerInterface.gptAgentInstanceManager#gpt_agent_dict
+        self.gpt_mode_dict = instanceManagerInterface.gptModeManager #gpt_mode_dict
         self.message_stack:list[MassageHistoryUnit] = []
         self.event_queue = Queue[TransportedItem]()
         self.event_queue_dict:dict[Reciever,Queue[TransportedItem]] = {}
-        self.gpt_mode_dict = gpt_mode_dict
         self.runnnig = False
     async def runObserveEpic(self):
         if self.runnnig == False:
@@ -601,7 +604,7 @@ class InputReciever():
                 continue
 
             agent_stop = False
-            for agent in self.gpt_agent_dict.values():
+            for agent in self.gpt_agent_dict.GPTAgents:
                 # 全てのエージェントを確認
                 last_speskers = self.message_stack[-1]["message"].speakers
                 ExtendFunc.ExtendPrint(f"{agent.manager.chara_name}が{last_speskers}にあるか確認します")
@@ -706,9 +709,12 @@ class RunState:
 
 class AgentEventManager:
     run_state: RunState
-    def __init__(self, chara_name:str, gpt_mode_dict:dict[str,str]):
-        self.gpt_mode_dict = gpt_mode_dict
-        self.chara_name = chara_name
+    instanceManagerInterface:InstanceManagerInterface
+    def __init__(self, human:Human, instanceManagerInterface:InstanceManagerInterface):
+        # self.gpt_mode_dict:dict[str,str] = gpt_mode_dict
+        self.instanceManagerInterface = instanceManagerInterface
+        self.gptModeManager = instanceManagerInterface.gptModeManager
+        self.chara_name = human.char_name
         self.run_state = RunState()
     async def addEventWebsocketOnMessage(self, websocket: WebSocket, reciever: AsyncEventHandler):
         while True:
@@ -720,8 +726,8 @@ class AgentEventManager:
         event_queue_for_reciever:Queue[GeneralTransportedItem_T] =notifier.appendReciever(reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gpt_mode_dict[self.chara_name] != "individual_process0501dev":
-                ExtendFunc.ExtendPrint(f"{self.gpt_mode_dict[self.chara_name]}はindividual_process0501devではないため、{reciever.name}イベントを終了します")
+            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+                ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             item = await event_queue_for_reciever.get()
             ExtendFunc.ExtendPrint(item)
@@ -735,8 +741,8 @@ class AgentEventManager:
         stop_queue = self.run_state.addPublisher(event_id)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gpt_mode_dict[self.chara_name] != "individual_process0501dev":
-                ExtendFunc.ExtendPrint(f"{self.gpt_mode_dict[self.chara_name]}はindividual_process0501devではないため、{reciever.name}イベントを終了します")
+            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+                ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             
             # イベントが来るか、stop_queueにRunStateEnum.stopが入力されるまで待機
@@ -783,8 +789,8 @@ class AgentEventManager:
         event_queue_for_reciever:Queue[GeneralTransportedItem_T] =notifier.appendReciever(reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gpt_mode_dict[self.chara_name] != "individual_process0501dev":
-                ExtendFunc.ExtendPrint(f"{self.gpt_mode_dict[self.chara_name]}はindividual_process0501devではないため、{reciever.name}イベントを終了します")
+            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+                ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             try:
                 item = await asyncio.wait_for(event_queue_for_reciever.get(), timeout=reciever.timeOutSec())
@@ -805,8 +811,8 @@ class AgentEventManager:
             list_event_queue_for_reciever.append(event_queue_for_reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gpt_mode_dict[self.chara_name] != "individual_process0501dev":
-                ExtendFunc.ExtendPrint(f"{self.gpt_mode_dict[self.chara_name]}はindividual_process0501devではないため、{reciever.name}イベントを終了します")
+            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+                ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             task = [event_queue.get() for event_queue in list_event_queue_for_reciever]
             resluts = await asyncio.gather(*task)
@@ -1010,8 +1016,9 @@ class SpeakerDistributeAgent(Agent):
         キャラ名のリストを返す。例：['きりたん', 'ずんだもん', 'ゆかり','おね','あかり']
         """
         chara_name_list = ["ランダム"]
-        for key in self.agent_manager.human_dict.keys():
-            chara_name_list.append(key)
+        for front_name in self.agent_manager.humanInstanceContainer.HumanFrontNames:
+            chara_name_list.append(front_name)
+        
         ExtendFunc.ExtendPrint(chara_name_list)
         return chara_name_list
     def createCharacterListStr(self)->str:
@@ -1561,7 +1568,7 @@ class SerifAgent(Agent):
         if serif_list == None:
             return
         for serif in serif_list:
-            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human_dict[self.agent_manager.chara_name],"gpt")
+            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human,"gpt")
             # await self.agent_manager.websocket.send_json(json.dumps(send_data))
             # await self.saveSuccesSerifToMemory(serif)
             # # 区分音声の再生が完了したかメッセージを貰う
@@ -1733,7 +1740,7 @@ class NonThinkingSerifAgent(Agent):
         else:
             return
         for serif in serif_list:
-            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human_dict[self.agent_manager.chara_name],"gpt")
+            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human,"gpt")
             # await self.agent_manager.websocket.send_json(json.dumps(send_data))
             # await self.saveSuccesSerifToMemory(serif)
             # # 区分音声の再生が完了したかメッセージを貰う
@@ -3467,15 +3474,6 @@ class GPTAgent:
     
 class AgentManagerTest:
     def __init__(self) -> None:
-        chara_name = CharacterName(name = "琴葉葵")
-        gpt_mode_dict = {}
-        gpt_mode_dict[chara_name] = "individual_process0501dev"
-        epic = Epic()
-
-        agenet_event_manager = AgentEventManager(chara_name.name, gpt_mode_dict)
-        agenet_manager = AgentManager(chara_name.name, epic, human_dict, websocket, input_reciever)
-        gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-        life_process_brain = LifeProcessBrain(chara_name, websocket,gpt_agent)
         pass
     def ChatGptApiUnitがちゃんと文章を送受信できるかどうかのテスト(self):
         gpt_unit = ChatGptApiUnit(True)

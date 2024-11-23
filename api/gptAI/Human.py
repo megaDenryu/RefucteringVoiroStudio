@@ -42,7 +42,7 @@ class Human:
     @property
     def id(self):
         return self.chara_mode_state.id
-    def __init__(self,chara_mode_state:CharacterModeState ,voiceroid_dict, corresponding_websocket:WebSocket, prompt_setteing_num:str = "キャラ個別システム設定") -> None:
+    def __init__(self,chara_mode_state:CharacterModeState ,voiceroid_dict) -> None:
         """
         @param front_name: フロントで入力してウインドウに表示されてる名前
         @param voiceroid_dict: 使用してる合成音声の種類をカウントする辞書。{"cevio":0,"voicevox":0,"AIVOICE":0}。cevioやAIVOICEの起動管理に使用。
@@ -70,13 +70,10 @@ class Human:
         }
         self.sentence = ""
         self.sentence_count = 0
-        self.prompt_setting_num = prompt_setteing_num
-        self.voice_system:str = self.start(prompt_setteing_num, voiceroid_dict)
-
-        self.corresponding_websocket:WebSocket = corresponding_websocket
+        self.voice_system:str = self.start(voiceroid_dict)
 
     
-    def start(self, prompt_setteing_num:str = "キャラ個別システム設定", voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}):#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
+    def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}):#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
             if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
                 tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])

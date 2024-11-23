@@ -6,10 +6,11 @@ from pathlib import Path
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
+from api.gptAI.InputReciever import InputReciever
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
-from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, InputReciever, LifeProcessBrain
+from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
 from api.images.image_manager.IHumanPart import HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
@@ -47,6 +48,10 @@ import traceback
 from uuid import uuid4
 import uvicorn
 
+class CharacterModeStateReq(BaseModel):
+    characterModeState: CharacterModeState
+    client_id: str
+
 #フォルダーがあるか確認
 HumanPart.initalCheck()
 
@@ -67,12 +72,8 @@ inastanceManager = InastanceManager()
 
 setting_module = AppSettingModule()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
-human_dict:dict[CharacterId,Human] = {}
-#Humanクラスの生成されたインスタンスをid順に登録する辞書を作成
-human_id_dict = []
-#使用してる合成音声の種類をカウントする辞書を作成
-voiceroid_dict = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}
-gpt_mode_dict = {}
+# human_dict:dict[CharacterId,Human] = {}
+# gpt_mode_dict = {}
 #game_masterのインスタンスを生成
 human_queue_shuffle = False
 yukarinet_enable = True
@@ -80,9 +81,9 @@ nikonama_comment_reciever_list:dict[str,NicoNamaCommentReciever] = {}
 new_nikonama_comment_reciever_list:dict[str,newNikonamaCommentReciever] = {}
 YoutubeCommentReciever_list:dict[str,YoutubeCommentReciever] = {}
 twitchBotList:dict[str,TwitchBot] = {}
-epic = Epic()
+epic = inastanceManager.epic
 gpt_agent_dict: dict[str,GPTAgent] = {}
-input_reciever = InputReciever(epic ,gpt_agent_dict, gpt_mode_dict)
+# input_reciever = InputReciever(epic ,gpt_agent_dict, gpt_mode_dict)
 diary = Memo()
 
 
@@ -108,8 +109,7 @@ async def shutdown_event():
     # ここに終了処理を書く
     # cevioを起動していたら終了させる
     cevio_shutdowned = False
-    for characterId in human_dict.keys():
-        human = human_dict[characterId]
+    for human in inastanceManager.humanInstances.Humans:
         if cevio_shutdowned==False and human.voice_system == "cevio":
             try:
                 #human.human_Voice.kill_cevio()
@@ -227,7 +227,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             message:MessageDict = datas["message"]
             recieve_gpt_mode_dict = Human.convertDictKeyToCharName(datas["gpt_mode"])
             for character_id in recieve_gpt_mode_dict.keys():
-                gpt_mode_dict[character_id] = recieve_gpt_mode_dict[character_id]
+                inastanceManager.gptModeManager.setCharacterGptMode(character_id, recieve_gpt_mode_dict[character_id])
             input = ""
             input_dict:dict[CharacterId,str] = {}
             json_data = json.dumps(message, ensure_ascii=False)
@@ -239,23 +239,8 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 characterModeState = CharacterModeState.fromDict(message_unit["characterModeState"])
                 ExtendFunc.ExtendPrintWithTitle("characterModeState",characterModeState)
                 # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
-                if character_id not in human_dict:
-                    #サーバーだけを再起動したときにここを通るのでhuman_dictを作り直す
-                    #name_dataに対応したHumanインスタンスを生成
-                    prompt_setteing_num = "キャラ個別システム設定"
-                    corresponding_websocket = inastanceManager.clientWs.getClientWs(client_id)
-                    
-                    
-                    tmp_human = Human(characterModeState, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
-                    #使用してる合成音声の種類をカウント
-                    print(f"{tmp_human.voice_system=}")
-                    voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
-                    #humanインスタンスが完成したのでhuman_dictに登録
-                    human_dict[tmp_human.char_name.name] = tmp_human
-                else:
-                    tmp_human = human_dict[character_id]
-                    tmp_human.chara_mode_state = characterModeState
-                
+                inastanceManager.humanInstances.updateHumanModeState(character_id, characterModeState)
+
                 sentence = f"{characterModeState.character_name.name}:{message_unit} , "
                 input_dict[character_id] = message_unit["text"]
                 input = input + sentence
@@ -269,7 +254,10 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 #gptには投げない
                 print(f"ユーザー：{character_id}の返答を生成します")
                 ExtendFunc.ExtendPrint(character_id)
-                human_ai:Human = human_dict[character_id]
+                human_ai:Human|None = inastanceManager.humanInstances.tryGetHuman(character_id)
+                if human_ai == None:
+                    ExtendFunc.ExtendPrint(f"{character_id}のHumanインスタンスが存在しません")
+                    continue
                 await epic.appendMessageAndNotify(input_dict)
                 print(f"{human_ai.char_name=}")
                 if "" != input_dict[character_id]:
@@ -540,15 +528,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             chara_mode_state = CharacterModeState.newFromFrontName(name_data)
             #キャラ立ち絵のパーツを全部送信する。エラーがあったらエラーを返す
             try:
-                #name_dataに対応したHumanインスタンスを生成
-                prompt_setteing_num = "キャラ個別システム設定"
-                corresponding_websocket = inastanceManager.clientWs.getClientWs(client_id)
-                tmp_human = Human(chara_mode_state, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
-                #使用してる合成音声の種類をカウント
-                print(f"{tmp_human.voice_system=}")
-                voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
-                #humanインスタンスが完成したのでhuman_dictに登録
-                human_dict[tmp_human.id] = tmp_human
+                tmp_human = inastanceManager.humanInstances.createHuman(chara_mode_state)
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
                 human_part_folder:HumanData = tmp_human.image_data_for_client
                 charaCreateData:CharaCreateData = {
@@ -676,7 +656,7 @@ async def pati_setting(req: PatiSetting):
     now_onomatopoeia_action = req.now_onomatopoeia_action
     
     try:
-        human:Human = human_dict[characterModeState.id]
+        human:Human = inastanceManager.humanInstances.tryGetHuman(characterModeState.id) or inastanceManager.humanInstances.createHuman(characterModeState)
         human.saveHumanImageCombination(pati_setting,"OnomatopeiaActionSetting")
         human.saveHumanImageCombination(now_onomatopoeia_action,"NowOnomatopoeiaActionSetting")
         return {"message": "オノマトペアクション設定の保存に成功しました"}
@@ -703,7 +683,10 @@ async def ws_combi_img_reciver(websocket: WebSocket):
                 json_data = data["combination_data"]
                 human_name = data["chara_name"]
                 combination_name = data["combination_name"]
-                human:Human = human_dict[characterModeState["id"]]
+                # human:Human = human_dict[characterModeState["id"]]
+                human:Human|None = inastanceManager.humanInstances.tryGetHuman(characterModeState["id"])
+                if human == None:
+                    return
                 #jsonファイルを保存する
                 print("jsonファイルを保存します")
                 try:
@@ -733,12 +716,11 @@ async def ws_gpt_mode(websocket: WebSocket):
             recieve_gpt_mode_dict = Human.convertDictKeyToCharName(data)
             #受け取ったデータをjsonに保存する
             for name in recieve_gpt_mode_dict.keys():
-                gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
-            msg = f"gpt_modeの変更に成功しました。{gpt_mode_dict=}"
-            print(msg)
-            if "individual_process0501dev" not in gpt_mode_dict.values():
+                # gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
+                inastanceManager.gptModeManager.setCharacterGptMode(name, recieve_gpt_mode_dict[name])
+            if inastanceManager.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev"):
                 print("individual_process0501devがないので終了します")
-                await input_reciever.stopObserveEpic()
+                await inastanceManager.inputReciever.stopObserveEpic()
                 break
                 
             
@@ -783,19 +765,17 @@ async def ws_gpt_routine(websocket: WebSocket, front_name: str):
     #             human_gpt_manager.message_memory = []
 
 @app.websocket("/gpt_routine2/{front_name}")
-async def ws_gpt_event_start2(websocket: WebSocket, front_name: str):
+async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routine2コネクションします")
     await websocket.accept()
-    chara_name = Human.setCharName(front_name)
-    if chara_name not in human_dict:
+    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+    if human == None:
+        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
         return
-    human = human_dict[chara_name]
     
-    
-    
-    agenet_event_manager = AgentEventManager(chara_name, gpt_mode_dict)
-    agenet_manager = AgentManager(chara_name, epic, human_dict, websocket, input_reciever)
+    agenet_event_manager = AgentEventManager(human, inastanceManager)
+    agenet_manager = AgentManager(human, epic, human_dict, websocket, input_reciever)
     gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
     gpt_agent_dict[chara_name] = gpt_agent
 
@@ -814,14 +794,14 @@ async def ws_gpt_event_start2(websocket: WebSocket, front_name: str):
 
 
 @app.websocket("/gpt_routine/{front_name}")
-async def ws_gpt_event_start(websocket: WebSocket, front_name: str):
+async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routineコネクションします")
     await websocket.accept()
-    chara_name = Human.setCharName(front_name)
-    if chara_name not in human_dict:
+    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+    if human == None:
+        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
         return
-    human = human_dict[chara_name]
     
     
     
@@ -846,11 +826,14 @@ async def ws_gpt_event_start(websocket: WebSocket, front_name: str):
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 @app.websocket("/gpt_routine3/{front_name}")
-async def wsGptGraphEventStart(websocket: WebSocket, front_name: str):
+async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routineコネクションします")
     await websocket.accept()
-    chara_name = Human.setCharName(front_name)
+    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+    if human == None:
+        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
+        return
 
     agenet_event_manager = AgentEventManager(chara_name.name, gpt_mode_dict)
     agenet_manager = AgentManager(chara_name.name, epic, human_dict, websocket, input_reciever)
@@ -892,23 +875,14 @@ async def AllCharaInfo():
     # mana.save()
     return mana
 
-class CharacterModeStateReq(BaseModel):
-    characterModeState: CharacterModeState
-    client_id: str
+
 
 @app.post("/DecideChara")
 async def DecideChara(req: CharacterModeStateReq):
     character_mode_state:CharacterModeState = req.characterModeState
     client_id = req.client_id
     #name_dataに対応したHumanインスタンスを生成
-    prompt_setteing_num = "キャラ個別システム設定"
-    corresponding_websocket = inastanceManager.clientWs.getClientWs(client_id)
-    tmp_human = Human(character_mode_state, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
-    #使用してる合成音声の種類をカウント
-    print(f"{tmp_human.voice_system=}")
-    voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
-    #humanインスタンスが完成したのでhuman_dictに登録
-    human_dict[tmp_human.id] = tmp_human
+    tmp_human = inastanceManager.humanInstances.createHuman(character_mode_state)
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
     human_part_folder:HumanData = tmp_human.image_data_for_client
     charaCreateData:CharaCreateData = {
