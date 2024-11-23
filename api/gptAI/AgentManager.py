@@ -3373,16 +3373,10 @@ class LifeProcessBrain:
             await self.runGraphProcess(i外界からの入力)
             ExtendFunc.ExtendPrint("タスクグラフの実行が完了しました")
 
-    async def runGraphProcess(self, input:外界からの入力):
+    async def runDestinationTask(self, input:外界からの入力):
         """
-        外界からの作用を入力として受け取って、目標を生成し、タスクグラフを生成し、実行する
+        目標を生成するためのタスクを実行
         """
-        # キャラクターごとの初期目標をロードして、タスクグラフを作成する。しかしそもそも目標がない場合は無理に目標を与える必要はないとも思う。本当の最初はある程度会話による記憶の入力が必要
-        # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
-        # したがって内面を用いて目標を生成するプロセスを書く必要がある。
-        # モット言うともはや入力するプロセスをちゃんと書く必要がある。
-
-        # 最初に目標ツールを使って入力から目標を生成するためのTaskを作成。ここでinputを使う
         task_destination:Task = {
             "id":"0",
             "task_species":"目標決定",
@@ -3395,7 +3389,9 @@ class LifeProcessBrain:
         destination_tool = DestinationTool(task_destination, self)
         output:TaskToolOutput = TaskToolOutput(None,input.会話)
         destination_output = await destination_tool.execute(output)
-        # タスクグラフ分解ツールを使って目標を分解するためのTaskを作成
+        return destination_output
+
+    async def runTaskDecompositionTask(self,destination_output:TaskToolOutput): 
         task_decomposition:Task = {
             "id":"1",
             "task_species":"タスク分解",
@@ -3407,6 +3403,9 @@ class LifeProcessBrain:
         }
         task_decomposition_tool = TaskDecompositionTool(task_decomposition, self)
         task_graph_output = await task_decomposition_tool.execute(destination_output)
+        return task_graph_output
+    
+    async def runTaskExecutionTask(self, task_graph_output:TaskToolOutput):
         task_graph_exec:Task = {
             "id":"2",
             "task_species":"タスク実行",
@@ -3418,7 +3417,27 @@ class LifeProcessBrain:
         }
         task_exec_tool = TaskExecutionTool(task_graph_exec, self)
         task_exec_output = await task_exec_tool.execute(task_graph_output)
+        return task_exec_output
 
+
+    async def runGraphProcess(self, input:外界からの入力):
+        """
+        外界からの作用を入力として受け取って、目標を生成し、タスクグラフを生成し、実行する
+        """
+        # キャラクターごとの初期目標をロードして、タスクグラフを作成する。しかしそもそも目標がない場合は無理に目標を与える必要はないとも思う。本当の最初はある程度会話による記憶の入力が必要
+        # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
+        # したがって内面を用いて目標を生成するプロセスを書く必要がある。
+        # モット言うともはや入力するプロセスをちゃんと書く必要がある。
+
+        # 最初に目標ツールを使って入力から目標を生成するためのTaskを作成。ここでinputを使う
+        destination_output = await self.runDestinationTask(input)
+        
+        # タスクグラフ分解ツールを使って目標を分解するためのTaskを作成
+        task_graph_output = await self.runTaskDecompositionTask(destination_output)
+
+        task_exec_output = await self.runTaskExecutionTask(task_graph_output)
+       
+        
         
         
         
@@ -3448,6 +3467,15 @@ class GPTAgent:
     
 class AgentManagerTest:
     def __init__(self) -> None:
+        chara_name = CharacterName(name = "琴葉葵")
+        gpt_mode_dict = {}
+        gpt_mode_dict[chara_name] = "individual_process0501dev"
+        epic = Epic()
+
+        agenet_event_manager = AgentEventManager(chara_name.name, gpt_mode_dict)
+        agenet_manager = AgentManager(chara_name.name, epic, human_dict, websocket, input_reciever)
+        gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
+        life_process_brain = LifeProcessBrain(chara_name, websocket,gpt_agent)
         pass
     def ChatGptApiUnitがちゃんと文章を送受信できるかどうかのテスト(self):
         gpt_unit = ChatGptApiUnit(True)
@@ -3491,21 +3519,15 @@ class AgentManagerTest:
         ExtendFunc.ExtendPrint(ti)
         return ti
 
-    def 目標や利益ベクトルをを計算するツールのテスト(self):
-        destination_tool = DestinationTool(task, None)
-        previows_output = TaskToolOutput(None,"最初のタスク")
-        result = asyncio.run(destination_tool.execute(previows_output))
-        ExtendFunc.ExtendPrint(result)
+    async def 目標や利益ベクトルをを計算するツールのテスト(self):
         pass
 
     def タスク分解ツールの結果をもとにタスクグラフを生成するテスト(self):
+         # タスクグラフ分解ツールを使って目標を分解するためのTaskを作成
+        
         pass
 
     def 目標や利益ベクトルをもとに文章を生成してタスクを処理するテスト(self):
-        task_exec_tool = TaskExecutionTool(task, None)
-        previows_output = TaskToolOutput(None,"最初のタスク")
-        result = asyncio.run(task_exec_tool.execute(previows_output))
-        ExtendFunc.ExtendPrint(result)
         pass
 
     

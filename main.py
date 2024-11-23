@@ -854,17 +854,12 @@ async def wsGptGraphEventStart(websocket: WebSocket, front_name: str):
     print("gpt_routineコネクションします")
     await websocket.accept()
     chara_name = Human.setCharName(front_name)
-    if chara_name not in human_dict:
-        return
-    human = human_dict[chara_name]
 
-    
-    
-    agenet_event_manager = AgentEventManager(chara_name, gpt_mode_dict)
-    agenet_manager = AgentManager(chara_name, epic, human_dict, websocket, input_reciever)
+    agenet_event_manager = AgentEventManager(chara_name.name, gpt_mode_dict)
+    agenet_manager = AgentManager(chara_name.name, epic, human_dict, websocket, input_reciever)
     gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
     life_process_brain = LifeProcessBrain(chara_name, websocket,gpt_agent)
-    gpt_agent_dict[chara_name] = gpt_agent
+    gpt_agent_dict[chara_name.name] = gpt_agent
 
     # 意思決定のパイプラインを作成
     # 目標の生成とタスクグラフの生成を行いたい。入力を受け取ると、目標を生成し、タスクグラフを生成する。これ以外に目標を生成する方法はあるのか？
