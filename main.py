@@ -3,6 +3,7 @@ import os
 import random
 import sys
 from pathlib import Path
+from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
 from api.gptAI.gpt import ChatGPT
@@ -62,9 +63,8 @@ app.add_middleware(
 
 # プッシュ通知各種設定が定義されているインスタンス
 notifier = Notifier()
-# クライアントのidと対応するwsを格納する配列類
-client_ids: list[str] = []
-clients_ws:dict[str,WebSocket] = {}
+inastanceManager = InastanceManager()
+
 setting_module = AppSettingModule()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
 human_dict:dict[CharacterId,Human] = {}
@@ -125,10 +125,7 @@ async def shutdown_event():
 @app.websocket("/id_create")
 async def create_id(websocket: WebSocket):
     await websocket.accept()
-    id = str(uuid4())
-    while id in client_ids:
-        id = str(uuid4())
-    client_ids.append(id)
+    id = inastanceManager.clientIds.createNewId()
     await websocket.send_text(id)
 
 
@@ -221,7 +218,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
     print("リクエスト検知")
     # クライアントとのコネクション確立
     await notifier.connect(websocket)
-    clients_ws[client_id] = websocket
+    inastanceManager.clientWs.setClientWs(client_id, websocket)
 
     try:
         while True:
@@ -246,7 +243,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                     #サーバーだけを再起動したときにここを通るのでhuman_dictを作り直す
                     #name_dataに対応したHumanインスタンスを生成
                     prompt_setteing_num = "キャラ個別システム設定"
-                    corresponding_websocket = clients_ws[client_id]
+                    corresponding_websocket = inastanceManager.clientWs.getClientWs(client_id)
                     
                     
                     tmp_human = Human(characterModeState, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
@@ -545,7 +542,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             try:
                 #name_dataに対応したHumanインスタンスを生成
                 prompt_setteing_num = "キャラ個別システム設定"
-                corresponding_websocket = clients_ws[client_id]
+                corresponding_websocket = inastanceManager.clientWs.getClientWs(client_id)
                 tmp_human = Human(chara_mode_state, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
                 #使用してる合成音声の種類をカウント
                 print(f"{tmp_human.voice_system=}")
@@ -905,7 +902,7 @@ async def DecideChara(req: CharacterModeStateReq):
     client_id = req.client_id
     #name_dataに対応したHumanインスタンスを生成
     prompt_setteing_num = "キャラ個別システム設定"
-    corresponding_websocket = clients_ws[client_id]
+    corresponding_websocket = inastanceManager.clientWs.getClientWs(client_id)
     tmp_human = Human(character_mode_state, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
     #使用してる合成音声の種類をカウント
     print(f"{tmp_human.voice_system=}")
