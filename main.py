@@ -6,7 +6,6 @@ from pathlib import Path
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
-from api.gptAI.InputReciever import InputReciever
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
@@ -720,7 +719,7 @@ async def ws_gpt_mode(websocket: WebSocket):
                 inastanceManager.gptModeManager.setCharacterGptMode(name, recieve_gpt_mode_dict[name])
             if inastanceManager.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev"):
                 print("individual_process0501devがないので終了します")
-                await inastanceManager.inputReciever.stopObserveEpic()
+                await inastanceManager.gptAgentInstanceManager.inputReciever.stopObserveEpic()
                 break
                 
             
@@ -774,20 +773,12 @@ async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
         return
     
-    agenet_event_manager = AgentEventManager(human, inastanceManager)
-    agenet_manager = AgentManager(human, epic, human_dict, websocket, input_reciever)
-    gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-    gpt_agent_dict[chara_name] = gpt_agent
-
-    pipe = asyncio.gather(
-        input_reciever.runObserveEpic(),
-        agenet_event_manager.setEventQueueArrow(input_reciever, agenet_manager.mic_input_check_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.mic_input_check_agent, agenet_manager.speaker_distribute_agent),
-        agenet_event_manager.setEventQueueArrowWithTimeOutByHandler(agenet_manager.speaker_distribute_agent, agenet_manager.think_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.think_agent, agenet_manager.serif_agent),
-        # agenet_event_manager.setEventQueueArrow(agenet_manager.think_agent, )
-    )
-
+    # agenet_event_manager = AgentEventManager(human, inastanceManager)
+    # agenet_manager = AgentManager(human, epic, human_dict, websocket, input_reciever)
+    # gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
+    # gpt_agent_dict[chara_name] = gpt_agent
+    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+    pipe = inastanceManager.gptAgentInstanceManager.createPipeVer2(gptAgent)
     # pipeが完了したら通知
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
@@ -803,23 +794,8 @@ async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
         return
     
-    
-    
-    agenet_event_manager = AgentEventManager(chara_name, gpt_mode_dict)
-    agenet_manager = AgentManager(chara_name, epic, human_dict, websocket, input_reciever)
-    gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-    gpt_agent_dict[chara_name] = gpt_agent
-
-    # 意思決定のパイプラインを作成
-    pipe = asyncio.gather(
-        input_reciever.runObserveEpic(),
-        agenet_event_manager.setEventQueueArrow(input_reciever, agenet_manager.mic_input_check_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.mic_input_check_agent, agenet_manager.speaker_distribute_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.speaker_distribute_agent, agenet_manager.non_thinking_serif_agent),
-        # agenet_event_manager.setEventQueueArrowWithTimeOutByHandler(agenet_manager.speaker_distribute_agent, agenet_manager.think_agent),
-        # agenet_event_manager.setEventQueueConfluenceArrow([agenet_manager.non_thinking_serif_agent, agenet_manager.think_agent], agenet_manager.serif_agent)
-        # agenet_event_manager.setEventQueueArrow(agenet_manager.think_agent, )
-    )
+    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+    pipe = inastanceManager.gptAgentInstanceManager.createPipeVer0(gptAgent)
 
     # pipeが完了したら通知
     await pipe
@@ -835,23 +811,9 @@ async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq)
         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
         return
 
-    agenet_event_manager = AgentEventManager(chara_name.name, gpt_mode_dict)
-    agenet_manager = AgentManager(chara_name.name, epic, human_dict, websocket, input_reciever)
-    gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-    life_process_brain = LifeProcessBrain(chara_name, websocket,gpt_agent)
-    gpt_agent_dict[chara_name.name] = gpt_agent
-
-    # 意思決定のパイプラインを作成
-    # 目標の生成とタスクグラフの生成を行いたい。入力を受け取ると、目標を生成し、タスクグラフを生成する。これ以外に目標を生成する方法はあるのか？
-    # 入力から目標を生成する過程はどうなっているのか？
-    pipe = asyncio.gather(
-        input_reciever.runObserveEpic(),
-        agenet_event_manager.setEventQueueArrow(input_reciever, agenet_manager.mic_input_check_agent),
-        agenet_event_manager.setEventQueueArrowToCreateTask(input_reciever, life_process_brain),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.mic_input_check_agent, agenet_manager.speaker_distribute_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.speaker_distribute_agent, agenet_manager.non_thinking_serif_agent),
-        
-    )
+    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+    gptBrain = inastanceManager.gptAgentInstanceManager.createLifeProcessBrain(gptAgent)
+    pipe = inastanceManager.gptAgentInstanceManager.createPipeVer3(gptBrain)
 
     # pipeが完了したら通知
     await pipe

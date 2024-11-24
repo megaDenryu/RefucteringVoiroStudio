@@ -4,7 +4,6 @@ from api.InstanceManager.HumanDict import HumanInstanceContainer
 from api.InstanceManager.ClientIds import ClientIds, ClientWebSocket
 from api.InstanceManager.InsatanceManagerInterface import InstanceManagerInterface
 from api.gptAI.GPTMode import GptModeManager
-from api.gptAI.InputReciever import InputReciever
 
 
 class InastanceManager(InstanceManagerInterface):
@@ -14,7 +13,6 @@ class InastanceManager(InstanceManagerInterface):
     _gptModeManager: GptModeManager
     _epic: Epic
     _gptAgentInstanceManager: GPTAgentInstanceManager
-    _inputReciever: InputReciever
 
     @property
     def clientIds(self):
@@ -40,10 +38,6 @@ class InastanceManager(InstanceManagerInterface):
     def gptAgentInstanceManager(self):
         return self._gptAgentInstanceManager
     
-    @property
-    def inputReciever(self):
-        return self._inputReciever
-    
 
     def __init__(self):
         self._clientIds = ClientIds()
@@ -51,8 +45,7 @@ class InastanceManager(InstanceManagerInterface):
         self._humanInstances = HumanInstanceContainer()
         self._gptModeManager = GptModeManager()
         self._epic = Epic()
-        self._gptAgentInstanceManager = GPTAgentInstanceManager(self.gptModeManager)
-        self._inputReciever = InputReciever(self)
+        self._gptAgentInstanceManager = GPTAgentInstanceManager(self)
 
 
     

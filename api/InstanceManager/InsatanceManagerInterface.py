@@ -38,8 +38,3 @@ class InstanceManagerInterface(ABC):
     @abstractmethod
     def gptAgentInstanceManager(self)->GPTAgentInstanceManager:
         pass
-    
-    @property
-    @abstractmethod
-    def inputReciever(self)->InputReciever:
-        pass

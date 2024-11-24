@@ -29,9 +29,7 @@ from api.Epic.Epic import Epic, MassageHistoryUnit, MessageUnit
 from typing import Coroutine, Literal, Protocol
 from typing import Any, Dict, get_type_hints, get_origin,TypeVar, Generic
 from typing_extensions import TypedDict
-from pydantic import BaseModel, validator
-
-from api.gptAI.InputReciever import InputReciever
+from pydantic import BaseModel
 
 
 class ChatGptApiUnit:
@@ -355,7 +353,7 @@ Human→AgentManager→Agent→AgentRoutine
 class AgentManager:
     human:Human
     _message_memory:list[MassageHistoryUnit] = []
-    input_reciever:InputReciever
+    input_reciever:"InputReciever"
     speaker_distribute_agent:"SpeakerDistributeAgent"
     mic_input_check_agent:"MicInputJudgeAgent"
     think_agent:"ThinkAgent"
@@ -365,7 +363,7 @@ class AgentManager:
     def __init__(
             self,human:Human, 
             instanceManagerInterface:InstanceManagerInterface,
-            websocket:WebSocket,
+            websocket:WebSocket|None,
             ):
         self.human = human
         self.chara_name = human.char_name.name
@@ -376,7 +374,7 @@ class AgentManager:
         self.replace_dict = self.loadReplaceDict(self.chara_name)
         self.prepareAgents(self.replace_dict)
         self.websocket = websocket
-        self.input_reciever = instanceManagerInterface.inputReciever
+        self.input_reciever = instanceManagerInterface.gptAgentInstanceManager.inputReciever
         self.GPTModeSetting = JsonAccessor.loadAppSetting()["GPT設定"]
 
     @property
@@ -1574,6 +1572,8 @@ class SerifAgent(Agent):
             # # 区分音声の再生が完了したかメッセージを貰う
             # end_play_data = await self.agent_manager.websocket.receive_json()
             # 同時に実行するコルーチンをリストにまとめます
+            if self.agent_manager.websocket == None:
+                return
             tasks = [
                 self.agent_manager.websocket.send_json(json.dumps(send_data)),
                 self.saveSuccesSerifToMemory(serif),
@@ -1746,6 +1746,8 @@ class NonThinkingSerifAgent(Agent):
             # # 区分音声の再生が完了したかメッセージを貰う
             # end_play_data = await self.agent_manager.websocket.receive_json()
             # 同時に実行するコルーチンをリストにまとめます
+            if self.agent_manager.websocket == None:
+                return
             tasks = [
                 self.agent_manager.websocket.send_json(json.dumps(send_data)),
                 self.saveSuccesSerifToMemory(serif),
@@ -3324,17 +3326,18 @@ class LifeProcessBrain:
     task_graph_process:dict[str,TaskGraph]
     memory:Memory
     state:LifeProcessState = LifeProcessState()
-    websocket: WebSocket
+    websocket: WebSocket|None
     gptAgent:"GPTAgent"
 
-    def __init__(self,chara_name:CharacterName ,websocket: WebSocket, gptAgent:"GPTAgent") -> None:
+    def __init__(self,gptAgent:"GPTAgent") -> None:
         """
         メモリーをロードor初期化
         task_graph_processをメモリーから生成
         task_graph_processを実行
         """
+        chara_name = gptAgent.manager.human.char_name
         self.memory = Memory.loadLatestMemory(chara_name, self)
-        self.websocket = websocket
+        self.websocket = gptAgent.manager.websocket
         self.gptAgent = gptAgent
         self.task_graph_process = self.memory.task_progress.task_graphs
         #すべてのタスクにLifeProcessBrainをバインド
@@ -3469,6 +3472,11 @@ class LifeProcessBrain:
 class GPTAgent:
     manager: AgentManager
     event_manager: AgentEventManager
+
+@dataclass
+class GPTBrain:
+    agent: GPTAgent
+    brain: LifeProcessBrain
 
 
     
