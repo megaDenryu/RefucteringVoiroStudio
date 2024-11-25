@@ -1,3 +1,4 @@
+from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.Human import Human
 from api.gptAI.HumanInformation import CharacterId, CharacterModeState
 
@@ -24,6 +25,8 @@ class HumanInstanceContainer:
         """
         人間の情報を取得する。存在しない場合は新たに生成する。
         """
+        ExtendFunc.ExtendPrint(f"tryGetHuman:{character_id}")
+        ExtendFunc.ExtendPrint(self._human_dict)
         if character_id not in self._human_dict:
             return None
         return self._human_dict[character_id]

@@ -256,6 +256,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 human_ai:Human|None = inastanceManager.humanInstances.tryGetHuman(character_id)
                 if human_ai == None:
                     ExtendFunc.ExtendPrint(f"{character_id}のHumanインスタンスが存在しません")
+                    ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.HumanFrontNames=}")
                     continue
                 await epic.appendMessageAndNotify(input_dict)
                 print(f"{human_ai.char_name=}")
@@ -719,7 +720,7 @@ async def ws_gpt_mode(websocket: WebSocket):
                 inastanceManager.gptModeManager.setCharacterGptMode(name, recieve_gpt_mode_dict[name])
             if inastanceManager.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev"):
                 print("individual_process0501devがないので終了します")
-                await inastanceManager.gptAgentInstanceManager.inputReciever.stopObserveEpic()
+                await inastanceManager.inputReciever.stopObserveEpic()
                 break
                 
             
@@ -778,7 +779,7 @@ async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
     # gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
     # gpt_agent_dict[chara_name] = gpt_agent
     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    pipe = inastanceManager.gptAgentInstanceManager.createPipeVer2(gptAgent)
+    pipe = inastanceManager.agentPipeManager.createPipeVer2(gptAgent)
     # pipeが完了したら通知
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
@@ -795,7 +796,7 @@ async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
         return
     
     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    pipe = inastanceManager.gptAgentInstanceManager.createPipeVer0(gptAgent)
+    pipe = inastanceManager.agentPipeManager.createPipeVer0(gptAgent)
 
     # pipeが完了したら通知
     await pipe
@@ -812,8 +813,8 @@ async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq)
         return
 
     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    gptBrain = inastanceManager.gptAgentInstanceManager.createLifeProcessBrain(gptAgent)
-    pipe = inastanceManager.gptAgentInstanceManager.createPipeVer3(gptBrain)
+    gptBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
+    pipe = inastanceManager.agentPipeManager.createPipeVer3(gptBrain)
 
     # pipeが完了したら通知
     await pipe
