@@ -5,7 +5,7 @@ import sys
 from pathlib import Path
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
@@ -206,7 +206,7 @@ class MessageUnit(TypedDict):
     text: str
     characterModeState: ICharacterModeState|None
 
-MessageDict = dict[CharacterId, MessageUnit]  # CharacterIdの型をstrと仮定
+MessageDict = dict[FrontName, MessageUnit]  #FrontName型をstrと仮定。ただしCharacterId型にいずれ変更する。クライアント側の実装と一緒に対応する
 
 class SendData(TypedDict):
     message: MessageDict
@@ -225,20 +225,21 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             datas:SendData = json.loads(await websocket.receive_text()) 
             message:MessageDict = datas["message"]
             recieve_gpt_mode_dict = Human.convertDictKeyToCharName(datas["gpt_mode"])
-            for character_id in recieve_gpt_mode_dict.keys():
-                inastanceManager.gptModeManager.setCharacterGptMode(character_id, recieve_gpt_mode_dict[character_id])
+            # for character_id in recieve_gpt_mode_dict.keys():
+            #     inastanceManager.gptModeManager.setCharacterGptMode(character_id, recieve_gpt_mode_dict[character_id])
             input = ""
             input_dict:dict[CharacterId,str] = {}
             json_data = json.dumps(message, ensure_ascii=False)
             #await notifier.push(json_data)
             inputer = ""
-            for character_id,message_unit in message.items():
+            for front_name,message_unit in message.items():
                 if message_unit["characterModeState"] == None:
                     continue
                 characterModeState = CharacterModeState.fromDict(message_unit["characterModeState"])
+                character_id = characterModeState.id
                 ExtendFunc.ExtendPrintWithTitle("characterModeState",characterModeState)
                 # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
-                inastanceManager.humanInstances.updateHumanModeState(character_id, characterModeState)
+                inastanceManager.humanInstances.updateHumanModeState(characterModeState)
 
                 sentence = f"{characterModeState.character_name.name}:{message_unit} , "
                 input_dict[character_id] = message_unit["text"]

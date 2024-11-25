@@ -31,8 +31,9 @@ class HumanInstanceContainer:
             return None
         return self._human_dict[character_id]
     
-    def updateHumanModeState(self,character_id:CharacterId, mode_state:CharacterModeState)->Human:
-        human = self.tryGetHuman(character_id) or self.createHuman(mode_state)
+    def updateHumanModeState(self,mode_state:CharacterModeState)->Human:
+        characterId = mode_state.id
+        human = self.tryGetHuman(characterId) or self.createHuman(mode_state)
         human.chara_mode_state = mode_state
         return human
         

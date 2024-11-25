@@ -422,7 +422,7 @@ class AllHumanInformationDict(BaseModel):
         data = ExtendFunc.loadJsonToDict(path)
         return AllHumanInformationDict(**data)
 
-
+FrontName: TypeAlias = str # フロントでの名前。これはいずれNickNameとCharacterIdで置き換える
 CharacterId: TypeAlias = str
 
 class ICharacterModeState(TypedDict):
