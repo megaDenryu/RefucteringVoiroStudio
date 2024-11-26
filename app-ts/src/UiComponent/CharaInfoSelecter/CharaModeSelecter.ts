@@ -2,13 +2,12 @@ import { ZIndexManager } from "../../AppPage/AppVoiroStudio/ZIndexManager";
 import { ReactiveProperty } from "../../BaseClasses/observer";
 import { VoMap } from "../../Extend/extend_collections";
 import { TTSSoftware, CharacterName, HumanImage, VoiceMode, CharacterModeState } from "../../ValueObject/Character";
-import { HumanData, CharaCreateData } from "../../ValueObject/IHumanPart";
+import { HumanData } from "../../ValueObject/IHumanPart";
 import { VoiceState } from "../../ValueObject/VoiceState";
-import { RequestAPI } from "../../Web/RequestApi";
 import { IDragAble, DragMover } from "../Base/DragableComponent";
 import { BaseComponent, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
 import { HumanTab } from "../HumanDisplay/HumanWindow";
-import { TTSSoftwareSelecter, CompositeCharacterNameSelecter, CompositeHumanImageSelecter, CompositeVoiceModeSelecter, CharacterSelectDecisionButton, CharaSelecterDeleteButton } from "./CharaInfoSelecter";
+import { CompositeHumanImageSelecter, CompositeVoiceModeSelecter, CharacterSelectDecisionButton, CharaSelecterDeleteButton } from "./CharaInfoSelecter";
 
 export class CharaModeChangeFunction implements IHasComponent, IDragAble {
     private readonly Def = HtmlElementInput.new(

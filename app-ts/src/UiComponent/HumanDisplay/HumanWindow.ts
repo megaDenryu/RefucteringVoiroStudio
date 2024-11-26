@@ -6,7 +6,7 @@ import { ExtendFunction } from "../../Extend/extend";
 import { CharacterId, CharacterModeState } from "../../ValueObject/Character";
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
 import { DragMover } from "../Base/DragableComponent";
-import { BaseComponent, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
+import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 import { CharaSelectFunctionCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
 import { IAddHumanButton, IBackGroundImage, IBackGroundImages, IBodySettingButton, IDeleteHumanButton, IHumanName, IHumanSelectPanelStartButton, IHumanTab, IHumanWindow, IMicToggleButton } from "./IHumanWindow";
 

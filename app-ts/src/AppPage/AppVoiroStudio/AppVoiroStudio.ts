@@ -3190,8 +3190,7 @@ export class GPTSettingButtonManagerModel {
 
 
 
-function drawFillRectInOpratorCanvas(x,y,width,height,color){
-    var debug = false;
+function drawFillRectInOpratorCanvas(x,y,width,height,color,debug=false){
     if (debug == true){
         console.log("drawFillRectInOpratorCanvasが呼び出された");
         console.log("引数",{"x":x,"y":y,"width":width,"height":height,"color":color});
@@ -3483,24 +3482,7 @@ export class DragDropFile{
 
 }
 
-class DragDropEventObject{
 
-    /**
-     * ドラッグアンドドロップされたときの制御
-     * ドラッグオーバーされたら、ファイルを検査する。psdか画像ならdropを許可する。
-     * ドロップされたら、ファイルを取得する。
-     */
-    constructor(){
-
-        document.addEventListener("dragover", e => {}); 
-    }
-
-    /**
-     * 
-     * @param {DragEvent} event 
-     */
-    
-}
 
 /**
  * @typedef {Object} sentenceTimeLine

@@ -1,5 +1,5 @@
 import { CharacterModeState, CharacterModeStateReq } from "../ValueObject/Character";
-import { CharaCreateData, HumanData } from "../ValueObject/IHumanPart";
+import { CharaCreateData } from "../ValueObject/IHumanPart";
 
 
 export class RequestAPI {
