@@ -10,12 +10,10 @@ from api.gptAI.GPTMode import GptModeManager
 class InputReciever():
     epic:Epic
     gpt_agent_dict: GPTAgentInstanceManager
-    gpt_mode_dict: GptModeManager
-    def __init__(self, epic:Epic, gptAgentInstanceManager:GPTAgentInstanceManager, gptModeManager:GptModeManager):
+    def __init__(self, epic:Epic, gptAgentInstanceManager:GPTAgentInstanceManager):
         self.name = "入力受付エージェント"
         self.epic = epic
-        self.gpt_agent_dict = gptAgentInstanceManager#gpt_agent_dict
-        self.gpt_mode_dict = gptModeManager #gpt_mode_dict
+        self.gpt_agent_dict = gptAgentInstanceManager
         self.message_stack:list[MassageHistoryUnit] = []
         self.event_queue = Queue[TransportedItem]()
         self.event_queue_dict:dict[Reciever,Queue[TransportedItem]] = {}
@@ -138,3 +136,8 @@ class InputReciever():
             if self.message_stack[i]['現在の日付時刻'] < time:
                 return i
         return None
+    
+    def convertInputRecieverMessageHistoryToTransportedItemData(self)->str:
+        return Epic.convertMessageHistoryToTransportedItemData(self.message_stack, 0, len(self.message_stack))
+    
+    

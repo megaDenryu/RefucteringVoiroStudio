@@ -57,6 +57,17 @@ class Epic:
         ExtendFunc.ExtendPrint("メッセージを追加しました")
         await self.OnMessageEvent.put(history_object)
 
+
+    @staticmethod
+    def convertMessageHistoryToTransportedItemData(message_history:list[MassageHistoryUnit], start_index:int, end_index:int)->str:
+        """
+        message_historyをstart_indexからend_indexまでのメッセージを連結して文字列に変換して返す
+        """
+        ret_string = ""
+        for i in range(start_index, end_index):
+            ret_string = f"{ret_string}{ExtendFunc.dictToStr(message_history[i]['message'].message)}"
+        return ret_string
+
     
 
 

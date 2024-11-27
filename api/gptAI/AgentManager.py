@@ -27,7 +27,7 @@ from api.gptAI.Human import Human
 from api.Extend.ExtendFunc import ExtendFunc, RandomExtend, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Epic.Epic import Epic, MassageHistoryUnit, MessageUnit
-from typing import Coroutine, Literal, Protocol
+from typing import Callable, Coroutine, Literal, Protocol
 from typing import Any, Dict, get_type_hints, get_origin,TypeVar, Generic
 from typing_extensions import TypedDict
 from pydantic import BaseModel
@@ -297,12 +297,10 @@ class AsyncEventHandler(Reciever, Protocol, Generic[GeneralTransportedItem_T_con
     async def handleEventAsync(self, transported_item:GeneralTransportedItem_T_contra):
         pass
 
-class AsyncEventHandlerWaitFor(Reciever, Protocol, Generic[GeneralTransportedItem_T]):
-    async def handleEventAsync(self, transported_item:GeneralTransportedItem_T):
+class AsyncEventHandlerWaitFor(Reciever, Protocol, Generic[GeneralTransportedItem_T_contra]):
+    async def handleEventAsync(self, transported_item:GeneralTransportedItem_T_contra|TransportedItem):
         pass
     def timeOutSec(self)->float: # type: ignore
-        pass
-    def timeOutItem(self)->GeneralTransportedItem_T: # type: ignore
         pass
 
 class EventNotifier(Protocol):
@@ -324,8 +322,7 @@ class QueueNotifierWaitFor(Protocol, Generic[GeneralTransportedItem_T]):
         pass
     def timeOutSec(self)->float: # type: ignore
         pass
-    def timeOutItem(self)->GeneralTransportedItem_T: # type: ignore
-        pass
+    
 
 class EventNode(AsyncEventHandler,EventNotifier,Protocol):
     pass
@@ -362,6 +359,7 @@ class AgentManager:
     GPTModeSetting:dict[str,str] = {}
     epic:Epic
     humanInstanceContainer: HumanInstanceContainer
+    clearMessageStackEvent:Callable[[TimeExtend], None]
     def __init__(
             self,human:Human, 
             epic:Epic,
@@ -481,7 +479,11 @@ class AgentManager:
         pass
 
     def clearInputRecieverMessageStack(self, time:TimeExtend):
-        self.input_reciever.clearMessageStack(time)
+        # self.input_reciever.clearMessageStack(time)
+        self.clearMessageStackEvent(time)
+
+    def addClearMessageStackEvent(self, event:Callable[[TimeExtend], None]):
+        self.clearMessageStackEvent = event
         
 
 class Agent:
@@ -711,6 +713,7 @@ class AgentEventManager:
     run_state: RunState
     gptModeManager:GptModeManager
     chara_name:CharacterName
+    EconvertInputRecieverMessageHistoryToTransportedItemData:Callable[[],str]
     
     def __init__(self, human:Human, gptModeManager:GptModeManager):
         self.gptModeManager = gptModeManager
@@ -796,7 +799,7 @@ class AgentEventManager:
                 item = await asyncio.wait_for(event_queue_for_reciever.get(), timeout=reciever.timeOutSec())
             except asyncio.TimeoutError:
                 ExtendFunc.ExtendPrint(f"{reciever.name}イベントがタイムアウトしました")
-                item = reciever.timeOutItem()
+                item = self.timeOutItem()
             ExtendFunc.ExtendPrint(item)
             try:
                 await asyncio.wait_for(reciever.handleEventAsync(item),40)
@@ -825,7 +828,23 @@ class AgentEventManager:
                 await asyncio.wait_for(reciever.handleEventAsync(ti), 40)
                 ExtendFunc.ExtendPrint(f"{reciever.name}イベントを処理しました")
             except asyncio.TimeoutError:
-                ExtendFunc.ExtendPrint(f"{reciever.name}のハンドルイベントがタイムアウトしました")     
+                ExtendFunc.ExtendPrint(f"{reciever.name}のハンドルイベントがタイムアウトしました")
+
+    def addEconvertInputRecieverMessageHistoryToTransportedItemData(self, func:Callable[[],str]):
+        self.EconvertInputRecieverMessageHistoryToTransportedItemData = func
+
+    def timeOutItem(self)->TransportedItem:
+        """
+        このtiは自分自身で受け取るので
+        """
+        rm:str = self.EconvertInputRecieverMessageHistoryToTransportedItemData()
+        ret_ti = TransportedItem.init()
+        ret_ti.recieve_messages = rm
+        ret_ti.MicInputJudge_data = {"理由":"タイムアウト","入力成功度合い":0.0}
+        ret_ti.SpeakerDistribute_data = {"次に発言するべきキャラクター":self.chara_name.name , "理由考察":"タイムアウト"}
+
+        return ret_ti
+    
     
     @staticmethod
     def mergeTransportedItem(ti:GeneralTransportedItem_T, item:GeneralTransportedItem_T)->GeneralTransportedItem_T:
@@ -1289,18 +1308,7 @@ class ThinkAgent2(Agent,QueueNode):
         """
         return 60
     
-    def timeOutItem(self):
-        """
-        このtiは自分自身で受け取るので
-        """
-        ir = self.agent_manager.input_reciever
-        rm = ir.convertMessageHistoryToTransportedItemData(ir.message_stack, 0, len(ir.message_stack))
-        ret_ti = TransportedItem.init()
-        ret_ti.recieve_messages = rm
-        ret_ti.MicInputJudge_data = {"理由":"タイムアウト","入力成功度合い":0.0}
-        ret_ti.SpeakerDistribute_data = {"次に発言するべきキャラクター":self.chara_name , "理由考察":"タイムアウト"}
-
-        return ret_ti
+    
     
 class ThinkAgent(Agent,QueueNode):
     _previous_situation:list[str] = []
@@ -1497,18 +1505,7 @@ class ThinkAgent(Agent,QueueNode):
         """
         return 60
     
-    def timeOutItem(self):
-        """
-        このtiは自分自身で受け取るので
-        """
-        ir = self.agent_manager.input_reciever
-        rm = ir.convertMessageHistoryToTransportedItemData(ir.message_stack, 0, len(ir.message_stack))
-        ret_ti = TransportedItem.init()
-        ret_ti.recieve_messages = rm
-        ret_ti.MicInputJudge_data = {"理由":"タイムアウト","入力成功度合い":0.0}
-        ret_ti.SpeakerDistribute_data = {"次に発言するべきキャラクター":self.chara_name , "理由考察":"タイムアウト"}
 
-        return ret_ti
         
 class SerifAgent(Agent):
     # class SerifAgentResponse(TypedDict):

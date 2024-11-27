@@ -58,7 +58,12 @@ class InastanceManager(InstanceManagerInterface):
         self._gptModeManager = GptModeManager()
         self._epic = Epic()
         self._gptAgentInstanceManager = GPTAgentInstanceManager(self._gptModeManager, self._epic, self._humanInstances)
-        self._inputReciever = InputReciever(self._epic, self._gptAgentInstanceManager, self._gptModeManager)
+        self._inputReciever = InputReciever(self._epic, self._gptAgentInstanceManager)
         self._agentPipeManager = AgentPipeManager(self._inputReciever)
+        self.registerEvent()
+
+    def registerEvent(self):
+        self._gptAgentInstanceManager.addClearMessageStackEvent(self._inputReciever.clearMessageStack)
+        self._gptAgentInstanceManager.addEconvertInputRecieverMessageHistoryToTransportedItemData(self._inputReciever.convertInputRecieverMessageHistoryToTransportedItemData)
 
     
