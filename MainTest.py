@@ -1,3 +1,4 @@
+import asyncio
 from pathlib import Path
 from pprint import pprint
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
@@ -7,8 +8,9 @@ from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
-from api.gptAI.AgentManager import AgentManagerTest
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
+from api.InstanceManager.InstanceManager import InastanceManager
+from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 
 
@@ -100,8 +102,19 @@ def test4():
 
 
 if __name__ == "__main__":
-    agentManagerTest = AgentManagerTest()
-    agentManagerTest.タスクのブレイクダウンのテスト()#クリア
+    inastanceManager = InastanceManager()
+    charaModeState = CharacterModeState.newFromFrontName("ずんだもん")
+    human = inastanceManager.humanInstances.createHuman(charaModeState)
+    gptAgent:GPTAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human = human, webSocket = None)
+    gptBrain:GPTBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
+    gptAgent.manager.GPTModeSetting
+    lifeProcess:LifeProcessBrain = gptBrain.brain
+    #タスクグラフを作ってグラフを実行してみる
+    input: 外界からの入力 = 外界からの入力(会話 = "楕円関数のグラフを書くプログラムを書きたいな")
+    asyncProcess = lifeProcess.runGraphProcess(input)
+    asyncio.run(asyncProcess)
+
+
 
 
 

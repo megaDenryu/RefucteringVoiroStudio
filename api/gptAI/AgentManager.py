@@ -41,7 +41,7 @@ class ChatGptApiUnit:
         role: Literal['system', 'user', 'assistant']
         content: str
 
-    def __init__(self,test_mode:bool = False):
+    def __init__(self,test_mode:bool = True):
         try:
             api_key = JsonAccessor.loadOpenAIAPIKey()
             self.client = OpenAI(api_key = api_key)
@@ -51,6 +51,9 @@ class ChatGptApiUnit:
         except Exception as e:
             print("APIキーの読み込みに失敗しました。")
             raise e
+        
+    def setTestMode(self, test_mode:bool):
+        self.test_mode = test_mode
     async def asyncGenereateResponseGPT4TurboJson(self,message_query:list[MessageQuery]):
         if self.test_mode == True:
             print("テストモードです")
@@ -495,9 +498,9 @@ class Agent:
     """
     replace_dict:dict[str,str] = {}
     name:str
-    def __init__(self,agent_manager: AgentManager,  replace_dict: dict[str,str] = {}):
+    def __init__(self,agent_manager: AgentManager,  replace_dict: dict[str,str] = {}, testMode:bool = False):
         self.agent_manager = agent_manager
-        self._gpt_api_unit = ChatGptApiUnit()
+        self._gpt_api_unit = ChatGptApiUnit(testMode)
         ExtendFunc.ExtendPrint(replace_dict)
         self.replace_dict = replace_dict
         self.event_queue_dict:dict[Reciever,Queue[TransportedItem]] = {}
@@ -1871,8 +1874,8 @@ class LifeProcessModule:
     replace_dict:dict[str,str] = {}
     name:str
     event_queue_dict:dict[Reciever,Queue[GeneralTransportedItem]] = {}
-    def __init__(self, replace_dict: dict[str,str] = {}):
-        self._gpt_api_unit = ChatGptApiUnit()
+    def __init__(self, replace_dict: dict[str,str] = {}, test_mode:bool = False):
+        self._gpt_api_unit = ChatGptApiUnit(test_mode)
         ExtendFunc.ExtendPrint(replace_dict)
         self.replace_dict = replace_dict
 
@@ -1931,8 +1934,8 @@ class LifeProcessModuleManager:
 
 # タスク分解の案を出すエージェント
 class TaskDecompositionProposerAgent(LifeProcessModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode = testmode)
         self.name = "タスク分解提案エージェント"
         self.request_template_name = "タスク分解提案エージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -2010,8 +2013,8 @@ class TaskDecompositionProposerAgent(LifeProcessModule):
 
 # タスク分解の案をチェックし、反論や修正や承認を行うエージェント
 class TaskDecompositionCheckerAgent(LifeProcessModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.name = "タスク分解チェッカーエージェント"
         self.request_template_name = "タスク分解チェッカーエージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -2104,8 +2107,8 @@ class TaskUnit(BaseModel):
             tu = TaskUnit()
             return tu
 class TaskToJsonConverterAgent(LifeProcessModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.name = "タスクJSON変換エージェント"
         self.request_template_name = "タスクJSON変換エージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -2231,8 +2234,8 @@ class DestinationAgent(LifeProcessModule):
     gptキャラの本能:str
     memory:"Memory"
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         self.load本能()
 
@@ -2338,6 +2341,13 @@ class DestinationAgent(LifeProcessModule):
         result = self.run(transported_item)
         return result
     
+    async def request(self, query:list[ChatGptApiUnit.MessageQuery])->str:
+        print(f"{self.name}がリクエストを送信します")
+        result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
+        if result is None:
+            raise ValueError("リクエストに失敗しました。")
+        return result
+    
     async def run(self,transported_item: DestinationTransportedItem)->DestinationTransportedItem:
         query = self.prepareQuery(transported_item)
         JsonAccessor.insertLogJsonToDict(f"test_gpt_routine_result.json", query, f"{self.name} : リクエスト")
@@ -2389,8 +2399,6 @@ class DestinationAgent(LifeProcessModule):
         transported_item.result = result
         return transported_item
 
-    
-
 class TaskExecutorAgent(LifeProcessModule):
     """
     未定義・未使用
@@ -2426,8 +2434,8 @@ class NormalChatTransportedItem(GeneralTransportedItem):
         )
 
 class NormalChatAgent(LifeProcessModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.name = "汎用チャットエージェント"
         self.request_template_name = "汎用チャットエージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -2493,8 +2501,8 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
     # エージェントの役割
     タスクグラフの中で{入力:自分の考え, 出力:口語形式の自分の発言}の形式で自分の考えを口語形式に変換するユニット。
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.name = "思考を口語で伝えるエージェント"
         self.request_template_name = "思考を口語で伝えるエージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -3460,28 +3468,6 @@ class GPTBrain:
     def __init__(self, agent: GPTAgent, brain: LifeProcessBrain) -> None:
         self.agent = agent
         self.brain = brain
-        
-
-        
-    
-        
-
-        
-
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
     
 class AgentManagerTest:
     def __init__(self) -> None:
