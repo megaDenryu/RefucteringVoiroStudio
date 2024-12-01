@@ -1,9 +1,14 @@
 from pprint import pprint
 import sys
 from pathlib import Path
+from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit
+from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict,GPTBehaviorKey
+from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 import json
 import yaml
+
+from api.gptAI.HumanInfoValueObject import CharacterName
 
 class JsonAccessor:
     def __init__(self, json_path):
@@ -112,21 +117,21 @@ class JsonAccessor:
         return twitch_access_token
 
     @staticmethod
-    def loadCharSettingYamlAsString()->str:
+    def loadOldCharcterAISettingYamlAsString()->str:
         """
         CharSetting.ymlを読み込み、その内容を文字列として返します。
         """
-        yml_path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharSetting.yml"
+        yml_path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/OldCharcterAISetting.yml"
         with open(yml_path,encoding="UTF8") as f:
                 content = f.read()
         return content
     
     @staticmethod
-    def loadCharSettingYaml():
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharSetting.yml"
+    def loadCharcterAISettingYaml()->list[CharacterAISettingCollectionUnit]:
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
         with open(path,encoding="UTF8") as f:
             content = f.read()
-        dict = yaml.safe_load(content)
+        dict:list[CharacterAISettingCollectionUnit] = yaml.safe_load(content)
         return dict
     
     @staticmethod
@@ -150,12 +155,12 @@ class JsonAccessor:
         return content_dict
     
     @staticmethod
-    def loadGptBehaviorYaml(chara_name:str = "一般"):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/GPTBehavior.yml"
+    def loadGptBehaviorYaml(chara_name:str = "一般")->GPTBehaviorDict:
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/GPTBehavior/GPTBehavior.yml"
         with open(path,encoding="UTF8") as f:
             content = f.read()
-        dict = yaml.safe_load(content)
-        return dict[chara_name]
+        dic:dict[GPTBehaviorKey,GPTBehaviorDict] = yaml.safe_load(content)
+        return dic[chara_name]
     
     @staticmethod
     def loadCoeiroinkNameToNumberJson():
@@ -205,6 +210,24 @@ class JsonAccessor:
         dict.update(save_dict)
         # ExtendFunc.ExtendPrint("dict",dict)
         ExtendFunc.saveDictToJson(path, dict)
+
+    @staticmethod
+    def loadInitMemoryYaml()->list[InitMemoryCollectionUnit]:
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/InitMemory/InitMemory.yml"
+        with open(path,encoding="UTF8") as f:
+            content = f.read()
+        initMemoryCollectionlist:list[InitMemoryCollectionUnit] = yaml.safe_load(content)
+        return initMemoryCollectionlist
+    
+    @staticmethod
+    def updateInitMemoryYaml(collectionList:list[InitMemoryCollectionUnit]):
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/InitMemory/InitMemory.yml"
+        with open(path, 'w', encoding="utf-8") as f:
+            yaml.dump(collectionList, f, allow_unicode=True)
+    
+    @staticmethod
+    def loadHasSaveData(charaName:CharacterName):
+        return False
 
     
 class JsonAccessorTest:

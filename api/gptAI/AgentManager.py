@@ -5,8 +5,14 @@ from pprint import pprint
 from pathlib import Path
 import sys
 from enum import Enum
+from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISetting
+from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollection
+from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict
+from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory
 from api.DataStore.PickleAccessor import PickleAccessor
 from api.InstanceManager.HumanDict import HumanInstanceContainer
+from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection
+from api.gptAI.ThirdPersonEvaluation import ThirdPersonEvaluation
 from api.gptAI.GPTMode import GptModeManager
 from api.gptAI.HumanBaseModel import DestinationAndProfitVector, ProfitVector, 目標と利益ベクトル
 from fastapi import WebSocket
@@ -31,6 +37,8 @@ from typing import Callable, Coroutine, Literal, Protocol
 from typing import Any, Dict, get_type_hints, get_origin,TypeVar, Generic
 from typing_extensions import TypedDict
 from pydantic import BaseModel
+
+from api.gptAI.PastConversation import PastConversation
 
 
 class ChatGptApiUnit:
@@ -2230,7 +2238,7 @@ class DestinationAgent(LifeProcessModule):
     """
     name:str = "目標決定エージェント"
     request_template_name:str = "目標決定エージェントリクエストひな形"
-    本能yml:dict
+    本能yml:GPTBehaviorDict
     gptキャラの本能:str
     memory:"Memory"
 
@@ -2510,7 +2518,7 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
     async def handleEventAsync(self, transported_item:ThoughtsSerifnizeTransportedItem)->ThoughtsSerifnizeTransportedItem:
         ExtendFunc.ExtendPrint(self.name,transported_item)
         output = await self.run(transported_item)
-        self.speakSerif(output)
+        await self.speakSerif(output)
         return output
 
     async def run(self,transported_item: ThoughtsSerifnizeTransportedItem)->ThoughtsSerifnizeTransportedItem:
@@ -2527,10 +2535,11 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
         ExtendFunc.ExtendPrint(transported_item)
         return transported_item
     
-    async def speakSerif(self, output:TransportedItem):
+    async def speakSerif(self, output:ThoughtsSerifnizeTransportedItem):
         """
         生成されたセリフをキャンセルできる形で送信する処理
         """
+        raise NotImplementedError("未定義・未使用")
 
         serif_list = self.getSerifList(output.Serif_data)
         if serif_list == None:
@@ -2755,6 +2764,7 @@ class SpeakTool(TaskTool):
         self.speakAgent = ThoughtsSerifnizeAgent()
 
     async def execute(self, previows_output:TaskToolOutput)->TaskToolOutput:
+        raise NotImplementedError("未定義")
         speakTransportedItem = ThoughtsSerifnizeTransportedItem.init(self.task, previows_output)
         speakTransportedItem = await self.speakAgent.handleEventAsync(speakTransportedItem)
         message_dict = self.convert(speakTransportedItem)
@@ -2762,6 +2772,7 @@ class SpeakTool(TaskTool):
         return previows_output
     
     async def speak(self, send_data:dict[str,str]):
+        raise NotImplementedError("未定義")
         await self.life_process_brain.websocket.send_json(json.dumps(send_data))
 
 
@@ -3181,14 +3192,6 @@ class TaskProgress:
     def addTaskGraph(self, task_graph:TaskGraph):
         self.task_graphs[task_graph.problem_title] = task_graph
 
-class ThirdPersonEvaluation:
-    # 第三者評価
-    pass
-
-class CharacterAISetting:
-    def __init__(self,chara_ai_setting) -> None:
-        pass
-
 class GPTAgent:
     manager: AgentManager
     event_manager: AgentEventManager
@@ -3198,26 +3201,21 @@ class GPTAgent:
             
 
 class Memory:
-    behavior:dict
+    hasSaveData:bool
+    behavior:D_InitMemory
     destinations:list[DestinationAndProfitVector] # 目標リスト
     holding_profit_vector:ProfitVector # 保持している利益ベクトル
-    past_conversation:Epic # 過去の会話
+    past_conversation:PastConversation # 過去の会話
     task_progress:TaskProgress # タスクの進捗
     third_person_evaluation: ThirdPersonEvaluation # 第三者評価
     destination:str # 目標
     profit_vector:ProfitVector # 利益ベクトル
     chara_name:CharacterName # キャラクター名
     chara_setting:CharacterAISetting # キャラクター設定
-    _life_process_brain:"LifeProcessBrain|None" # ライフプロセスの脳
-    @property
-    def life_process_brain(self):
-        if self._life_process_brain is None:
-            raise ValueError("LifeProcessBrainが設定されていません")
-        return self._life_process_brain
 
 
-    def __init__(self, chara_name:CharacterName, life_process_brain:"LifeProcessBrain") -> None:
-        self._life_process_brain = life_process_brain
+    def __init__(self, chara_name:CharacterName, ) -> None:
+        self.hasSaveData = JsonAccessor.loadHasSaveData(chara_name)
         self.chara_name = chara_name
         self.loadInitialMemory()
         self.loadCharaSetting()
@@ -3229,17 +3227,18 @@ class Memory:
         いろいろなjsonファイルから読み込む.
         各プロパティごとに分かれているのでそれを読み込む
         """
-        behavior = JsonAccessor.loadGptBehaviorYaml()
+        behavior:D_InitMemory = InitMemoryCollection.singleton().getInitMemory(self.chara_name)
         self.behavior = behavior
-        self.destination = behavior["目標"]
-        self.profit_vector = behavior["利益ベクトル"]
-        self.past_conversation = behavior["過去の会話"]
-        self.task_progress = behavior["タスクの進捗"]
-        self.third_person_evaluation = behavior["第三者評価"]
+        self.destination = behavior["目標と利益ベクトル"]["目標"]
+        self.profit_vector = ProfitVector.from_dict(behavior["目標と利益ベクトル"]["利益ベクトル"])
+        self.third_person_evaluation = ThirdPersonEvaluation(behavior["第三者評価"])
     
     def loadCharaSetting(self):
-        chara_setting_dict = JsonAccessor.loadCharSettingYaml()
-        self.chara_setting = CharacterAISetting(chara_setting_dict[self.chara_name])
+        """
+        既に設定がある場合はそれをロード。
+        ない場合は初期設定を生成する。
+        """
+        self.chara_setting = CharacterAISettingCollection.singleton().getCharacterAISetting(self.chara_name)
 
     def addDestination(self, destination:DestinationAndProfitVector):
         self.destinations.append(destination)
@@ -3250,6 +3249,7 @@ class Memory:
         # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
         # したがって内面を用いて目標を生成するプロセスを書く必要がある。
         # モット言うともはや入力するプロセスをちゃんと書く必要がある。
+        raise NotImplementedError("初期タスクグラフを作成するメソッドが未実装です")
         first_destination = self.loadCharaInitialDestination(chara_name)
         ti = TaskBreakingDownTransportedItem.init(first_destination)
         task_graph = TaskGraph(ti,self.life_process_brain)
@@ -3268,8 +3268,6 @@ class Memory:
         LifeProcessBrainを切断してから
         pickleで保存
         """
-        self.life_process_brain.unbindLifeProcessBrainToGraph()
-        self.bindLifeProcessBrain(None)
         PickleAccessor.saveMemory(self, chara_name)
 
     @staticmethod
@@ -3281,7 +3279,6 @@ class Memory:
         # memoryの型がMemoryであることを確認
         if isinstance(memory, Memory) == False:
             return None
-        memory.bindLifeProcessBrain(life_process_brain)  # type: ignore
         return memory
     
     
@@ -3293,7 +3290,7 @@ class Memory:
         """
         memory = Memory.loadSelfPickle(chara_name, life_process_brain)
         if memory is None:
-            memory = Memory(chara_name, life_process_brain)
+            memory = Memory(chara_name)
         return memory
         
         

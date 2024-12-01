@@ -1,6 +1,7 @@
 import asyncio
 from pathlib import Path
 from pprint import pprint
+from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
@@ -10,8 +11,11 @@ from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
+from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
+from api.gptAI.HumanInfoValueObject import ICharacterName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
+from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection, InitMemoryCollectionTest
 
 
 
@@ -53,7 +57,7 @@ def test1():
         )
     
     ExtendFunc.ExtendPrintWithTitle("作成",mapList)
-
+    path = Path("test.json")
     ExtendFunc.saveDictToJson(path, mapList)
 
     # ロードする
@@ -75,7 +79,7 @@ def test2():
     ExtendFunc.ExtendPrintWithTitle("作成",mapList)
     ExtendFunc.ExtendPrintWithTitle("タイプ辞書",mapList.dumpToTypedDict())
     ExtendFunc.ExtendPrintWithTitle("Json辞書",mapList.dumpToJsonDict())
-
+    path = Path("test.json")
     ExtendFunc.saveDictToJson(path, mapList)
 
     # # ロードする
@@ -95,13 +99,11 @@ def test4():
     print(t)
     s = TTSSoftware.fromType(t)
     print(s)
-    t1 = "hoge"
+    t1:TTSSoftwareType = "Coeiroink"
     s1 = TTSSoftware.fromType(t1)
     print(s1)
 
-
-
-if __name__ == "__main__":
+def タスクグラフのテスト():
     inastanceManager = InastanceManager()
     charaModeState = CharacterModeState.newFromFrontName("ずんだもん")
     human = inastanceManager.humanInstances.createHuman(charaModeState)
@@ -114,6 +116,10 @@ if __name__ == "__main__":
     asyncProcess = lifeProcess.runGraphProcess(input)
     asyncio.run(asyncProcess)
 
+
+if __name__ == "__main__":
+    # InitMemoryCollectionTest.データを生成するテスト()
+    タスクグラフのテスト()
 
 
 
