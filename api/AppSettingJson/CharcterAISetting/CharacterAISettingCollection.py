@@ -36,3 +36,31 @@ class CharacterAISettingCollection:
             if unit["key"]["name"] == characterName.name:
                 return unit
         return None
+    
+    def insertCharacterAISetting(self, characterAISettingCollectionUnit:CharacterAISettingCollectionUnit):
+        self._characterAISettingCollection.append(characterAISettingCollectionUnit)
+        self._dirty = True
+
+    def save(self):
+        if self._dirty:
+            JsonAccessor.updateCharcterAISettingYaml(self._characterAISettingCollection)
+            self._dirty = False
+
+
+class CharacterAISettingCollectionTest:
+    def __init__(self) -> None:
+        pass
+
+    @staticmethod
+    def キャラAI設定を生成するてすと():
+    
+        unit:CharacterAISettingCollectionUnit = {
+            "key": {
+                "name": "テストキャラ"
+            },
+            "value": {
+            }
+        }
+        collection = CharacterAISettingCollection.singleton()
+        collection.insertCharacterAISetting(unit)
+        collection.save()

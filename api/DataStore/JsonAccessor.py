@@ -135,6 +135,12 @@ class JsonAccessor:
         return dict
     
     @staticmethod
+    def updateCharcterAISettingYaml(setting_value:list[CharacterAISettingCollectionUnit]):
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
+        with open(path, 'w', encoding="utf-8") as f:
+            yaml.dump(setting_value, f, allow_unicode=True)
+    
+    @staticmethod
     def loadAppSettingYamlAsString(yml_file_name:str)->str:
         """
         CharSetting.ymlを読み込み、その内容を文字列として返します。
