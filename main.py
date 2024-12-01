@@ -74,14 +74,11 @@ setting_module = AppSettingModule()
 # human_dict:dict[CharacterId,Human] = {}
 # gpt_mode_dict = {}
 #game_masterのインスタンスを生成
-human_queue_shuffle = False
 yukarinet_enable = True
 nikonama_comment_reciever_list:dict[str,NicoNamaCommentReciever] = {}
 new_nikonama_comment_reciever_list:dict[str,newNikonamaCommentReciever] = {}
 YoutubeCommentReciever_list:dict[str,YoutubeCommentReciever] = {}
 twitchBotList:dict[str,TwitchBot] = {}
-epic = inastanceManager.epic
-gpt_agent_dict: dict[str,GPTAgent] = {}
 # input_reciever = InputReciever(epic ,gpt_agent_dict, gpt_mode_dict)
 diary = Memo()
 
@@ -259,7 +256,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                     ExtendFunc.ExtendPrint(f"{character_id}のHumanインスタンスが存在しません")
                     ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.HumanFrontNames=}")
                     continue
-                await epic.appendMessageAndNotify(input_dict)
+                await inastanceManager.epic.appendMessageAndNotify(input_dict)
                 print(f"{human_ai.char_name=}")
                 if "" != input_dict[character_id]:
                     print(f"{input_dict[character_id]=}")

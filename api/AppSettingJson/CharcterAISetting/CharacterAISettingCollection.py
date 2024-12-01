@@ -1,5 +1,5 @@
 from typing import Callable
-from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit
+from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit, D_CharacterAISetting
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.gptAI.HumanInfoValueObject import CharacterName
 
@@ -31,11 +31,11 @@ class CharacterAISettingCollection:
         else:
             self._characterAISettingCollection = JsonAccessor.loadCharcterAISettingYaml()
 
-    def getCharacterAISetting(self, characterName:CharacterName)->CharacterAISettingCollectionUnit|None:
+    def getCharacterAISetting(self, characterName:CharacterName)->D_CharacterAISetting:
         for unit in self._characterAISettingCollection:
             if unit["key"]["name"] == characterName.name:
-                return unit
-        return None
+                return unit["value"]
+        raise ValueError(f"{characterName}の設定データは存在しません。")
     
     def insertCharacterAISetting(self, characterAISettingCollectionUnit:CharacterAISettingCollectionUnit):
         self._characterAISettingCollection.append(characterAISettingCollectionUnit)

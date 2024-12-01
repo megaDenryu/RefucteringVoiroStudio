@@ -1,22 +1,19 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
-from pprint import pprint
-from pathlib import Path
-import sys
 from enum import Enum
-from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISetting
+from api.AppSettingJson.CharcterAISetting.CharacterAISetting import D_CharacterAISetting
 from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollection
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory
 from api.DataStore.PickleAccessor import PickleAccessor
 from api.InstanceManager.HumanDict import HumanInstanceContainer
 from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection
+from api.Extend.ChatGptApiUnit import ChatGptApiUnit
 from api.gptAI.ThirdPersonEvaluation import ThirdPersonEvaluation
 from api.gptAI.GPTMode import GptModeManager
 from api.gptAI.HumanBaseModel import DestinationAndProfitVector, ProfitVector, 目標と利益ベクトル
 from fastapi import WebSocket
-from openai import OpenAI, AsyncOpenAI, AssistantEventHandler
 import asyncio
 from asyncio import Event, Queue, tasks
 import re
@@ -29,132 +26,18 @@ from api.gptAI.HumanInfoValueObject import CharacterName
 from api.gptAI.HumanState import Task
 from api.Extend.ExtendSet import Interval
 from api.gptAI.Human import Human
-# from api.gptAI.AgenetResponseJsonType import ThinkAgentResponse
 from api.Extend.ExtendFunc import ExtendFunc, RandomExtend, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.Epic.Epic import Epic, MassageHistoryUnit, MessageUnit
+from api.Epic.Epic import Epic, MassageHistoryUnit
 from typing import Callable, Coroutine, Literal, Protocol
-from typing import Any, Dict, get_type_hints, get_origin,TypeVar, Generic
+from typing import Any, Dict, TypeVar, Generic
 from typing_extensions import TypedDict
 from pydantic import BaseModel
 
 from api.gptAI.PastConversation import PastConversation
 
 
-class ChatGptApiUnit:
-    """
-    責務:APIにリクエストを送り、結果を受け取るだけ。クエリの調整は行わない。
-    """
-    class MessageQuery(TypedDict):
-        role: Literal['system', 'user', 'assistant']
-        content: str
 
-    def __init__(self,test_mode:bool = True):
-        try:
-            api_key = JsonAccessor.loadOpenAIAPIKey()
-            self.client = OpenAI(api_key = api_key)
-            self.async_client = AsyncOpenAI(api_key = api_key)
-            self.test_mode = test_mode
-
-        except Exception as e:
-            print("APIキーの読み込みに失敗しました。")
-            raise e
-        
-    def setTestMode(self, test_mode:bool):
-        self.test_mode = test_mode
-    async def asyncGenereateResponseGPT4TurboJson(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-
-        response = await self.async_client.chat.completions.create (
-                model="gpt-4o",
-                messages=message_query, # type: ignore
-                response_format= { "type":"json_object" },
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    
-    def genereateResponseGPT4TurboJson(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = self.client.chat.completions.create (
-                model="gpt-4o",
-                messages=message_query,# type: ignore
-                response_format= { "type":"json_object" },
-                temperature=0.7
-            )
-        pprint(response)
-        return response.choices[0].message.content
-    
-
-    async def asyncGenereateResponseGPT4TurboText(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = await self.async_client.chat.completions.create(
-                model="gpt-4o",
-                messages=message_query,# type: ignore
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    def genereateResponseGPT4TurboText(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=message_query,# type: ignore
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    
-
-    async def asyncGenereateResponseGPT3Turbojson(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = await self.async_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=message_query,# type: ignore
-                response_format= { "type":"json_object" },
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    def genereateResponseGPT3Turbojson(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=message_query,# type: ignore
-                response_format= { "type":"json_object" },
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    
-
-    async def asyncGenereateResponseGPT3TurboText(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = await self.async_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=message_query,# type: ignore
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    def genereateResponseGPT3TurboText(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=message_query,# type: ignore
-                temperature=0.7
-            )
-        return response.choices[0].message.content
     
 class MicInputJudgeAgentResponse(TypedDict):
     理由:str
@@ -3211,7 +3094,7 @@ class Memory:
     destination:str # 目標
     profit_vector:ProfitVector # 利益ベクトル
     chara_name:CharacterName # キャラクター名
-    chara_setting:CharacterAISetting # キャラクター設定
+    chara_setting:D_CharacterAISetting # キャラクター設定
 
 
     def __init__(self, chara_name:CharacterName, ) -> None:

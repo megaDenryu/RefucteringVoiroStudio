@@ -5,7 +5,7 @@ import json
 import time
 import re
 from pprint import pprint
-from typing import TypedDict
+from typing_extensions import TypedDict
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
