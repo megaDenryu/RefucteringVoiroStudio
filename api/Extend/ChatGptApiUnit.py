@@ -1,4 +1,5 @@
 from openai import AsyncOpenAI, OpenAI
+from pydantic import BaseModel
 from typing_extensions import Literal, TypedDict
 
 from api.DataStore.JsonAccessor import JsonAccessor
@@ -117,3 +118,11 @@ class ChatGptApiUnit:
                 temperature=0.7
             )
         return response.choices[0].message.content
+
+    
+    def generateResponseStructured(self,message_query:list[MessageQuery], model):
+        if self.test_mode == True:
+            print("テストモードです")
+            return "テストモードです"
+    
+        

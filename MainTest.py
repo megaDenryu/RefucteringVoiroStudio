@@ -116,10 +116,34 @@ def タスクグラフのテスト():
     asyncProcess = lifeProcess.runGraphProcess(input)
     asyncio.run(asyncProcess)
 
+def 構造化apiテスト():
+    from pydantic import BaseModel
+    from openai import OpenAI
+
+    api_key = JsonAccessor.loadOpenAIAPIKey()
+    client = OpenAI(api_key = api_key)
+
+    class CalendarEvent(BaseModel):
+        name: str
+        date: str
+        participants: list[str]
+
+    completion = client.beta._client.chat.completions.create(
+        model="gpt-4o-2024-08-06",
+        messages=[
+            {"role": "system", "content": "Extract the event information."},
+            {"role": "user", "content": "Alice and Bob are going to a science fair on Friday."},
+        ],
+        response_format=CalendarEvent,
+    )
+
+    event = completion.choices[0].message.parsed
+    ExtendFunc.ExtendPrint("event",event)
+
 
 if __name__ == "__main__":
     # InitMemoryCollectionTest.データを生成するテスト()
-    タスクグラフのテスト()
+    構造化apiテスト()
 
 
 
