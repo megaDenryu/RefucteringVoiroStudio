@@ -3,14 +3,15 @@ import os
 import random
 import sys
 from pathlib import Path
+from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
-from api.gptAI.CharacterModeState import CharacterModeState, CharacterId
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanImage, SelectCharacterState, TTSSoftware, VoiceMode
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import TTSSoftwareManager
 from api.gptAI.Human import Human
-from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, InputReciever, LifeProcessBrain
+from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
+from api.images.image_manager.IHumanPart import HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
@@ -29,7 +30,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
-from typing import Dict, List, Any, Literal
+from typing import Dict, List, Any, Literal, TypedDict
 
 import mimetypes
 
@@ -45,6 +46,10 @@ import datetime
 import traceback
 from uuid import uuid4
 import uvicorn
+
+class CharacterModeStateReq(BaseModel):
+    characterModeState: CharacterModeState
+    client_id: str
 
 #フォルダーがあるか確認
 HumanPart.initalCheck()
@@ -62,27 +67,19 @@ app.add_middleware(
 
 # プッシュ通知各種設定が定義されているインスタンス
 notifier = Notifier()
-# クライアントのidと対応するwsを格納する配列類
-client_ids: list[str] = []
-clients_ws:dict[str,WebSocket] = {}
+inastanceManager = InastanceManager()
+
 setting_module = AppSettingModule()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
-human_dict:dict[str,Human] = {}
-#Humanクラスの生成されたインスタンスをid順に登録する辞書を作成
-human_id_dict = []
-#使用してる合成音声の種類をカウントする辞書を作成
-voiceroid_dict = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}
-gpt_mode_dict = {}
+# human_dict:dict[CharacterId,Human] = {}
+# gpt_mode_dict = {}
 #game_masterのインスタンスを生成
-human_queue_shuffle = False
 yukarinet_enable = True
 nikonama_comment_reciever_list:dict[str,NicoNamaCommentReciever] = {}
 new_nikonama_comment_reciever_list:dict[str,newNikonamaCommentReciever] = {}
 YoutubeCommentReciever_list:dict[str,YoutubeCommentReciever] = {}
 twitchBotList:dict[str,TwitchBot] = {}
-epic = Epic()
-gpt_agent_dict: dict[str,GPTAgent] = {}
-input_reciever = InputReciever(epic ,gpt_agent_dict, gpt_mode_dict)
+# input_reciever = InputReciever(epic ,gpt_agent_dict, gpt_mode_dict)
 diary = Memo()
 
 
@@ -92,8 +89,9 @@ pprint(app_setting)
 # print("アプリ起動完了")
 # Websocket用のパス
 ExtendFunc.ExtendPrint("ボイスロイドの起動")
-mana = AllHumanInformationManager.singleton()
 # TTSSoftwareManager.tryStartAllTTSSoftware()
+# TTSSoftwareManager.updateAllCharaList()
+mana = AllHumanInformationManager.singleton()
 
 ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
@@ -107,8 +105,7 @@ async def shutdown_event():
     # ここに終了処理を書く
     # cevioを起動していたら終了させる
     cevio_shutdowned = False
-    for name in human_dict.keys():
-        human = human_dict[name]
+    for human in inastanceManager.humanInstances.Humans:
         if cevio_shutdowned==False and human.voice_system == "cevio":
             try:
                 #human.human_Voice.kill_cevio()
@@ -124,10 +121,7 @@ async def shutdown_event():
 @app.websocket("/id_create")
 async def create_id(websocket: WebSocket):
     await websocket.accept()
-    id = str(uuid4())
-    while id in client_ids:
-        id = str(uuid4())
-    client_ids.append(id)
+    id = inastanceManager.clientIds.createNewId()
     await websocket.send_text(id)
 
 
@@ -201,75 +195,72 @@ async def read_root(path_param: str):
     # ファイルを読み込み、Content-Typeとともにレスポンスとして返す
     return FileResponse(str(target), media_type=content_type)
 
+class CharaCreateData(TypedDict):
+    humanData: HumanData
+    characterModeState: ICharacterModeState
 
+class MessageUnit(TypedDict):
+    text: str
+    characterModeState: ICharacterModeState|None
+
+MessageDict = dict[FrontName, MessageUnit]  #FrontName型をstrと仮定。ただしCharacterId型にいずれ変更する。クライアント側の実装と一緒に対応する
+
+class SendData(TypedDict):
+    message: MessageDict
+    gpt_mode: dict[str,str]
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint2(websocket: WebSocket, client_id: str):
     print("リクエスト検知")
     # クライアントとのコネクション確立
     await notifier.connect(websocket)
-    clients_ws[client_id] = websocket
+    inastanceManager.clientWs.setClientWs(client_id, websocket)
 
     try:
         while True:
             # クライアントからメッセージの受け取り
-            datas = json.loads(await websocket.receive_text()) 
-            message = datas["message"]
+            datas:SendData = json.loads(await websocket.receive_text()) 
+            message:MessageDict = datas["message"]
             recieve_gpt_mode_dict = Human.convertDictKeyToCharName(datas["gpt_mode"])
-            for name in recieve_gpt_mode_dict.keys():
-                gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
+            # for character_id in recieve_gpt_mode_dict.keys():
+            #     inastanceManager.gptModeManager.setCharacterGptMode(character_id, recieve_gpt_mode_dict[character_id])
             input = ""
-            input_dict = {}
+            input_dict:dict[CharacterId,str] = {}
             json_data = json.dumps(message, ensure_ascii=False)
             #await notifier.push(json_data)
             inputer = ""
-            for name,serif in message.items():
-                if "選択中" in name:
-                    pass
-                else:
-                    # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
-                    char_name = Human.setCharName(name)
-                    if char_name not in human_dict:
-                        #サーバーだけを再起動したときにここを通るのでhuman_dictを作り直す
-                        #name_dataに対応したHumanインスタンスを生成
-                        prompt_setteing_num = "キャラ個別システム設定"
-                        corresponding_websocket = clients_ws[client_id]
-                        tmp_human = Human(name, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
-                        #使用してる合成音声の種類をカウント
-                        print(f"{tmp_human.voice_system=}")
-                        voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
-                        #humanインスタンスが完成したのでhuman_dictに登録
-                        human_dict[tmp_human.char_name.name] = tmp_human
+            for front_name,message_unit in message.items():
+                if message_unit["characterModeState"] == None:
+                    continue
+                characterModeState = CharacterModeState.fromDict(message_unit["characterModeState"])
+                character_id = characterModeState.id
+                ExtendFunc.ExtendPrintWithTitle("characterModeState",characterModeState)
+                # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
+                inastanceManager.humanInstances.updateHumanModeState(characterModeState)
 
-
-                    sentence = f"{char_name}:{serif} , "
-                    input_dict[char_name] = serif
-                    input = input + sentence
-                    # インプットしたキャラの名前を取得
-                    if "" != serif:
-                        inputer = char_name
+                sentence = f"{characterModeState.character_name.name}:{message_unit} , "
+                input_dict[character_id] = message_unit["text"]
+                input = input + sentence
+                # インプットしたキャラの名前を取得
+                if "" != message_unit:
+                    inputer = character_id
             print(f"input:{input}")
 
-            #human_dictのキーをランダムな順番に並べ替えた配列を作成。userではないAIの名前リスト
-            human_dict_keys = list(human_dict.keys())
-            if True == human_queue_shuffle:
-                random.shuffle(human_dict_keys)
-            if inputer in human_dict_keys:
-                human_dict_keys.remove(inputer)
-            pprint(f"{human_dict_keys=}")
-
             #inputerの音声を生成
-            for name in [inputer]:
+            for character_id in [inputer]:
                 #gptには投げない
-                print(f"ユーザー：{name}の返答を生成します")
-                human_ai:Human = human_dict[name]
-                print("yukarinetに投げます")
-                print(f"{input_dict=}")
-                await epic.appendMessageAndNotify(input_dict)
+                print(f"ユーザー：{character_id}の返答を生成します")
+                ExtendFunc.ExtendPrint(character_id)
+                human_ai:Human|None = inastanceManager.humanInstances.tryGetHuman(character_id)
+                if human_ai == None:
+                    ExtendFunc.ExtendPrint(f"{character_id}のHumanインスタンスが存在しません")
+                    ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.HumanFrontNames=}")
+                    continue
+                await inastanceManager.epic.appendMessageAndNotify(input_dict)
                 print(f"{human_ai.char_name=}")
-                if "" != input_dict[human_ai.char_name]:
-                    print(f"{input_dict[human_ai.char_name]=}")
-                    for sentence in Human.parseSentenseList(input_dict[human_ai.char_name]):
+                if "" != input_dict[character_id]:
+                    print(f"{input_dict[character_id]=}")
+                    for sentence in Human.parseSentenseList(input_dict[character_id]):
                         for reciever in nikonama_comment_reciever_list.values():
                             reciever.checkAndStopRecieve(sentence)
                             
@@ -286,7 +277,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         # await websocket.send_json(json.dumps(wav_info))
                         await websocket.send_json(json.dumps(send_data))
                     # daiaryに保存
-                    diary.insertTodayMemo(input_dict[human_ai.char_name])
+                    diary.insertTodayMemo(input_dict[character_id])
             
     # セッションが切れた場合
     except WebSocketDisconnect:
@@ -298,50 +289,50 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
         notifier.remove(websocket)
 
 
-@app.websocket("/old_nikonama_comment_reciver/{room_id}/{front_name}")
-async def old_nicowebsocket_endpoint(websocket: WebSocket, room_id: str, front_name: str):
-    await websocket.accept()
-    char_name = Human.setCharName(front_name)
-    print(f"{char_name}で{room_id}のニコ生コメント受信開始")
-    update_room_id_query = {
-        "ニコ生コメントレシーバー設定": {
-            "生放送URL":room_id
-        }
-    }
-    JsonAccessor.updateAppSettingJson(update_room_id_query)
-    end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
-    nikonama_comment_reciever = NicoNamaCommentReciever(room_id,end_keyword)
-    nikonama_comment_reciever_list[char_name] = nikonama_comment_reciever
-    nulvm = NiconamaUserLinkVoiceroidModule()
+# @app.websocket("/old_nikonama_comment_reciver/{room_id}/{front_name}")
+# async def old_nicowebsocket_endpoint(websocket: WebSocket, room_id: str, front_name: str):
+#     await websocket.accept()
+#     char_name = Human.setCharName(front_name)
+#     print(f"{char_name}で{room_id}のニコ生コメント受信開始")
+#     update_room_id_query = {
+#         "ニコ生コメントレシーバー設定": {
+#             "生放送URL":room_id
+#         }
+#     }
+#     JsonAccessor.updateAppSettingJson(update_room_id_query)
+#     end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
+#     nikonama_comment_reciever = NicoNamaCommentReciever(room_id,end_keyword)
+#     nikonama_comment_reciever_list[char_name] = nikonama_comment_reciever
+#     nulvm = NiconamaUserLinkVoiceroidModule()
 
-    async for comment in nikonama_comment_reciever.get_comments():
-        pprint(comment)
-        if "user_id" in comment:
-            user_id = comment["user_id"]
-            if "@" in comment["comment"] or "＠" in comment["comment"]:
-                print("ユーザーIDとキャラ名を紐づけます")
-                char_name = nulvm.registerNikonamaUserIdToCharaName(comment["comment"],user_id)
+#     async for comment in nikonama_comment_reciever.get_comments():
+#         pprint(comment)
+#         if "user_id" in comment:
+#             user_id = comment["user_id"]
+#             if "@" in comment["comment"] or "＠" in comment["comment"]:
+#                 print("ユーザーIDとキャラ名を紐づけます")
+#                 char_name = nulvm.registerNikonamaUserIdToCharaName(comment["comment"],user_id)
 
-            comment["char_name"] = nulvm.getCharaNameByNikonamaUser(user_id)
+#             comment["char_name"] = nulvm.getCharaNameByNikonamaUser(user_id)
         
-            if "/info 3" in comment["comment"]:
-                comment["comment"] = comment["comment"].replace("/info 3","")
+#             if "/info 3" in comment["comment"]:
+#                 comment["comment"] = comment["comment"].replace("/info 3","")
             
-        await websocket.send_text(json.dumps(comment))
+#         await websocket.send_text(json.dumps(comment))
 
-@app.post("/old_nikonama_comment_reciver_stop/{front_name}")
-async def old_nikonama_comment_reciver_stop(front_name: str):
-    char_name = Human.setCharName(front_name)
-    if char_name in nikonama_comment_reciever_list:
-        print(f"{front_name}のニコ生コメント受信停止")
-        nikonama_comment_reciever = nikonama_comment_reciever_list[char_name]
-        nikonama_comment_reciever.stopRecieve()
-        return
+# @app.post("/old_nikonama_comment_reciver_stop/{front_name}")
+# async def old_nikonama_comment_reciver_stop(front_name: str):
+#     char_name = Human.setCharName(front_name)
+#     if char_name in nikonama_comment_reciever_list:
+#         print(f"{front_name}のニコ生コメント受信停止")
+#         nikonama_comment_reciever = nikonama_comment_reciever_list[char_name]
+#         nikonama_comment_reciever.stopRecieve()
+#         return
 
 @app.websocket("/nikonama_comment_reciver/{room_id}/{front_name}")
 async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, front_name: str):
     await websocket.accept()
-    char_name = Human.setCharName(front_name)
+    char_name = Human.setCharName((front_name))
     print(f"{char_name}で{room_id}のニコ生コメント受信開始")
     update_room_id_query = {
         "ニコ生コメントレシーバー設定": {
@@ -351,7 +342,7 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, fro
     JsonAccessor.updateAppSettingJson(update_room_id_query)
     end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
     ndgr_client = newNikonamaCommentReciever(room_id, end_keyword)
-    new_nikonama_comment_reciever_list[char_name] = ndgr_client
+    new_nikonama_comment_reciever_list[char_name.name] = ndgr_client
     nulvm = NiconamaUserLinkVoiceroidModule()
 
     async for NDGRComment in ndgr_client.streamComments():
@@ -399,7 +390,10 @@ async def getYoutubeComment(websocket: WebSocket, video_id: str, front_name: str
                 print(f"{char_name}で{video_id}のYoutubeコメント受信開始")
                 #コメント受信を開始
                 ycr = YoutubeCommentReciever(video_id=video_id)
-                YoutubeCommentReciever_list[char_name] = ycr
+                if char_name == "名前が無効です":
+                    ExtendFunc.ExtendPrint("名前が無効です")
+                    return
+                YoutubeCommentReciever_list[char_name.name] = ycr
                 async for comment in ycr.fetch_comments(ycr.video_id):
                     print(f"478:{comment=}") # {'author': 'ぴっぴ', 'datetime': '2024-04-20 16:48:47', 'message': 'はろー'}
                     author = comment["author"]
@@ -434,7 +428,7 @@ async def runTwitchCommentReceiver(req:TwitchCommentReceiver):
     print(f"{char_name}でTwitchコメント受信開始")
     TWTITCH_ACCESS_TOKEN = TwitchBot.getAccessToken()
     twitchBot = TwitchBot(video_id, TWTITCH_ACCESS_TOKEN)
-    twitchBotList[char_name] = twitchBot
+    twitchBotList[char_name.name] = twitchBot
     twitchBot.run()
     # return {"message":"Twitchコメント受信開始"}
 
@@ -446,8 +440,8 @@ async def stopTwitchCommentReceiver(req:StopTwitchCommentReceiver):
     print("Twitchコメント受信停止")
     front_name = req.front_name
     chara_name = Human.setCharName(front_name)
-    await twitchBotList[chara_name].stop()
-    twitchBotList.pop(chara_name)
+    await twitchBotList[chara_name.name].stop()
+    twitchBotList.pop(chara_name.name)
     return {"message":"Twitchコメント受信停止"}
 
 @app.websocket("/TwitchCommentReceiver/{video_id}/{front_name}")
@@ -455,7 +449,7 @@ async def twitchCommentReceiver(websocket: WebSocket, video_id: str, front_name:
     ExtendFunc.ExtendPrint("TwitchCommentReceiver")
     await websocket.accept()
     char_name = Human.setCharName(front_name)
-    message_queue:asyncio.Queue[TwitchMessageUnit] = twitchBotList[char_name].message_queue
+    message_queue:asyncio.Queue[TwitchMessageUnit] = twitchBotList[char_name.name].message_queue
     nulvm = NiconamaUserLinkVoiceroidModule()
     try:
         while True and char_name in twitchBotList:
@@ -532,18 +526,14 @@ async def human_pict(websocket: WebSocket, client_id: str):
             chara_mode_state = CharacterModeState.newFromFrontName(name_data)
             #キャラ立ち絵のパーツを全部送信する。エラーがあったらエラーを返す
             try:
-                #name_dataに対応したHumanインスタンスを生成
-                prompt_setteing_num = "キャラ個別システム設定"
-                corresponding_websocket = clients_ws[client_id]
-                tmp_human = Human(chara_mode_state, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
-                #使用してる合成音声の種類をカウント
-                print(f"{tmp_human.voice_system=}")
-                voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
-                #humanインスタンスが完成したのでhuman_dictに登録
-                human_dict[tmp_human.char_name.name] = tmp_human
+                tmp_human = inastanceManager.humanInstances.createHuman(chara_mode_state)
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
-                human_part_folder = tmp_human.image_data_for_client
-                await websocket.send_json(json.dumps(human_part_folder))
+                human_part_folder:HumanData = tmp_human.image_data_for_client
+                charaCreateData:CharaCreateData = {
+                    "humanData":human_part_folder,
+                    "characterModeState":chara_mode_state.toDict()
+                }
+                await websocket.send_json(json.dumps(charaCreateData))
             except Exception as e:
                 print(e)
                 traceback.print_exc()
@@ -594,25 +584,22 @@ async def parserPsdFile(
     # response_mode = req_body.response_mode
     # front_name = req_body.front_name
     file_contents = await file.read()
-    print("ファイル受け取り完了")
-    if response_mode == ResponseMode.noFrontName_needBodyParts:
-        front_name = Human.pickFrontName(filename)
-        #todo front_nameがない場合の処理
-        if front_name == "名前が無効です":
-            return {"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください"}
+    print("ファイル受け取り完了")        
     # psdファイルが送られてくるので取得
-    chara_name = Human.setCharName(front_name)
+    chara_name = Human.pickFrontName(filename)
+    if chara_name == "名前が無効です":
+        return {"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください"}
     # ファイルの保存先を指定
     api_dir = Path(__file__).parent.parent.parent / 'api'
     folder_name = f"{filename.split('.')[0]}"
-    folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name / folder_name)
+    folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name.name / folder_name)
 
     # 保存先のフォルダが存在するか確認。存在する場合はフォルダ名を変更。ゆかり1,ゆかり2があればゆかり3を作成する感じ。
     file_counter = 0
     while os.path.exists(folder):
         file_counter = file_counter + 1
         folder_name = f"{filename.split('.')[0]}_{file_counter}"
-        folder = folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name / folder_name)
+        folder = folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name.name / folder_name)
     os.makedirs(folder)
     psd_file = f"{folder}\\{filename}"
     # ファイルの内容を保存
@@ -623,25 +610,18 @@ async def parserPsdFile(
     parser = PsdParserMain(folder,psd_file)
     # CharFilePath.jsonにファイル名を追加
     HumanPart.writeCharFilePathToNewPSDFileName(chara_name,folder_name)
+    AllHumanInformationManager.singleton().load()
     
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得
         human_part = HumanPart(chara_name)
-        human_part_folder,body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name,folder)
-        # image_data_for_client = ImageData(
-        #     body_parts_iamges = human_part_folder["body_parts_iamges"],
-        #     init_image_info = human_part_folder["init_image_info"],
-        #     front_name = front_name,
-        #     char_name = chara_name
-        # )
-        # return image_data_for_client
-        image_data_for_client = {
-            "body_parts_iamges": human_part_folder["body_parts_iamges"],
-            "init_image_info": human_part_folder["init_image_info"],
-            "front_name": front_name,
-            "char_name": chara_name
+        image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, front_name ,folder)
+        charaCreateData:CharaCreateData = {
+            "humanData":image_data_for_client,
+            "characterModeState":CharacterModeState.newFromFrontName(front_name).toDict()
         }
-        return image_data_for_client
+        
+        return charaCreateData
         
     
     elif response_mode == ResponseMode.FrontName_noNeedBodyParts:
@@ -657,6 +637,7 @@ OnomatopeiaMode = Literal["パク", "パチ", "ぴょこ"]
 Status = Literal["開候補", "閉"]
 
 class PatiSetting(BaseModel):
+    characterModeState:CharacterModeState
     chara_name: str
     front_name: str
     pati_setting: dict#Dict[OnomatopeiaMode, Dict[Status, List[PartsPath]]]
@@ -666,13 +647,14 @@ class PatiSetting(BaseModel):
 
 @app.post("/pati_setting")
 async def pati_setting(req: PatiSetting):
+    characterModeState = req.characterModeState
     chara_name = req.chara_name
     front_name = req.front_name
     pati_setting = req.pati_setting
     now_onomatopoeia_action = req.now_onomatopoeia_action
     
     try:
-        human:Human = human_dict[chara_name]
+        human:Human = inastanceManager.humanInstances.tryGetHuman(characterModeState.id) or inastanceManager.humanInstances.createHuman(characterModeState)
         human.saveHumanImageCombination(pati_setting,"OnomatopeiaActionSetting")
         human.saveHumanImageCombination(now_onomatopoeia_action,"NowOnomatopoeiaActionSetting")
         return {"message": "オノマトペアクション設定の保存に成功しました"}
@@ -695,10 +677,14 @@ async def ws_combi_img_reciver(websocket: WebSocket):
             #受け取ったデータをjsonに保存する
             if type(data) == dict:
                 #受け取ったデータをjsonに保存する
+                characterModeState:ICharacterModeState = data["characterModeState"]
                 json_data = data["combination_data"]
                 human_name = data["chara_name"]
                 combination_name = data["combination_name"]
-                human:Human = human_dict[human_name]
+                # human:Human = human_dict[characterModeState["id"]]
+                human:Human|None = inastanceManager.humanInstances.tryGetHuman(characterModeState["id"])
+                if human == None:
+                    return
                 #jsonファイルを保存する
                 print("jsonファイルを保存します")
                 try:
@@ -728,12 +714,11 @@ async def ws_gpt_mode(websocket: WebSocket):
             recieve_gpt_mode_dict = Human.convertDictKeyToCharName(data)
             #受け取ったデータをjsonに保存する
             for name in recieve_gpt_mode_dict.keys():
-                gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
-            msg = f"gpt_modeの変更に成功しました。{gpt_mode_dict=}"
-            print(msg)
-            if "individual_process0501dev" not in gpt_mode_dict.values():
+                # gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
+                inastanceManager.gptModeManager.setCharacterGptMode(name, recieve_gpt_mode_dict[name])
+            if inastanceManager.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev"):
                 print("individual_process0501devがないので終了します")
-                await input_reciever.stopObserveEpic()
+                await inastanceManager.inputReciever.stopObserveEpic()
                 break
                 
             
@@ -778,98 +763,56 @@ async def ws_gpt_routine(websocket: WebSocket, front_name: str):
     #             human_gpt_manager.message_memory = []
 
 @app.websocket("/gpt_routine2/{front_name}")
-async def ws_gpt_event_start2(websocket: WebSocket, front_name: str):
+async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routine2コネクションします")
     await websocket.accept()
-    chara_name = Human.setCharName(front_name)
-    if chara_name not in human_dict:
+    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+    if human == None:
+        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
         return
-    human = human_dict[chara_name]
     
-    
-    
-    agenet_event_manager = AgentEventManager(chara_name, gpt_mode_dict)
-    agenet_manager = AgentManager(chara_name, epic, human_dict, websocket, input_reciever)
-    gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-    gpt_agent_dict[chara_name] = gpt_agent
-
-    pipe = asyncio.gather(
-        input_reciever.runObserveEpic(),
-        agenet_event_manager.setEventQueueArrow(input_reciever, agenet_manager.mic_input_check_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.mic_input_check_agent, agenet_manager.speaker_distribute_agent),
-        agenet_event_manager.setEventQueueArrowWithTimeOutByHandler(agenet_manager.speaker_distribute_agent, agenet_manager.think_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.think_agent, agenet_manager.serif_agent),
-        # agenet_event_manager.setEventQueueArrow(agenet_manager.think_agent, )
-    )
-
+    # agenet_event_manager = AgentEventManager(human, inastanceManager)
+    # agenet_manager = AgentManager(human, epic, human_dict, websocket, input_reciever)
+    # gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
+    # gpt_agent_dict[chara_name] = gpt_agent
+    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+    pipe = inastanceManager.agentPipeManager.createPipeVer2(gptAgent)
     # pipeが完了したら通知
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 
 @app.websocket("/gpt_routine/{front_name}")
-async def ws_gpt_event_start(websocket: WebSocket, front_name: str):
+async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routineコネクションします")
     await websocket.accept()
-    chara_name = Human.setCharName(front_name)
-    if chara_name not in human_dict:
+    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+    if human == None:
+        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
         return
-    human = human_dict[chara_name]
     
-    
-    
-    agenet_event_manager = AgentEventManager(chara_name, gpt_mode_dict)
-    agenet_manager = AgentManager(chara_name, epic, human_dict, websocket, input_reciever)
-    gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-    gpt_agent_dict[chara_name] = gpt_agent
-
-    # 意思決定のパイプラインを作成
-    pipe = asyncio.gather(
-        input_reciever.runObserveEpic(),
-        agenet_event_manager.setEventQueueArrow(input_reciever, agenet_manager.mic_input_check_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.mic_input_check_agent, agenet_manager.speaker_distribute_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.speaker_distribute_agent, agenet_manager.non_thinking_serif_agent),
-        # agenet_event_manager.setEventQueueArrowWithTimeOutByHandler(agenet_manager.speaker_distribute_agent, agenet_manager.think_agent),
-        # agenet_event_manager.setEventQueueConfluenceArrow([agenet_manager.non_thinking_serif_agent, agenet_manager.think_agent], agenet_manager.serif_agent)
-        # agenet_event_manager.setEventQueueArrow(agenet_manager.think_agent, )
-    )
+    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+    pipe = inastanceManager.agentPipeManager.createPipeVer0(gptAgent)
 
     # pipeが完了したら通知
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 @app.websocket("/gpt_routine3/{front_name}")
-async def wsGptGraphEventStart(websocket: WebSocket, front_name: str):
+async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routineコネクションします")
     await websocket.accept()
-    chara_name = Human.setCharName(front_name)
-    if chara_name not in human_dict:
+    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+    if human == None:
+        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
         return
-    human = human_dict[chara_name]
 
-    life_process_brain = LifeProcessBrain(chara_name, websocket)
-    
-    agenet_event_manager = AgentEventManager(chara_name, gpt_mode_dict)
-    agenet_manager = AgentManager(chara_name, epic, human_dict, websocket, input_reciever)
-    gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-    gpt_agent_dict[chara_name] = gpt_agent
-
-    # 意思決定のパイプラインを作成
-    # 目標の生成とタスクグラフの生成を行いたい。入力を受け取ると、目標を生成し、タスクグラフを生成する。これ以外に目標を生成する方法はあるのか？
-    # 入力から目標を生成する過程はどうなっているのか？
-    pipe = asyncio.gather(
-        input_reciever.runObserveEpic(),
-        agenet_event_manager.setEventQueueArrow(input_reciever, agenet_manager.mic_input_check_agent),
-        agenet_event_manager.setEventQueueArrowToCreateTask(input_reciever, life_process_brain),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.mic_input_check_agent, agenet_manager.speaker_distribute_agent),
-        agenet_event_manager.setEventQueueArrow(agenet_manager.speaker_distribute_agent, agenet_manager.non_thinking_serif_agent),
-        # agenet_event_manager.setEventQueueArrowWithTimeOutByHandler(agenet_manager.speaker_distribute_agent, agenet_manager.think_agent),
-        # agenet_event_manager.setEventQueueConfluenceArrow([agenet_manager.non_thinking_serif_agent, agenet_manager.think_agent], agenet_manager.serif_agent)
-        # agenet_event_manager.setEventQueueArrow(agenet_manager.think_agent, )
-    )
+    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+    gptBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
+    pipe = inastanceManager.agentPipeManager.createPipeVer3(gptBrain)
 
     # pipeが完了したら通知
     await pipe
@@ -886,38 +829,29 @@ async def AllCharaInfoTest():
 
 @app.post("/AllCharaInfo")
 async def AllCharaInfo():
-    # TTSSoftwareManager.updateAllCharaList()
+    TTSSoftwareManager.updateAllCharaList()
+    AllHumanInformationManager.singleton().load() #変更があるかもしれないのでリロード
     mana = AllHumanInformationDict()
     ExtendFunc.ExtendPrint(mana)
     # mana.save()
     return mana
 
-class SelectCharacterStateReq(BaseModel):
-    selectCharacterState: SelectCharacterState
-    client_id: str
 
 
 @app.post("/DecideChara")
-async def DecideChara(req: SelectCharacterStateReq):
-    select_character_state = req.selectCharacterState
-    character_mode_state:CharacterModeState = CharacterModeState.new(select_character_state)
+async def DecideChara(req: CharacterModeStateReq):
+    character_mode_state:CharacterModeState = req.characterModeState
     client_id = req.client_id
     #name_dataに対応したHumanインスタンスを生成
-    prompt_setteing_num = "キャラ個別システム設定"
-    corresponding_websocket = clients_ws[client_id]
-    tmp_human = Human(character_mode_state, voiceroid_dict, corresponding_websocket, prompt_setteing_num)
-    #使用してる合成音声の種類をカウント
-    print(f"{tmp_human.voice_system=}")
-    voiceroid_dict[tmp_human.voice_system] = voiceroid_dict[tmp_human.voice_system]+1
-    #humanインスタンスが完成したのでhuman_dictに登録
-    human_dict[tmp_human.char_name.name] = tmp_human
+    tmp_human = inastanceManager.humanInstances.createHuman(character_mode_state)
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
-    human_part_folder = tmp_human.image_data_for_client
-    ret_data = json.dumps(human_part_folder)
-
-    ExtendFunc.ExtendPrint("DecideChara")
-    ExtendFunc.ExtendPrint(select_character_state)
-    return {"message": "DecideChara"}
+    human_part_folder:HumanData = tmp_human.image_data_for_client
+    charaCreateData:CharaCreateData = {
+        "humanData":human_part_folder,
+        "characterModeState":character_mode_state.toDict()
+    }
+    ret_data = json.dumps(charaCreateData)
+    return ret_data
 
 
 class Item(BaseModel):

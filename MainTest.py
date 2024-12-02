@@ -1,5 +1,7 @@
+import asyncio
 from pathlib import Path
 from pprint import pprint
+from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
@@ -7,8 +9,13 @@ from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterName, HumanInformationTest, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
+from api.InstanceManager.InstanceManager import InastanceManager
+from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
+from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
+from api.gptAI.HumanInfoValueObject import ICharacterName
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
+from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection, InitMemoryCollectionTest
 
 
 
@@ -50,7 +57,7 @@ def test1():
         )
     
     ExtendFunc.ExtendPrintWithTitle("作成",mapList)
-
+    path = Path("test.json")
     ExtendFunc.saveDictToJson(path, mapList)
 
     # ロードする
@@ -72,7 +79,7 @@ def test2():
     ExtendFunc.ExtendPrintWithTitle("作成",mapList)
     ExtendFunc.ExtendPrintWithTitle("タイプ辞書",mapList.dumpToTypedDict())
     ExtendFunc.ExtendPrintWithTitle("Json辞書",mapList.dumpToJsonDict())
-
+    path = Path("test.json")
     ExtendFunc.saveDictToJson(path, mapList)
 
     # # ロードする
@@ -92,29 +99,52 @@ def test4():
     print(t)
     s = TTSSoftware.fromType(t)
     print(s)
-    t1 = "hoge"
+    t1:TTSSoftwareType = "Coeiroink"
     s1 = TTSSoftware.fromType(t1)
     print(s1)
 
+def タスクグラフのテスト():
+    inastanceManager = InastanceManager()
+    charaModeState = CharacterModeState.newFromFrontName("ずんだもん")
+    human = inastanceManager.humanInstances.createHuman(charaModeState)
+    gptAgent:GPTAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human = human, webSocket = None)
+    gptBrain:GPTBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
+    gptAgent.manager.GPTModeSetting
+    lifeProcess:LifeProcessBrain = gptBrain.brain
+    #タスクグラフを作ってグラフを実行してみる
+    input: 外界からの入力 = 外界からの入力(会話 = "楕円関数のグラフを書くプログラムを書きたいな")
+    asyncProcess = lifeProcess.runGraphProcess(input)
+    asyncio.run(asyncProcess)
+
+def 構造化apiテスト():
+    from pydantic import BaseModel
+    from openai import OpenAI
+
+    api_key = JsonAccessor.loadOpenAIAPIKey()
+    client = OpenAI(api_key = api_key)
+
+    class CalendarEvent(BaseModel):
+        name: str
+        date: str
+        participants: list[str]
+
+    completion = client.beta._client.chat.completions.create(
+        model="gpt-4o-2024-08-06",
+        messages=[
+            {"role": "system", "content": "Extract the event information."},
+            {"role": "user", "content": "Alice and Bob are going to a science fair on Friday."},
+        ],
+        response_format=CalendarEvent,
+    )
+
+    event = completion.choices[0].message.parsed
+    ExtendFunc.ExtendPrint("event",event)
 
 
 if __name__ == "__main__":
-    # HumanInformationTest()
-    # voiceroid_apiTest()
-    # dict = Coeiroink.getCoeiroinkNameToNumberDict()
-    # pprint(dict)
-    api_dir = Path(__file__).parent / "api"
+    # InitMemoryCollectionTest.データを生成するテスト()
+    構造化apiテスト()
 
-    # manager = VoiceModeNamesManager()
-
-    voicemodes:list[VoiceMode] = [
-        VoiceMode(mode = "ほねほね")
-    ]
-    
-    path = api_dir /"CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json"
-    JsonAccessor.checkExistAndCreateJson(path, {})
-    
-    test4()
 
 
 

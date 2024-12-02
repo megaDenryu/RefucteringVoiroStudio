@@ -8,7 +8,8 @@
     border-bottom-right-radius: 4vh;
     background-color: #fff8dd;/*dedaca
     /** ボックスシャドウ */
-    box-shadow: 0 0 10px #ffe476;
+    /* box-shadow: 0 0 10px #ffe476; */
+    box-shadow: 0px 0px 6px 6px #e498ff; 
     display: flex;
     flex-flow: column;
     justify-content: center;
@@ -20,8 +21,8 @@
 }
 
 .AriaTTSSoftwareSelecter{
-    position: relative;
-    transform: translate(0%, -30px); /* 要素の中心を基準に位置を調整 */
+    position: absolute;
+    transform: translate(50%, -20vh); /* 要素の中心を基準に位置を調整 */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -54,7 +55,9 @@
 }
 
 .AriaFlexCompositeCharaSelecters {
-    position: relative;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 5vh); /* 要素の中心を基準に位置を調整 */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -108,11 +111,10 @@
     background-color: #b32c2c; /* フォーカスアウト時の背景色を変更 */
 }
 
-
-
 .AriaButton {
-    position: relative;
-    transform: translate(0%, 30px); /* 要素の中心を基準に位置を調整 */
+    position: absolute;
+    left: 50%; /* 親要素の中央に、この要素の左端を合わせる */
+    transform: translate(-50%, 27vh); /* 要素の中心を基準に位置を調整するので-50%(translateは自分の横幅の割合) */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -124,10 +126,10 @@
     font-size: 16px; /* フォントサイズを調整 */
     font-weight: bold; /* フォントを太字に */
     color: #fff; /* テキストの色を白に */
-    background-color: #007bff; /* 背景色を青に */
-    border: none; /* 枠線を削除 */
+    background-color: #64afff; /* 背景色を青に */
+    border: none; /* 枠線を葵に */
     border-radius: 4px; /* 角を丸くする */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* ボックスシャドウを追加 */
+    box-shadow: 4px 4px 6px 6px #ffaf36; /* ボックスシャドウを追加 */
     cursor: pointer; /* カーソルをポインタに */
     transition: background-color 0.3s ease, box-shadow 0.3s ease; /* ホバー時のトランジションを追加 */
 }
@@ -145,6 +147,45 @@
 .CharacterSelectDecisionButton:focus {
     outline: none; /* フォーカス時のアウトラインを削除 */
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5); /* フォーカス時のボックスシャドウを追加 */
+}
+
+.AriaDeleteButton {
+    position: absolute;
+    left: 50%; /* 親要素の中央に、この要素の左端を合わせる */
+    transform: translate(22vh, -27vh); /* 要素の中心を基準に位置を調整 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.CharaSelecterDeleteButton {
+    display: inline-block;
+    padding: 10px 20px; /* 内側の余白を追加 */
+    font-size: 16px; /* フォントサイズを調整 */
+    font-weight: bold; /* フォントを太字に */
+    color: #fc9c0c; /* テキストの色をオレンジに */
+    background-color: #ffffff; /* 背景色を白に */
+    border: none; /* 枠線を削除 */
+    border-radius: 14px; /* 角を丸くする */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* ボックスシャドウを追加 */
+    cursor: pointer; /* カーソルをポインタに */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease; /* ホバー時のトランジションを追加 */
+}
+
+.CharaSelecterDeleteButton:hover {
+    color: #ffffff; /* テキストの色を白に */
+    background-color: #fc9c0c; /* ホバー時の背景色を変更 */
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15); /* ホバー時のボックスシャドウを変更 */
+}
+
+.CharaSelecterDeleteButton:active {
+    background-color: #bd2130; /* クリック時の背景色を変更 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* クリック時のボックスシャドウを変更 */
+}
+
+.CharaSelecterDeleteButton:focus {
+    outline: none; /* フォーカス時のアウトラインを削除 */
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.5); /* フォーカス時のボックスシャドウを追加 */
 }
 
 

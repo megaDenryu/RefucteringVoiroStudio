@@ -1,7 +1,13 @@
 import { ReactiveProperty } from "../../BaseClasses/observer";
 import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
-import { CharacterName, HumanImage, SelectCharacterState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
+import { CharacterName, HumanImage, CharacterModeState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
+import { HumanTab } from "../HumanDisplay/HumanWindow";
+import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
+import { ZIndexManager } from "../../AppPage/AppVoiroStudio/ZIndexManager";
+import { DragMover, IDragAble } from "../Base/DragableComponent";
+import { VoiceState } from "../../ValueObject/VoiceState";
+import { VoMap } from "../../Extend/extend_collections";
 
 
 
@@ -196,14 +202,14 @@ export class HumanImageSelecter implements IHasComponent {
 
 export class CompositeHumanImageSelecter implements IHasComponent {
     public readonly component: BaseComponent;
-    private readonly humanImagesDict: Map<CharacterName, HumanImage[]>;
-    private readonly humanImageSelecterDict: Map<CharacterName, HumanImageSelecter>;
+    private readonly humanImagesDict: VoMap<CharacterName, HumanImage[]>;
+    private readonly humanImageSelecterDict: VoMap<CharacterName, HumanImageSelecter>;
     //変化したときに表示するセレクターを変える
     public readonly selectedCharacterName: ReactiveProperty<CharacterName>;
     private _selectedHumanImage: HumanImage;
     public get selectedHumanImage(): HumanImage { return this._selectedHumanImage; }
 
-    constructor(humanImagesDict: Map<CharacterName, HumanImage[]>, defaultCharacterName: CharacterName, defaultHumanImage: HumanImage) {
+    constructor(humanImagesDict: VoMap<CharacterName, HumanImage[]>, defaultCharacterName: CharacterName, defaultHumanImage: HumanImage) {
         this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.humanImagesDict = humanImagesDict;
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
@@ -227,8 +233,8 @@ export class CompositeHumanImageSelecter implements IHasComponent {
         `;
     }
 
-    private createHumanImageSelecter(humanImagesDict: Map<CharacterName, HumanImage[]>): Map<CharacterName, HumanImageSelecter> {
-        const humanImageSelecterMap: Map<CharacterName, HumanImageSelecter> = new Map();
+    private createHumanImageSelecter(humanImagesDict: VoMap<CharacterName, HumanImage[]>): VoMap<CharacterName, HumanImageSelecter> {
+        const humanImageSelecterMap: VoMap<CharacterName, HumanImageSelecter> = new VoMap();
         for (const [characterName, humanImages] of humanImagesDict.entries()) {
             const humanImageSelecter = new HumanImageSelecter(humanImages);
             humanImageSelecter.addOnHumanImageChanged((humanImage) => {this._selectedHumanImage = humanImage;});
@@ -276,7 +282,9 @@ export class VoicemodeSelecter implements IHasComponent {
         this._selectedVoiceMode = new ReactiveProperty<VoiceMode>(defaultVoiceMode);
         const HTMLElementInput = ElementCreater.createSelectElement(VoiceModes.map(VoiceMode => VoiceMode.mode), this.calcBoxSize());
         HTMLElementInput.addEventListener('change', (event) => {
-            this._selectedVoiceMode.set(new VoiceMode((event.target as HTMLSelectElement).value));
+            const voice_mode_name = (event.target as HTMLSelectElement).value;
+            const voice_mode = VoiceModes.find(voiceMode => voiceMode.mode === voice_mode_name) ?? (() => {throw new Error("VoiceModeが見つかりませんでした")})();
+            this._selectedVoiceMode.set(voice_mode);
         });
         this.component = new BaseComponent(HTMLElementInput);
         this.component.addCSSClass(["VoicemodeSelecter", "SelecterSize"]);
@@ -304,8 +312,8 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
     component: BaseComponent;
     public readonly selectedCharacterName: ReactiveProperty<CharacterName>;
     private _selectedVoiceMode: VoiceMode;
-    private voiceModesDict: Map<CharacterName, VoiceMode[]>;
-    private voiceModeSelecterDict: Map<CharacterName, VoicemodeSelecter>;
+    private voiceModesDict: VoMap<CharacterName, VoiceMode[]>;
+    private voiceModeSelecterDict: VoMap<CharacterName, VoicemodeSelecter>;
 
     get selectedVoiceMode(): VoiceMode { return this._selectedVoiceMode; }
     get HTMLInput(): string {
@@ -314,12 +322,13 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
         `;
     }
 
-    constructor(cvoiceModesDict: Map<CharacterName, VoiceMode[]>, defaultCharacterName: CharacterName, defaultVoiceMode: VoiceMode) {
+    constructor(voiceModesDict: VoMap<CharacterName, VoiceMode[]>, defaultCharacterName: CharacterName, defaultVoiceMode: VoiceMode) {
         this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
         this._selectedVoiceMode = defaultVoiceMode;
-        this.voiceModesDict = cvoiceModesDict;
-        this.voiceModeSelecterDict = this.createVoiceModeSelecter(cvoiceModesDict);
+        this.voiceModesDict = voiceModesDict;
+        console.log(voiceModesDict);
+        this.voiceModeSelecterDict = this.createVoiceModeSelecter(voiceModesDict);
         this.start();
     }
     
@@ -332,8 +341,8 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
         this.component.addCSSClass(["CompositeVoiceModeSelecter","CompositeSelecterSize"]);
     }
 
-    private createVoiceModeSelecter(voiceModesDict: Map<CharacterName, VoiceMode[]>): Map<CharacterName, VoicemodeSelecter> {
-        const voiceModeSelecter: Map<CharacterName, VoicemodeSelecter> = new Map();
+    private createVoiceModeSelecter(voiceModesDict: VoMap<CharacterName, VoiceMode[]>): VoMap<CharacterName, VoicemodeSelecter> {
+        const voiceModeSelecter: VoMap<CharacterName, VoicemodeSelecter> = new VoMap();
         for (const [characterName, voiceModes] of voiceModesDict.entries()) {
             voiceModeSelecter.set(characterName, new VoicemodeSelecter(characterName, voiceModes));
         }
@@ -372,7 +381,7 @@ export class CharacterSelectDecisionButton implements IHasComponent {
     onPushButton = new ReactiveProperty<boolean>(false);
 
     constructor() {
-        const button = ElementCreater.createButtonElement("決定",() => {
+        const button = ElementCreater.createButtonElement("▷決定▷",() => {
             this.onPushButton.set(true);
         });
         this.component = new BaseComponent(button);
@@ -385,36 +394,58 @@ export class CharacterSelectDecisionButton implements IHasComponent {
 }
 
 
+export class CharaSelecterDeleteButton implements IHasComponent {
+    component: BaseComponent;
+    onPushButton = new ReactiveProperty<boolean>(false);
+
+    constructor() {
+        const button = ElementCreater.createButtonElement("◁閉じる◁",() => {
+            this.onPushButton.set(true);
+        });
+        this.component = new BaseComponent(button);
+        this.component.addCSSClass("CharaSelecterDeleteButton");
+    }
+
+    addOnPushButton(method: () => void): void {
+        this.onPushButton.addMethod(method);
+    }
+}
 
 
-
-
-export class CharaSelectFunction implements IHasComponent {
+export class CharaSelectFunction implements IHasComponent, IDragAble {
     private readonly Def = HtmlElementInput.new(
         `
             <div class="CharaSelectFunction">
-                <div class="AriaTTSSoftwareSelecter">
-                </div>
+                <div class="AriaTTSSoftwareSelecter"></div>
                 <div class="AriaFlexCompositeCharaSelecters"></div>
                 <div class="AriaButton"></div>
+                <div class="AriaDeleteButton"></div>
             </div>
         `,
         {
             "AriaTTSSoftwareSelecter":"AriaTTSSoftwareSelecter",
             "AriaFlexCompositeCharaSelecters":"AriaFlexCompositeCharaSelecters",
-            "AriaButton":"AriaButton"
+            "AriaButton":"AriaButton",
+            "AriaDeleteButton":"AriaDeleteButton"
         }
     );
 
     private characterNamesDict: Record<TTSSoftware, CharacterName[]>
-    private humanImagesDict: Map<CharacterName, HumanImage[]>;
-    private voiceModesDict: Map<CharacterName, VoiceMode[]>;
+    private humanImagesDict: VoMap<CharacterName, HumanImage[]>;
+    private voiceModesDict: VoMap<CharacterName, VoiceMode[]>;
     public readonly component: BaseComponent<typeof this.Def["classNames"]>;
     private ttsSoftwareSelecter: TTSSoftwareSelecter;
     private compositeCharacterNameSelecter: CompositeCharacterNameSelecter;
     private compositehumanImageSelecter: CompositeHumanImageSelecter;
     private compositeVoiceModeSelecter: CompositeVoiceModeSelecter;
     private characterSelectDecisionButton: CharacterSelectDecisionButton;
+    private characterSelecterDeleteButton: CharaSelecterDeleteButton;
+    private _onReceiveDecideCharacterResponse = new ReactiveProperty<HumanData|null>(null);
+    private _noHumanImage = false;
+    dragMover: DragMover;
+
+    private human_tab: HumanTab;
+    public registerHumanName: (human_name:string, human_tab:Element, ELM_human_name:HTMLElement) => void;
 
     get defaultTTSSoftWare(): TTSSoftware {
         //defaultCharacterNameが選択されているTTSSoftwareを返す
@@ -429,6 +460,10 @@ export class CharaSelectFunction implements IHasComponent {
     get defaultCharacterName(): CharacterName {
         //defaultHumanImageが選択されているCharacterNameを返す
         for (const [characterName, humanImage] of this.humanImagesDict.entries()) {
+            if (this._noHumanImage) {
+                return characterName;
+            }
+
             if (humanImage.includes(this.defaultHumanImage)) {
                 return characterName;
             }
@@ -444,6 +479,8 @@ export class CharaSelectFunction implements IHasComponent {
                 return humanImage[0];
             }
         }
+        this._noHumanImage = true;
+        return new HumanImage("NoHumanImage");
         throw new Error("No HumanImage");
     }
 
@@ -459,37 +496,47 @@ export class CharaSelectFunction implements IHasComponent {
 
     constructor(
         characterNamesDict: Record<TTSSoftware, CharacterName[]>, 
-        humanImagesDict: Map<CharacterName, HumanImage[]>,
-        voiceModesDict: Map<CharacterName, VoiceMode[]>
+        humanImagesDict: VoMap<CharacterName, HumanImage[]>,
+        voiceModesDict: VoMap<CharacterName, VoiceMode[]>,
+        human_tab: HumanTab,
     ) {
         this.characterNamesDict = characterNamesDict;
         this.humanImagesDict = humanImagesDict;
         this.voiceModesDict = voiceModesDict;
+        this.human_tab = human_tab;
 
         this.ttsSoftwareSelecter = new TTSSoftwareSelecter(this.defaultTTSSoftWare);
         this.compositeCharacterNameSelecter = new CompositeCharacterNameSelecter(characterNamesDict, this.defaultTTSSoftWare, this.defaultCharacterName);
         this.compositehumanImageSelecter = new CompositeHumanImageSelecter(humanImagesDict, this.defaultCharacterName, this.defaultHumanImage);
         this.compositeVoiceModeSelecter = new CompositeVoiceModeSelecter(voiceModesDict, this.defaultCharacterName, this.defaultVoiceMode);
         this.characterSelectDecisionButton = new CharacterSelectDecisionButton();
+        this.characterSelecterDeleteButton = new CharaSelecterDeleteButton();
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
         this.start();
     }
 
-    start(): void {
+    private start(): void {
         this.initSetChildElement();
         this.definitionBehavior();
         this.component.addCSSClass("CharaSelectFunction");
     }
 
-    initSetChildElement(): void {
+    private initSetChildElement(): void {
+        this.setZIndex();
         this.component.createArrowBetweenComponents(this, this.ttsSoftwareSelecter, this.Def.classNames.AriaTTSSoftwareSelecter);                //TTSSoftセレクター
         this.component.createArrowBetweenComponents(this, this.compositeCharacterNameSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);     //キャラクター名セレクター
         this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);        //人間の画像セレクター
         this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);         //ボイスモードセレクター
-        this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, "AriaButton");      //決定ボタン
+        this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, this.Def.classNames.AriaButton);      //決定ボタン
+        this.component.createArrowBetweenComponents(this, this.characterSelecterDeleteButton, this.Def.classNames.AriaDeleteButton);      //削除ボタン
+        this.dragMover = new DragMover(this);
     }
 
-    definitionBehavior(): void {
+    private setZIndex(): void {
+        this.component.element.style.zIndex = ZIndexManager.CharaSelectFunction.toString();
+    }
+
+    private definitionBehavior(): void {
         //tts選択をすると、そのttsのキャラセレクターが表示される
         this.ttsSoftwareSelecter.addOnSelectedSoftwareChanged( (tts_software) => {
             this.compositeCharacterNameSelecter.selectedSoftware.set(tts_software);
@@ -508,27 +555,52 @@ export class CharaSelectFunction implements IHasComponent {
         this.characterSelectDecisionButton.addOnPushButton(() => {
             this.decideCharacter();
         });
+        //削除ボタンを押すと、ウィンドウが削除される
+        this.characterSelecterDeleteButton.addOnPushButton(() => {
+            this.deleteWiondow();
+        });
     }
 
-    async decideCharacter(): Promise<void> {
+    private async decideCharacter(): Promise<void> {
         //キャラクターが決定されたときの処理
-        const selectState = new SelectCharacterState(
+        const selectState = new CharacterModeState(
+            this.human_tab.characterId,
             this.ttsSoftwareSelecter.selectedSoftware, 
             this.compositeCharacterNameSelecter.selectedCharacterName, 
             this.compositehumanImageSelecter.selectedHumanImage,
-            this.compositeVoiceModeSelecter.selectedVoiceMode
+            this.compositeVoiceModeSelecter.selectedVoiceMode,
+            new VoiceState(1),
+            this.compositeCharacterNameSelecter.selectedCharacterName.name
         );
         //情報をまとめてサーバーにPostでリクエストを投げる
         console.log("キャラクターが決定されました");
         console.log(selectState);
-        await RequestAPI.fetchOnDecideCharaInfo(selectState);
+        // this.registerHumanName(selectState.character_name.name, this.human_tab.component.element, this.ELM_human_name);
+        this.human_tab.registerHumanName(selectState.character_name.name);
+        let response_json:CharaCreateData = await RequestAPI.fetchOnDecideCharaInfo(selectState);
+        console.log(response_json);
+        // this._onReceiveDecideCharacterResponse.set(response_json);
         //サーバーから返ってきた情報を元に、キャラクターを生成する
+        this.human_tab.createHuman(response_json);
 
-        //送るapiエンドポイントの名前は
+        //ウィンドウを削除する
+        this.deleteWiondow();
         
     }
 
+    public addOnReceiveDecideCharacterResponse(method: (response: HumanData|null) => void): void {
+        this._onReceiveDecideCharacterResponse.addMethod(method);
+    }
+
+    
+
     private fetchCharaInfo(): void {
         
+    }
+
+    private deleteWiondow(): void {
+        //ウィンドウを削除する
+        //このクラスインスタンスを削除する
+        document.body.removeChild(this.component.element);
     }
 }

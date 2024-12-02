@@ -1,3 +1,4 @@
+from typing_extensions import TypedDict
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 
 """
@@ -6,3 +7,10 @@ from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 class VoiceState(HashableBaseModel):
     scale:int
 
+    @staticmethod
+    def empty()->'VoiceState':
+        return VoiceState(scale=0)
+
+
+class IVoiceState(TypedDict):
+    scale:int

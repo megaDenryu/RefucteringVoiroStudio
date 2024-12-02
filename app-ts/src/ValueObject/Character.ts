@@ -1,6 +1,9 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
-import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ISelectCharacterState, IVoiceMode } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { VoMap } from "../Extend/extend_collections";
+import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ICharacterModeState, IVoiceMode, ICharacterModeStateReq } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { VoiceState } from "./VoiceState";
 
+export type CharacterId = string;
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
 export class TTSSoftwareEnum {
@@ -109,44 +112,58 @@ export class HumanImage extends BaseValueObject {
     }
 }
 
-export class SelectCharacterState implements IValueObject<SelectCharacterState> {
-    
+export class CharacterModeState implements IValueObject<CharacterModeState> {
+    public readonly id: CharacterId;
     public readonly tts_software: TTSSoftware;
     public readonly character_name: CharacterName;
     public readonly human_image: HumanImage;
     public readonly voice_mode: VoiceMode;
+    voice_state: VoiceState;
+    front_name: string
 
     constructor(
+        id: CharacterId,
         tts_software: TTSSoftware,
         character_name: CharacterName, 
         human_image: HumanImage,
-        voice_mode: VoiceMode
+        voice_mode: VoiceMode,
+        voice_state: VoiceState,
+        front_name: string
     ) {
+        this.id = id;
         this.character_name = character_name;
         this.voice_mode = voice_mode;
         this.human_image = human_image;
         this.tts_software = tts_software;
+        this.voice_state = voice_state;
+        this.front_name = front_name;
     }
 
-    toDict(): ISelectCharacterState {
+    toDict(): ICharacterModeState {
         return {
+            id: this.id,
             tts_software: this.tts_software,
             character_name: this.character_name.toDict(),
             human_image: this.human_image.toDict(),
-            voice_mode: this.voice_mode.toDict()
+            voice_mode: this.voice_mode.toDict(),
+            voice_state: this.voice_state.toDict(),
+            front_name: this.front_name
         };
     }
 
-    static fromDict(selectCharacterState: ISelectCharacterState): SelectCharacterState {
-        return new SelectCharacterState(
-            TTSSoftwareEnum.check(selectCharacterState.tts_software),
-            CharacterName.fromDict(selectCharacterState.character_name),
-            HumanImage.fromDict(selectCharacterState.human_image),
-            VoiceMode.fromDict(selectCharacterState.voice_mode)
+    static fromDict(characterModeState: ICharacterModeState): CharacterModeState {
+        return new CharacterModeState(
+            characterModeState.id,
+            TTSSoftwareEnum.check(characterModeState.tts_software),
+            CharacterName.fromDict(characterModeState.character_name),
+            HumanImage.fromDict(characterModeState.human_image),
+            VoiceMode.fromDict(characterModeState.voice_mode),
+            VoiceState.fromDict(characterModeState.voice_state),
+            characterModeState.front_name
         );
     }
 
-    equals(other: SelectCharacterState): boolean {
+    equals(other: CharacterModeState): boolean {
         if (this.tts_software !== other.tts_software) return false;
         if (this.character_name.equals(other.character_name) === false) return false;
         if (this.human_image.equals(other.human_image) === false) return false;
@@ -154,7 +171,52 @@ export class SelectCharacterState implements IValueObject<SelectCharacterState> 
         return true;
     }
 
-    includes(others: SelectCharacterState[]): boolean {
+    hashCode(): string {
+        return this.tts_software + this.character_name.name + this.human_image.folder_name + this.voice_mode.mode;
+    }
+
+    includes(others: CharacterModeState[]): boolean {
+        for (const other of others) {
+            if (this.equals(other) === true) return true;
+        }
+        return false;
+    }
+}
+
+export class CharacterModeStateReq implements IValueObject<CharacterModeStateReq> {
+    private readonly characterModeState: CharacterModeState;
+    private readonly client_id: string;
+
+    constructor(characterModeState: CharacterModeState, client_id: string) {
+        this.characterModeState = characterModeState;
+        this.client_id = client_id;
+    }
+
+    toDict(): ICharacterModeStateReq {
+        return {
+            characterModeState: this.characterModeState.toDict(),
+            client_id: this.client_id
+        };
+    }
+
+    static fromDict(characterModeState: ICharacterModeStateReq): CharacterModeStateReq {
+        return new CharacterModeStateReq(
+            CharacterModeState.fromDict(characterModeState.characterModeState),
+            characterModeState.client_id
+        );
+    }
+
+    equals(other: CharacterModeStateReq): boolean {
+        if (this.characterModeState.equals(other.characterModeState) === false) return false;
+        if (this.client_id !== other.client_id) return false;
+        return true;
+    }
+
+    hashCode(): string {
+        return this.characterModeState.hashCode() + this.client_id;
+    }
+
+    includes(others: CharacterModeStateReq[]): boolean {
         for (const other of others) {
             if (this.equals(other) === true) return true;
         }
@@ -216,8 +278,8 @@ export class AllHumanInformationDict {
         return characterNamesDict;
     }
 
-    public getHumanImagesDict(): Map<CharacterName, HumanImage[]> {
-        const humanImagesDict = new Map<CharacterName, HumanImage[]>();
+    public getHumanImagesDict(): VoMap<CharacterName, HumanImage[]> {
+        const humanImagesDict = new VoMap<CharacterName, HumanImage[]>();
         for (const ttsSoftware of TTSSoftwareEnum.values) {
             this.data[ttsSoftware].human_informations.forEach(humanInformation => {
                 humanImagesDict.set(humanInformation.chara_name, humanInformation.images);
@@ -226,8 +288,8 @@ export class AllHumanInformationDict {
         return humanImagesDict;
     }
 
-    public getVoiceModesDict(): Map<CharacterName, VoiceMode[]> {
-        const voiceModesDict = new Map<CharacterName, VoiceMode[]>();
+    public getVoiceModesDict(): VoMap<CharacterName, VoiceMode[]> {
+        const voiceModesDict = new VoMap<CharacterName, VoiceMode[]>();
         for (const ttsSoftware of TTSSoftwareEnum.values) {
             this.data[ttsSoftware].human_informations.forEach(humanInformation => {
                 voiceModesDict.set(humanInformation.chara_name, humanInformation.voice_modes);

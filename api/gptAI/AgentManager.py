@@ -1,142 +1,43 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
-from pprint import pprint
-from pathlib import Path
-import sys
 from enum import Enum
+from api.AppSettingJson.CharcterAISetting.CharacterAISetting import D_CharacterAISetting
+from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollection
+from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict
+from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory
 from api.DataStore.PickleAccessor import PickleAccessor
+from api.InstanceManager.HumanDict import HumanInstanceContainer
+from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection
+from api.Extend.ChatGptApiUnit import ChatGptApiUnit
+from api.gptAI.ThirdPersonEvaluation import ThirdPersonEvaluation
+from api.gptAI.GPTMode import GptModeManager
 from api.gptAI.HumanBaseModel import DestinationAndProfitVector, ProfitVector, 目標と利益ベクトル
 from fastapi import WebSocket
-from openai import OpenAI, AsyncOpenAI, AssistantEventHandler
 import asyncio
 from asyncio import Event, Queue, tasks
 import re
 
+
+
+
+
+from api.gptAI.HumanInfoValueObject import CharacterName
 from api.gptAI.HumanState import Task
 from api.Extend.ExtendSet import Interval
 from api.gptAI.Human import Human
-# from api.gptAI.AgenetResponseJsonType import ThinkAgentResponse
 from api.Extend.ExtendFunc import ExtendFunc, RandomExtend, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.Epic.Epic import Epic, MassageHistoryUnit, MessageUnit
-from typing import Coroutine, Literal, Protocol
-from typing import Any, Dict, get_type_hints, get_origin,TypeVar, Generic
+from api.Epic.Epic import Epic, MassageHistoryUnit
+from typing import Callable, Coroutine, Literal, Protocol
+from typing import Any, Dict, TypeVar, Generic
 from typing_extensions import TypedDict
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
+
+from api.gptAI.PastConversation import PastConversation
 
 
-class ChatGptApiUnit:
-    """
-    責務:APIにリクエストを送り、結果を受け取るだけ。クエリの調整は行わない。
-    """
-    class MessageQuery(TypedDict):
-        role: Literal['system', 'user', 'assistant']
-        content: str
 
-    def __init__(self,test_mode:bool = False):
-        try:
-            api_key = JsonAccessor.loadOpenAIAPIKey()
-            self.client = OpenAI(api_key = api_key)
-            self.async_client = AsyncOpenAI(api_key = api_key)
-            self.test_mode = test_mode
-
-        except Exception as e:
-            print("APIキーの読み込みに失敗しました。")
-            raise e
-    async def asyncGenereateResponseGPT4TurboJson(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-
-        response = await self.async_client.chat.completions.create (
-                model="gpt-4o",
-                messages=message_query, # type: ignore
-                response_format= { "type":"json_object" },
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    
-    def genereateResponseGPT4TurboJson(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = self.client.chat.completions.create (
-                model="gpt-4o",
-                messages=message_query,# type: ignore
-                response_format= { "type":"json_object" },
-                temperature=0.7
-            )
-        pprint(response)
-        return response.choices[0].message.content
-    
-
-    async def asyncGenereateResponseGPT4TurboText(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = await self.async_client.chat.completions.create(
-                model="gpt-4o",
-                messages=message_query,# type: ignore
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    def genereateResponseGPT4TurboText(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = self.client.chat.completions.create(
-                model="gpt-4o",
-                messages=message_query,# type: ignore
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    
-
-    async def asyncGenereateResponseGPT3Turbojson(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = await self.async_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=message_query,# type: ignore
-                response_format= { "type":"json_object" },
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    def genereateResponseGPT3Turbojson(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=message_query,# type: ignore
-                response_format= { "type":"json_object" },
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    
-
-    async def asyncGenereateResponseGPT3TurboText(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = await self.async_client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=message_query,# type: ignore
-                temperature=0.7
-            )
-        return response.choices[0].message.content
-    def genereateResponseGPT3TurboText(self,message_query:list[MessageQuery]):
-        if self.test_mode == True:
-            print("テストモードです")
-            return "テストモードです"
-        response = self.client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=message_query,# type: ignore
-                temperature=0.7
-            )
-        return response.choices[0].message.content
     
 class MicInputJudgeAgentResponse(TypedDict):
     理由:str
@@ -202,14 +103,21 @@ class TaskBrekingDownConversationUnit(BaseModel):
         )
 
 class ProblemDecomposedIntoTasks(BaseModel):
+    """
+    タスクグラフ内で解きたい問題のオブジェクト。これからtransportedItemを作ってタスク
+    """
     problem_title:str
     role_in_task_graph: str|None  #タスクグラフ内での役割または解決するべき問題
     result_of_previous_task: str|None  #前のタスクの結果
-    def __init__(self, task:Task, result_of_previous_task:"TaskToolOutput"):
-        self.problem_title = task["task_title"]
-        self.role_in_task_graph = self.TaskToRoleInTaskGraph(task)
-        self.result_of_previous_task = result_of_previous_task.task_exec_result
-    def TaskToRoleInTaskGraph(self, task:Task|None)->str:
+    @staticmethod
+    def init( task:Task, result_of_previous_task:"TaskToolOutput"):
+        return ProblemDecomposedIntoTasks(
+            problem_title = task["task_title"],
+            role_in_task_graph = ProblemDecomposedIntoTasks.TaskToRoleInTaskGraph(task),
+            result_of_previous_task = result_of_previous_task.task_exec_result
+        )
+    @staticmethod
+    def TaskToRoleInTaskGraph(task:Task|None)->str:
         if task is None:
             #todo :最初のタスクだがまだ実装していない
             raise NotImplementedError("最初のタスクの時だがまだ実装していない")
@@ -240,7 +148,7 @@ class TaskBreakingDownTransportedItem(GeneralTransportedItem):
         arbitrary_types_allowed = True
     
     @staticmethod
-    def init(problem):
+    def init(problem: ProblemDecomposedIntoTasks):
         return TaskBreakingDownTransportedItem(
             usage_purpose = "タスク分解",
             problem = problem,
@@ -283,12 +191,10 @@ class AsyncEventHandler(Reciever, Protocol, Generic[GeneralTransportedItem_T_con
     async def handleEventAsync(self, transported_item:GeneralTransportedItem_T_contra):
         pass
 
-class AsyncEventHandlerWaitFor(Reciever, Protocol, Generic[GeneralTransportedItem_T]):
-    async def handleEventAsync(self, transported_item:GeneralTransportedItem_T):
+class AsyncEventHandlerWaitFor(Reciever, Protocol, Generic[GeneralTransportedItem_T_contra]):
+    async def handleEventAsync(self, transported_item:GeneralTransportedItem_T_contra|TransportedItem):
         pass
     def timeOutSec(self)->float: # type: ignore
-        pass
-    def timeOutItem(self)->GeneralTransportedItem_T: # type: ignore
         pass
 
 class EventNotifier(Protocol):
@@ -310,8 +216,7 @@ class QueueNotifierWaitFor(Protocol, Generic[GeneralTransportedItem_T]):
         pass
     def timeOutSec(self)->float: # type: ignore
         pass
-    def timeOutItem(self)->GeneralTransportedItem_T: # type: ignore
-        pass
+    
 
 class EventNode(AsyncEventHandler,EventNotifier,Protocol):
     pass
@@ -338,30 +243,31 @@ Human→AgentManager→Agent→AgentRoutine
 """
 
 class AgentManager:
+    human:Human
     _message_memory:list[MassageHistoryUnit] = []
-    input_reciever:"InputReciever"
     speaker_distribute_agent:"SpeakerDistributeAgent"
     mic_input_check_agent:"MicInputJudgeAgent"
     think_agent:"ThinkAgent"
     serif_agent:"SerifAgent"
     non_thinking_serif_agent:"NonThinkingSerifAgent"
     GPTModeSetting:dict[str,str] = {}
+    epic:Epic
+    humanInstanceContainer: HumanInstanceContainer
+    clearMessageStackEvent:Callable[[TimeExtend], None]
     def __init__(
-            self,chara_name:str, 
-            epic:Epic, 
-            human_dict:dict[str,Human], 
-            websocket:WebSocket,
-            input_reciever:"InputReciever",
+            self,human:Human, 
+            epic:Epic,
+            humanInstances:HumanInstanceContainer,
+            websocket:WebSocket|None,
             ):
-        self.chara_name:str = chara_name
+        self.human = human
+        self.chara_name = human.char_name.name
         self.epic = epic
-        self.human_dict:dict[str,Human] = human_dict
-        self.chara_dict:dict[str,Agent] = {}
+        self.humanInstanceContainer = humanInstances
         self._message_memory:list[MassageHistoryUnit] = epic.messageHistory
         self.replace_dict = self.loadReplaceDict(self.chara_name)
         self.prepareAgents(self.replace_dict)
         self.websocket = websocket
-        self.input_reciever = input_reciever
         self.GPTModeSetting = JsonAccessor.loadAppSetting()["GPT設定"]
 
     @property
@@ -467,7 +373,11 @@ class AgentManager:
         pass
 
     def clearInputRecieverMessageStack(self, time:TimeExtend):
-        self.input_reciever.clearMessageStack(time)
+        # self.input_reciever.clearMessageStack(time)
+        self.clearMessageStackEvent(time)
+
+    def addClearMessageStackEvent(self, event:Callable[[TimeExtend], None]):
+        self.clearMessageStackEvent = event
         
 
 class Agent:
@@ -479,9 +389,9 @@ class Agent:
     """
     replace_dict:dict[str,str] = {}
     name:str
-    def __init__(self,agent_manager: AgentManager,  replace_dict: dict[str,str] = {}):
+    def __init__(self,agent_manager: AgentManager,  replace_dict: dict[str,str] = {}, testMode:bool = False):
         self.agent_manager = agent_manager
-        self._gpt_api_unit = ChatGptApiUnit()
+        self._gpt_api_unit = ChatGptApiUnit(testMode)
         ExtendFunc.ExtendPrint(replace_dict)
         self.replace_dict = replace_dict
         self.event_queue_dict:dict[Reciever,Queue[TransportedItem]] = {}
@@ -538,134 +448,135 @@ class Agent:
     def addInfoToTransportedItem(self,transported_item:TransportedItem, result:Dict[str, Any])->TransportedItem:
         pass
 
-class InputReciever():
-    def __init__(self,epic:Epic, gpt_agent_dict:dict[str,"GPTAgent"], gpt_mode_dict:dict[str,str]):
-        self.name = "入力受付エージェント"
-        self.epic = epic
-        self.gpt_agent_dict = gpt_agent_dict
-        self.message_stack:list[MassageHistoryUnit] = []
-        self.event_queue = Queue[TransportedItem]()
-        self.event_queue_dict:dict[Reciever,Queue[TransportedItem]] = {}
-        self.gpt_mode_dict = gpt_mode_dict
-        self.runnnig = False
-    async def runObserveEpic(self):
-        if self.runnnig == False:
-            self.runnnig = True
-            await self.observeEpic()
+# class InputReciever():
+#     name:str = "入力受付エージェント"
+#     epic:Epic
+#     def __init__(self, instanceManagerInterface:InstanceManagerInterface):
+#         self.epic = instanceManagerInterface.epic
+#         self.gpt_agent_dict = instanceManagerInterface.gptAgentInstanceManager
+#         self.gpt_mode_dict = instanceManagerInterface.gptModeManager
+#         self.message_stack:list[MassageHistoryUnit] = []
+#         self.event_queue = Queue[TransportedItem]()
+#         self.event_queue_dict:dict[Reciever,Queue[TransportedItem]] = {}
+#         self.runnnig = False
+#     async def runObserveEpic(self):
+#         if self.runnnig == False:
+#             self.runnnig = True
+#             await self.observeEpic()
     
-    async def stopObserveEpic(self):
-        self.runnnig = False
-        stop_object = MassageHistoryUnit(
-            message = MessageUnit({"エラー":"エージェントを停止しました"}),
-            現在の日付時刻 = TimeExtend(),
-            stop = True
-        )
-        await self.epic.OnMessageEvent.put(stop_object)
-        stop_ti = TransportedItem.init()
-        stop_ti.stop = True
-        stop_ti.time = self.epic.getLatestMessage()['現在の日付時刻']
-        stop_ti.recieve_messages = self.convertMessageHistoryToTransportedItemData(self.message_stack, 0, len(self.message_stack))
-        await self.notify(stop_ti)
+#     async def stopObserveEpic(self):
+#         self.runnnig = False
+#         stop_object = MassageHistoryUnit(
+#             message = MessageUnit({"エラー":"エージェントを停止しました"}),
+#             現在の日付時刻 = TimeExtend(),
+#             stop = True
+#         )
+#         await self.epic.OnMessageEvent.put(stop_object)
+#         stop_ti = TransportedItem.init()
+#         stop_ti.stop = True
+#         stop_ti.time = self.epic.getLatestMessage()['現在の日付時刻']
+#         stop_ti.recieve_messages = self.convertMessageHistoryToTransportedItemData(self.message_stack, 0, len(self.message_stack))
+#         await self.notify(stop_ti)
 
-    async def observeEpic(self):
-        while True:
-            if self.runnnig == False:
-                return
-            # epic.onMessageEventを監視する。メッセージが追加されれば3秒待って、また新しいメッセージが追加されればまた3秒待つ。３秒待ってもメッセージが追加されなければ次のエージェントに送る。
-            message = await self.epic.OnMessageEvent.get()
+#     async def observeEpic(self):
+#         while True:
+#             if self.runnnig == False:
+#                 return
+#             # epic.onMessageEventを監視する。メッセージが追加されれば3秒待って、また新しいメッセージが追加されればまた3秒待つ。３秒待ってもメッセージが追加されなければ次のエージェントに送る。
+#             message = await self.epic.OnMessageEvent.get()
             
-            if self.runnnig == False:
-                # 上で待っている間にキャンセルされてたら終了
-                return
+#             if self.runnnig == False:
+#                 # 上で待っている間にキャンセルされてたら終了
+#                 return
 
-            ExtendFunc.ExtendPrint(message)
-            self.appendMessageToStack(message)
-            while not self.epic.OnMessageEvent.empty():
-                message = await self.epic.OnMessageEvent.get()
-                self.appendMessageToStack(message)
-            # メッセージが追加されたらメッセージスタックに追加。送信したら解放する。
-            await asyncio.sleep(3)
-            if not self.epic.OnMessageEvent.empty():
-                continue
+#             ExtendFunc.ExtendPrint(message)
+#             self.appendMessageToStack(message)
+#             while not self.epic.OnMessageEvent.empty():
+#                 message = await self.epic.OnMessageEvent.get()
+#                 self.appendMessageToStack(message)
+#             # メッセージが追加されたらメッセージスタックに追加。送信したら解放する。
+#             await asyncio.sleep(3)
+#             if not self.epic.OnMessageEvent.empty():
+#                 continue
 
-            agent_stop = False
-            for agent in self.gpt_agent_dict.values():
-                # 全てのエージェントを確認
-                last_speskers = self.message_stack[-1]["message"].speakers
-                ExtendFunc.ExtendPrint(f"{agent.manager.chara_name}が{last_speskers}にあるか確認します")
-                if agent.manager.chara_name in self.message_stack[-1]["message"].speakers:
-                    # メッセージスタックの最後のメッセージがこのエージェントが送ったメッセージであれば送信しない
-                    ExtendFunc.ExtendPrint(f"{agent.manager.chara_name}が最後に送ったメッセージがあったので次のエージェントには送信しませんでした。")
-                    agent_stop = True
+#             agent_stop = False
+#             for agent in self.gpt_agent_dict.GPTAgents:
+#                 # 全てのエージェントを確認
+#                 last_speskers = self.message_stack[-1]["message"].speakers
+#                 ExtendFunc.ExtendPrint(f"{agent.manager.chara_name}が{last_speskers}にあるか確認します")
+#                 if agent.manager.chara_name in self.message_stack[-1]["message"].speakers:
+#                     # メッセージスタックの最後のメッセージがこのエージェントが送ったメッセージであれば送信しない
+#                     ExtendFunc.ExtendPrint(f"{agent.manager.chara_name}が最後に送ったメッセージがあったので次のエージェントには送信しませんでした。")
+#                     agent_stop = True
             
-            if agent_stop:
-                continue
+#             if agent_stop:
+#                 continue
                     
-            # ここで次のエージェントに送る
-            last = len(self.message_stack)
-            transported_item:TransportedItem = TransportedItem.init()
-            transported_item.time = self.message_stack[-1]['現在の日付時刻']
-            transported_item.recieve_messages = self.convertMessageHistoryToTransportedItemData(self.message_stack, 0, last)
-            ExtendFunc.ExtendPrint(transported_item)
-            await self.notify(transported_item)
+#             # ここで次のエージェントに送る
+#             last = len(self.message_stack)
+#             transported_item:TransportedItem = TransportedItem.init()
+#             transported_item.time = self.message_stack[-1]['現在の日付時刻']
+#             transported_item.recieve_messages = self.convertMessageHistoryToTransportedItemData(self.message_stack, 0, last)
+#             ExtendFunc.ExtendPrint(transported_item)
+#             await self.notify(transported_item)
 
-    def appendReciever(self, reciever:Reciever):
-        self.event_queue_dict[reciever] = Queue[TransportedItem]()
-        return self.event_queue_dict[reciever]
+#     def appendReciever(self, reciever:Reciever):
+#         self.event_queue_dict[reciever] = Queue[TransportedItem]()
+#         return self.event_queue_dict[reciever]
             
-    async def notify(self, data:TransportedItem):
-        # LLMが出力した成功か失敗かを通知
-        task = []
-        for event_queue in self.event_queue_dict.values():
-            task.append(event_queue.put(data))
-        await asyncio.gather(*task)
+#     async def notify(self, data:TransportedItem):
+#         # LLMが出力した成功か失敗かを通知
+#         task = []
+#         for event_queue in self.event_queue_dict.values():
+#             task.append(event_queue.put(data))
+#         await asyncio.gather(*task)
             
-    async def handleEventAsync(self, data = None):
-        # x秒非同期に待つ
-        await asyncio.sleep(3)
-        # 次が来てるかどうかをチェック。
+#     async def handleEventAsync(self, data = None):
+#         # x秒非同期に待つ
+#         await asyncio.sleep(3)
+#         # 次が来てるかどうかをチェック。
 
-    @staticmethod
-    def convertMessageHistoryToTransportedItemData(message_history:list[MassageHistoryUnit], start_index:int, end_index:int)->str:
-        """
-        message_historyをstart_indexからend_indexまでのメッセージを連結して文字列に変換して返す
-        """
-        ret_string = ""
-        for i in range(start_index, end_index):
-            ret_string = f"{ret_string}{ExtendFunc.dictToStr(message_history[i]['message'].message)}"
-        return ret_string
+#     @staticmethod
+#     def convertMessageHistoryToTransportedItemData(message_history:list[MassageHistoryUnit], start_index:int, end_index:int)->str:
+#         """
+#         message_historyをstart_indexからend_indexまでのメッセージを連結して文字列に変換して返す
+#         """
+#         ret_string = ""
+#         for i in range(start_index, end_index):
+#             ret_string = f"{ret_string}{ExtendFunc.dictToStr(message_history[i]['message'].message)}"
+#         return ret_string
     
-    def appendMessageToStack(self, message:MassageHistoryUnit):
-        self.message_stack.append(message)
+#     def appendMessageToStack(self, message:MassageHistoryUnit):
+#         self.message_stack.append(message)
     
-    def judgeClearMessageStack(self)->bool:
-        """
-        thinkAgentに各セリフがたどり着くまでは送り続ける。thinkAgentにたどり着いたらメッセージスタックを解放する。
-        """
-        return True
+#     def judgeClearMessageStack(self)->bool:
+#         """
+#         thinkAgentに各セリフがたどり着くまでは送り続ける。thinkAgentにたどり着いたらメッセージスタックを解放する。
+#         """
+#         return True
     
-    def addMessageStack(self, messages:list[MassageHistoryUnit]):
-        self.message_stack += messages
+#     def addMessageStack(self, messages:list[MassageHistoryUnit]):
+#         self.message_stack += messages
     
-    def clearMessageStack(self, time:TimeExtend):
-        """
-        timeより以前のメッセージは削除する
-        """
-        num = self.getMessageNumFromTime(time)
-        if num is None:
-            return
-        else:
-            if num == len(self.message_stack) - 1:
-                self.message_stack = []
-            else:
-                self.message_stack = self.message_stack[num+1:]
+#     def clearMessageStack(self, time:TimeExtend):
+#         """
+#         timeより以前のメッセージは削除する
+#         """
+#         num = self.getMessageNumFromTime(time)
+#         if num is None:
+#             return
+#         else:
+#             if num == len(self.message_stack) - 1:
+#                 self.message_stack = []
+#             else:
+#                 self.message_stack = self.message_stack[num+1:]
 
-    def getMessageNumFromTime(self, time:TimeExtend):
-        length = len(self.message_stack)
-        for i in range(length-1, -1, -1):
-            if self.message_stack[i]['現在の日付時刻'] < time:
-                return i
-        return None
+#     def getMessageNumFromTime(self, time:TimeExtend):
+#         length = len(self.message_stack)
+#         for i in range(length-1, -1, -1):
+#             if self.message_stack[i]['現在の日付時刻'] < time:
+#                 return i
+#         return None
 
 class RunStateEnum(Enum):
     not_ready = "not_ready"
@@ -694,9 +605,13 @@ class RunState:
 
 class AgentEventManager:
     run_state: RunState
-    def __init__(self, chara_name:str, gpt_mode_dict:dict[str,str]):
-        self.gpt_mode_dict = gpt_mode_dict
-        self.chara_name = chara_name
+    gptModeManager:GptModeManager
+    chara_name:CharacterName
+    EconvertInputRecieverMessageHistoryToTransportedItemData:Callable[[],str]
+    
+    def __init__(self, human:Human, gptModeManager:GptModeManager):
+        self.gptModeManager = gptModeManager
+        self.chara_name = human.char_name
         self.run_state = RunState()
     async def addEventWebsocketOnMessage(self, websocket: WebSocket, reciever: AsyncEventHandler):
         while True:
@@ -708,8 +623,8 @@ class AgentEventManager:
         event_queue_for_reciever:Queue[GeneralTransportedItem_T] =notifier.appendReciever(reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gpt_mode_dict[self.chara_name] != "individual_process0501dev":
-                ExtendFunc.ExtendPrint(f"{self.gpt_mode_dict[self.chara_name]}はindividual_process0501devではないため、{reciever.name}イベントを終了します")
+            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+                ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             item = await event_queue_for_reciever.get()
             ExtendFunc.ExtendPrint(item)
@@ -723,8 +638,8 @@ class AgentEventManager:
         stop_queue = self.run_state.addPublisher(event_id)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gpt_mode_dict[self.chara_name] != "individual_process0501dev":
-                ExtendFunc.ExtendPrint(f"{self.gpt_mode_dict[self.chara_name]}はindividual_process0501devではないため、{reciever.name}イベントを終了します")
+            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+                ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             
             # イベントが来るか、stop_queueにRunStateEnum.stopが入力されるまで待機
@@ -771,14 +686,14 @@ class AgentEventManager:
         event_queue_for_reciever:Queue[GeneralTransportedItem_T] =notifier.appendReciever(reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gpt_mode_dict[self.chara_name] != "individual_process0501dev":
-                ExtendFunc.ExtendPrint(f"{self.gpt_mode_dict[self.chara_name]}はindividual_process0501devではないため、{reciever.name}イベントを終了します")
+            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+                ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             try:
                 item = await asyncio.wait_for(event_queue_for_reciever.get(), timeout=reciever.timeOutSec())
             except asyncio.TimeoutError:
                 ExtendFunc.ExtendPrint(f"{reciever.name}イベントがタイムアウトしました")
-                item = reciever.timeOutItem()
+                item = self.timeOutItem()
             ExtendFunc.ExtendPrint(item)
             try:
                 await asyncio.wait_for(reciever.handleEventAsync(item),40)
@@ -793,8 +708,8 @@ class AgentEventManager:
             list_event_queue_for_reciever.append(event_queue_for_reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gpt_mode_dict[self.chara_name] != "individual_process0501dev":
-                ExtendFunc.ExtendPrint(f"{self.gpt_mode_dict[self.chara_name]}はindividual_process0501devではないため、{reciever.name}イベントを終了します")
+            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+                ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             task = [event_queue.get() for event_queue in list_event_queue_for_reciever]
             resluts = await asyncio.gather(*task)
@@ -807,7 +722,23 @@ class AgentEventManager:
                 await asyncio.wait_for(reciever.handleEventAsync(ti), 40)
                 ExtendFunc.ExtendPrint(f"{reciever.name}イベントを処理しました")
             except asyncio.TimeoutError:
-                ExtendFunc.ExtendPrint(f"{reciever.name}のハンドルイベントがタイムアウトしました")     
+                ExtendFunc.ExtendPrint(f"{reciever.name}のハンドルイベントがタイムアウトしました")
+
+    def addEconvertInputRecieverMessageHistoryToTransportedItemData(self, func:Callable[[],str]):
+        self.EconvertInputRecieverMessageHistoryToTransportedItemData = func
+
+    def timeOutItem(self)->TransportedItem:
+        """
+        このtiは自分自身で受け取るので
+        """
+        rm:str = self.EconvertInputRecieverMessageHistoryToTransportedItemData()
+        ret_ti = TransportedItem.init()
+        ret_ti.recieve_messages = rm
+        ret_ti.MicInputJudge_data = {"理由":"タイムアウト","入力成功度合い":0.0}
+        ret_ti.SpeakerDistribute_data = {"次に発言するべきキャラクター":self.chara_name.name , "理由考察":"タイムアウト"}
+
+        return ret_ti
+    
     
     @staticmethod
     def mergeTransportedItem(ti:GeneralTransportedItem_T, item:GeneralTransportedItem_T)->GeneralTransportedItem_T:
@@ -998,8 +929,9 @@ class SpeakerDistributeAgent(Agent):
         キャラ名のリストを返す。例：['きりたん', 'ずんだもん', 'ゆかり','おね','あかり']
         """
         chara_name_list = ["ランダム"]
-        for key in self.agent_manager.human_dict.keys():
-            chara_name_list.append(key)
+        for front_name in self.agent_manager.humanInstanceContainer.HumanFrontNames:
+            chara_name_list.append(front_name)
+        
         ExtendFunc.ExtendPrint(chara_name_list)
         return chara_name_list
     def createCharacterListStr(self)->str:
@@ -1270,18 +1202,7 @@ class ThinkAgent2(Agent,QueueNode):
         """
         return 60
     
-    def timeOutItem(self):
-        """
-        このtiは自分自身で受け取るので
-        """
-        ir = self.agent_manager.input_reciever
-        rm = ir.convertMessageHistoryToTransportedItemData(ir.message_stack, 0, len(ir.message_stack))
-        ret_ti = TransportedItem.init()
-        ret_ti.recieve_messages = rm
-        ret_ti.MicInputJudge_data = {"理由":"タイムアウト","入力成功度合い":0.0}
-        ret_ti.SpeakerDistribute_data = {"次に発言するべきキャラクター":self.chara_name , "理由考察":"タイムアウト"}
-
-        return ret_ti
+    
     
 class ThinkAgent(Agent,QueueNode):
     _previous_situation:list[str] = []
@@ -1478,18 +1399,7 @@ class ThinkAgent(Agent,QueueNode):
         """
         return 60
     
-    def timeOutItem(self):
-        """
-        このtiは自分自身で受け取るので
-        """
-        ir = self.agent_manager.input_reciever
-        rm = ir.convertMessageHistoryToTransportedItemData(ir.message_stack, 0, len(ir.message_stack))
-        ret_ti = TransportedItem.init()
-        ret_ti.recieve_messages = rm
-        ret_ti.MicInputJudge_data = {"理由":"タイムアウト","入力成功度合い":0.0}
-        ret_ti.SpeakerDistribute_data = {"次に発言するべきキャラクター":self.chara_name , "理由考察":"タイムアウト"}
 
-        return ret_ti
         
 class SerifAgent(Agent):
     # class SerifAgentResponse(TypedDict):
@@ -1538,17 +1448,25 @@ class SerifAgent(Agent):
             ExtendFunc.ExtendPrint(f"{self.epic.getLatestMessage()['message'].speakers}と{self.chara_name}を比較しました。{self.epic.messageHistory[-1]['現在の日付時刻']}に追加発言があるため{output.time}の分はキャンセルします。")
             return
         ExtendFunc.ExtendPrint(f"{self.name}はすべて成功したので次のエージェントに行きます。{self.chara_name}が喋ります。")
+        await self.speakSerif(output)
+    
+    async def speakSerif(self, output:TransportedItem):
+        """
+        生成されたセリフをキャンセルできる形で送信する処理
+        """
 
         serif_list = self.getSerifList(output.Serif_data)
         if serif_list == None:
             return
         for serif in serif_list:
-            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human_dict[self.agent_manager.chara_name],"gpt")
+            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human,"gpt")
             # await self.agent_manager.websocket.send_json(json.dumps(send_data))
             # await self.saveSuccesSerifToMemory(serif)
             # # 区分音声の再生が完了したかメッセージを貰う
             # end_play_data = await self.agent_manager.websocket.receive_json()
             # 同時に実行するコルーチンをリストにまとめます
+            if self.agent_manager.websocket == None:
+                return
             tasks = [
                 self.agent_manager.websocket.send_json(json.dumps(send_data)),
                 self.saveSuccesSerifToMemory(serif),
@@ -1715,12 +1633,14 @@ class NonThinkingSerifAgent(Agent):
         else:
             return
         for serif in serif_list:
-            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human_dict[self.agent_manager.chara_name],"gpt")
+            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human,"gpt")
             # await self.agent_manager.websocket.send_json(json.dumps(send_data))
             # await self.saveSuccesSerifToMemory(serif)
             # # 区分音声の再生が完了したかメッセージを貰う
             # end_play_data = await self.agent_manager.websocket.receive_json()
             # 同時に実行するコルーチンをリストにまとめます
+            if self.agent_manager.websocket == None:
+                return
             tasks = [
                 self.agent_manager.websocket.send_json(json.dumps(send_data)),
                 self.saveSuccesSerifToMemory(serif),
@@ -1845,8 +1765,8 @@ class LifeProcessModule:
     replace_dict:dict[str,str] = {}
     name:str
     event_queue_dict:dict[Reciever,Queue[GeneralTransportedItem]] = {}
-    def __init__(self, replace_dict: dict[str,str] = {}):
-        self._gpt_api_unit = ChatGptApiUnit()
+    def __init__(self, replace_dict: dict[str,str] = {}, test_mode:bool = False):
+        self._gpt_api_unit = ChatGptApiUnit(test_mode)
         ExtendFunc.ExtendPrint(replace_dict)
         self.replace_dict = replace_dict
 
@@ -1905,8 +1825,8 @@ class LifeProcessModuleManager:
 
 # タスク分解の案を出すエージェント
 class TaskDecompositionProposerAgent(LifeProcessModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode = testmode)
         self.name = "タスク分解提案エージェント"
         self.request_template_name = "タスク分解提案エージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -1984,8 +1904,8 @@ class TaskDecompositionProposerAgent(LifeProcessModule):
 
 # タスク分解の案をチェックし、反論や修正や承認を行うエージェント
 class TaskDecompositionCheckerAgent(LifeProcessModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.name = "タスク分解チェッカーエージェント"
         self.request_template_name = "タスク分解チェッカーエージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -2078,8 +1998,8 @@ class TaskUnit(BaseModel):
             tu = TaskUnit()
             return tu
 class TaskToJsonConverterAgent(LifeProcessModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.name = "タスクJSON変換エージェント"
         self.request_template_name = "タスクJSON変換エージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -2201,12 +2121,12 @@ class DestinationAgent(LifeProcessModule):
     """
     name:str = "目標決定エージェント"
     request_template_name:str = "目標決定エージェントリクエストひな形"
-    本能yml:dict
+    本能yml:GPTBehaviorDict
     gptキャラの本能:str
     memory:"Memory"
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         self.load本能()
 
@@ -2312,6 +2232,13 @@ class DestinationAgent(LifeProcessModule):
         result = self.run(transported_item)
         return result
     
+    async def request(self, query:list[ChatGptApiUnit.MessageQuery])->str:
+        print(f"{self.name}がリクエストを送信します")
+        result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
+        if result is None:
+            raise ValueError("リクエストに失敗しました。")
+        return result
+    
     async def run(self,transported_item: DestinationTransportedItem)->DestinationTransportedItem:
         query = self.prepareQuery(transported_item)
         JsonAccessor.insertLogJsonToDict(f"test_gpt_routine_result.json", query, f"{self.name} : リクエスト")
@@ -2363,8 +2290,6 @@ class DestinationAgent(LifeProcessModule):
         transported_item.result = result
         return transported_item
 
-    
-
 class TaskExecutorAgent(LifeProcessModule):
     """
     未定義・未使用
@@ -2400,8 +2325,8 @@ class NormalChatTransportedItem(GeneralTransportedItem):
         )
 
 class NormalChatAgent(LifeProcessModule):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.name = "汎用チャットエージェント"
         self.request_template_name = "汎用チャットエージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -2467,8 +2392,8 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
     # エージェントの役割
     タスクグラフの中で{入力:自分の考え, 出力:口語形式の自分の発言}の形式で自分の考えを口語形式に変換するユニット。
     """
-    def __init__(self):
-        super().__init__()
+    def __init__(self,testmode:bool = False):
+        super().__init__(test_mode=testmode)
         self.name = "思考を口語で伝えるエージェント"
         self.request_template_name = "思考を口語で伝えるエージェントリクエストひな形"
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -2476,6 +2401,7 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
     async def handleEventAsync(self, transported_item:ThoughtsSerifnizeTransportedItem)->ThoughtsSerifnizeTransportedItem:
         ExtendFunc.ExtendPrint(self.name,transported_item)
         output = await self.run(transported_item)
+        await self.speakSerif(output)
         return output
 
     async def run(self,transported_item: ThoughtsSerifnizeTransportedItem)->ThoughtsSerifnizeTransportedItem:
@@ -2491,6 +2417,70 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
         transported_item = self.addInfoToTransportedItem(transported_item, corrected_result)
         ExtendFunc.ExtendPrint(transported_item)
         return transported_item
+    
+    async def speakSerif(self, output:ThoughtsSerifnizeTransportedItem):
+        """
+        生成されたセリフをキャンセルできる形で送信する処理
+        """
+        raise NotImplementedError("未定義・未使用")
+
+        serif_list = self.getSerifList(output.Serif_data)
+        if serif_list == None:
+            return
+        for serif in serif_list:
+            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human_dict[self.agent_manager.chara_name],"gpt")
+            # await self.agent_manager.websocket.send_json(json.dumps(send_data))
+            # await self.saveSuccesSerifToMemory(serif)
+            # # 区分音声の再生が完了したかメッセージを貰う
+            # end_play_data = await self.agent_manager.websocket.receive_json()
+            # 同時に実行するコルーチンをリストにまとめます
+            tasks = [
+                self.agent_manager.websocket.send_json(json.dumps(send_data)),
+                self.saveSuccesSerifToMemory(serif),
+                self.agent_manager.websocket.receive_json()
+            ]
+
+            # asyncio.gatherを使用して全てのコルーチンが終了するのを待ちます
+            results = await asyncio.gather(*tasks)
+
+            # resultsには各コルーチンの結果が格納されています
+            end_play_data = results[2]
+            ExtendFunc.ExtendPrint(end_play_data) # { "gpt_voice_complete": "complete" }という形式でメッセージが送られてくる
+            # 区分音声の再生が完了した時点で次の音声を送る前にメモリが変わってるかチェックし、変わっていたら次の音声を送らない。
+            if self.judgeNextSerifSend(output) == False:
+                ExtendFunc.ExtendPrint("次の音声を送らない")
+                now_index = serif_list.index(serif)
+                fail_serifs = serif_list[now_index+1:]
+                self.saveFailSerifToMemory(fail_serifs)
+                return
+            
+        else:
+            # forが正常に終了した場合はelseが実行されて、メモリ解放処理を行う
+            pass
+    
+    def judgeNextSerifSend(self,ti: TransportedItem)->bool:
+        # output.time以降のメッセージリストのspeakerを列挙して自分以外がいればFalseを返す
+        judge_time = ti.time
+        # 反転しているのは最新のメッセージから見ていくため
+        for message_unit in self.epic.messageHistory[::-1]:
+            ExtendFunc.ExtendPrint(f"{message_unit['現在の日付時刻']} <= {judge_time} を確認")
+            if message_unit['現在の日付時刻'] <= judge_time:
+                ExtendFunc.ExtendPrint(f"{message_unit['現在の日付時刻']} <= {judge_time} なのでTrueを返します")
+                return True
+            ExtendFunc.ExtendPrint(f"{self.chara_name}が{message_unit['message'].speakers}に入っているか確認")
+            if self.chara_name not in message_unit["message"].speakers:
+                ExtendFunc.ExtendPrint(f"{self.chara_name}が{message_unit['message'].speakers}に入っていないためFalseを返します")
+                return False
+        return True
+
+    async def saveSuccesSerifToMemory(self,serif:str):
+        # InputRecieverのメッセージスタックに追加するために、epic経由でメッセージを追加する
+        await self.epic.appendMessageAndNotify({self.chara_name:serif})
+    
+    def saveFailSerifToMemory(self,serifs:list[str]):
+        # 失敗したセリフの情報をthinkエージェントに保存
+        self.agent_manager.think_agent.failSerifFeedBack(serifs)
+
     
     def loadAgentSetting(self)->tuple[list[ChatGptApiUnit.MessageQuery],list[ChatGptApiUnit.MessageQuery]]:
         all_template_dict: dict[str,list[ChatGptApiUnit.MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
@@ -2586,7 +2576,7 @@ class TaskDecompositionTool(TaskTool):
         self.task_decomposition_process_manager = TaskDecompositionProcessManager()
         
     async def execute(self, taskToolOutput:TaskToolOutput) -> TaskToolOutput:
-        problem = ProblemDecomposedIntoTasks(self.task, taskToolOutput)
+        problem = ProblemDecomposedIntoTasks.init(self.task, taskToolOutput)
         task_breaking_down_ti = TaskBreakingDownTransportedItem.init(problem)
         taskBreakingDown:TaskBreakingDownTransportedItem = await self.task_decomposition_process_manager.taskDecompositionProcess(task_breaking_down_ti)
         taskGraph = TaskGraph(taskBreakingDown,self.memory.life_process_brain)
@@ -2609,9 +2599,16 @@ class TaskExecutionTool(TaskTool):
         return taskGraph.summarizeOutputs()
 
 class NormalChatTool(TaskTool):
+    """
+    汎用チャットツール
+    """
     def __init__(self, task:Task, life_process_brain:"LifeProcessBrain") -> None:
         super().__init__(task, life_process_brain)
         self.normalChatAgenet = NormalChatAgent()
+
+    """
+    実行関数。前の出力を受け取って、結果をクライアントのボイスロイドに送信して喋る。
+    """
     async def execute(self, previows_output:TaskToolOutput)->TaskToolOutput:
         normalChatTransportedItem = NormalChatTransportedItem.init()
         normalChatTransportedItem.task = self.task
@@ -2650,6 +2647,7 @@ class SpeakTool(TaskTool):
         self.speakAgent = ThoughtsSerifnizeAgent()
 
     async def execute(self, previows_output:TaskToolOutput)->TaskToolOutput:
+        raise NotImplementedError("未定義")
         speakTransportedItem = ThoughtsSerifnizeTransportedItem.init(self.task, previows_output)
         speakTransportedItem = await self.speakAgent.handleEventAsync(speakTransportedItem)
         message_dict = self.convert(speakTransportedItem)
@@ -2657,6 +2655,7 @@ class SpeakTool(TaskTool):
         return previows_output
     
     async def speak(self, send_data:dict[str,str]):
+        raise NotImplementedError("未定義")
         await self.life_process_brain.websocket.send_json(json.dumps(send_data))
 
 
@@ -3061,6 +3060,8 @@ class TaskGraph:
         
 
     
+class 外界からの入力(BaseModel):
+    会話: str
 
         
         
@@ -3074,31 +3075,30 @@ class TaskProgress:
     def addTaskGraph(self, task_graph:TaskGraph):
         self.task_graphs[task_graph.problem_title] = task_graph
 
-class ThirdPersonEvaluation:
-    # 第三者評価
-    pass
+class GPTAgent:
+    manager: AgentManager
+    event_manager: AgentEventManager
+    def __init__(self, manager: AgentManager, event_manager: AgentEventManager) -> None:
+        self.manager = manager
+        self.event_manager = event_manager
+            
 
 class Memory:
-    behavior:dict
+    hasSaveData:bool
+    behavior:D_InitMemory
     destinations:list[DestinationAndProfitVector] # 目標リスト
     holding_profit_vector:ProfitVector # 保持している利益ベクトル
-    past_conversation:Epic # 過去の会話
+    past_conversation:PastConversation # 過去の会話
     task_progress:TaskProgress # タスクの進捗
     third_person_evaluation: ThirdPersonEvaluation # 第三者評価
     destination:str # 目標
     profit_vector:ProfitVector # 利益ベクトル
-    chara_name:str # キャラクター名
-    chara_setting:str # キャラクター設定
-    _life_process_brain:"LifeProcessBrain|None" # ライフプロセスの脳
-    @property
-    def life_process_brain(self):
-        if self._life_process_brain is None:
-            raise ValueError("LifeProcessBrainが設定されていません")
-        return self._life_process_brain
+    chara_name:CharacterName # キャラクター名
+    chara_setting:D_CharacterAISetting # キャラクター設定
 
 
-    def __init__(self, chara_name:str, life_process_brain:"LifeProcessBrain") -> None:
-        self._life_process_brain = life_process_brain
+    def __init__(self, chara_name:CharacterName, ) -> None:
+        self.hasSaveData = JsonAccessor.loadHasSaveData(chara_name)
         self.chara_name = chara_name
         self.loadInitialMemory()
         self.loadCharaSetting()
@@ -3110,33 +3110,35 @@ class Memory:
         いろいろなjsonファイルから読み込む.
         各プロパティごとに分かれているのでそれを読み込む
         """
-        behavior = JsonAccessor.loadGptBehaviorYaml()
+        behavior:D_InitMemory = InitMemoryCollection.singleton().getInitMemory(self.chara_name)
         self.behavior = behavior
-        self.destination = behavior["目標"]
-        self.profit_vector = behavior["利益ベクトル"]
-        self.past_conversation = behavior["過去の会話"]
-        self.task_progress = behavior["タスクの進捗"]
-        self.third_person_evaluation = behavior["第三者評価"]
+        self.destination = behavior["目標と利益ベクトル"]["目標"]
+        self.profit_vector = ProfitVector.from_dict(behavior["目標と利益ベクトル"]["利益ベクトル"])
+        self.third_person_evaluation = ThirdPersonEvaluation(behavior["第三者評価"])
     
     def loadCharaSetting(self):
-        chara_setting_dict = JsonAccessor.loadCharSettingYaml()
-        self.chara_setting = chara_setting_dict[self.chara_name]
+        """
+        既に設定がある場合はそれをロード。
+        ない場合は初期設定を生成する。
+        """
+        self.chara_setting = CharacterAISettingCollection.singleton().getCharacterAISetting(self.chara_name)
 
     def addDestination(self, destination:DestinationAndProfitVector):
         self.destinations.append(destination)
 
 
-    def createInitTaskGraph(self, chara_name:str):
+    def createInitTaskGraph(self, chara_name:CharacterName):
         # キャラクターごとの初期目標をロードして、タスクグラフを作成する。しかしそもそも目標がない場合は無理に目標を与える必要はないとも思う。本当の最初はある程度会話による記憶の入力が必要
         # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
         # したがって内面を用いて目標を生成するプロセスを書く必要がある。
         # モット言うともはや入力するプロセスをちゃんと書く必要がある。
+        raise NotImplementedError("初期タスクグラフを作成するメソッドが未実装です")
         first_destination = self.loadCharaInitialDestination(chara_name)
         ti = TaskBreakingDownTransportedItem.init(first_destination)
         task_graph = TaskGraph(ti,self.life_process_brain)
         self.task_progress.addTaskGraph(task_graph)
     
-    def loadCharaInitialDestination(self, chara_name:str)->str:
+    def loadCharaInitialDestination(self, chara_name:CharacterName)->ProblemDecomposedIntoTasks:
         # キャラクターごとの初期目標をロード
         raise NotImplementedError("キャラクターごとの初期目標をロードするメソッドが未実装です")
         # 目標がない時キャラが何をするか？だめ人間なら暇なときは散歩を始めたりネットを始めたりして何かを探すが、AIは散歩もできないので、自分にとっての「不可能な目標」を設定して、それを目指すというのはどうか？
@@ -3149,32 +3151,29 @@ class Memory:
         LifeProcessBrainを切断してから
         pickleで保存
         """
-        self.life_process_brain.unbindLifeProcessBrainToGraph()
-        self.bindLifeProcessBrain(None)
         PickleAccessor.saveMemory(self, chara_name)
 
     @staticmethod
-    def loadSelfPickle(chara_name:str, life_process_brain:"LifeProcessBrain")->"Memory | None":
+    def loadSelfPickle(chara_name:CharacterName, life_process_brain:"LifeProcessBrain")->"Memory | None":
         """
         pickleで読み込み
         """
-        memory = PickleAccessor.loadMemory(chara_name)
+        memory = PickleAccessor.loadMemory(chara_name.name)
         # memoryの型がMemoryであることを確認
         if isinstance(memory, Memory) == False:
             return None
-        memory.bindLifeProcessBrain(life_process_brain)  # type: ignore
         return memory
     
     
 
     @staticmethod
-    def loadLatestMemory(chara_name, life_process_brain:"LifeProcessBrain")->"Memory":
+    def loadLatestMemory(chara_name: CharacterName, life_process_brain:"LifeProcessBrain")->"Memory":
         """
         最新のMemoryをロード
         """
         memory = Memory.loadSelfPickle(chara_name, life_process_brain)
         if memory is None:
-            memory = Memory(chara_name, life_process_brain)
+            memory = Memory(chara_name)
         return memory
         
         
@@ -3190,11 +3189,21 @@ class Memory:
     
     def bindLifeProcessBrain(self, life_process_brain:"LifeProcessBrain|None"):
         self._life_process_brain = life_process_brain
+
+    def addInput(self, input:外界からの入力):
+        """
+        外界からの入力を保存し、脳に反映する
+        """
+        #self.past_conversationはEpic型なので、既に会話の内容が追加されている
+        raise NotImplementedError("入力を保存するメソッドが未実装です")
         
-
-
-
-            
+    def checkNeedNewTaskGraph(self)->bool:
+        """
+        新たにタスクグラフを作成する必要があるかどうかをチェック
+        """
+        raise NotImplementedError("新たにタスクグラフを作成する必要があるかどうかをチェックするメソッドが未実装です")
+        return False
+    
 class LifeProcessState:
     """
     LifeProcessの状態
@@ -3209,16 +3218,19 @@ class LifeProcessBrain:
     task_graph_process:dict[str,TaskGraph]
     memory:Memory
     state:LifeProcessState = LifeProcessState()
-    websocket: WebSocket
+    websocket: WebSocket|None
+    gptAgent:GPTAgent
 
-    def __init__(self,chara_name:str ,websocket: WebSocket) -> None:
+    def __init__(self,gptAgent:GPTAgent) -> None:
         """
         メモリーをロードor初期化
         task_graph_processをメモリーから生成
         task_graph_processを実行
         """
+        chara_name = gptAgent.manager.human.char_name
         self.memory = Memory.loadLatestMemory(chara_name, self)
-        self.websocket = websocket
+        self.websocket = gptAgent.manager.websocket
+        self.gptAgent = gptAgent
         self.task_graph_process = self.memory.task_progress.task_graphs
         #すべてのタスクにLifeProcessBrainをバインド
         self.bindLifeProcessBrainToGraph(self)
@@ -3255,20 +3267,18 @@ class LifeProcessBrain:
 
         inputを受け取って、いろいろなチェックが終わったら実行する
         """
-        input = transported_item.recieve_messages
-        await self.runGraphProcess(input)
-        ExtendFunc.ExtendPrint("タスクグラフの実行が完了しました")
+        i外界からの入力 = 外界からの入力( 会話=transported_item.recieve_messages )
+        # メモリーにinputを保存
+        self.memory.addInput(i外界からの入力)
+        # 新たにタスクグラフを作成する必要があれば作成し、なければ何もしない
+        if self.memory.checkNeedNewTaskGraph():
+            await self.runGraphProcess(i外界からの入力)
+            ExtendFunc.ExtendPrint("タスクグラフの実行が完了しました")
 
-    async def runGraphProcess(self, input:str):
+    async def runDestinationTask(self, input:外界からの入力):
         """
-        外界からの作用を入力として受け取って、目標を生成し、タスクグラフを生成し、実行する
+        目標を生成するためのタスクを実行
         """
-        # キャラクターごとの初期目標をロードして、タスクグラフを作成する。しかしそもそも目標がない場合は無理に目標を与える必要はないとも思う。本当の最初はある程度会話による記憶の入力が必要
-        # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
-        # したがって内面を用いて目標を生成するプロセスを書く必要がある。
-        # モット言うともはや入力するプロセスをちゃんと書く必要がある。
-
-        # 最初に目標ツールを使って入力から目標を生成するためのTaskを作成。ここでinputを使う
         task_destination:Task = {
             "id":"0",
             "task_species":"目標決定",
@@ -3279,9 +3289,11 @@ class LifeProcessBrain:
             "dependencies":[],
         }
         destination_tool = DestinationTool(task_destination, self)
-        output:TaskToolOutput = TaskToolOutput(None,input)
+        output:TaskToolOutput = TaskToolOutput(None,input.会話)
         destination_output = await destination_tool.execute(output)
-        # タスクグラフ分解ツールを使って目標を分解するためのTaskを作成
+        return destination_output
+
+    async def runTaskDecompositionTask(self,destination_output:TaskToolOutput): 
         task_decomposition:Task = {
             "id":"1",
             "task_species":"タスク分解",
@@ -3293,6 +3305,9 @@ class LifeProcessBrain:
         }
         task_decomposition_tool = TaskDecompositionTool(task_decomposition, self)
         task_graph_output = await task_decomposition_tool.execute(destination_output)
+        return task_graph_output
+    
+    async def runTaskExecutionTask(self, task_graph_output:TaskToolOutput):
         task_graph_exec:Task = {
             "id":"2",
             "task_species":"タスク実行",
@@ -3304,39 +3319,40 @@ class LifeProcessBrain:
         }
         task_exec_tool = TaskExecutionTool(task_graph_exec, self)
         task_exec_output = await task_exec_tool.execute(task_graph_output)
+        return task_exec_output
+
+
+    async def runGraphProcess(self, input:外界からの入力):
+        """
+        外界からの作用を入力として受け取って、目標を生成し、タスクグラフを生成し、実行する
+        """
+        # キャラクターごとの初期目標をロードして、タスクグラフを作成する。しかしそもそも目標がない場合は無理に目標を与える必要はないとも思う。本当の最初はある程度会話による記憶の入力が必要
+        # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
+        # したがって内面を用いて目標を生成するプロセスを書く必要がある。
+        # モット言うともはや入力するプロセスをちゃんと書く必要がある。
+
+        # 最初に目標ツールを使って入力から目標を生成するためのTaskを作成。ここでinputを使う
+        destination_output = await self.runDestinationTask(input)
+        
+        # タスクグラフ分解ツールを使って目標を分解するためのTaskを作成
+        task_graph_output = await self.runTaskDecompositionTask(destination_output)
+
+        task_exec_output = await self.runTaskExecutionTask(task_graph_output)
+       
         
         
+class GPTBrain:
+    agent: GPTAgent
+    brain: LifeProcessBrain
 
-   
-        
-        
-    
-        
-
-        
-
-
-
-
-
-
-    
-
-
-
-
-
-@dataclass
-class GPTAgent:
-    manager: AgentManager
-    event_manager: AgentEventManager
-
-
+    def __init__(self, agent: GPTAgent, brain: LifeProcessBrain) -> None:
+        self.agent = agent
+        self.brain = brain
     
 class AgentManagerTest:
     def __init__(self) -> None:
         pass
-    def te7(self):
+    def ChatGptApiUnitがちゃんと文章を送受信できるかどうかのテスト(self):
         gpt_unit = ChatGptApiUnit(True)
         test_message_query:list[ChatGptApiUnit.MessageQuery] = [
             {
@@ -3361,23 +3377,7 @@ class AgentManagerTest:
         JsonAccessor.insertLogJsonToDict(f"test_gpt_routine_result.json", test)
         ExtendFunc.ExtendPrint(test)
     
-    def te8(self):
-        a = {"a":"b","c":"d"}
-        print("a" not in a)
-
-    def te9(self):
-        dict_a = {
-            "a":0,
-            "c":2
-        }
-        
-        print(dict_a.keys())
-        print("a" in dict_a.keys())
-    
-    def te10(self):
-        """
-        タスクのブレイクダウンのテスト
-        """
+    def タスクのブレイクダウンのテスト(self):
         input = ""
         task:Task = {
             "id":"0",
@@ -3388,10 +3388,22 @@ class AgentManagerTest:
             "tool_query":"目標を決定する",
             "dependencies":[],
         }
-        previows_output = TaskToolOutput(None,input)
-        problem = ProblemDecomposedIntoTasks(task, previows_output)
+        previows_output = TaskToolOutput(None,input) # 最初のタスクアウトプットで、空とする
+        problem = ProblemDecomposedIntoTasks.init(task, previows_output)
         ti = TaskBreakingDownTransportedItem.init(problem)
         ExtendFunc.ExtendPrint(ti)
+        return ti
+
+    async def 目標や利益ベクトルをを計算するツールのテスト(self):
+        pass
+
+    def タスク分解ツールの結果をもとにタスクグラフを生成するテスト(self):
+         # タスクグラフ分解ツールを使って目標を分解するためのTaskを作成
+        
+        pass
+
+    def 目標や利益ベクトルをもとに文章を生成してタスクを処理するテスト(self):
+        pass
 
     
 

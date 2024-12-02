@@ -370,7 +370,7 @@ class ChatGPT:
         """
         ymlから初期化用メッセージを読み込む
         """
-        content = JsonAccessor.loadCharSettingYamlAsString()
+        content = JsonAccessor.loadOldCharcterAISettingYamlAsString()
         # {{character_name}}をキャラクター名に置換
         print(content)
         content = content.replace("{{character_name}}", self.name)

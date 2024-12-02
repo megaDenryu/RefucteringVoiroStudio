@@ -1,4 +1,5 @@
-import { TTSSoftware } from "../../ValueObject/Character";
+import { CharacterId, TTSSoftware } from "../../ValueObject/Character";
+import { IVoiceState } from "../../ValueObject/VoiceState";
 
 
 export interface ICharacterName {
@@ -35,9 +36,18 @@ export interface IAllHumanInformationDict {
     data: Record<TTSSoftware, IHumanInformationList>;
 }
 
-export interface ISelectCharacterState {
+export interface ICharacterModeState {
+    id: CharacterId,
     tts_software: TTSSoftware,
     character_name: ICharacterName, 
     human_image: IHumanImage,
-    voice_mode: IVoiceMode
+    voice_mode: IVoiceMode,
+    voice_state: IVoiceState,
+    front_name: string
+
+}
+
+export interface ICharacterModeStateReq {
+    characterModeState: ICharacterModeState;
+    client_id: string;
 }

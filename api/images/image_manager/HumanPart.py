@@ -9,23 +9,20 @@ from pprint import pprint
 import re
 from collections import OrderedDict
 from api.Extend.ExtendFunc import ExtendFunc
-from api.images.image_manager.IHumanPart import BodyPartImages, InitImageInfo
+from api.gptAI.HumanInfoValueObject import CharacterName
+from api.images.image_manager.IHumanPart import BodyPartsImages, AllBodyFileInfo, HumanData, InitImageInfo
 
 if TYPE_CHECKING:
     from api.gptAI.Human import Human
 
-
-class FileData(TypedDict, total=False):
-    img: any
-    json: any
-
-class FilePathData(TypedDict, total=False):
-    img: str
-    json: str
-
 class HumanPart:
-    def __init__(self,chara_name) -> None:
-        self.name = chara_name #キャラの名前。フロントネームからキャラネームに変換済みの物を入れる。
+    chara_name:CharacterName
+    @property
+    def name(self)->str:
+        return self.chara_name.name
+    def __init__(self,chara_name:CharacterName) -> None:
+        self.chara_name = chara_name
+         #キャラの名前。フロントネームからキャラネームに変換済みの物を入れる。
         self.emotion_list = [
             "普通",
             "嬉しい",
@@ -59,19 +56,26 @@ class HumanPart:
             CharFilePathDict[chara_name] = [folder_name]
         ExtendFunc.saveDictToJson(CharFilePath_path,CharFilePathDict)
 
-    def getHumanAllParts(self, human_char_name:str, psd_num = 0):
+    def getHumanAllParts(self, human_char_name:str, front_name:str, psd_num = 0) -> tuple[HumanData, AllBodyFileInfo]:
         #入力名からキャラの正式名を取得
         char_file_path = self.setCharFilePath(human_char_name,psd_num)
         #キャラの正式名からキャラの体パーツフォルダの画像のpathを取得
         path_str = str(HumanPart.getVoiroCharaImageFolderPath() / char_file_path)
-        return self.getHumanAllPartsFromPath(human_char_name,path_str)
+        return self.getHumanAllPartsFromPath(human_char_name,front_name, path_str)
     
-    def getHumanAllPartsFromPath(self, human_char_name:str, path_str:str):
+    def getHumanAllPartsFromPath(self, human_char_name:str, front_name:str, path_str:str)->tuple[HumanData, AllBodyFileInfo]:
         #キャラの体パーツフォルダの画像を全て辞書形式で取得
-        data_for_client = {}
-        data_for_client["body_parts_iamges"],body_parts_pathes_for_gpt = self.recursive_file_check(f"{path_str}/parts")
-        self.saveImageInfo(body_parts_pathes_for_gpt, path_str, data_for_client["body_parts_iamges"])
-        data_for_client["init_image_info"] = self.getInitImageInfo(path_str)
+        body_parts_iamges:BodyPartsImages
+        body_parts_pathes_for_gpt:AllBodyFileInfo
+        body_parts_iamges,body_parts_pathes_for_gpt = self.recursive_file_check(f"{path_str}/parts")
+        self.saveImageInfo(body_parts_pathes_for_gpt, path_str, body_parts_iamges)
+        init_image_info = self.getInitImageInfo(path_str)
+        data_for_client:HumanData = {
+            "body_parts_iamges":body_parts_iamges,
+            "init_image_info":init_image_info,
+            "front_name":front_name,
+            "char_name":human_char_name
+        }
         return data_for_client,body_parts_pathes_for_gpt
 
     def openFile(self,file_path):
@@ -104,38 +108,38 @@ class HumanPart:
             with open(file_path,mode="w",encoding="utf-8") as f:
                 json.dump(json_data, f, ensure_ascii=False, indent=4)
 
-    def recursive_file_check(self,path_str:str) -> tuple[BodyPartImages, dict]:
+    def recursive_file_check(self,path_str:str) -> tuple[dict, dict]:
         path = Path(path_str)
         file_names:list[str] = os.listdir(path)
-        body_parts_iamges:BodyPartImages = {} #dict[str,FileData]
-        filepath_dict:dict[str, Literal["gazou","json"]|FilePathData] = {} #gptにファイル構造を渡すために全てのパスを文字列で取得
+        dict = {}
+        filepath_dict = {} #gptにファイル構造を渡すために全てのパスを文字列で取得
         for file_name in file_names:
             #print(file_name)
             file_path = f"{path_str}/{file_name}"
             if os.path.isdir(file_path):
                 # directoryだったら中のファイルに対して再帰的にこの関数を実行
                 data,pathes = self.recursive_file_check(file_path)
-                body_parts_iamges[file_path.split("/")[-1]] = data #ここのキーはfile_nameと一致するのでは？
+                dict[file_path.split("/")[-1]] = data
                 filepath_dict[file_path.split("/")[-1]] = pathes
             else:
                 # fileだったら処理
-                key = file_path.split("/")[-1].split(".")[0] #ファイル名から拡張子を取り除いたものをkeyにする
-                if key not in body_parts_iamges.keys():
-                    body_parts_iamges[key] = {}
+                key = file_path.split("/")[-1].split(".")[0]
+                if key not in dict.keys():
+                    dict[key] = {}
                 if file_path.endswith(".png") or file_path.endswith(".jpg"):
                     data = self.openFile(file_path)
                     pathes = "gazou"
-                    body_parts_iamges[key]["img"] = data
+                    dict[key]["img"] = data
                     filepath_dict[file_path.split("/")[-1]] = pathes
                 elif file_path.endswith(".json"):
                     data = self.openJsonFile(file_path)
                     pathes = "json"
-                    body_parts_iamges[key]["json"] = data
+                    dict[key]["json"] = data
                     filepath_dict[file_path.split("/")[-1]] = pathes
                 else:
                     print("pngでもjsonでもないファイルがありました。")
                     print(f"{file_path=}")
-        return body_parts_iamges, filepath_dict
+        return dict, filepath_dict
     
     def getInitImageInfo(self,path_str:str)->InitImageInfo:
         """
@@ -266,6 +270,9 @@ class HumanPart:
         # chara_name_list = HumanPart.getAllCharacterName()
 
         path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/CharFilePath.json")
+        # pathが存在しない場合は作成する
+        if not os.path.exists(path):
+            ExtendFunc.saveDictToJson(path,{})
         chara_name_dict = ExtendFunc.loadJsonToDict(path)
         for chara_name in chara_name_dict:
             HumanPart.checkNameExistInVoiroCharaImageFolderAndCreate(chara_name)

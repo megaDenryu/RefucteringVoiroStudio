@@ -5,11 +5,12 @@ import json
 import time
 import re
 from pprint import pprint
-from typing import TypedDict
+from typing_extensions import TypedDict
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
-from api.gptAI.CharacterModeState import CharacterModeState
-from api.gptAI.HumanInformation import TTSSoftware
+from api.gptAI.HumanInfoValueObject import CharacterName, NickName
+from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
+from api.images.image_manager.IHumanPart import HumanData
 from .gpt import ChatGPT
 from .voiceroid_api import voicevox_human
 from .voiceroid_api import Coeiroink
@@ -41,7 +42,7 @@ class Human:
     @property
     def id(self):
         return self.chara_mode_state.id
-    def __init__(self,chara_mode_state:CharacterModeState ,voiceroid_dict, corresponding_websocket:WebSocket, prompt_setteing_num:str = "キャラ個別システム設定") -> None:
+    def __init__(self,chara_mode_state:CharacterModeState ,voiceroid_dict) -> None:
         """
         @param front_name: フロントで入力してウインドウに表示されてる名前
         @param voiceroid_dict: 使用してる合成音声の種類をカウントする辞書。{"cevio":0,"voicevox":0,"AIVOICE":0}。cevioやAIVOICEの起動管理に使用。
@@ -55,58 +56,47 @@ class Human:
         self.chara_mode_state = chara_mode_state
         self.voice_mode = "wav出力"
 
-        print(f"char_name:{self.char_name}")
+        print(f"char_name:{self.char_name.name}")
         self.personal_id = 2
         # 体画像周りを準備する
         self.human_part = HumanPart(self.char_name)
-        human_part_folder,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name)
-        data :HumanData= {
-            "body_parts_iamges": human_part_folder["body_parts_iamges"],
-            "init_image_info": human_part_folder["init_image_info"],
-            "front_name": self.front_name,
-            "char_name": self.char_name.name
-        }
-        self.image_data_for_client = data
+        self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name, self.front_name)
         # dictを正規化する
         self.response_dict:dict = {
-            self.char_name:"",
+            self.char_name.name:"",
             "感情":"",
             "コード":"",
             "json返答":""
         }
         self.sentence = ""
         self.sentence_count = 0
-        self.prompt_setting_num = prompt_setteing_num
-        self.voice_system:str = self.start(prompt_setteing_num, voiceroid_dict)
+        self.voice_system:str = self.start(voiceroid_dict)
 
-        self.corresponding_websocket:WebSocket = corresponding_websocket
-
-        
     
-    def start(self, prompt_setteing_num:str = "キャラ個別システム設定", voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}):#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
+    def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}):#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
-            if self.chara_mode_state.tts_software == TTSSoftware.CevioAI:
+            if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
                 tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
                 print(f"{self.char_name}のcevio起動完了")
                 self.human_Voice.speak("起動完了")
                 return "cevio"
-            elif self.chara_mode_state.tts_software == TTSSoftware.VoiceVox:
+            elif TTSSoftware.VoiceVox.equal(self.chara_mode_state.tts_software):
                 tmp_voicevox = voicevox_human(self.chara_mode_state,voiceroid_dict["voicevox"])
                 print(f"{self.char_name}のvoicevox起動開始")
                 self.human_Voice = tmp_voicevox
                 print(f"{self.char_name}のvoicevox起動完了")
                 self.human_Voice.speak("起動完了")
                 return "voicevox"
-            elif self.chara_mode_state.tts_software == TTSSoftware.AIVoice:
+            elif TTSSoftware.AIVoice.equal(self.chara_mode_state.tts_software):
                 tmp_aivoice = AIVoiceHuman.createAndUpdateALLCharaList(self.chara_mode_state, voiceroid_dict["AIVOICE"])
                 print(f"{self.char_name}のAIVOICE起動開始")
                 self.human_Voice = tmp_aivoice
                 print(f"{self.char_name}のAIVOICE起動完了")
                 self.human_Voice.speak("起動完了")
                 return "AIVOICE"
-            elif self.chara_mode_state.tts_software == TTSSoftware.Coeiroink:
+            elif TTSSoftware.Coeiroink.equal(self.chara_mode_state.tts_software):
                 tmp_coeiroink = Coeiroink(self.chara_mode_state, voiceroid_dict["Coeiroink"])
                 print(f"{self.char_name}のcoeiroink起動開始")
                 self.human_Voice = tmp_coeiroink
@@ -126,16 +116,16 @@ class Human:
         str = TextConverter.convertReadableJapanaeseSentense(str)
         if cevio_human == type(self.human_Voice):
             print("cevioでwav出力します")
-            self.human_Voice.outputWaveFile(str)
+            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif AIVoiceHuman == type(self.human_Voice):
             print("AIvoiceでwav出力します")
-            self.human_Voice.outputWaveFile(str)
+            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif voicevox_human == type(self.human_Voice):
             print("voicevoxでwav出力します")
-            self.human_Voice.outputWaveFile(str)
+            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif Coeiroink == type(self.human_Voice):
             print("coeiroinkでwav出力します")
-            self.human_Voice.outputWaveFile(str)
+            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         else:
             print("wav出力できるボイロが起動してないのでwav出力できませんでした。")
 
@@ -206,31 +196,26 @@ class Human:
                 print(e)
     
     @staticmethod
-    def getNameList()->dict[str,str]:
+    def getNameList()->dict[NickName, CharacterName]:
         """
         キャラ名のリストを返す
         """
-        # C:\Users\t-yamanaka\VoiroStudio\api\CharSettingJson\NameListForHuman.jsonを現在のC:\Users\t-yamanaka\VoiroStudio\api\gptAI\Human.pyからの相対パスで取得
-        api_dir = Path(__file__).parent.parent
-        name_list_path = api_dir / "CharSettingJson" / "NameListForHuman.json"
-
-        with open(name_list_path, "r", encoding="utf-8") as f:
-            name_list = json.load(f)
-    
-        return name_list
+        allHumanInformationManager = AllHumanInformationManager.singleton()
+        return allHumanInformationManager.nick_names_manager.nickname2Charaname
 
     @staticmethod
-    def setCharName(name:str)->str:
+    def setCharName(front_name:str)->CharacterName:
         """
         front_nameからchar_nameに変換する関数
         """
+        nickName = NickName(name = front_name)
         name_list = Human.getNameList()
         
         try:
-            return name_list[name]
+            return name_list[nickName]
         except Exception as e:
-            print(f"{name}は対応するキャラがサーバーに登録されていません。")
-            return name
+            ExtendFunc.ExtendPrint(f"{nickName}は対応するキャラがサーバーに登録されていません。")
+            raise e
     
     @staticmethod
     def pickFrontName(filename:str):
@@ -239,8 +224,9 @@ class Human:
         """
         name_list = Human.getNameList()
         for front_name_candidate in name_list.keys():
-            if front_name_candidate in filename:
-                return front_name_candidate
+            if front_name_candidate.name in filename:
+                charaName = AllHumanInformationManager.singleton().nick_names_manager.nickname2Charaname[front_name_candidate]
+                return charaName
         return "名前が無効です"
     
     @staticmethod
@@ -249,10 +235,10 @@ class Human:
         コメントに含まれる名前がキャラ名リストに含まれているか確認する
         """
         name_list = Human.getNameList()
-        for name in name_list:
-            target = f"{atmark_type}{name}"
+        for nickName in name_list:
+            target = f"{atmark_type}{nickName.name}"
             if target in comment:
-                return name
+                return Human.setCharName(nickName.name)
         return "名前が無効です"
 
     
