@@ -123,18 +123,18 @@ def 構造化apiテスト():
     api_key = JsonAccessor.loadOpenAIAPIKey()
     client = OpenAI(api_key = api_key)
 
-    class CalendarEvent(BaseModel):
-        name: str
-        date: str
-        participants: list[str]
+    class カレンダーイベント(BaseModel):
+        名前: str
+        日付: str
+        来訪者: list[str]
 
-    completion = client.beta._client.chat.completions.create(
+    completion = client.beta.chat.completions.parse(
         model="gpt-4o-2024-08-06",
         messages=[
             {"role": "system", "content": "Extract the event information."},
             {"role": "user", "content": "Alice and Bob are going to a science fair on Friday."},
         ],
-        response_format=CalendarEvent,
+        response_format=カレンダーイベント,
     )
 
     event = completion.choices[0].message.parsed
