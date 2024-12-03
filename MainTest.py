@@ -10,6 +10,7 @@ from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.gptAI.AIRubiConverter import AIRubiConverterTest
 from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
 from api.gptAI.HumanInfoValueObject import ICharacterName
@@ -143,7 +144,8 @@ def 構造化apiテスト():
 
 if __name__ == "__main__":
     # InitMemoryCollectionTest.データを生成するテスト()
-    構造化apiテスト()
+    # 構造化apiテスト()
+    AIRubiConverterTest.test()
 
 
 

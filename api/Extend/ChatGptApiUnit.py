@@ -128,7 +128,7 @@ class ChatGptApiUnit:
             print("テストモードです")
             return "テストモードです"
         completion = self.client.beta.chat.completions.parse(
-                model="gpt-4o",
+                model="gpt-4o-mini",
                 messages=message_query, # type: ignore
                 response_format=model,
         )

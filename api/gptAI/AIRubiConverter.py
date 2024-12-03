@@ -5,7 +5,7 @@ from api.Extend.ExtendFunc import ExtendFunc
 
 class KanaText(BaseModel):
     フリガナ化文章: str
-    発音の有無: bool
+    下ネタならtrue: bool
 
 class AIRubiConverter:
     _gptUnit: ChatGptApiUnit
@@ -13,8 +13,8 @@ class AIRubiConverter:
     _messageQueryHistory: list[ChatGptApiUnit.MessageQuery]
     def __init__(self):
         self._gptUnit = ChatGptApiUnit(False)
-        self._systemMessageQuery = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel"]
-    def convertAsync(self, text:str) -> str:
+        self._systemMessageQuery = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel2"]
+    def convertAsync(self, text:str) -> str|None:
         """
         フリガナ化文章を取得します
         """
@@ -24,8 +24,10 @@ class AIRubiConverter:
             return "テストモードです"
         if response is None:
             return "エラーが発生しました"
+        if response.下ネタならtrue:
+            return "サイテー"
         ExtendFunc.ExtendPrintWithTitle("response",response)
-        return response.フリガナ化文章
+        return AIRubiConverter.check(response.フリガナ化文章)
     
     def createMessageQuery(self, text:str) -> list[ChatGptApiUnit.MessageQuery]:
         return [
@@ -35,6 +37,11 @@ class AIRubiConverter:
                 "content":f"入力:{text}",
             }
         ]
+    @staticmethod
+    def check(text:str) -> str|None:
+        if text == "":
+            return None
+        return text
     
 class AIRubiConverterTest:
     @staticmethod

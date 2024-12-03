@@ -260,7 +260,10 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 print(f"{human_ai.char_name=}")
                 if "" != input_dict[character_id]:
                     print(f"{input_dict[character_id]=}")
-                    for sentence in Human.parseSentenseList(input_dict[character_id]):
+                    rubi_sentence = inastanceManager.aiRubiConverter.convertAsync(input_dict[character_id])
+                    if rubi_sentence == None:
+                        return
+                    for sentence in Human.parseSentenseList(rubi_sentence):
                         for reciever in nikonama_comment_reciever_list.values():
                             reciever.checkAndStopRecieve(sentence)
                             
