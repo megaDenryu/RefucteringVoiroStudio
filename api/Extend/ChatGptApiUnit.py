@@ -135,4 +135,16 @@ class ChatGptApiUnit:
 
         return completion.choices[0].message.parsed
     
+    async def asyncGenerateResponseStructured(self,message_query:list[MessageQuery], model:Type[ResponseFormatT]) -> ResponseFormatT|Literal["テストモードです"]|None:
+        if self.test_mode == True:
+            print("テストモードです")
+            return "テストモードです"
+        completion = await self.async_client.beta.chat.completions.parse(
+                model="gpt-4o-mini",
+                messages=message_query, # type: ignore
+                response_format=model,
+        )
+
+        return completion.choices[0].message.parsed
+    
         

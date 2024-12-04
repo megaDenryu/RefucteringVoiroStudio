@@ -143,9 +143,7 @@ def 構造化apiテスト():
 
 
 if __name__ == "__main__":
-    # InitMemoryCollectionTest.データを生成するテスト()
-    # 構造化apiテスト()
-    AIRubiConverterTest.test()
+    InitMemoryCollectionTest.データを生成するテスト()
 
 
 
