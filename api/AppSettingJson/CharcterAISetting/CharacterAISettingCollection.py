@@ -79,8 +79,8 @@ class CharacterAISettingCollectionTest:
 
         # キャラクターの設定を定義
         character_setting = CharacterAISetting(
-            名前="ゆかり",
-            年齢=25,
+            名前="ずんだもん",
+            年齢=7,
             性別="女性",
             背景情報="小さな村で育った。",
             役割="探偵",
@@ -90,7 +90,7 @@ class CharacterAISettingCollectionTest:
             関係=[relationship1, relationship2],
             秘密="実は過去に犯罪歴がある",
             知っている情報="事件の詳細を知っている",
-            外見の特徴="黒髪で青い目",
+            外見の特徴="えだまめ",
             所持品=["ノート", "ペン", "懐中電灯"],
             行動パターン=[action_pattern1, action_pattern2]
         )
