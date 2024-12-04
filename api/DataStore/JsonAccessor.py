@@ -1,7 +1,8 @@
+from enum import Enum
 from pprint import pprint
 import sys
 from pathlib import Path
-from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit
+from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit, CharacterAISettingList
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict,GPTBehaviorKey
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
@@ -127,18 +128,41 @@ class JsonAccessor:
         return content
     
     @staticmethod
-    def loadCharcterAISettingYaml()->list[CharacterAISettingCollectionUnit]:
+    def loadCharcterAISettingYaml()->CharacterAISettingList:
         path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
         with open(path,encoding="UTF8") as f:
             content = f.read()
-        dict:list[CharacterAISettingCollectionUnit] = yaml.safe_load(content)
-        return dict
+        try:
+            parsedData = yaml.safe_load(content)
+            if parsedData is None:
+                CharacterAISettingCollection = CharacterAISettingList(list = [])
+            else:
+                CharacterAISettingCollection:CharacterAISettingList = CharacterAISettingList(**parsedData)
+        except yaml.YAMLError as e:
+            ExtendFunc.ExtendPrint("yaml読み込みエラー",e)
+            CharacterAISettingCollection = CharacterAISettingList(list = [])
+        return CharacterAISettingCollection
     
     @staticmethod
-    def updateCharcterAISettingYaml(setting_value:list[CharacterAISettingCollectionUnit]):
+    def updateCharcterAISettingYaml(setting_value:CharacterAISettingList):
         path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
+        def enum_serializer(o):
+            if isinstance(o, Enum):
+                return o.value
+            raise TypeError(f"Object of type {o.__class__.__name__} is not JSON serializable")
+        
         with open(path, 'w', encoding="utf-8") as f:
-            yaml.dump(setting_value, f, allow_unicode=True)
+            t = setting_value.model_dump_json()
+            jsonToDict = json.loads(t)
+            yaml.dump(jsonToDict, f, allow_unicode=True, sort_keys=False)
+
+    @staticmethod
+    def updateCharcterAISettingJson(setting_value:CharacterAISettingList):
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.json"
+        with open(path, 'w', encoding="utf-8") as f:
+            t = setting_value.model_dump()
+            pprint(t)
+            json.dump(setting_value.model_dump(), f, indent=4, ensure_ascii=False)
     
     @staticmethod
     def loadAppSettingYamlAsString(yml_file_name:str)->str:

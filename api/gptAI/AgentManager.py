@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
 from enum import Enum
-from api.AppSettingJson.CharcterAISetting.CharacterAISetting import D_CharacterAISetting
+from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISetting
 from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollection
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory
@@ -3094,7 +3094,7 @@ class Memory:
     destination:str # 目標
     profit_vector:ProfitVector # 利益ベクトル
     chara_name:CharacterName # キャラクター名
-    chara_setting:D_CharacterAISetting # キャラクター設定
+    chara_setting:CharacterAISetting # キャラクター設定
 
 
     def __init__(self, chara_name:CharacterName, ) -> None:
