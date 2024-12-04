@@ -3,6 +3,7 @@ from api.InstanceManager.GptAgentInstanceManager import GPTAgentInstanceManager
 from api.InstanceManager.HumanDict import HumanInstanceContainer
 from api.InstanceManager.ClientIds import ClientIds, ClientWebSocket
 from api.InstanceManager.InsatanceManagerInterface import InstanceManagerInterface
+from api.gptAI.AIRubiConverter import AIRubiConverter
 from api.gptAI.AgentPipeManager import AgentPipeManager
 from api.gptAI.GPTMode import GptModeManager
 from api.gptAI.InputReciever import InputReciever
@@ -17,6 +18,7 @@ class InastanceManager(InstanceManagerInterface):
     _gptAgentInstanceManager: GPTAgentInstanceManager
     _inputReciever: InputReciever
     _agentPipeManager: AgentPipeManager
+    _aiRubiConverter: AIRubiConverter
 
     @property
     def clientIds(self):
@@ -50,6 +52,10 @@ class InastanceManager(InstanceManagerInterface):
     def agentPipeManager(self):
         return self._agentPipeManager
     
+    @property
+    def aiRubiConverter(self):
+        return self._aiRubiConverter
+    
 
     def __init__(self):
         self._clientIds = ClientIds()
@@ -60,6 +66,7 @@ class InastanceManager(InstanceManagerInterface):
         self._gptAgentInstanceManager = GPTAgentInstanceManager(self._gptModeManager, self._epic, self._humanInstances)
         self._inputReciever = InputReciever(self._epic, self._gptAgentInstanceManager)
         self._agentPipeManager = AgentPipeManager(self._inputReciever)
+        self._aiRubiConverter = AIRubiConverter()
         self.registerEvent()
 
     def registerEvent(self):

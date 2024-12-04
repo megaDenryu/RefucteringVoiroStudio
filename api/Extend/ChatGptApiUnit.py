@@ -1,3 +1,4 @@
+from typing import Type, TypeVar
 from openai import AsyncOpenAI, OpenAI
 from pydantic import BaseModel
 from typing_extensions import Literal, TypedDict
@@ -120,9 +121,18 @@ class ChatGptApiUnit:
         return response.choices[0].message.content
 
     
-    def generateResponseStructured(self,message_query:list[MessageQuery], model):
+    ResponseFormatT = TypeVar("ResponseFormatT", bound=BaseModel)
+    
+    def generateResponseStructured(self,message_query:list[MessageQuery], model:Type[ResponseFormatT]) -> ResponseFormatT|Literal["テストモードです"]|None:
         if self.test_mode == True:
             print("テストモードです")
             return "テストモードです"
+        completion = self.client.beta.chat.completions.parse(
+                model="gpt-4o-mini",
+                messages=message_query, # type: ignore
+                response_format=model,
+        )
+
+        return completion.choices[0].message.parsed
     
         

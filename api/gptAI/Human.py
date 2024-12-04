@@ -113,7 +113,7 @@ class Human:
 
     def outputWaveFile(self,str:str):
         str = str.replace(" ","").replace("　","")
-        str = TextConverter.convertReadableJapanaeseSentense(str)
+        # str = TextConverter.convertReadableJapanaeseSentense(str)
         if cevio_human == type(self.human_Voice):
             print("cevioでwav出力します")
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
