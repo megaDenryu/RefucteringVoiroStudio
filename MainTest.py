@@ -1,6 +1,7 @@
 import asyncio
 from pathlib import Path
 from pprint import pprint
+from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollectionTest
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
@@ -143,9 +144,8 @@ def 構造化apiテスト():
 
 
 if __name__ == "__main__":
-    # InitMemoryCollectionTest.データを生成するテスト()
-    # 構造化apiテスト()
-    AIRubiConverterTest.test()
+    # タスクグラフのテスト()
+    CharacterAISettingCollectionTest.キャラAI設定を生成するてすと()
 
 
 
