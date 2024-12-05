@@ -1,6 +1,7 @@
 import asyncio
 from pathlib import Path
 from pprint import pprint
+from api.AppSettingJson.CharacterDestination.CharacterDestinationCollection import CharacterDestinationCollectionTest
 from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollectionTest
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
@@ -145,7 +146,7 @@ def 構造化apiテスト():
 
 if __name__ == "__main__":
     # タスクグラフのテスト()
-    CharacterAISettingCollectionTest.キャラAI設定を生成するてすと()
+    CharacterDestinationCollectionTest.目的設定を生成するてすと()
 
 
 

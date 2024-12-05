@@ -2,9 +2,14 @@ from enum import Enum
 from pprint import pprint
 import sys
 from pathlib import Path
+from typing import Type, TypeVar
+
+from pydantic import BaseModel
+from api.AppSettingJson.CharacterDestination.CharacterDestination import CharacterDestinationList
 from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit, CharacterAISettingList
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict,GPTBehaviorKey
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
+from api.Extend.BaseModel.BaseModelList import BaseModelList
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 import json
 import yaml
@@ -116,6 +121,46 @@ class JsonAccessor:
         twitch_access_token = ExtendFunc.loadJsonToDict(path)["twitch_access_token"]
         # print("twitch_access_token:",twitch_access_token)
         return twitch_access_token
+    
+    BaseModelList = TypeVar("BaseModelList", bound=BaseModelList)
+    @staticmethod
+    def loadYamlToBaseModel(yaml_path:Path, baseModel:Type[BaseModelList])->BaseModelList:
+        with open(yaml_path,encoding="UTF8") as f:
+            content = f.read()
+        try:
+            parsedData = yaml.safe_load(content)
+            if parsedData is None:
+                return baseModel(list = [])
+            else:
+                return baseModel(**parsedData)
+        except yaml.YAMLError as e:
+            ExtendFunc.ExtendPrint("yaml読み込みエラー",e)
+            return baseModel(list = [])
+        
+    @staticmethod
+    def updateYamlFromBaseModel(yaml_path:Path, baseModel:BaseModel):
+        """
+        Enumを含むBaseModelをyamlに書き込めます。
+        """
+        with open(yaml_path, 'w', encoding="utf-8") as f:
+            t = baseModel.model_dump_json()
+            jsonToDict = json.loads(t)
+            yaml.dump(jsonToDict, f, allow_unicode=True, sort_keys=False)
+    
+    @staticmethod
+    def updateJsonFromBaseModel(json_path:Path, baseModel:BaseModel):
+        with open(json_path, 'w', encoding="utf-8") as f:
+            json.dump(baseModel.model_dump(), f, indent=4, ensure_ascii=False)
+        
+    @staticmethod
+    def loadCharcterDestinationYaml()->CharacterDestinationList:
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharacterDestination/CharacterDestination.yml"
+        return JsonAccessor.loadYamlToBaseModel(path, CharacterDestinationList)
+    
+    @staticmethod
+    def updateCharcterDestinationYaml(setting_value:CharacterDestinationList):
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharacterDestination/CharacterDestination.yml"
+        JsonAccessor.updateYamlFromBaseModel(path, setting_value)
 
     @staticmethod
     def loadOldCharcterAISettingYamlAsString()->str:
@@ -146,11 +191,6 @@ class JsonAccessor:
     @staticmethod
     def updateCharcterAISettingYaml(setting_value:CharacterAISettingList):
         path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
-        def enum_serializer(o):
-            if isinstance(o, Enum):
-                return o.value
-            raise TypeError(f"Object of type {o.__class__.__name__} is not JSON serializable")
-        
         with open(path, 'w', encoding="utf-8") as f:
             t = setting_value.model_dump_json()
             jsonToDict = json.loads(t)
