@@ -3102,7 +3102,6 @@ class Memory:
         self.chara_name = chara_name
         self.loadInitialMemory()
         self.loadCharaSetting()
-        self.createInitTaskGraph(chara_name)
     
     def loadInitialMemory(self):
         """ 
@@ -3126,23 +3125,6 @@ class Memory:
     def addDestination(self, destination:DestinationAndProfitVector):
         self.destinations.append(destination)
 
-
-    def createInitTaskGraph(self, chara_name:CharacterName):
-        # キャラクターごとの初期目標をロードして、タスクグラフを作成する。しかしそもそも目標がない場合は無理に目標を与える必要はないとも思う。本当の最初はある程度会話による記憶の入力が必要
-        # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
-        # したがって内面を用いて目標を生成するプロセスを書く必要がある。
-        # モット言うともはや入力するプロセスをちゃんと書く必要がある。
-        raise NotImplementedError("初期タスクグラフを作成するメソッドが未実装です")
-        first_destination = self.loadCharaInitialDestination(chara_name)
-        ti = TaskBreakingDownTransportedItem.init(first_destination)
-        task_graph = TaskGraph(ti,self.life_process_brain)
-        self.task_progress.addTaskGraph(task_graph)
-    
-    def loadCharaInitialDestination(self, chara_name:CharacterName)->ProblemDecomposedIntoTasks:
-        # キャラクターごとの初期目標をロード
-        raise NotImplementedError("キャラクターごとの初期目標をロードするメソッドが未実装です")
-        # 目標がない時キャラが何をするか？だめ人間なら暇なときは散歩を始めたりネットを始めたりして何かを探すが、AIは散歩もできないので、自分にとっての「不可能な目標」を設定して、それを目指すというのはどうか？
-
     def addHoldingProfitVector(self, profit_vector:ProfitVector):
         self.holding_profit_vector += profit_vector
 
@@ -3154,7 +3136,7 @@ class Memory:
         PickleAccessor.saveMemory(self, chara_name)
 
     @staticmethod
-    def loadSelfPickle(chara_name:CharacterName, life_process_brain:"LifeProcessBrain")->"Memory | None":
+    def loadSelfPickle(chara_name:CharacterName)->"Memory | None":
         """
         pickleで読み込み
         """
@@ -3167,11 +3149,11 @@ class Memory:
     
 
     @staticmethod
-    def loadLatestMemory(chara_name: CharacterName, life_process_brain:"LifeProcessBrain")->"Memory":
+    def loadLatestMemory(chara_name: CharacterName)->"Memory":
         """
         最新のMemoryをロード
         """
-        memory = Memory.loadSelfPickle(chara_name, life_process_brain)
+        memory = Memory.loadSelfPickle(chara_name)
         if memory is None:
             memory = Memory(chara_name)
         return memory
@@ -3231,9 +3213,25 @@ class LifeProcessBrain:
         self.memory = Memory.loadLatestMemory(chara_name, self)
         self.websocket = gptAgent.manager.websocket
         self.gptAgent = gptAgent
-        self.task_graph_process = self.memory.task_progress.task_graphs
         #すべてのタスクにLifeProcessBrainをバインド
         self.bindLifeProcessBrainToGraph(self)
+
+    def createInitTaskGraph(self, chara_name:CharacterName):
+        # キャラクターごとの初期目標をロードして、タスクグラフを作成する。しかしそもそも目標がない場合は無理に目標を与える必要はないとも思う。本当の最初はある程度会話による記憶の入力が必要
+        # それよりもある程度会話して記憶ができた後に暇になったときに何をするのか考えたら、記憶から興味が形成されているので、それと内面状態を合わせて目標を生成するのがよい。
+        # したがって内面を用いて目標を生成するプロセスを書く必要がある。
+        # モット言うともはや入力するプロセスをちゃんと書く必要がある。
+        # raise NotImplementedError("初期タスクグラフを作成するメソッドが未実装です")
+        first_destination = self.loadCharaInitialDestination(chara_name)
+        ti = TaskBreakingDownTransportedItem.init(first_destination)
+        task_graph = TaskGraph(ti,self)
+        self.memory.task_progress.addTaskGraph(task_graph)
+    
+    def loadCharaInitialDestination(self, chara_name:CharacterName)->ProblemDecomposedIntoTasks:
+        # キャラクターごとの初期目標をロード
+        raise NotImplementedError("キャラクターごとの初期目標をロードするメソッドが未実装です")
+        # 目標がない時キャラが何をするか？だめ人間なら暇なときは散歩を始めたりネットを始めたりして何かを探すが、AIは散歩もできないので、自分にとっての「不可能な目標」を設定して、それを目指すというのはどうか？
+
         
     def bindLifeProcessBrainToGraph(self, lifeprocessbrain:"LifeProcessBrain|None"):
         for task_graph in self.task_graph_process.values():
