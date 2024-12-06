@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 import json
 from enum import Enum
+from api.AppSettingJson.CharacterDestination.CharacterDestination import CharacterDestination
+from api.AppSettingJson.CharacterDestination.CharacterDestinationCollection import CharacterDestinationCollection
 from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISetting
 from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollection
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict
@@ -107,12 +109,14 @@ class ProblemDecomposedIntoTasks(BaseModel):
     タスクグラフ内で解きたい問題のオブジェクト。これからtransportedItemを作ってタスク
     """
     problem_title:str
+    characterDestination:CharacterDestination
     role_in_task_graph: str|None  #タスクグラフ内での役割または解決するべき問題
     result_of_previous_task: str|None  #前のタスクの結果
     @staticmethod
-    def init( task:Task, result_of_previous_task:"TaskToolOutput"):
+    def init( task:Task, result_of_previous_task:"TaskToolOutput",characterDestination:CharacterDestination):
         return ProblemDecomposedIntoTasks(
             problem_title = task["task_title"],
+            characterDestination = characterDestination,
             role_in_task_graph = ProblemDecomposedIntoTasks.TaskToRoleInTaskGraph(task),
             result_of_previous_task = result_of_previous_task.task_exec_result
         )
@@ -3210,7 +3214,8 @@ class LifeProcessBrain:
         task_graph_processを実行
         """
         chara_name = gptAgent.manager.human.char_name
-        self.memory = Memory.loadLatestMemory(chara_name, self)
+        self.memory = Memory.loadLatestMemory(chara_name)
+        self.createInitTaskGraph(chara_name)
         self.websocket = gptAgent.manager.websocket
         self.gptAgent = gptAgent
         #すべてのタスクにLifeProcessBrainをバインド
@@ -3229,8 +3234,21 @@ class LifeProcessBrain:
     
     def loadCharaInitialDestination(self, chara_name:CharacterName)->ProblemDecomposedIntoTasks:
         # キャラクターごとの初期目標をロード
-        raise NotImplementedError("キャラクターごとの初期目標をロードするメソッドが未実装です")
+        # raise NotImplementedError("キャラクターごとの初期目標をロードするメソッドが未実装です")
         # 目標がない時キャラが何をするか？だめ人間なら暇なときは散歩を始めたりネットを始めたりして何かを探すが、AIは散歩もできないので、自分にとっての「不可能な目標」を設定して、それを目指すというのはどうか？
+        destination = CharacterDestinationCollection.singleton().getCharacterDestination(chara_name)
+        task:Task = {
+            "id":"0",
+            "task_species":"目標決定",
+            "task_title":"目標決定",
+            "use_tool":"目標決定",
+            "description":"目標を決定する",
+            "tool_query":"目標を決定する",
+            "dependencies":[],
+        }
+        # todo : 中で使うオブジェクトとかがBaseModelになっていないものが多数あるので全部BaseModelにする
+        problemDecomposedIntoTasks = ProblemDecomposedIntoTasks.init(task,destination)
+
 
         
     def bindLifeProcessBrainToGraph(self, lifeprocessbrain:"LifeProcessBrain|None"):
