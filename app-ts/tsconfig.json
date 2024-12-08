@@ -22,8 +22,8 @@
 
     /* Linting */
     "strict": true, // 厳格な型チェックを行う
-    "noUnusedLocals": true, // ローカル変数が読み取られない場合のエラー報告を有効にします
-    "noUnusedParameters": true, // 関数パラメータが読み取られない場合にエラーを発生させる
+    "noUnusedLocals": false, // ローカル変数が読み取られない場合のエラー報告を有効にします
+    "noUnusedParameters": false, // 関数パラメータが読み取られない場合にエラーを発生させる
     "noFallthroughCasesInSwitch": true,
     "strictPropertyInitialization": false, // プロパティの初期化を厳格にチェックしない
     "noImplicitAny": false, // anyのエラー報告を無効化

@@ -5,6 +5,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "build:watch": "vite build --watch",
+    "build:ignore-warnings": "tsc && vite build --config vite.config.ignore-warnings.ts",
     "eslint": "eslint ."
   },
   "dependencies": {

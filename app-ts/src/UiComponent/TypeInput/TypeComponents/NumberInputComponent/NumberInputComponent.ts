@@ -1,5 +1,6 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
+import { IInputComponet } from "../IInputComponet";
 
 
 /// <summary>
@@ -10,7 +11,7 @@ import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_c
 /// - 数値が変更されたときのイベントを登録する
 /// - 数値が変更されたときのイベントを削除する
 /// </summary>
-export class NumberInputComponent implements IHasComponent {
+export class NumberInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _title : string;
     private _min: number = 0;
@@ -55,15 +56,21 @@ export class NumberInputComponent implements IHasComponent {
         </div>`;
     }
 
-    /**
-     * コールバックの初期化
-     */
     private Initialize() {
-        this.component.element.querySelector(".slider")?.addEventListener("input", (e) => {
+        const slider = this.component.element.querySelector(".slider");
+        
+        // mousedownイベントの伝播を止める
+        slider?.addEventListener("mousedown", (e) => {
+            e.stopPropagation();
+        });
+    
+        // inputイベントのハンドリング
+        slider?.addEventListener("input", (e) => {
             let target = e.target as HTMLInputElement;
             this._value.set(Number(target.value));
             this.component.element.querySelector(".slider-value")!.textContent = (this._value.get()??this._min).toString();
             this._darty.set(true);
+            e.stopPropagation();
         });
     }
 
