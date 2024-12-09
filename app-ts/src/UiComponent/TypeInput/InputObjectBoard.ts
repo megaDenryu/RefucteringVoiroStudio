@@ -27,7 +27,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
     private _stringInputComponent: StringInputComponent;
     private _selecterInputComponent: EnumInputComponent;
     private _booleanInputComponent: BooleanInputComponent;
-    private 
+    private _boolean
 
     constructor() {
         this._squareBoardComponent = new SquareBoardComponent(1000, 1000);
