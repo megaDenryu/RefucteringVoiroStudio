@@ -23,6 +23,7 @@ export class DragMover {
     }
 
     private onMouseDown(e: MouseEvent) {
+        e.stopPropagation();
         if (!this._enableDrag) return;
         this._dragging = true;
         this._startX = e.clientX;
@@ -32,6 +33,7 @@ export class DragMover {
     }
 
     private onMouseMove(e: MouseEvent) {
+        e.stopPropagation();
         if (this._dragging && this._enableDrag) {
             const deltaX = e.clientX - this._startX;
             const deltaY = e.clientY - this._startY;

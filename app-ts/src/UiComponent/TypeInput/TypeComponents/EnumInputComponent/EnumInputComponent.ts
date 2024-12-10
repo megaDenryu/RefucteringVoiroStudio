@@ -8,11 +8,13 @@ import { SelecteValueInfo } from "./SelecteValueInfo";
 export class EnumInputComponent implements IHasComponent, IInputComponet {
 
     public readonly component: BaseComponent;
+    private _title: string;
     private _value: ReactiveProperty<SelecteValueInfo>;
     private _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
 
-    constructor(defautValue: SelecteValueInfo) {
+    constructor(title: string, defautValue: SelecteValueInfo) {
+        this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate);
         let divHtml = ElementCreater.createElementFromHTMLString(`<div></div>`).appendChild(selecter);
@@ -41,6 +43,10 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
 
     getValue(): SelecteValueInfo {
         return this._value.get();
+    }
+
+    isDarty(): boolean {
+        return this._darty.get();
     }
 
     save(): void {

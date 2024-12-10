@@ -52,6 +52,10 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
         return this._value.get();
     }
 
+    public isDarty(): boolean {
+        return this._darty.get();
+    }
+
     public save(): void {
         if (this._darty.get() == true) {
             this._save.set(true);
