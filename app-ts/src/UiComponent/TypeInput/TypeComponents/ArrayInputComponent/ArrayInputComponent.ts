@@ -5,6 +5,7 @@ import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { IInputComponet } from "../IInputComponet";
 import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
+import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { z } from "zod";
 
@@ -52,7 +53,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         } else if (unitSchema instanceof z.ZodEnum) {
             return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string));
         } else if (unitSchema instanceof z.ZodObject) {
-            // return new ObjectInputComponent(title, unitSchema, defaultValue as {});
+            return new ObjectInputComponent(title, unitSchema, defaultValue as {});
         }
         throw new Error("未対応の型です。");
     }

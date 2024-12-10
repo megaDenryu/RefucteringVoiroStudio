@@ -8,8 +8,17 @@ import { EnumInputComponent } from "./TypeComponents/EnumInputComponent/EnumInpu
 import { SelecteValueInfo } from "./TypeComponents/EnumInputComponent/SelecteValueInfo";
 import { NumberInputComponent } from "./TypeComponents/NumberInputComponent/NumberInputComponent";
 import { StringInputComponent } from "./TypeComponents/StringInputComponent/StringInputComponent";
+import { ObjectInputComponent } from "./TypeComponents/ObjectInputComponent/ObjectInputComponent";
 
 export const VoiceRoidList = z.array(z.string());
+
+export const GameState = z.object({
+    humanNumber: z.number(),
+    humanList: VoiceRoidList,
+    humanStateDict: z.object({
+        emotion: z.enum(["悲しい", "嬉しい", "怒り"])}),
+        HP: z.number()
+});
 
 export class InputObjectBoard implements IHasComponent, IDragAble {
     private readonly Def = HtmlElementInput.new(
@@ -31,6 +40,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
     private _selecterInputComponent: EnumInputComponent;
     private _booleanInputComponent: BooleanInputComponent;
     private _arrayInputComponent: ArrayInputComponent<ZodString>;
+    private _objectInputComponent: ObjectInputComponent;
     private _boolean
 
     constructor() {
@@ -42,6 +52,14 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
         this._selecterInputComponent = new EnumInputComponent("感情",new SelecteValueInfo(["悲しい", "嬉しい", "怒り"],"悲しい"));
         this._booleanInputComponent = new BooleanInputComponent("真偽", false);
         this._arrayInputComponent = new ArrayInputComponent<ZodString>("ボイロリスト", VoiceRoidList, ["結月ゆかり", "初音ミク", "巡音ルカ"]);
+        this._objectInputComponent = new ObjectInputComponent("ゲーム状態", GameState, {
+            humanNumber: 1, 
+            humanList: ["結月ゆかり,初音ミク"], 
+            humanStateDict: {
+                emotion: "悲しい",
+                HP: 100
+            }
+        });
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
         this.dragMover = new DragMover(this);
         this.BindArrow();
@@ -55,6 +73,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
         this.component.createArrowBetweenComponents(this._squareBoardComponent, this._selecterInputComponent);
         this.component.createArrowBetweenComponents(this._squareBoardComponent, this._booleanInputComponent);
         this.component.createArrowBetweenComponents(this._squareBoardComponent, this._arrayInputComponent);
+        this.component.createArrowBetweenComponents(this._squareBoardComponent, this._objectInputComponent);
     }
 
     private setZIndex() {
@@ -64,6 +83,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
         this._selecterInputComponent.component.setZIndex(2);
         this._booleanInputComponent.component.setZIndex(2);
         this._arrayInputComponent.component.setZIndex(2);
+        this._objectInputComponent.component.setZIndex(2);
 
     }
 
