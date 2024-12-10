@@ -1,6 +1,7 @@
 import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "../../../Base/ui_component_base";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { IInputComponet } from "../IInputComponet";
+import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 
 
 class ArrayInputComponent<UnitType extends any> implements IHasComponent, IInputComponet {
@@ -25,9 +26,14 @@ class ArrayInputComponent<UnitType extends any> implements IHasComponent, IInput
         this.initialize();
     }
 
-    private createDefaultInputComponentList() : IInputComponet {
+    private createDefaultInputComponentList(title, defaultValue:UnitType) : IInputComponet {
         //UnitTypeに応じて適切なInputComponentを生成する
+
+
         if (this._unitType === "string") {
+            if (typeof(defaultValue) == "string") {
+                return new StringInputComponent(title, defaultValue);
+            }
 
         } if (this._unitType === "number") {
 
