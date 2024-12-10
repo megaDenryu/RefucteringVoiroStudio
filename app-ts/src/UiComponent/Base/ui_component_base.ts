@@ -102,6 +102,11 @@ export class ElementCreater {
         sliderElement.value = value.toString();
         return sliderElement;
     }
+
+    static createDivElement(className: string | null = null, id: string | null = null): HTMLElement {
+        const divElement = document.createElement('div');
+        return this.setClassNameAndId(divElement, className, id);
+    }
 }
 
 export interface IHasComponent {
