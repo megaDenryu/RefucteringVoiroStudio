@@ -1,12 +1,15 @@
+import { z, ZodString } from "zod";
 import { DragMover, IDragAble } from "../Base/DragableComponent";
 import { BaseComponent, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
 import { SquareBoardComponent } from "../Board/SquareComponent";
+import { ArrayInputComponent } from "./TypeComponents/ArrayInputComponent/ArrayInputComponent";
 import { BooleanInputComponent } from "./TypeComponents/BooleanInputComponent/BooleanInputComponent";
 import { EnumInputComponent } from "./TypeComponents/EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "./TypeComponents/EnumInputComponent/SelecteValueInfo";
 import { NumberInputComponent } from "./TypeComponents/NumberInputComponent/NumberInputComponent";
 import { StringInputComponent } from "./TypeComponents/StringInputComponent/StringInputComponent";
 
+export const VoiceRoidList = z.array(z.string());
 
 export class InputObjectBoard implements IHasComponent, IDragAble {
     private readonly Def = HtmlElementInput.new(
@@ -27,6 +30,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
     private _stringInputComponent: StringInputComponent;
     private _selecterInputComponent: EnumInputComponent;
     private _booleanInputComponent: BooleanInputComponent;
+    private _arrayInputComponent: ArrayInputComponent<ZodString>;
     private _boolean
 
     constructor() {
@@ -35,8 +39,9 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
         this._numberInputComponent = new NumberInputComponent("番号", 0);
         this._stringInputComponent = new StringInputComponent("背景情報", "ボイスロイド");
         
-        this._selecterInputComponent = new EnumInputComponent(new SelecteValueInfo(["悲しい", "嬉しい", "怒り"],"悲しい"));
+        this._selecterInputComponent = new EnumInputComponent("感情",new SelecteValueInfo(["悲しい", "嬉しい", "怒り"],"悲しい"));
         this._booleanInputComponent = new BooleanInputComponent("真偽", false);
+        this._arrayInputComponent = new ArrayInputComponent<ZodString>("ボイロリスト", VoiceRoidList, ["結月ゆかり", "初音ミク", "巡音ルカ"]);
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
         this.dragMover = new DragMover(this);
         this.BindArrow();
@@ -49,12 +54,16 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
         this.component.createArrowBetweenComponents(this._squareBoardComponent, this._stringInputComponent);
         this.component.createArrowBetweenComponents(this._squareBoardComponent, this._selecterInputComponent);
         this.component.createArrowBetweenComponents(this._squareBoardComponent, this._booleanInputComponent);
+        this.component.createArrowBetweenComponents(this._squareBoardComponent, this._arrayInputComponent);
     }
 
     private setZIndex() {
         this._squareBoardComponent.component.setZIndex(1);
         this._numberInputComponent.component.setZIndex(2);
         this._stringInputComponent.component.setZIndex(2);
+        this._selecterInputComponent.component.setZIndex(2);
+        this._booleanInputComponent.component.setZIndex(2);
+        this._arrayInputComponent.component.setZIndex(2);
 
     }
 

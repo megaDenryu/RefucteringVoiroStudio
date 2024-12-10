@@ -1,59 +1,106 @@
 import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "../../../Base/ui_component_base";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
+import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
+import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
+import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { IInputComponet } from "../IInputComponet";
+import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
+import { z } from "zod";
 
-
-class ArrayInputComponent<UnitType extends any> implements IHasComponent, IInputComponet {
+export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet {
 
 
     public readonly component: BaseComponent;
     public readonly 
     private readonly _title : string;
-    private readonly _value : UnitType[];
-    private readonly _unitType : string;
+    private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _inputComponentList : IInputComponet[]; //表示するInput要素のリスト
 
     
 
-    constructor(title: string, value: UnitType[], unitType: string) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
         this._title = title;
-        this._value = value;
-        this._unitType = unitType;
+        this._schema = schema;
         this.component = new BaseComponent(ElementCreater.createDivElement("ArrayInputComponent"));
-        this._inputComponentList = [this.createDefaultInputComponentList()];
+        this._squareBoardComponent = new SquareBoardComponent(50,100);
+        this._inputComponentList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.initialize();
     }
 
-    private createDefaultInputComponentList(title, defaultValue:UnitType) : IInputComponet {
-        //UnitTypeに応じて適切なInputComponentを生成する
-
-
-        if (this._unitType === "string") {
-            if (typeof(defaultValue) == "string") {
-                return new StringInputComponent(title, defaultValue);
-            }
-
-        } if (this._unitType === "number") {
-
-        } if (this._unitType === "boolean") {
-
-        } if (this._unitType === "enum") {
-
-        } if (this._unitType === "object") {
-
-        } if (this._unitType === "array") {
-
+    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IInputComponet[] {
+        let inputComponentList : IInputComponet[] = [];
+        for (let i = 0; i < defaultValues.length; i++) {
+            let inputComponent = this.createDefaultInputComponent(title, schema.element, defaultValues[i],);
+            this.component.createArrowBetweenComponents(this, inputComponent);
+            inputComponentList.push(inputComponent);
         }
+        return inputComponentList;
+    }
+
+    private createDefaultInputComponent(title, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IInputComponet {
+        //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
+            
+        if (unitSchema instanceof z.ZodString) {
+            return new StringInputComponent(title, defaultValue);
+        } else if (unitSchema instanceof z.ZodNumber) {
+            return new NumberInputComponent(title, defaultValue);
+        } else if (unitSchema instanceof z.ZodBoolean) {
+            return new BooleanInputComponent(title, defaultValue);
+        } else if (unitSchema instanceof z.ZodArray) {
+            return new ArrayInputComponent(title, unitSchema, defaultValue);
+        } else if (unitSchema instanceof z.ZodEnum) {
+            return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string));
+        } else if (unitSchema instanceof z.ZodObject) {
+            // return new ObjectInputComponent(title, unitSchema, defaultValue as {});
+        }
+        throw new Error("未対応の型です。");
     }
 
     private initialize() {
-
+        this._squareBoardComponent.component.setZIndex(1);
+        this._inputComponentList.forEach((inputComponent) => {
+            inputComponent.component.setZIndex(2);
+        });
     }
 
-    public get value() : UnitType[] {
-        return this._value;
+
+    public addOnDartyEvent(event: (value: boolean) => void): void {
+        this._inputComponentList.forEach((inputComponent) => {
+            inputComponent.addOnDartyEvent(event);
+        });
+    }
+
+    public addOnSaveEvent(event: (value: boolean) => void): void {
+        this._inputComponentList.forEach((inputComponent) => {
+            inputComponent.addOnSaveEvent(event);
+        });
+    }
+
+    public getValue(): any {
+        return this._inputComponentList.map((inputComponent) => {
+            return inputComponent.getValue();
+        });
+    }
+
+    public isDarty(): boolean {
+
+        return this._inputComponentList.some((inputComponent) => {
+            return inputComponent.isDarty();
+        });
+    }
+
+    public save(): void {
+        this._inputComponentList.forEach((inputComponent) => {
+            inputComponent.save();
+        });
+    }
+
+    public addNewElement(): void {
+        let newElement = this.createDefaultInputComponent(this._title, this._schema.element, null);
+        this._inputComponentList.push(newElement);
+        this.component.createArrowBetweenComponents(this, newElement);
     }
 
 
