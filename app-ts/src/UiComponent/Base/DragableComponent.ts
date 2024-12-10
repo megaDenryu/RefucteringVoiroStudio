@@ -9,9 +9,10 @@ export class DragMover {
     private _iHasComponent: IHasComponent;
     private _dragging: boolean = false;
     private _startX: number;
-    private _startY: number;
+    private _startY: number; 
     private _offsetX: number;
     private _offsetY: number;
+    private _enableDrag: boolean = true;
 
     constructor(iHasComponent: IHasComponent) {
         this._iHasComponent = iHasComponent;
@@ -22,6 +23,7 @@ export class DragMover {
     }
 
     private onMouseDown(e: MouseEvent) {
+        if (!this._enableDrag) return;
         this._dragging = true;
         this._startX = e.clientX;
         this._startY = e.clientY;
@@ -30,7 +32,7 @@ export class DragMover {
     }
 
     private onMouseMove(e: MouseEvent) {
-        if (this._dragging) {
+        if (this._dragging && this._enableDrag) {
             const deltaX = e.clientX - this._startX;
             const deltaY = e.clientY - this._startY;
             this._iHasComponent.component.element.style.left = (this._offsetX + deltaX) + 'px';
@@ -43,6 +45,19 @@ export class DragMover {
     }
 
     private onDragStart(e: DragEvent) {
-        e.preventDefault();
+        if (!this._enableDrag) {
+            e.preventDefault();
+        }
+    }
+
+    public get enableDrag() {
+        return this._enableDrag;
+    }
+
+    public setEnableDrag(value: boolean) {
+        this._enableDrag = value;
+        if (!value && this._dragging) {
+            this._dragging = false;
+        }
     }
 }

@@ -92,6 +92,16 @@ export class ElementCreater {
         if (id) { element.id = id; }
         return element;
     }
+
+    static createSliderInputElement(min: number, max: number, step: number, value: number): HTMLInputElement {
+        const sliderElement = document.createElement('input');
+        sliderElement.type = 'range';
+        sliderElement.min = min.toString();
+        sliderElement.max = max.toString();
+        sliderElement.step = step.toString();
+        sliderElement.value = value.toString();
+        return sliderElement;
+    }
 }
 
 export interface IHasComponent {
@@ -156,6 +166,7 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         const classList: string[] = Object.values(hTMLElementInput.classNames);
         if (this.checkHasClasses(element,classList) === false) {
             console.error(element);
+            console.error(classList);
             throw new Error('Class not found.');
         }
         return new BaseComponent<ClassNames>(element);
@@ -246,6 +257,10 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
 
     hide(): void {
         this.element.style.display = 'none';
+    }
+
+    setZIndex(zIndex: number): void {
+        this.element.style.zIndex = zIndex.toString();
     }
 }
 
