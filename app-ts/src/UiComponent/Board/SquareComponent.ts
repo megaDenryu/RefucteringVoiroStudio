@@ -1,3 +1,4 @@
+import { ExtendFunction } from "../../Extend/extend";
 import { IDragAble, DragMover } from "../Base/DragableComponent";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 
@@ -7,6 +8,7 @@ import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 export class SquareBoardComponent implements IHasComponent, IDragAble {
     public readonly component: BaseComponent;
     public readonly dragMover: DragMover;
+    public readonly id: string;
 
     /**
      * コンストラクタ
@@ -17,9 +19,11 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
     constructor(
         width: number, height: number,
         additionalClassNames: string[] = [],
-        customStyles: Partial<CSSStyleDeclaration> = {}
+        customStyles: Partial<CSSStyleDeclaration> = {},
+        id: string|null = null
     ) {
-        const htmlString = `<div class="square-board"></div>`;
+        this.id = id ?? ExtendFunction.uuid();
+        const htmlString = `<div class="square-board-${this.id}"></div>`;
         this.component = BaseComponent.createElementByString(htmlString);
         this.setSize(width, height); // サイズを設定
         // this.setInitialPosition(0, 0); // 初期位置を設定
@@ -34,7 +38,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      */
     setSize(width: number, height: number): void {
         const baseStyle = `
-            .square-board {
+            .square-board-${this.id} {
                 position: absolute;
                 width: ${width}px;
                 height: ${height}px;

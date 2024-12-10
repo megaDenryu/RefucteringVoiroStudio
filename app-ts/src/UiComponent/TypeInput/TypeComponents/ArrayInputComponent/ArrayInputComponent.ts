@@ -24,7 +24,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         this._title = title;
         this._schema = schema;
         this.component = new BaseComponent(ElementCreater.createDivElement("ArrayInputComponent"));
-        this._squareBoardComponent = new SquareBoardComponent(50,100);
+        this._squareBoardComponent = new SquareBoardComponent(400,600);
         this._inputComponentList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.initialize();
     }
@@ -33,7 +33,6 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         let inputComponentList : IInputComponet[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
             let inputComponent = this.createDefaultInputComponent(title, schema.element, defaultValues[i],);
-            this.component.createArrowBetweenComponents(this, inputComponent);
             inputComponentList.push(inputComponent);
         }
         return inputComponentList;
@@ -59,8 +58,10 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     }
 
     private initialize() {
+        this.component.createArrowBetweenComponents(this, this._squareBoardComponent);
         this._squareBoardComponent.component.setZIndex(1);
         this._inputComponentList.forEach((inputComponent) => {
+            this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, inputComponent);
             inputComponent.component.setZIndex(2);
         });
     }
