@@ -20,7 +20,7 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         this._title = title;
         this._schema = schema;
         this.component = new BaseComponent(ElementCreater.createDivElement("ObjectInputComponent"));
-        this._squareBoardComponent = new SquareBoardComponent(400,600);
+        this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.initialize();
     }
@@ -36,7 +36,7 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
 
     private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
         //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
-            
+        console.log(unitSchema);
         if (unitSchema instanceof z.ZodString) {
             return new StringInputComponent(title, defaultValue);
         } else if (unitSchema instanceof z.ZodNumber) {
@@ -58,6 +58,10 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         for (let key in this._inputComponentDict) {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._inputComponentDict[key]);
         }
+    }
+
+    public onAddedToDom() {
+        this.optimizeBoardSize(); //このコンポーネントがDOMに追加されたときでないと、高さが取得できないので、ここでサイズを最適化する。
     }
 
     public addOnDartyEvent(event: (value: boolean) => void): void {
@@ -93,5 +97,28 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         for (let key in this._inputComponentDict) {
             this._inputComponentDict[key].save();
         }
+    }
+
+    public optimizeBoardSize(): void {
+        //子コンポーネントがIHassSquareBoardを実装している場合、先に子コンポーネントのサイズを最適化する。
+        for (let key in this._inputComponentDict) {
+            let inputComponent = this._inputComponentDict[key];
+            if (inputComponent instanceof ArrayInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof ObjectInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
+        }
+
+        let optimizeHeight:number = 0;
+        for (let key in this._inputComponentDict) {
+            let inputComponent = this._inputComponentDict[key];
+            let inputComponentHeight = inputComponent.component.element.clientHeight;
+            optimizeHeight += inputComponentHeight;
+        }
+
+        this._squareBoardComponent.changeSize(300, optimizeHeight);
+
     }
 }

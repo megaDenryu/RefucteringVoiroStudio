@@ -17,10 +17,14 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
         this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate);
-        let divHtml = ElementCreater.createElementFromHTMLString(`<div></div>`).appendChild(selecter);
+        let divHtml = ElementCreater.createElementFromHTMLString(`
+            <div class="EnumInputComponent">
+                <label>${title}</label>
+            </div>
+            `);
+        divHtml.appendChild(selecter);
         this.component = new BaseComponent(divHtml);
         this.initialize(selecter);
-        console.log(this._value.get());
     }
 
     private initialize(selecter:HTMLSelectElement): void {

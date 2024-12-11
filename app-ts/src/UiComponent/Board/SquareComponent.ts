@@ -17,13 +17,17 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      * @param customStyles - 追加するインラインスタイルのオブジェクト
      */
     constructor(
+        title: string,
         width: number, height: number,
         additionalClassNames: string[] = [],
         customStyles: Partial<CSSStyleDeclaration> = {},
         id: string|null = null
     ) {
         this.id = id ?? ExtendFunction.uuid();
-        const htmlString = `<div class="square-board-${this.id}"></div>`;
+        const htmlString = `
+        <div class="square-board-${this.id}">
+            <div class="boardTitle"> ${title} </div>
+        </div>`;
         this.component = BaseComponent.createElementByString(htmlString);
         this.setSize(width, height); // サイズを設定
         // this.setInitialPosition(0, 0); // 初期位置を設定
@@ -36,7 +40,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      * ボードのサイズを設定する
      * @param size - ボードのサイズ（ピクセル単位）
      */
-    setSize(width: number, height: number): void {
+    public setSize(width: number, height: number): void {
         const baseStyle = `
             .square-board-${this.id} {
                 position: absolute;
@@ -50,12 +54,17 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         this.addDynamicStyles(baseStyle);
     }
 
+    public changeSize(width: number, height: number): void {
+        this.component.element.style.width = `${width}px`;
+        this.component.element.style.height = `${height}px`;
+    }
+
     /**
      * 初期位置を設定する
      * @param left - 初期の left 値
      * @param top - 初期の top 値
      */
-    setInitialPosition(left: number, top: number): void {
+    private setInitialPosition(left: number, top: number): void {
         this.component.element.style.left = `${left}px`;
         this.component.element.style.top = `${top}px`;
     }
@@ -64,7 +73,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      * 外部から追加のCSSクラス名を適用する
      * @param classNames - 追加するクラス名の配列
      */
-    addAdditionalClasses(classNames: string[]): void {
+    public addAdditionalClasses(classNames: string[]): void {
         this.component.addCSSClass(classNames);
     }
 
@@ -72,7 +81,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      * 外部からインラインスタイルを適用する
      * @param styles - 適用するスタイルのオブジェクト
      */
-    applyCustomStyles(styles: Partial<CSSStyleDeclaration>): void {
+    public applyCustomStyles(styles: Partial<CSSStyleDeclaration>): void {
         Object.assign(this.component.element.style, styles);
     }
 
