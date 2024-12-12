@@ -7,4 +7,5 @@ import { NumberInputComponent } from "./TypeComponents/NumberInputComponent/Numb
 
 let inputObjectBoard = new InputObjectBoard();
 document.body.appendChild(inputObjectBoard.component.element);
+inputObjectBoard.onAddedToDom();
 // let numberInputComponent = new NumberInputComponent("番号",0);

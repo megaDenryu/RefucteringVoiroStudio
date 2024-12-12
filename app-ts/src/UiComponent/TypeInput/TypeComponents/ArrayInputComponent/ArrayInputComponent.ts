@@ -1,30 +1,29 @@
 import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "../../../Base/ui_component_base";
+import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
 import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { IInputComponet } from "../IInputComponet";
 import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
+import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { z } from "zod";
 
-export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet {
-
-
+export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
-    public readonly 
     private readonly _title : string;
+    public title():string { return this._title; }
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _inputComponentList : IInputComponet[]; //表示するInput要素のリスト
 
-    
-
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
         this._title = title;
         this._schema = schema;
-        this.component = new BaseComponent(ElementCreater.createDivElement("ArrayInputComponent"));
-        this._squareBoardComponent = new SquareBoardComponent(400,600);
+        
+        this._squareBoardComponent = new SquareBoardComponent(title,400,600);
+        this.component = this._squareBoardComponent.component;
         this._inputComponentList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.initialize();
     }
@@ -32,13 +31,13 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IInputComponet[] {
         let inputComponentList : IInputComponet[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            let inputComponent = this.createDefaultInputComponent(title, schema.element, defaultValues[i],);
+            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i],);
             inputComponentList.push(inputComponent);
         }
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IInputComponet {
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IInputComponet {
         //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
             
         if (unitSchema instanceof z.ZodString) {
@@ -52,18 +51,21 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         } else if (unitSchema instanceof z.ZodEnum) {
             return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string));
         } else if (unitSchema instanceof z.ZodObject) {
-            // return new ObjectInputComponent(title, unitSchema, defaultValue as {});
+            return new ObjectInputComponent(title, unitSchema, defaultValue as {});
         }
         throw new Error("未対応の型です。");
     }
 
     private initialize() {
-        this.component.createArrowBetweenComponents(this, this._squareBoardComponent);
-        this._squareBoardComponent.component.setZIndex(1);
+        // this._squareBoardComponent.component.setZIndex(1);
         this._inputComponentList.forEach((inputComponent) => {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, inputComponent);
-            inputComponent.component.setZIndex(2);
+            // inputComponent.component.setZIndex(2);
         });
+    }
+
+    public onAddedToDom() {
+        this.optimizeBoardSize(); //このコンポーネントがDOMに追加されたときでないと、高さが取得できないので、ここでサイズを最適化する。
     }
 
 
@@ -104,5 +106,24 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         this.component.createArrowBetweenComponents(this, newElement);
     }
 
+    public optimizeBoardSize(): void {
+        //子コンポーネントがIHassSquareBoardを実装している場合、先に子コンポーネントのサイズを最適化する。
+        this._inputComponentList.forEach((inputComponent) => {
+            if (inputComponent instanceof ArrayInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof ObjectInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
+        });
+
+        let optimizeHeight:number = 0;
+        this._inputComponentList.forEach((inputComponent) => {
+            optimizeHeight += inputComponent.component.getHeight();
+            console.log(inputComponent.title() + ":",inputComponent.component.element,optimizeHeight);
+        });
+        this._squareBoardComponent.changeSize(300, optimizeHeight);
+
+    }
 
 }

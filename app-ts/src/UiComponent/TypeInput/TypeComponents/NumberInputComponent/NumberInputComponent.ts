@@ -14,6 +14,7 @@ import { IInputComponet } from "../IInputComponet";
 export class NumberInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _title : string;
+    public title():string { return this._title; }
     private _min: number = 0;
     private _max: number = 100;
     private _step: number = 1;

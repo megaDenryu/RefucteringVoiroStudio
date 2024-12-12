@@ -267,6 +267,36 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
     setZIndex(zIndex: number): void {
         this.element.style.zIndex = zIndex.toString();
     }
+
+    getHeight(): number {
+        let totalHeight = 0;
+
+        // 子要素の高さを再帰的に取得して足し合わせる
+        const childElements = this.element.children;
+        for (let i = 0; i < childElements.length; i++) {
+            const child = childElements[i] as HTMLElement;
+            totalHeight += this.getElementHeight(child);
+            console.log(child, ":" ,this.getElementHeight(child));
+        }
+
+        console.log(this.element,' : totalHeight:', totalHeight);
+
+        return totalHeight;
+    }
+
+    private getElementHeight(element: HTMLElement): number {
+        let height = element.offsetHeight;
+        if (!document.body.contains(this.element)) {
+            console.warn('Element is not in the DOM:', this.element);
+        }
+        const childElements = element.children;
+        for (let i = 0; i < childElements.length; i++) {
+            const child = childElements[i] as HTMLElement;
+            height += this.getElementHeight(child);
+        }
+
+        return height;
+    }
 }
 
 export class CompositeComponentCluster {
