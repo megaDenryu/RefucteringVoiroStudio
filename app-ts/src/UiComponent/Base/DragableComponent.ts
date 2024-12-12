@@ -39,6 +39,7 @@ export class DragMover {
             const deltaY = e.clientY - this._startY;
             this._iHasComponent.component.element.style.left = (this._offsetX + deltaX) + 'px';
             this._iHasComponent.component.element.style.top = (this._offsetY + deltaY) + 'px';
+            console.log(this._iHasComponent.component.element.style.left, this._iHasComponent.component.element.style.top);
         }
     }
 

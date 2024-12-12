@@ -43,7 +43,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
     public setSize(width: number, height: number): void {
         const baseStyle = `
             .square-board-${this.id} {
-                position: absolute;
+                position: relative;
                 width: ${width}px;
                 height: ${height}px;
                 background-color: #f0f0f0;

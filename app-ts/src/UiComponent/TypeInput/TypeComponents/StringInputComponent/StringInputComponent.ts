@@ -29,7 +29,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
     /// </summary>
     private HTMLDefinition(): string {
         return `
-        <div class="string-input-component">
+        <div class="StringInputComponent">
             <label>${this._title}</label>
             <input 
                 type="text" 

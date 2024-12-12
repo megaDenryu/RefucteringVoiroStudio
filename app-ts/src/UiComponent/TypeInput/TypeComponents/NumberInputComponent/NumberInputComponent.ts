@@ -43,7 +43,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet {
     /// </summary>
     private HTMLDefinition(min: number, max: number, step: number): string {
         return `
-        <div class="number-input-component">
+        <div class="NumberInputComponent">
             <label>${this._title}</label>
             <input 
                 type="range" 
