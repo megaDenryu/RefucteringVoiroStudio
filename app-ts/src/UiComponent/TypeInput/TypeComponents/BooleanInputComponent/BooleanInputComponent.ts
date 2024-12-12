@@ -6,6 +6,7 @@ import { IInputComponet } from "../IInputComponet";
 export class BooleanInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _title : string;
+    public title():string { return this._title; }
     private readonly _value : ReactiveProperty<boolean|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;

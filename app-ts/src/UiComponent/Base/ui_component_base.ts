@@ -269,15 +269,17 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
     }
 
     getHeight(): number {
-        let totalHeight = this.element.offsetHeight;
+        let totalHeight = 0;
 
         // 子要素の高さを再帰的に取得して足し合わせる
         const childElements = this.element.children;
         for (let i = 0; i < childElements.length; i++) {
             const child = childElements[i] as HTMLElement;
             totalHeight += this.getElementHeight(child);
-            console.log(child,totalHeight);
+            console.log(child, ":" ,this.getElementHeight(child));
         }
+
+        console.log(this.element,' : totalHeight:', totalHeight);
 
         return totalHeight;
     }

@@ -9,6 +9,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
 
     public readonly component: BaseComponent;
     private _title: string;
+    public title(): string { return this._title; }
     private _value: ReactiveProperty<SelecteValueInfo>;
     private _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
@@ -63,10 +64,5 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
         this._value.set(info);
         this._darty.set(true);
     }
-
-
-
-    
-
 }
 

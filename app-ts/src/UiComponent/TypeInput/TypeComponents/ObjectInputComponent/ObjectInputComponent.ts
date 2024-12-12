@@ -12,9 +12,10 @@ import { SquareBoardComponent } from "../../../Board/SquareComponent";
 export class ObjectInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _title : string;
+    public title():string { return this._title; }
     private readonly _schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;;
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
-    private readonly _inputComponentDict : {}; //表示するInput要素の辞書
+    private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
 
     constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) {
         this._title = title;
@@ -35,8 +36,6 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
     }
 
     private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
-        //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
-        console.log(unitSchema);
         if (unitSchema instanceof z.ZodString) {
             return new StringInputComponent(title, defaultValue);
         } else if (unitSchema instanceof z.ZodNumber) {
@@ -114,11 +113,9 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         let optimizeHeight:number = 0;
         for (let key in this._inputComponentDict) {
             let inputComponent = this._inputComponentDict[key];
-            let inputComponentHeight = inputComponent.component.element.clientHeight;
-            optimizeHeight += inputComponentHeight;
+            optimizeHeight += inputComponent.component.getHeight();
+            console.log(inputComponent.title() + ":",inputComponent.component.element,optimizeHeight);
         }
-
         this._squareBoardComponent.changeSize(300, optimizeHeight);
-
     }
 }

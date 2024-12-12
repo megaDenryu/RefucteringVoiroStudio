@@ -11,15 +11,12 @@ import { StringInputComponent } from "../StringInputComponent/StringInputCompone
 import { z } from "zod";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
-
-
     public readonly component: BaseComponent;
     private readonly _title : string;
+    public title():string { return this._title; }
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _inputComponentList : IInputComponet[]; //表示するInput要素のリスト
-
-    
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
         this._title = title;
@@ -60,10 +57,10 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
 
     private initialize() {
         this.component.createArrowBetweenComponents(this, this._squareBoardComponent);
-        this._squareBoardComponent.component.setZIndex(1);
+        // this._squareBoardComponent.component.setZIndex(1);
         this._inputComponentList.forEach((inputComponent) => {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, inputComponent);
-            inputComponent.component.setZIndex(2);
+            // inputComponent.component.setZIndex(2);
         });
     }
 
@@ -109,8 +106,6 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         this.component.createArrowBetweenComponents(this, newElement);
     }
 
-
-
     public optimizeBoardSize(): void {
         //子コンポーネントがIHassSquareBoardを実装している場合、先に子コンポーネントのサイズを最適化する。
         this._inputComponentList.forEach((inputComponent) => {
@@ -125,8 +120,8 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         let optimizeHeight:number = 0;
         this._inputComponentList.forEach((inputComponent) => {
             optimizeHeight += inputComponent.component.getHeight();
+            console.log(inputComponent.title() + ":",inputComponent.component.element,optimizeHeight);
         });
-
         this._squareBoardComponent.changeSize(300, optimizeHeight);
 
     }

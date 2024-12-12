@@ -5,6 +5,7 @@ import { IInputComponet } from "../IInputComponet";
 export class StringInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _title : string;
+    public title():string { return this._title; }
     private readonly _value : ReactiveProperty<string|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
@@ -43,7 +44,6 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
      */
     private Initialize() {
         this.onInitialaize();
-        console.log("StringInputComponent Initialize");
         let element = this.component.element.querySelector(".string-input");
         this.component.element.addEventListener("mousedown", (e) => {
             this.stopPropagation(e);

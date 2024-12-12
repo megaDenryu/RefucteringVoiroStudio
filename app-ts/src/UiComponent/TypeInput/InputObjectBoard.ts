@@ -81,21 +81,17 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
     }
 
     private setZIndex() {
-        this._squareBoardComponent.component.setZIndex(1);
+        // this._squareBoardComponent.component.setZIndex(1);
         // this._numberInputComponent.component.setZIndex(2);
         // this._stringInputComponent.component.setZIndex(2);
         // this._selecterInputComponent.component.setZIndex(2);
         // this._booleanInputComponent.component.setZIndex(2);
         // this._arrayInputComponent.component.setZIndex(2);
-        this._objectInputComponent.component.setZIndex(2);
+        // this._objectInputComponent.component.setZIndex(2);
 
     }
 
     public onAddedToDom() {
         this._objectInputComponent.optimizeBoardSize();
     }
-
-    
-
-
 }
