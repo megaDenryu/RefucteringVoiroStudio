@@ -1,6 +1,7 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
 import { IInputComponet } from "../IInputComponet";
+import "./StringInputComponent.css";
 
 export class StringInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;

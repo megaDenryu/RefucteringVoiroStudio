@@ -1,6 +1,7 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { IInputComponet } from "../IInputComponet";
+import "./NumberInputComponent.css";
 
 
 /// <summary>

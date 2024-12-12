@@ -4,6 +4,7 @@ import { BaseComponent, ElementCreater, HtmlElementInput, IHasComponent } from "
 import { IInputComponet } from "../IInputComponet";
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { SelecteValueInfo } from "./SelecteValueInfo";
+import "./EnumInputComponent.css";
 
 export class EnumInputComponent implements IHasComponent, IInputComponet {
 
