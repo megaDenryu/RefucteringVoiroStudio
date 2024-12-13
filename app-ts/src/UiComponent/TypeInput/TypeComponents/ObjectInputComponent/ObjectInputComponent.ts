@@ -8,6 +8,7 @@ import { IInputComponet } from "../IInputComponet";
 import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
+import "./ObjectInputComponent.css";
 
 export class ObjectInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;

@@ -1,6 +1,7 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
 import { IInputComponet } from "../IInputComponet";
+import "./BooleanInputComponent.css";
 
 
 export class BooleanInputComponent implements IHasComponent, IInputComponet {
@@ -29,7 +30,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
     /// </summary>
     private HTMLDefinition(): string {
         return `
-            <div class="boolean-input-component">
+            <div class="BooleanInputComponent">
                 <label class="switch">
                     <input type="checkbox">
                     <span class="slider round"></span>
