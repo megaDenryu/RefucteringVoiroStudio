@@ -12,16 +12,23 @@ import { ObjectInputComponent } from "./TypeComponents/ObjectInputComponent/Obje
 import "./TypeComponents/Component.css";
 
 export const VoiceRoidList = z.array(z.string());
+export const HumanState = z.object({
+    atack: z.number(),
+    emotionList: z.array(z.enum(["悲しい", "嬉しい", "怒り"])),
+    HP: z.number(),
+});
+
+export const VoiceRoidState = z.object({
+    voiceRoidList: VoiceRoidList,
+    voiceRoidStateDict: HumanState,
+});
 
 export const GameState = z.object({
     humanNumber: z.number(),
     humanList: VoiceRoidList,
-    humanStateDict: z.object({
-        atack: z.number(),
-        emotionList: z.array(z.enum(["悲しい", "嬉しい", "怒り"])),
-        HP: z.number(),
+    humanStateDict: HumanState,
+    voiceRoidState: VoiceRoidState,
 
-    })
 });
 export type GameState = z.infer<typeof GameState>;
 
@@ -64,6 +71,14 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
                 atack: 10,
                 emotionList: ["悲しい", "嬉しい", "怒り"],
                 HP: 100
+            },
+            voiceRoidState: {
+                voiceRoidList: ["結月ゆかり","初音ミク"], 
+                voiceRoidStateDict: {
+                    atack: 10,
+                    emotionList: ["悲しい", "嬉しい", "怒り"],
+                    HP: 100
+                }
             }
         }
         this._objectInputComponent = new ObjectInputComponent("ゲーム状態", GameState, gameState);

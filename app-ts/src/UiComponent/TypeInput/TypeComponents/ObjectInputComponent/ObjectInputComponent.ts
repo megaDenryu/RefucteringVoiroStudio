@@ -9,6 +9,7 @@ import { NumberInputComponent } from "../NumberInputComponent/NumberInputCompone
 import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import "./ObjectInputComponent.css";
+import { CSSProxy } from "../../../../Extend/ExtendCss";
 
 export class ObjectInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
@@ -121,7 +122,11 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
             let inputComponent = this._inputComponentDict[key];
             optimizeHeight += inputComponent.getHeight();
         }
-        this._squareBoardComponent.changeSize(700, optimizeHeight);
+        const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
+        const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
+        console.log(paddingNum);
+        this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
+       
     }
 
     public setAllchildRelative() {
@@ -133,13 +138,21 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
     }
 
     public getHeight(): number {
-        const h = this.component.element.getBoundingClientRect().height;
-        return h;
+        const rect = this.component.element.getBoundingClientRect();
+        const style = getComputedStyle(this.component.element);
+        const marginTop = parseFloat(style.marginTop);
+        const marginBottom = parseFloat(style.marginBottom);
+        const totalHeight = rect.height + marginTop + marginBottom;
+        return totalHeight;
     }
-
+    
     public getWidth(): number {
-        const w = this.component.element.getBoundingClientRect().width;
-        return w;
+        const rect = this.component.element.getBoundingClientRect();
+        const style = getComputedStyle(this.component.element);
+        const marginLeft = parseFloat(style.marginLeft);
+        const marginRight = parseFloat(style.marginRight);
+        const totalWidth = rect.width + marginLeft + marginRight;
+        return totalWidth;
     }
 
 }

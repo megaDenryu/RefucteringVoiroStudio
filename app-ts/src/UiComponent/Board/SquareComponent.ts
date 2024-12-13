@@ -29,6 +29,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
             <div class="boardTitle"> ${title} </div>
         </div>`;
         this.component = BaseComponent.createElementByString(htmlString);
+        this.component.addCSSClass(["margin"])
         this.setSize(width, height); // サイズを設定
         // this.setInitialPosition(0, 0); // 初期位置を設定
         this.addAdditionalClasses(additionalClassNames); // 追加クラスを適用
@@ -46,8 +47,9 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
                 width: ${width}px;
                 height: ${height}px;
                 background-color: #f0f0f0;
-                border: 1px solid #ccc;
+                border: 2px solid #ccc;
                 box-sizing: border-box;
+                border-radius: 15px;
             }
         `;
         this.addDynamicStyles(baseStyle);
