@@ -121,12 +121,12 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             }
         });
 
-        let optimizeHeight:number = 0;
+        let optimizeHeight:number = this._squareBoardComponent.getTitleHeight();
         this._inputComponentList.forEach((inputComponent) => {
-            optimizeHeight += inputComponent.component.getHeight();
+            optimizeHeight += inputComponent.getHeight();
             console.log(inputComponent.title() + ":",inputComponent.component.element,optimizeHeight);
         });
-        this._squareBoardComponent.changeSize(300, optimizeHeight);
+        this._squareBoardComponent.changeSize(700, optimizeHeight);
 
     }
 
@@ -136,4 +136,15 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             inputComponent.component.removeCSSClass("positionAbsolute");
         });
     }
+
+    public getHeight(): number {
+        const h = this.component.element.getBoundingClientRect().height;
+        return h;
+    }
+
+    public getWidth(): number {
+        const w = this.component.element.getBoundingClientRect().width;
+        return w;
+    }
+
 }

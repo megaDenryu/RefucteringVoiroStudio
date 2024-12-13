@@ -103,5 +103,13 @@ export class NumberInputComponent implements IHasComponent, IInputComponet {
         }
     }
 
-    
+    public getHeight(): number {
+        const h = this.component.element.getBoundingClientRect().height;
+        return h;
+    }
+
+    public getWidth(): number {
+        const w = this.component.element.getBoundingClientRect().width;
+        return w;
+    }
 }

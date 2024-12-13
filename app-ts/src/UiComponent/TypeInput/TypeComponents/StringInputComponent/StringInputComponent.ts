@@ -96,4 +96,15 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
             this._darty.set(false);
         }
     }
+
+    public getHeight(): number {
+        const h = this.component.element.getBoundingClientRect().height;
+        return h;
+    }
+
+    public getWidth(): number {
+        const w = this.component.element.getBoundingClientRect().width;
+        return w;
+    }
+
 }

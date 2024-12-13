@@ -284,15 +284,21 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         return totalHeight;
     }
 
-    private getElementHeight(element: HTMLElement): number {
-        let height = element.offsetHeight;
+    private getElementHeight(element: HTMLElement, withCalculateMargine: boolean = true): number {
+        let height = 0;
+        if (withCalculateMargine) {
+            const rect = element.getBoundingClientRect();
+            height = rect.height;
+        } else {
+            height = element.offsetHeight;
+        }
         if (!document.body.contains(this.element)) {
             console.warn('Element is not in the DOM:', this.element);
         }
         const childElements = element.children;
         for (let i = 0; i < childElements.length; i++) {
             const child = childElements[i] as HTMLElement;
-            height += this.getElementHeight(child);
+            height += this.getElementHeight(child,withCalculateMargine);
         }
 
         return height;

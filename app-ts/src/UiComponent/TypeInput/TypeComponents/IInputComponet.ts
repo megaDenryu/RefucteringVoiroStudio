@@ -7,4 +7,6 @@ export interface IInputComponet extends IHasComponent {
     getValue(): any
     isDarty(): boolean
     save(): void
+    getHeight(): number
+    getWidth(): number
 }

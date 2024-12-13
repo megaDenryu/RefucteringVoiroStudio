@@ -93,4 +93,16 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         styleElement.appendChild(document.createTextNode(style));
         document.head.appendChild(styleElement);
     }
+
+    getTitleHeight(): number {
+        const title = this.component.element.getElementsByClassName("boardTitle")[0];
+        const h = title.getBoundingClientRect().height;
+        return h;
+    }
+
+    getTitleWidth(): number {
+        const title = this.component.element.getElementsByClassName("boardTitle")[0];
+        const w = title.getBoundingClientRect().width;
+        return w;
+    }
 }

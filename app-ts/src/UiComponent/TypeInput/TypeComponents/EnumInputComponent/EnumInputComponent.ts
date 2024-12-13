@@ -69,5 +69,15 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
         this._value.set(info);
         this._darty.set(true);
     }
+
+    getHeight(): number {
+        const h = this.component.element.getBoundingClientRect().height;
+        return h;
+    }
+
+    getWidth(): number {
+        const w = this.component.element.getBoundingClientRect().width;
+        return w;
+    }
 }
 
