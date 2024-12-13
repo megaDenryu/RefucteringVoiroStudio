@@ -43,7 +43,6 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
     public setSize(width: number, height: number): void {
         const baseStyle = `
             .square-board-${this.id} {
-                position: absolute;
                 width: ${width}px;
                 height: ${height}px;
                 background-color: #f0f0f0;
@@ -93,5 +92,17 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         const styleElement = document.createElement('style');
         styleElement.appendChild(document.createTextNode(style));
         document.head.appendChild(styleElement);
+    }
+
+    getTitleHeight(): number {
+        const title = this.component.element.getElementsByClassName("boardTitle")[0];
+        const h = title.getBoundingClientRect().height;
+        return h;
+    }
+
+    getTitleWidth(): number {
+        const title = this.component.element.getElementsByClassName("boardTitle")[0];
+        const w = title.getBoundingClientRect().width;
+        return w;
     }
 }

@@ -31,7 +31,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
     private HTMLDefinition(): string {
         return `
             <div class="BooleanInputComponent">
-                <label class="switch">
+                <label class="BooleanInputComponentLabel">
                     <input type="checkbox">
                     <span class="slider round"></span>
                 </label>
@@ -40,6 +40,9 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
     }
 
     private Initialize() {
+        this.component.addCSSClass([
+            "positionAbsolute",
+        ]);
     }
 
     public addOnDartyEvent(event: (value: boolean) => void): void {
@@ -63,6 +66,16 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
             this._save.set(true);
             this._darty.set(false);
         }
+    }
+
+    public getHeight(): number {
+        const h = this.component.element.getBoundingClientRect().height;
+        return h;
+    }
+
+    public getWidth(): number {
+        const w = this.component.element.getBoundingClientRect().width;
+        return w;
     }
 
     

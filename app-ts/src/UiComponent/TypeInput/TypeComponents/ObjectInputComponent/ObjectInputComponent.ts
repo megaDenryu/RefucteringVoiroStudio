@@ -31,6 +31,8 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         let _inputComponentDict = {};
         for (let key in schema.shape) {
             let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key]);
+            
+            inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
         }
         return _inputComponentDict;
@@ -57,6 +59,10 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         for (let key in this._inputComponentDict) {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._inputComponentDict[key]);
         }
+        this.component.addCSSClass([
+            "positionAbsolute",
+        ]);
+        this.setAllchildRelative();
     }
 
     public onAddedToDom() {
@@ -110,12 +116,30 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
             }
         }
 
-        let optimizeHeight:number = 0;
+        let optimizeHeight:number = this._squareBoardComponent.getTitleHeight();
         for (let key in this._inputComponentDict) {
             let inputComponent = this._inputComponentDict[key];
-            optimizeHeight += inputComponent.component.getHeight();
-            console.log(inputComponent.title() + ":",inputComponent.component.element,optimizeHeight);
+            optimizeHeight += inputComponent.getHeight();
         }
-        this._squareBoardComponent.changeSize(300, optimizeHeight);
+        this._squareBoardComponent.changeSize(700, optimizeHeight);
     }
+
+    public setAllchildRelative() {
+        for (let key in this._inputComponentDict) {
+            let inputComponent = this._inputComponentDict[key];
+            inputComponent.component.addCSSClass("positionRelative");
+            inputComponent.component.removeCSSClass("positionAbsolute");
+        }
+    }
+
+    public getHeight(): number {
+        const h = this.component.element.getBoundingClientRect().height;
+        return h;
+    }
+
+    public getWidth(): number {
+        const w = this.component.element.getBoundingClientRect().width;
+        return w;
+    }
+
 }

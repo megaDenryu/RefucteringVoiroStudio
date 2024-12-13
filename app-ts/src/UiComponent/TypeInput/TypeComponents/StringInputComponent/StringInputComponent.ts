@@ -31,7 +31,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
     private HTMLDefinition(): string {
         return `
         <div class="StringInputComponent">
-            <label>${this._title}</label>
+            <label class="StringInputComponentLabel">${this._title}</label>
             <input 
                 type="text" 
                 value="${this._defaultValue ?? ''}"
@@ -54,6 +54,10 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
             this._value.set(target.value);
             this._darty.set(true);
         });
+
+        this.component.addCSSClass([
+            "positionAbsolute",
+        ]);
     }
 
     private stopPropagation(e: Event) {
@@ -91,6 +95,16 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
             this._save.set(true);
             this._darty.set(false);
         }
+    }
+
+    public getHeight(): number {
+        const h = this.component.element.getBoundingClientRect().height;
+        return h;
+    }
+
+    public getWidth(): number {
+        const w = this.component.element.getBoundingClientRect().width;
+        return w;
     }
 
 }

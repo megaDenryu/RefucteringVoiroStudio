@@ -1,0 +1,15 @@
+.positionRelative {
+  position: relative;
+}
+
+.positionAbsolute {
+  position: absolute;
+}
+
+.Indent {
+  margin-left: 20px;
+}
+
+.padding {
+  padding: 10px;
+}

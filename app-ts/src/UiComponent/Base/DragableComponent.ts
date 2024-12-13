@@ -28,8 +28,11 @@ export class DragMover {
         this._dragging = true;
         this._startX = e.clientX;
         this._startY = e.clientY;
-        this._offsetX = this._iHasComponent.component.element.offsetLeft;
-        this._offsetY = this._iHasComponent.component.element.offsetTop;
+
+        // 現在のスタイル値を取得
+        const computedStyle = window.getComputedStyle(this._iHasComponent.component.element);
+        this._offsetX = parseInt(computedStyle.left, 10);
+        this._offsetY = parseInt(computedStyle.top, 10);
     }
 
     private onMouseMove(e: MouseEvent) {
