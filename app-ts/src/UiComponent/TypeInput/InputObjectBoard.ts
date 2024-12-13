@@ -9,6 +9,7 @@ import { SelecteValueInfo } from "./TypeComponents/EnumInputComponent/SelecteVal
 import { NumberInputComponent } from "./TypeComponents/NumberInputComponent/NumberInputComponent";
 import { StringInputComponent } from "./TypeComponents/StringInputComponent/StringInputComponent";
 import { ObjectInputComponent } from "./TypeComponents/ObjectInputComponent/ObjectInputComponent";
+import "./TypeComponents/Component.css";
 
 export const VoiceRoidList = z.array(z.string());
 

@@ -74,6 +74,10 @@ export class NumberInputComponent implements IHasComponent, IInputComponet {
             this._darty.set(true);
             e.stopPropagation();
         });
+
+        this.component.addCSSClass([
+            "positionAbsolute",
+        ]);
     }
 
     public addOnDartyEvent(event: (value: boolean) => void): void {

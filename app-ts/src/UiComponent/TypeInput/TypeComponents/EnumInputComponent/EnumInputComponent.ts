@@ -21,7 +21,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate);
         let divHtml = ElementCreater.createElementFromHTMLString(`
             <div class="EnumInputComponent">
-                <label>${title}</label>
+                <label class="EnumInputComponentLabel">${title}</label>
             </div>
             `);
         divHtml.appendChild(selecter);
@@ -33,6 +33,10 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
         selecter.addEventListener("change", () => {
             this.setValue(selecter.value);
         });
+
+        this.component.addCSSClass([
+            "positionAbsolute",
+        ]);
     }
 
     addOnChangeEvent(event: (value: SelecteValueInfo) => void): void {

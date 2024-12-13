@@ -57,6 +57,10 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         for (let key in this._inputComponentDict) {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._inputComponentDict[key]);
         }
+        this.component.addCSSClass([
+            "positionAbsolute",
+        ]);
+        this.setAllchildRelative();
     }
 
     public onAddedToDom() {
@@ -114,8 +118,17 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         for (let key in this._inputComponentDict) {
             let inputComponent = this._inputComponentDict[key];
             optimizeHeight += inputComponent.component.getHeight();
-            console.log(inputComponent.title() + ":",inputComponent.component.element,optimizeHeight);
+            inputComponent.component.addCSSClass(["Indent","padding"]);
         }
         this._squareBoardComponent.changeSize(300, optimizeHeight);
+    }
+
+    public setAllchildRelative() {
+        for (let key in this._inputComponentDict) {
+            let inputComponent = this._inputComponentDict[key];
+            inputComponent.component.addCSSClass("positionRelative");
+            inputComponent.component.removeCSSClass("positionAbsolute");
+
+        }
     }
 }

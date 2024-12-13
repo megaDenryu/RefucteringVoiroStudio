@@ -21,8 +21,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
         this._title = title;
         this._schema = schema;
-        
-        this._squareBoardComponent = new SquareBoardComponent(title,400,600);
+        this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
         this._inputComponentList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.initialize();
@@ -31,7 +30,8 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IInputComponet[] {
         let inputComponentList : IInputComponet[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i],);
+            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i]);
+            inputComponent.component.addCSSClass(["Indent","padding"]);
             inputComponentList.push(inputComponent);
         }
         return inputComponentList;
@@ -62,6 +62,10 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, inputComponent);
             // inputComponent.component.setZIndex(2);
         });
+        this.component.addCSSClass([
+            "positionAbsolute",
+        ]);
+        this.setAllchildRelative();
     }
 
     public onAddedToDom() {
@@ -126,4 +130,10 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
 
     }
 
+    public setAllchildRelative() {
+        this._inputComponentList.forEach((inputComponent) => {
+            inputComponent.component.addCSSClass("positionRelative");
+            inputComponent.component.removeCSSClass("positionAbsolute");
+        });
+    }
 }
