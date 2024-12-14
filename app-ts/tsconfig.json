@@ -27,5 +27,8 @@
     "noFallthroughCasesInSwitch": true,
     "strictPropertyInitialization": false, // プロパティの初期化を厳格にチェックしない
     "noImplicitAny": false, // anyのエラー報告を無効化
+
+    /* Type */
+    "types": ["node"], // 型定義ファイルの指定
   },
 }

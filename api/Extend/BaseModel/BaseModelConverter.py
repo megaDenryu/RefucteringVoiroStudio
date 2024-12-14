@@ -19,6 +19,7 @@ from api.Extend.ExtendFunc import ExtendFunc
 
 
 class BaseModelConverter:
+    base_model_name: str
     jsonSchema_path: Path
     zod_path: Path
     @property
@@ -28,7 +29,12 @@ class BaseModelConverter:
 
     def __init__(self, base_model: Type[BaseModel]):
         self.base_model = base_model
+        self.base_model_name = base_model.__name__
         self.jsonSchema_path,self.zod_path = self.calcOutPath(base_model)
+
+    def runProcess(self):
+        self.convert()
+        self.run_tsx_command("main.ts")
 
     def calcOutPath(self, base_model: Type[BaseModel]):
         # ここで出力先のtsのパスを計算する
@@ -62,7 +68,7 @@ class BaseModelConverter:
         try:
             # cd C:\Users\pokr301qup\python_dev\VoiroStudio\RefucteringVoiroStudio\app-ts を実行する
             result = subprocess.run(
-                f'cd {str(self.appTsRoot)} && npx tsx {path}',
+                f'cd {str(self.appTsRoot)} && npx tsx {path} --modelName={self.base_model_name} --jsonSchemaPath={str(self.jsonSchema_path)} ---zodTsPath={str(self.zod_path)}',
                 shell=True,
                 check=True,
                 capture_output=True,
