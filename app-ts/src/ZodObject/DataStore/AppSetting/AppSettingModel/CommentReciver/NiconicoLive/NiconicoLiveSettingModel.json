@@ -1,0 +1,13 @@
+{
+    "properties": {
+        "URL": {
+            "title": "Url",
+            "type": "string"
+        }
+    },
+    "required": [
+        "URL"
+    ],
+    "title": "NiconicoLiveSettingModel",
+    "type": "object"
+}

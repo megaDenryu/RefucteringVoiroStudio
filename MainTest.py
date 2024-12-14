@@ -4,9 +4,12 @@ from pprint import pprint
 from api.AppSettingJson.CharacterDestination.CharacterDestinationCollection import CharacterDestinationCollectionTest
 from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollectionTest
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
+from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.NiconicoLive.NiconicoLiveSettingModel import NiconicoLiveSettingModel
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
+from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
 from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
@@ -146,7 +149,8 @@ def 構造化apiテスト():
 
 if __name__ == "__main__":
     # タスクグラフのテスト()
-    CharacterDestinationCollectionTest.目的設定を生成するてすと()
+    # CharacterDestinationCollectionTest.目的設定を生成するてすと()
+    BaseModelConverterTest.Zodを出力するテスト(NiconicoLiveSettingModel)
 
 
 

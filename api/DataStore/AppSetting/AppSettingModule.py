@@ -1,6 +1,6 @@
+from pydantic import BaseModel
 from starlette.websockets import WebSocket
 from enum import Enum
-import pydantic
 from api.DataStore.JsonAccessor import JsonAccessor
 
 class PageMode(str, Enum):
@@ -18,7 +18,6 @@ class ConnectionStatus:
         self.ws = ws
         self.page_mode = page_mode
         self.setting_mode = setting_mode
-
 
 class AppSettingModule:
     def __init__(self):
