@@ -4,14 +4,22 @@ from pprint import pprint
 from api.AppSettingJson.CharacterDestination.CharacterDestinationCollection import CharacterDestinationCollectionTest
 from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollectionTest
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
+from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
+from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.CommentReceiveSettingModel import CommentReceiveSettingModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.NiconicoLive.NiconicoLiveSettingModel import NiconicoLiveSettingModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.TwitchLive.TwitchSettingModel import TwitchSettingModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.YoutubeLiveSettingModel import YoutubeLiveSettingModel
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
+from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
 from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.gptAI.AIRubiConverter import AIRubiConverterTest
 from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
@@ -19,7 +27,7 @@ from api.gptAI.HumanInfoValueObject import ICharacterName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection, InitMemoryCollectionTest
-
+from pydantic.fields import FieldInfo
 
 
 def test1():
@@ -146,7 +154,9 @@ def 構造化apiテスト():
 
 if __name__ == "__main__":
     # タスクグラフのテスト()
-    CharacterDestinationCollectionTest.目的設定を生成するてすと()
+    # CharacterDestinationCollectionTest.目的設定を生成するてすと()
+    
+
 
 
 

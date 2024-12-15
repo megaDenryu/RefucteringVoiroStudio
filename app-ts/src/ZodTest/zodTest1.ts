@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { NiconicoLiveSettingModel } from "../ZodObject/DataStore/AppSetting/AppSettingModel/CommentReciver/NiconicoLive/NiconicoLiveSettingModel";
+import { YoutubeLiveSettingModel } from "../ZodObject/DataStore/AppSetting/AppSettingModel/CommentReciver/YoutubeLive/YoutubeLiveSettingModel";
+import { TwitchSettingModel } from "../ZodObject/DataStore/AppSetting/AppSettingModel/CommentReciver/TwitchLive/TwitchSettingModel";
+import { CommentReceiveSettingModel } from "../ZodObject/DataStore/AppSetting/AppSettingModel/CommentReciver/CommentReceiveSettingModel";
 
 // Enumの定義
 const Role = z.enum(["Admin", "User", "Guest"]);
@@ -51,4 +55,20 @@ try {
   console.log("バリデーション成功！");
 } catch (e) {
   console.error("バリデーション失敗:", e.errors);
+}
+
+
+let niconamaSetting: NiconicoLiveSettingModel = {
+  配信URL: "https://live.nicovideo.jp/watch/lv123456789",
+}
+
+let YoutubeLiveSetting: YoutubeLiveSettingModel = {
+  配信URL: "https://www.youtube.com/watch?v=123456789",
+}
+
+let TwitchLiveSetting: TwitchSettingModel = { 配信URL: "https://www.twitch.tv/username" };
+let commentReceiveSettingModel: CommentReceiveSettingModel = {
+  ニコニコ生放送: niconamaSetting,
+  YoutubeLive: YoutubeLiveSetting,
+  Twitch: TwitchLiveSetting,
 }

@@ -1,0 +1,12 @@
+{
+    "properties": {
+        "配信URL": {
+            "default": "test_twitch",
+            "description": "Twitch配信URLを入力してください",
+            "title": "Twitch配信URL",
+            "type": "string"
+        }
+    },
+    "title": "TwitchSettingModel",
+    "type": "object"
+}

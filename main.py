@@ -3,6 +3,8 @@ import os
 import random
 import sys
 from pathlib import Path
+from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
+from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
@@ -15,7 +17,7 @@ from api.images.image_manager.IHumanPart import HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.DataStore.AppSettingModule import AppSettingModule, PageMode
+from api.DataStore.AppSetting.AppSettingModule import AppSettingModule, PageMode
 from api.Epic.Epic import Epic
 from api.DataStore.Memo import Memo
 
@@ -879,6 +881,12 @@ async def push_to_connected_websockets(message: str):
 async def startup():
     # プッシュ通知の準備
     await notifier.generator.asend(None)
+
+@app.post("/appSettingInit")
+async def appSettingInit(appSettingInitReq: AppSettingInitReq):
+    saveData:dict = {}
+    appSetting = AppSettingsModel(**saveData)
+    return appSetting
 
 # 設定の状態を取得、管理、配信するAPI
 @app.websocket("/settingStore/{client_id}/{setting_name}/{mode_name}")

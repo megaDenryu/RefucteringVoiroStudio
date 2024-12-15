@@ -1,0 +1,12 @@
+{
+    "properties": {
+        "配信URL": {
+            "default": "test_youtube",
+            "description": "Youtubeの配信URLを入力してください",
+            "title": "Youtube配信URL",
+            "type": "string"
+        }
+    },
+    "title": "YoutubeLiveSettingModel",
+    "type": "object"
+}

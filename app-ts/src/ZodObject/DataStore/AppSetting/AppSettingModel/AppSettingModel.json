@@ -1,0 +1,62 @@
+{
+    "$defs": {
+        "CommentReceiveSettingModel": {
+            "properties": {
+                "ニコニコ生放送": {
+                    "$ref": "#/$defs/NiconicoLiveSettingModel"
+                },
+                "YoutubeLive": {
+                    "$ref": "#/$defs/YoutubeLiveSettingModel"
+                },
+                "Twitch": {
+                    "$ref": "#/$defs/TwitchSettingModel"
+                }
+            },
+            "title": "CommentReceiveSettingModel",
+            "type": "object"
+        },
+        "NiconicoLiveSettingModel": {
+            "properties": {
+                "配信URL": {
+                    "default": "test_niconico",
+                    "description": "ニコ生の配信URLを入力してください",
+                    "title": "ニコ生配信URL",
+                    "type": "string"
+                }
+            },
+            "title": "NiconicoLiveSettingModel",
+            "type": "object"
+        },
+        "TwitchSettingModel": {
+            "properties": {
+                "配信URL": {
+                    "default": "test_twitch",
+                    "description": "Twitch配信URLを入力してください",
+                    "title": "Twitch配信URL",
+                    "type": "string"
+                }
+            },
+            "title": "TwitchSettingModel",
+            "type": "object"
+        },
+        "YoutubeLiveSettingModel": {
+            "properties": {
+                "配信URL": {
+                    "default": "test_youtube",
+                    "description": "Youtubeの配信URLを入力してください",
+                    "title": "Youtube配信URL",
+                    "type": "string"
+                }
+            },
+            "title": "YoutubeLiveSettingModel",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "コメント受信設定": {
+            "$ref": "#/$defs/CommentReceiveSettingModel"
+        }
+    },
+    "title": "AppSettingsModel",
+    "type": "object"
+}

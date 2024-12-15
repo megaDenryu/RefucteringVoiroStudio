@@ -11,5 +11,9 @@
 }
 
 .padding {
-  padding: 10px;
+  padding: 5px;
+}
+
+.margin {
+  margin: 5px;
 }
