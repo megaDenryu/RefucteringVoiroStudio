@@ -19,6 +19,7 @@ from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.gptAI.AIRubiConverter import AIRubiConverterTest
 from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
@@ -26,7 +27,7 @@ from api.gptAI.HumanInfoValueObject import ICharacterName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection, InitMemoryCollectionTest
-
+from pydantic.fields import FieldInfo
 
 
 def test1():
@@ -154,13 +155,6 @@ def 構造化apiテスト():
 if __name__ == "__main__":
     # タスクグラフのテスト()
     # CharacterDestinationCollectionTest.目的設定を生成するてすと()
-    BaseModelConverterTest.Zodを出力する本番(AppSettingsModel)
-    BaseModelConverterTest.Zodを出力する本番(CommentReceiveSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(NiconicoLiveSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(YoutubeLiveSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(TwitchSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(AppSettingInitReq)
-
     
 
 

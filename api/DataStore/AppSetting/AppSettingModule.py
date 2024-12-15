@@ -1,6 +1,12 @@
 from pydantic import BaseModel
 from starlette.websockets import WebSocket
 from enum import Enum
+from api.DataStore.AppSetting import AppSettingModel
+from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.CommentReceiveSettingModel import CommentReceiveSettingModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.NiconicoLive.NiconicoLiveSettingModel import NiconicoLiveSettingModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.TwitchLive.TwitchSettingModel import TwitchSettingModel
+from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.YoutubeLiveSettingModel import YoutubeLiveSettingModel
 from api.DataStore.JsonAccessor import JsonAccessor
 
 class PageMode(str, Enum):
@@ -60,6 +66,15 @@ class AppSettingModule:
     
     def saveSetting(self, setting):
         JsonAccessor.saveAppSetting(setting)
+
+    def getInitSetting(self):
+        return AppSettingsModel(
+            コメント受信設定 = CommentReceiveSettingModel(
+                ニコニコ生放送 =NiconicoLiveSettingModel(配信URL=""),
+                YoutubeLive =YoutubeLiveSettingModel(配信URL=""),
+                Twitch =TwitchSettingModel(配信URL="")
+            )
+        )
 
 
 
