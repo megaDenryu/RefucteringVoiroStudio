@@ -1,0 +1,61 @@
+{
+    "$defs": {
+        "NiconicoLiveSettingModel": {
+            "properties": {
+                "配信URL": {
+                    "title": "配信Url",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "配信URL"
+            ],
+            "title": "NiconicoLiveSettingModel",
+            "type": "object"
+        },
+        "TwitchSettingModel": {
+            "properties": {
+                "配信URL": {
+                    "title": "配信Url",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "配信URL"
+            ],
+            "title": "TwitchSettingModel",
+            "type": "object"
+        },
+        "YoutubeLiveSettingModel": {
+            "properties": {
+                "配信URL": {
+                    "title": "配信Url",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "配信URL"
+            ],
+            "title": "YoutubeLiveSettingModel",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "ニコニコ生放送": {
+            "$ref": "#/$defs/NiconicoLiveSettingModel"
+        },
+        "YoutubeLive": {
+            "$ref": "#/$defs/YoutubeLiveSettingModel"
+        },
+        "Twitch": {
+            "$ref": "#/$defs/TwitchSettingModel"
+        }
+    },
+    "required": [
+        "ニコニコ生放送",
+        "YoutubeLive",
+        "Twitch"
+    ],
+    "title": "CommentReceiveSettingModel",
+    "type": "object"
+}

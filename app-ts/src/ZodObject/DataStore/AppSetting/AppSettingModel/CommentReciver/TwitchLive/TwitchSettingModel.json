@@ -8,6 +8,6 @@
     "required": [
         "配信URL"
     ],
-    "title": "NiconicoLiveSettingModel",
+    "title": "TwitchSettingModel",
     "type": "object"
 }

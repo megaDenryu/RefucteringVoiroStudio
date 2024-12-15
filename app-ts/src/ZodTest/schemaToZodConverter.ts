@@ -42,7 +42,7 @@ export class JsonSchemaToZodConverter {
         return `
         import { z } from 'zod';
         export const ${modelName} = ${zodSchema};
-        export type ${modelName}Type = z.infer<typeof ${modelName}>;
+        export type ${modelName} = z.infer<typeof ${modelName}>;
     `;
     }
 }

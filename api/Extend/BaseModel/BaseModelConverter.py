@@ -100,3 +100,7 @@ class BaseModelConverterTest:
         #  npx tsx .\main.tsを実行する
         BaseModelConverter(base_model).run_tsx_command("main.ts")
 
+    @staticmethod
+    def Zodを出力する本番(base_model: Type[BaseModel]):
+        json_schema = BaseModelConverter(base_model).runProcess()
+
