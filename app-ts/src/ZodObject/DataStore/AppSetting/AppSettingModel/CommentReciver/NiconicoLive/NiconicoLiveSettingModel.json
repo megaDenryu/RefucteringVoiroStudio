@@ -1,13 +1,12 @@
 {
     "properties": {
         "配信URL": {
-            "title": "配信Url",
+            "default": "test_niconico",
+            "description": "ニコ生の配信URLを入力してください",
+            "title": "ニコ生配信URL",
             "type": "string"
         }
     },
-    "required": [
-        "配信URL"
-    ],
     "title": "NiconicoLiveSettingModel",
     "type": "object"
 }
