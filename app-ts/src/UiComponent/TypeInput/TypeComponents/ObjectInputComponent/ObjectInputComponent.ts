@@ -52,8 +52,14 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
             return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string));
         } else if (unitSchema instanceof z.ZodObject) {
             return new ObjectInputComponent(title, unitSchema, defaultValue as {});
+        } else if (unitSchema instanceof z.ZodOptional) {
+            // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う
+            return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue);
+        } else if (unitSchema instanceof z.ZodDefault) {
+            // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
+            return this.createDefaultInputComponent(title, unitSchema._def.innerType, unitSchema._def.defaultValue());
         }
-        throw new Error("未対応の型です。");
+        throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }
 
     private initialize() {

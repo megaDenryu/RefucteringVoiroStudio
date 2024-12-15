@@ -3,9 +3,11 @@ import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents
 import { AppSettingsModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingModel";
 import { RequestAPI } from "../../Web/RequestApi";
 import { AppSettingInitReq } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingInitReq";
+import { generateDefaultObject } from "../../Extend/ZodExtend/ZodExtend";
 
 
 export class SettingPage  {
+    private testMode: boolean = true
     public readonly title = "全体設定"
     private _appSettingModel: AppSettingsModel
     private _appSettingComponent: ObjectInputComponent
@@ -15,7 +17,12 @@ export class SettingPage  {
     }
 
     async initialize() {
-        this._appSettingModel = await this.requestAppSettingModel()
+        if (this.testMode) {
+            this._appSettingModel = generateDefaultObject(AppSettingsModel)//AppSettingsModel.parse({});
+            console.log("test",this._appSettingModel) // {}が返ってくる
+        } else {
+            this._appSettingModel = await this.requestAppSettingModel()
+        }
         this._appSettingComponent = new ObjectInputComponent(this.title, AppSettingsModel, this._appSettingModel)
         document.body.appendChild(this._appSettingComponent.component.element)
     }
