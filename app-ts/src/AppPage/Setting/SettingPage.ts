@@ -6,6 +6,7 @@ import { AppSettingInitReq } from "../../ZodObject/DataStore/AppSetting/AppSetti
 import { generateDefaultObject } from "../../Extend/ZodExtend/ZodExtend";
 import "../../UiComponent/TypeInput/TypeComponents/Component.css";
 
+//todo : 保存処理とかをする必要がある。
 
 export class SettingPage  {
     private testMode: boolean = true

@@ -1,0 +1,19 @@
+.toggle-format-state-display {
+    border: 2px solid black;
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+    height: 100px;
+}
+
+.toggle-format-state-display.red {
+    background-color: red;
+}
+
+.toggle-format-state-display.green {
+    background-color: green;
+}
+
+.toggle-format-state-display.blue {
+    background-color: blue;
+}
