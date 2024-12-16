@@ -25,6 +25,7 @@ export class SettingPage  {
         }
         this._appSettingComponent = new ObjectInputComponent(this.title, AppSettingsModel, this._appSettingModel)
         document.body.appendChild(this._appSettingComponent.component.element)
+        this.onAddedToDom()
     }
 
     public async requestAppSettingModel(): Promise<AppSettingsModel> {
@@ -48,6 +49,10 @@ export class SettingPage  {
         const json:string = await response.json();
         const appSettingsModel:AppSettingsModel = JSON.parse(json);
         return appSettingsModel;
+    }
+
+    onAddedToDom() {
+        this._appSettingComponent.onAddedToDom()
     }
 }
 
