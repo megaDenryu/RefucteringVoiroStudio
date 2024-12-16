@@ -4,6 +4,7 @@ import { AppSettingsModel } from "../../ZodObject/DataStore/AppSetting/AppSettin
 import { RequestAPI } from "../../Web/RequestApi";
 import { AppSettingInitReq } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingInitReq";
 import { generateDefaultObject } from "../../Extend/ZodExtend/ZodExtend";
+import "../../UiComponent/TypeInput/TypeComponents/Component.css";
 
 
 export class SettingPage  {
