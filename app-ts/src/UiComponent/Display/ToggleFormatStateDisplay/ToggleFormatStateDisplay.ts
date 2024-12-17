@@ -4,7 +4,7 @@ import { ReactiveProperty } from "../../../BaseClasses/observer";
 import "./ToggleFormatStateDisplay.css";
 
 // CSSクラスを操作するためのEnumの定義
-const ColorEnum = z.enum(["red", "green", "blue"]);
+export const ColorEnum = z.enum(["red", "green", "blue"]);
 
 /**
  * 四角いボードに状態を示す文字を表示する。
@@ -69,26 +69,30 @@ export class ToggleFormatStateDisplay<T extends ZodEnum<any>> implements IHasCom
 }
 
 
-export function ToggleFormatStateDisplayの使い方(){
+export function ToggleFormatStateDisplayの使い方() {
     // Zod Enumの定義
     const StateEnum = z.enum(["未保存", "保存済み"]);
-    const AnotherStateEnum = z.enum(["開始", "終了"]);
 
     // ToggleFormatStateDisplayのインスタンスを作成
-    const stateDisplay1 = new ToggleFormatStateDisplay<typeof StateEnum>("状態表示", "未保存", "red");
-    const stateDisplay2 = new ToggleFormatStateDisplay<typeof AnotherStateEnum>("別の状態表示", "開始", "green");
-    const button = document.createElement("button");
+    const stateDisplay = new ToggleFormatStateDisplay<typeof StateEnum>("状態表示", "未保存", "red");
 
-    // 状態の変更
-    stateDisplay1.setState("保存済み");
-    stateDisplay1.setColor("blue");
+    // ボタンを生成
+    const saveButton = document.createElement("button");
+    saveButton.textContent = "保存";
+    saveButton.onclick = () => {
+        stateDisplay.setState("保存済み");
+        stateDisplay.setColor("green");
+    };
 
-    stateDisplay2.setState("終了");
-    stateDisplay2.setColor("red");
+    const unsaveButton = document.createElement("button");
+    unsaveButton.textContent = "未保存";
+    unsaveButton.onclick = () => {
+        stateDisplay.setState("未保存");
+        stateDisplay.setColor("red");
+    };
 
-    console.log(stateDisplay1.getState()); // "保存済み"
-    console.log(stateDisplay1.getColor()); // "blue"
-
-    console.log(stateDisplay2.getState()); // "終了"
-    console.log(stateDisplay2.getColor()); // "red"
+    // DOMに追加
+    document.body.appendChild(stateDisplay.component.element);
+    document.body.appendChild(saveButton);
+    document.body.appendChild(unsaveButton);
 }
