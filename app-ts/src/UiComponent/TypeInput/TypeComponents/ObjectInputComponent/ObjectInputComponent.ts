@@ -10,6 +10,7 @@ import { StringInputComponent } from "../StringInputComponent/StringInputCompone
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import "./ObjectInputComponent.css";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
+import "../Component.css";
 
 export class ObjectInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
