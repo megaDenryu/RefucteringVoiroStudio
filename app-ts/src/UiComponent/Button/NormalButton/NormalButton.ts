@@ -6,7 +6,7 @@ import { inherits } from "util";
 
 export const NormaButtonViewEnum = z.enum(["normal", "warning", "danger"]);
 
-class NormaButton {
+export class NormalButton {
     component: BaseComponent;
     private _title: string;
     private _view: ReactiveProperty<z.infer<typeof NormaButtonViewEnum>>;
@@ -32,5 +32,9 @@ class NormaButton {
             element.classList.remove("normal", "warning", "danger");
             element.classList.add(newView);
         });
+    }
+
+    public addOnClickEvent(f: () => void) {
+        this._onClick.push(f);
     }
 }

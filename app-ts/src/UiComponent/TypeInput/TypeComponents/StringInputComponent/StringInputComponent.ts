@@ -1,10 +1,17 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
+import { NormalButton } from "../../../Button/NormalButton/NormalButton";
+import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
 import { IInputComponet } from "../IInputComponet";
+import { SaveState } from "../SaveState";
 import "./StringInputComponent.css";
+
+
 
 export class StringInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
+    private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
+    private readonly _NormalButton: NormalButton
     private readonly _title : string;
     public title():string { return this._title; }
     private readonly _value : ReactiveProperty<string|null>;
@@ -21,6 +28,8 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
         this._save = new ReactiveProperty(false);
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition());
         this.component = new BaseComponent(html);
+        this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
+        this._NormalButton = new NormalButton("Save", "normal");
         this.Initialize();
     }
 
@@ -58,6 +67,23 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
         this.component.addCSSClass([
             "positionAbsolute",
         ]);
+
+        this._NormalButton.addOnClickEvent(() => {
+            this.save();
+        });
+
+        this._darty.addMethod((value) => {
+            if (value) {
+                this._toggleFormatStateDisplay.setState("未保存");
+                this._toggleFormatStateDisplay.setColor("red");
+            } else {
+                this._toggleFormatStateDisplay.setState("保存済み");
+                this._toggleFormatStateDisplay.setColor("green");
+            }
+        });
+
+        this.component.element.appendChild(this._toggleFormatStateDisplay.component.element);
+        this.component.element.appendChild(this._NormalButton.component.element);
     }
 
     private stopPropagation(e: Event) {
