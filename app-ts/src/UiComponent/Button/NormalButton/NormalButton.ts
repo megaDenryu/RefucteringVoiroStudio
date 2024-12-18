@@ -6,22 +6,22 @@ import { inherits } from "util";
 
 export const NormaButtonViewEnum = z.enum(["normal", "warning", "danger"]);
 
-class NormaButton {
+export class NormalButton {
     component: BaseComponent;
     private _title: string;
     private _view: ReactiveProperty<z.infer<typeof NormaButtonViewEnum>>;
-    private _onClick: (() => void)[];
+    private _onClick: (() => void)[] = [];
     
     constructor(title: string, defaultView: z.infer<typeof NormaButtonViewEnum>) {
         this._title = title;
         this._view = new ReactiveProperty(defaultView);
-        let html = ElementCreater.createButtonElement("normal", this.onClick);
+        let html = ElementCreater.createButtonElement(this._title, this.onClick.bind(this));
         this.component = new BaseComponent(html);
         this.initialize();
     }
 
-    private onClick():void {
-        this._onClick.forEach((f) => {
+    public onClick():void {
+        this._onClick.forEach(f => {
             f();
         });
     }
@@ -32,5 +32,9 @@ class NormaButton {
             element.classList.remove("normal", "warning", "danger");
             element.classList.add(newView);
         });
+    }
+
+    public addOnClickEvent(f: (() => void)): void {
+        this._onClick.push(f);
     }
 }

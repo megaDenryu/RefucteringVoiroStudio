@@ -29,7 +29,6 @@ export class ToggleFormatStateDisplay<T extends ZodEnum<any>> implements IHasCom
     private HTMLDefinition(): string {
         return `
             <div class="toggle-format-state-display ${this._color.get()}">
-                <div class="title">${this._title}</div>
                 <div class="state">${this._state.get()}</div>
             </div>
         `;
