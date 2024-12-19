@@ -1,0 +1,27 @@
+.toggle-format-state-display {
+    border: 2px solid black;
+    width: 80px;
+    height: 20px;
+    display: inline-block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial', sans-serif; /* 優しいフォント */
+    font-size: 14px; /* フォントサイズを調整 */
+    border-radius: 5px; /* 角を丸くする */
+}
+
+.toggle-format-state-display.red {
+    background-color: red;
+    color: white; /* 文字色を白にする */
+}
+
+.toggle-format-state-display.green {
+    background-color: green;
+    color: white; /* 文字色を白にする */
+}
+
+.toggle-format-state-display.blue {
+    background-color: blue;
+    color: white; /* 文字色を白にする */
+}

@@ -1,6 +1,7 @@
 import { ExtendFunction } from "../../Extend/extend";
 import { IDragAble, DragMover } from "../Base/DragableComponent";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
+import "./SquareComponent.css";
 
 /**
  * 四角形のボードのコンポーネント
@@ -26,7 +27,9 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         this.id = id ?? ExtendFunction.uuid();
         const htmlString = `
         <div class="square-board-${this.id}">
-            <div class="boardTitle"> ${title} </div>
+            <div class="SquareBoardHeader">
+                <div class="boardTitle"> ${title} </div>
+            </div>
         </div>`;
         this.component = BaseComponent.createElementByString(htmlString);
         this.component.addCSSClass(["margin"])
@@ -107,4 +110,10 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         const w = title.getBoundingClientRect().width;
         return w;
     }
+
+    public addComponentToHeader(component: IHasComponent): void {
+        this.component.createArrowBetweenComponents(this, component, "SquareBoardHeader");
+    }
+
+
 }

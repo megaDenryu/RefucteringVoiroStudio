@@ -1,2 +1,17 @@
 .BooleanInputComponent {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 要素間のスペースを追加 */
+}
+
+.BooleanInputComponentLabel {
+    margin-right: 10px; /* ラベルとインプットの間にスペースを追加 */
+}
+
+.BooleanInputCheckBox {
+    flex: 0.5; /* インプット要素を可能な限り広げる */
+}
+
+button {
+    margin-left: 10px; /* ボタンと他の要素の間にスペースを追加 */
 }

@@ -32,8 +32,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
         return `
             <div class="BooleanInputComponent">
                 <label class="BooleanInputComponentLabel">
-                    <input type="checkbox">
-                    <span class="slider round"></span>
+                    <input class="BooleanInputCheckBox" type="checkbox">
                 </label>
             </div>
         `;

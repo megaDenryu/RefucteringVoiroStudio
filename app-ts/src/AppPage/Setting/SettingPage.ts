@@ -5,7 +5,10 @@ import { RequestAPI } from "../../Web/RequestApi";
 import { AppSettingInitReq } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingInitReq";
 import { generateDefaultObject } from "../../Extend/ZodExtend/ZodExtend";
 import "../../UiComponent/TypeInput/TypeComponents/Component.css";
+import { ToggleFormatStateDisplay, ToggleFormatStateDisplayの使い方 } from "../../UiComponent/Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
+import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 
+//todo : 保存処理とかをする必要がある。
 
 export class SettingPage  {
     private testMode: boolean = true

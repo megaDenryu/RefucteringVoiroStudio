@@ -1,2 +1,17 @@
 .ObjectInputComponent {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 要素間のスペースを追加 */
+}
+
+.ObjectInputComponentLabel {
+    margin-right: 10px; /* ラベルとインプットの間にスペースを追加 */
+}
+
+.string-input {
+    flex: 0.5; /* インプット要素を可能な限り広げる */
+}
+
+button {
+    margin-left: 10px; /* ボタンと他の要素の間にスペースを追加 */
 }

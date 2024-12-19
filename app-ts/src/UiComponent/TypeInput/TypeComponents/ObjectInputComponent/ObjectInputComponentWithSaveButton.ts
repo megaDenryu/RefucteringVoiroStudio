@@ -11,10 +11,19 @@ import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import "./ObjectInputComponent.css";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
 import "../Component.css";
+import { NormalButton } from "../../../Button/NormalButton/NormalButton";
+import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
+import { SaveState } from "../SaveState";
+import { StringInputComponentWithSaveButton } from "../StringInputComponent/StringInputComponentWithSaveButton";
+import { NumberInputComponentWithSaveButton } from "../NumberInputComponent/NumberInputComponentWithSaveButton";
+import { EnumInputComponentWithSaveButton } from "../EnumInputComponent/EnumInputComponentWithSaveButton";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
+import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayInputComponentWithSaveButton";
+import { ObjectInputComponent } from "./ObjectInputComponent";
 
-export class ObjectInputComponent implements IHasComponent, IInputComponet {
+export class ObjectInputComponentWithSaveButton implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
+    private readonly _NormalButton: NormalButton
     private readonly _title : string;
     public title():string { return this._title; }
     private readonly _schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;;
@@ -26,6 +35,7 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
+        this._NormalButton = new NormalButton("全体保存", "normal");
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.initialize();
     }
@@ -42,10 +52,11 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
     }
 
     private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
-        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+        return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
     }
 
     private initialize() {
+        this._squareBoardComponent.addComponentToHeader(this._NormalButton);
         for (let key in this._inputComponentDict) {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._inputComponentDict[key]);
         }
@@ -53,6 +64,12 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
             "positionAbsolute",
         ]);
         this.setAllchildRelative();
+
+        this._NormalButton.addOnClickEvent(() => {
+            this.save();
+        });
+
+        
     }
 
     public onAddedToDom() {
@@ -99,9 +116,15 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         for (let key in this._inputComponentDict) {
             let inputComponent = this._inputComponentDict[key];
             if (inputComponent instanceof ArrayInputComponent) {
-                inputComponent.optimizeBoardSize();
+                            inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
                 inputComponent.optimizeBoardSize();
             }
         }

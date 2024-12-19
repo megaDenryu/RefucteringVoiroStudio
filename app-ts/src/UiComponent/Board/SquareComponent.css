@@ -1,0 +1,15 @@
+/* 新しいスタイルを追加 */
+.SquareBoardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.boardTitle {
+    flex: 0.2;
+}
+
+.SquareBoardHeader button {
+    flex: 0.8;
+}

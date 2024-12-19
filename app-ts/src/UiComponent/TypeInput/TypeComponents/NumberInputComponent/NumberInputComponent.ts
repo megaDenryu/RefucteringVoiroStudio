@@ -52,25 +52,25 @@ export class NumberInputComponent implements IHasComponent, IInputComponet {
                 max="${max}" 
                 step="${step}" 
                 value="${this._defaultValue ?? min}"
-                class="slider"
+                class="NumberInputSlider"
             >
-            <span class="slider-value">${this._value.get()}</span>
+            <span class="NumberInputSliderValue">${this._value.get()}</span>
         </div>`;
     }
 
     private Initialize() {
-        const slider = this.component.element.querySelector(".slider");
+        const numberInputSlider = this.component.element.querySelector(".NumberInputSlider");
         
         // mousedownイベントの伝播を止める
-        slider?.addEventListener("mousedown", (e) => {
+        numberInputSlider?.addEventListener("mousedown", (e) => {
             e.stopPropagation();
         });
     
         // inputイベントのハンドリング
-        slider?.addEventListener("input", (e) => {
+        numberInputSlider?.addEventListener("input", (e) => {
             let target = e.target as HTMLInputElement;
             this._value.set(Number(target.value));
-            this.component.element.querySelector(".slider-value")!.textContent = (this._value.get()??this._min).toString();
+            this.component.element.querySelector(".NumberInputSliderValue")!.textContent = (this._value.get()??this._min).toString();
             this._darty.set(true);
             e.stopPropagation();
         });

@@ -2,6 +2,8 @@ import { CSSProxy } from "../../../../Extend/ExtendCss";
 import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
+import { NormalButton } from "../../../Button/NormalButton/NormalButton";
+import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
 import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
@@ -9,11 +11,14 @@ import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { IInputComponet } from "../IInputComponet";
 import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
+import { SaveState } from "../SaveState";
 import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { z } from "zod";
+import { ArrayInputComponent } from "./ArrayInputComponent";
 
-export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
+export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
+    private readonly _NormalButton: NormalButton
     private readonly _title : string;
     public title():string { return this._title; }
     private readonly _schema: z.ZodArray<UnitType>;
@@ -25,6 +30,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
+        this._NormalButton = new NormalButton("保存", "normal");
         this._inputComponentList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.initialize();
     }
@@ -40,19 +46,24 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     }
 
     private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IInputComponet {
-        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+        //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
+        return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
     }
 
     private initialize() {
-        // this._squareBoardComponent.component.setZIndex(1);
+        this._squareBoardComponent.addComponentToHeader(this._NormalButton);
         this._inputComponentList.forEach((inputComponent) => {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, inputComponent);
-            // inputComponent.component.setZIndex(2);
         });
         this.component.addCSSClass([
             "positionAbsolute",
         ]);
         this.setAllchildRelative();
+
+        this._NormalButton.addOnClickEvent(() => {
+            this.save();
+        });
+
     }
 
     public onAddedToDom() {
