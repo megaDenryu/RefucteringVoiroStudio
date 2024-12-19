@@ -8,7 +8,7 @@ import "./StringInputComponent.css";
 
 
 
-export class StringInputComponent implements IHasComponent, IInputComponet {
+export class StringInputComponentWithSaveButton implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
     private readonly _NormalButton: NormalButton

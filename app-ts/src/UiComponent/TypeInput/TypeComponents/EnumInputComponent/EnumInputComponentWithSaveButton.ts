@@ -62,46 +62,46 @@ export class EnumInputComponentWithSaveButton implements IHasComponent, IInputCo
         this.component.createArrowBetweenComponents(this, this._toggleFormatStateDisplay);
     }
 
-    addOnChangeEvent(event: (value: SelecteValueInfo) => void): void {
+    public addOnChangeEvent(event: (value: SelecteValueInfo) => void): void {
         this._value.addMethod(event);
     }
 
-    addOnDartyEvent(event: (value: boolean) => void): void {
+    public addOnDartyEvent(event: (value: boolean) => void): void {
         this._darty.addMethod(event);
     }
 
-    addOnSaveEvent(event: (value: boolean) => void): void {
+    public addOnSaveEvent(event: (value: boolean) => void): void {
         this._save.addMethod(event);
     }
 
-    getValue(): SelecteValueInfo {
+    public getValue(): SelecteValueInfo {
         return this._value.get();
     }
 
-    isDarty(): boolean {
+    public isDarty(): boolean {
         return this._darty.get();
     }
 
-    save(): void {
+    public save(): void {
         if (this._darty.get() == true) {
             this._save.set(true);
             this._darty.set(false);
         }
     }
 
-    setValue(value: string): void {
+    public setValue(value: string): void {
         let info = this._value.get();
         info.value = value;
         this._value.set(info);
         this._darty.set(true);
     }
 
-    getHeight(): number {
+    public getHeight(): number {
         const h = this.component.element.getBoundingClientRect().height;
         return h;
     }
 
-    getWidth(): number {
+    public getWidth(): number {
         const w = this.component.element.getBoundingClientRect().width;
         return w;
     }

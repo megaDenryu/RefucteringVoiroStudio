@@ -11,6 +11,7 @@ import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import "./ObjectInputComponent.css";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
 import "../Component.css";
+import { TypeComponentFactory } from "../../TypeComponentFactory";
 
 export class ObjectInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
@@ -41,26 +42,7 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
     }
 
     private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
-        if (unitSchema instanceof z.ZodString) {
-            return new StringInputComponent(title, defaultValue);
-        } else if (unitSchema instanceof z.ZodNumber) {
-            return new NumberInputComponent(title, defaultValue);
-        } else if (unitSchema instanceof z.ZodBoolean) {
-            return new BooleanInputComponent(title, defaultValue);
-        } else if (unitSchema instanceof z.ZodArray) {
-            return new ArrayInputComponent(title, unitSchema, defaultValue);
-        } else if (unitSchema instanceof z.ZodEnum) {
-            return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string));
-        } else if (unitSchema instanceof z.ZodObject) {
-            return new ObjectInputComponent(title, unitSchema, defaultValue as {});
-        } else if (unitSchema instanceof z.ZodOptional) {
-            // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue);
-        } else if (unitSchema instanceof z.ZodDefault) {
-            // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createDefaultInputComponent(title, unitSchema._def.innerType, unitSchema._def.defaultValue());
-        }
-        throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
+        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
     }
 
     private initialize() {

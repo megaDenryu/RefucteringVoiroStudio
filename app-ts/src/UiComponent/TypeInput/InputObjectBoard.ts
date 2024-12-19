@@ -10,6 +10,7 @@ import { NumberInputComponent } from "./TypeComponents/NumberInputComponent/Numb
 import { StringInputComponent } from "./TypeComponents/StringInputComponent/StringInputComponent";
 import { ObjectInputComponent } from "./TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import "./TypeComponents/Component.css";
+import { ObjectInputComponentWithSaveButton } from "./TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
 
 export const VoiceRoidList = z.array(z.string());
 export const HumanState = z.object({
@@ -19,6 +20,7 @@ export const HumanState = z.object({
 });
 
 export const VoiceRoidState = z.object({
+    購入済み: z.boolean(),
     voiceRoidList: VoiceRoidList,
     voiceRoidStateDict: HumanState,
 });
@@ -47,7 +49,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
     public readonly component: BaseComponent<typeof this.Def["classNames"]>;
     public readonly dragMover: DragMover;
     private _squareBoardComponent: SquareBoardComponent;
-    private _objectInputComponent: ObjectInputComponent;
+    private _objectInputComponent: ObjectInputComponentWithSaveButton;
     private _boolean
 
     constructor() {
@@ -61,6 +63,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
                 HP: 100
             },
             voiceRoidState: {
+                購入済み: true,
                 voiceRoidList: ["結月ゆかり","初音ミク"], 
                 voiceRoidStateDict: {
                     atack: 10,
@@ -69,7 +72,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
                 }
             }
         }
-        this._objectInputComponent = new ObjectInputComponent("ゲーム状態", GameState, gameState);
+        this._objectInputComponent = new ObjectInputComponentWithSaveButton("ゲーム状態", GameState, gameState);
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
         this.dragMover = new DragMover(this);
         this.BindArrow();

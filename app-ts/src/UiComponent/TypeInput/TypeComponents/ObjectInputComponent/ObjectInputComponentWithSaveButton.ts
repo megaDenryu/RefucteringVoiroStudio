@@ -14,6 +14,12 @@ import "../Component.css";
 import { NormalButton } from "../../../Button/NormalButton/NormalButton";
 import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
 import { SaveState } from "../SaveState";
+import { StringInputComponentWithSaveButton } from "../StringInputComponent/StringInputComponentWithSaveButton";
+import { NumberInputComponentWithSaveButton } from "../NumberInputComponent/NumberInputComponentWithSaveButton";
+import { EnumInputComponentWithSaveButton } from "../EnumInputComponent/EnumInputComponentWithSaveButton";
+import { TypeComponentFactory } from "../../TypeComponentFactory";
+import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayInputComponentWithSaveButton";
+import { ObjectInputComponent } from "./ObjectInputComponent";
 
 export class ObjectInputComponentWithSaveButton implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
@@ -46,26 +52,7 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
     }
 
     private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
-        if (unitSchema instanceof z.ZodString) {
-            return new StringInputComponent(title, defaultValue);
-        } else if (unitSchema instanceof z.ZodNumber) {
-            return new NumberInputComponent(title, defaultValue);
-        } else if (unitSchema instanceof z.ZodBoolean) {
-            return new BooleanInputComponent(title, defaultValue);
-        } else if (unitSchema instanceof z.ZodArray) {
-            return new ArrayInputComponent(title, unitSchema, defaultValue);
-        } else if (unitSchema instanceof z.ZodEnum) {
-            return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string));
-        } else if (unitSchema instanceof z.ZodObject) {
-            return new ObjectInputComponentWithSaveButton(title, unitSchema, defaultValue as {});
-        } else if (unitSchema instanceof z.ZodOptional) {
-            // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue);
-        } else if (unitSchema instanceof z.ZodDefault) {
-            // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createDefaultInputComponent(title, unitSchema._def.innerType, unitSchema._def.defaultValue());
-        }
-        throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
+        return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
     }
 
     private initialize() {
@@ -129,9 +116,15 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         for (let key in this._inputComponentDict) {
             let inputComponent = this._inputComponentDict[key];
             if (inputComponent instanceof ArrayInputComponent) {
-                inputComponent.optimizeBoardSize();
+                            inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
                 inputComponent.optimizeBoardSize();
             }
         }
