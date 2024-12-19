@@ -56,7 +56,7 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
     }
 
     private initialize() {
-        this.component.createArrowBetweenComponents(this, this._NormalButton);
+        this._squareBoardComponent.addComponentToHeader(this._NormalButton);
         for (let key in this._inputComponentDict) {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._inputComponentDict[key]);
         }

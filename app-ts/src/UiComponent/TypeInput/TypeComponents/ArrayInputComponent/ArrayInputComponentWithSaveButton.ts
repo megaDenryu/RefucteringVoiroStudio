@@ -51,7 +51,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     }
 
     private initialize() {
-        this.component.createArrowBetweenComponents(this, this._NormalButton);
+        this._squareBoardComponent.addComponentToHeader(this._NormalButton);
         this._inputComponentList.forEach((inputComponent) => {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, inputComponent);
         });

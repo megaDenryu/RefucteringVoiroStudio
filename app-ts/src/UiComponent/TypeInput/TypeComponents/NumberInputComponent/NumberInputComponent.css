@@ -1,2 +1,21 @@
 .NumberInputComponent {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* 要素間のスペースを追加 */
+}
+
+.NumberInputComponentLabel {
+    margin-right: 10px; /* ラベルとインプットの間にスペースを追加 */
+}
+
+.NumberInputSlider {
+    flex: 0.5; /* インプット要素を可能な限り広げる */
+}
+
+.NumberInputSliderValue {
+    width: 50px; /* スライダーの値表示部分の幅を固定 */
+}
+
+button {
+    margin-left: 10px; /* ボタンと他の要素の間にスペースを追加 */
 }
