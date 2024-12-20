@@ -28,11 +28,12 @@ export class SettingPage  {
             this._appSettingModel = await this.requestAppSettingModel()
         }
         this._appSettingComponent = new ObjectInputComponent(this.title, AppSettingsModel, this._appSettingModel)
+        this.bindEvents()
         document.body.appendChild(this._appSettingComponent.component.element)
         this.onAddedToDom()
     }
 
-    public async requestAppSettingModel(): Promise<AppSettingsModel> {
+    private async requestAppSettingModel(): Promise<AppSettingsModel> {
         let req:AppSettingInitReq = {
             page_mode: "setting",
             client_id: "test"
@@ -55,8 +56,18 @@ export class SettingPage  {
         return appSettingsModel;
     }
 
+
+
     onAddedToDom() {
         this._appSettingComponent.onAddedToDom()
+    }
+
+    bindEvents() {
+        /**
+         * 実装したいイベントはセーブボタンを押したときに
+         * - セーブデータの状態をだーディーになってるものから更新する
+         * - セーブデータを送信する
+         */
     }
 }
 
