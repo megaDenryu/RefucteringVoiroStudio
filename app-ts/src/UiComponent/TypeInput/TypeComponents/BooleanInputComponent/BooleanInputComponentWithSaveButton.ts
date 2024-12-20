@@ -28,7 +28,7 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
         this.component = new BaseComponent(html);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
         this._NormalButton = new NormalButton("保存", "normal");
-        this.Initialize();
+        this.Initialize(this.component.element.querySelector(".BooleanInputCheckBox") as HTMLInputElement);
     }
 
        /// <summary>
@@ -45,7 +45,11 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
         `;
     }
 
-    private Initialize() {
+    private Initialize(selecter: HTMLInputElement): void {
+        selecter.addEventListener("change", () => {
+            this.setValue(selecter.checked);
+        });
+
         this.component.addCSSClass([
             "positionAbsolute",
         ]);
@@ -89,6 +93,11 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
             this._save.set(true);
             this._darty.set(false);
         }
+    }
+
+    public setValue(value: boolean): void {
+        this._value.set(value);
+        this._darty.set(true);
     }
 
     public getHeight(): number {
