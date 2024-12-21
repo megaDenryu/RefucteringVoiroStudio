@@ -57,11 +57,14 @@ class JsonAccessor:
             return new_dict
         
     @staticmethod
-    def loadAppSettingTest():
+    def loadAppSettingTest()->dict:
         # VoiroStudioReleaseVer\api\web\app_setting.jsonを取得
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting_test.json"
-        app_setting = ExtendFunc.loadJsonToDict(path)
-        return app_setting
+        try:
+            path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting_test.json"
+            app_setting = ExtendFunc.loadJsonToDict(path)
+            return app_setting
+        except:
+            return {}
     
     @staticmethod
     def saveAppSettingTest(app_setting: BaseModel):

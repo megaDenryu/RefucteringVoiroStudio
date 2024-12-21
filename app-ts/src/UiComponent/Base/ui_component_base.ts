@@ -64,19 +64,25 @@ export class ElementCreater {
      * リストを受け取ってHTMLSelectElementを返す関数。
      * @param {Array<string>} options - セレクトボックスのオプションとして使用する文字列の配列。
      * @param {number | null} [size = null] - セレクトボックスのサイズ。nullの場合は指定しない。
+     * @param {string | null} [selectedValue = null] - 初期値として選択するオプションの値。nullの場合は指定しない。
      * @return {HTMLSelectElement} - 生成されたHTMLSelectElement。
      */
-    static createSelectElement(options: string[], size: number | null = null): HTMLSelectElement {
+    static createSelectElement(options: string[], size: number | null = null, selectedValue: string | null = null): HTMLSelectElement {
         let selectElement = document.createElement('select');
-
+    
         options.forEach(optionText => {
             const optionElement = document.createElement('option');
             optionElement.value = optionText;
             optionElement.textContent = optionText;
+            if (selectedValue !== null && optionText === selectedValue) {
+                optionElement.selected = true;
+            }
             selectElement.appendChild(optionElement);
         });
-
-        if (size != null) { selectElement.size = size; }
+    
+        if (size != null) {
+            selectElement.size = size;
+        }
         return selectElement;
     }
 

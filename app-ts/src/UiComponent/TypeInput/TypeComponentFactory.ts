@@ -24,7 +24,6 @@ export class TypeComponentFactory {
      * @returns 
      */
     public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
-        console.log(defaultValue, unitSchema);
         if (unitSchema instanceof z.ZodString) {
             return new StringInputComponent(title, defaultValue);
         } else if (unitSchema instanceof z.ZodNumber) {
