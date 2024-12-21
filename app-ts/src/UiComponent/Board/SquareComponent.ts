@@ -115,5 +115,28 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         this.component.createArrowBetweenComponents(this, component, "SquareBoardHeader");
     }
 
+    public delete(): void {
+        this.component.delete();
+    }
+
+    public moveComponent(fromIndex: number, toIndex: number): void {
+        const parentElement = this.component.element;
+        const children = parentElement.children;
+    
+        if (fromIndex >= 0 && fromIndex < children.length && toIndex >= 0 && toIndex < children.length) {
+            const elementToMove = children[fromIndex];
+            const referenceElement = children[toIndex];
+    
+            // fromIndex の要素を toIndex の前に挿入
+            parentElement.insertBefore(elementToMove, referenceElement);
+        } else if (toIndex === children.length) {
+            // toIndex が children.length の場合は末尾に追加
+            const elementToMove = children[fromIndex];
+            parentElement.appendChild(elementToMove);
+        } else {
+            console.error('Invalid indices for moveComponent:', fromIndex, toIndex);
+        }
+    }
+
 
 }

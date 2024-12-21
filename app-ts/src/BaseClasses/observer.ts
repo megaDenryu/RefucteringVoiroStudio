@@ -33,4 +33,8 @@ export class ReactiveProperty<T> {
     public addMethod(event: (value :T) => void): void {
         this.methods.push(event);
     }
+
+    public clearMethods(): void {
+        this.methods = [];
+    }
 }

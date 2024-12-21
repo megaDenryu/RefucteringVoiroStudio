@@ -25,6 +25,17 @@ export class Vertex {
         const Arrows = this.getArrows();
         return Arrows.some(arrow => arrow.end === vertex);
     }
+
+    public deleteThis(): void {
+        // 頂点に接続されているすべてのエッジをループで処理
+        this.edges.forEach(edge => {
+            // エッジの反対側の頂点を取得
+            const contrastVertex = edge.getContrastVertex(this);
+            // 反対側の頂点のエッジリストからこのエッジを削除
+            contrastVertex.edges = contrastVertex.edges.filter(e => e !== edge);
+        });
+
+    }
 }
 
 export class Edge {
@@ -38,6 +49,11 @@ export class Edge {
         this.weight = weight;
     }
 
+    /**
+     * 与えられた頂点と対称な頂点を返す
+     * @param vertex 
+     * @returns 
+     */
     getContrastVertex(vertex: Vertex): Vertex {
         if (this.vertex1 === vertex) {
             return this.vertex2;
@@ -79,6 +95,15 @@ export class Graph {
 
     addEdge(edge: Edge): void {
         this.edges.push(edge);
+    }
+
+    removeVertex(vertex: Vertex): void {
+        delete this.vertices[vertex.id];
+    }
+
+    deleteVetex(vertex: Vertex): void {
+        vertex.deleteThis();
+        this.removeVertex(vertex);
     }
 
     // その他のグラフ操作メソッド...

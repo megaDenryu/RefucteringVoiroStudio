@@ -167,4 +167,15 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         return totalWidth;
     }
 
+    public delete(): void {
+        // DOM 要素を削除
+        this._squareBoardComponent.delete();
+        //子要素の削除
+        this._NormalButton.delete();
+        for (let key in this._inputComponentDict) {
+            this._inputComponentDict[key].delete();
+        }
+
+    }
+
 }

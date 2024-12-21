@@ -149,4 +149,13 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         return totalWidth;
     }
 
+    public delete(): void {
+        // DOM 要素を削除
+        this._squareBoardComponent.delete();
+        //子要素の削除
+        for (let key in this._inputComponentDict) {
+            this._inputComponentDict[key].delete();
+        }
+    }
+
 }

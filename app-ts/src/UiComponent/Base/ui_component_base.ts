@@ -117,6 +117,7 @@ export class ElementCreater {
 
 export interface IHasComponent {
     readonly component: BaseComponent;
+    delete(): void
 }
 
 export class ElementChildClass {
@@ -204,7 +205,14 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
     }
 
   
-    appendChildToElement(childComponent: BaseComponent, parentClass: string|null = null): void {
+    /**
+     * 子コンポーネントを親コンポーネントの指定したクラスの要素の子要素として追加する。
+     * indexが指定されている場合は、そのインデックスの位置に追加する。
+     * @param childComponent : 子要素として追加するコンポーネント。
+     * @param parentClass : 親要素のクラス名。nullの場合は親要素はthis.elementとなる。
+     * @param index : 追加する位置のインデックス。nullの場合は末尾に追加する。
+     */
+    appendChildToElement(childComponent: BaseComponent, parentClass: string|null = null, index: number|null = null): void {
         if (parentClass == null) {
             this.element.appendChild(childComponent.element);
         }
@@ -217,7 +225,11 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
                 throw new Error('Parent class not found.');
                 
             }
-            parentElement.appendChild(childComponent.element);
+            if (index !== null && 0 <=index && index < parentElement.children.length) {
+                parentElement.insertBefore(childComponent.element, parentElement.children[index]);
+            } else {
+                parentElement.appendChild(childComponent.element);
+            }
         }
         
     }
@@ -227,13 +239,19 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         this.childCompositeCluster = new CompositeComponentCluster(this.vertex);
     }
 
- 
-    createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent, parentClass: string|null = null): void {
+    /**
+     * 親コンポーネントと子コンポーネントを矢印で結び、親子関係を作る。
+     * @param parent : 親要素として追加するコンポーネント。
+     * @param child : 子要素として追加するコンポーネント。
+     * @param parentClass : 親要素のクラス名。nullの場合は親要素はthis.elementとなる。
+     * @param index : 親要素の子要素の中でのインデックス。nullの場合は末尾に追加する。
+     */
+    createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent, parentClass: string|null = null, index:number|null = null): void {
         const parentComponent = parent.component
         const childComponent = child.component
         if (this.childCompositeCluster == null) this.createChildComponentCluster();
         if (this.childCompositeCluster == null) throw new Error('childCompositeCluster is null.');
-        this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent, parentClass);
+        this.childCompositeCluster.createArrowBetweenComponents(parentComponent, childComponent, parentClass, index);
     }
 
     setCSSClass(classNames: string[] | string): void {
@@ -309,6 +327,17 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
 
         return height;
     }
+
+    /**
+     * コンポーネントを削除する。
+     * vertex周りも削除しないと行けないかもしれないが、とりあえずはelementとこのインスタンス自身だけ削除する。
+     */
+    public delete(): void {
+        this.element.remove();
+        this.vertex.deleteThis();
+        this.childCompositeCluster?.clean();
+        this.parentComponentCluster?.clean();
+    }
 }
 
 export class CompositeComponentCluster {
@@ -322,13 +351,17 @@ export class CompositeComponentCluster {
     /**
      * ２つのコンポーネントを矢印で結んで親子関係を作る。
      */
-    createArrowBetweenComponents(parentComponent: BaseComponent, childComponent: BaseComponent, parentClass:string|null = null): void {
+    createArrowBetweenComponents(parentComponent: BaseComponent, childComponent: BaseComponent, parentClass:string|null = null, index:number|null = null): void {
         const arrow = new Arrow(parentComponent.vertex, childComponent.vertex, null);
         this.cluster.graph.addEdge(arrow);
         // コンポーネントのedgesにarrowを追加
         parentComponent.registerComponentGraphEdge(arrow, this);
         childComponent.registerComponentGraphEdge(arrow, this);
         // 親コンポーネントのhtml要素に子コンポーネントのhtml要素を追加
-        parentComponent.appendChildToElement(childComponent,parentClass);
+        parentComponent.appendChildToElement(childComponent,parentClass,index);
+    }
+
+    clean(): void {
+        this.cluster.graph.edges = [];
     }
 }

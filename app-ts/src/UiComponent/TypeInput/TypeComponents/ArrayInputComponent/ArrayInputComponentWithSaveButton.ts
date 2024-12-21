@@ -154,4 +154,11 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         return totalWidth;
     }
 
+    public delete(): void {
+        this._inputComponentList.forEach((inputComponent) => {
+            inputComponent.delete();
+        });
+        this.component.delete();
+    }
+
 }

@@ -65,6 +65,10 @@ export class ToggleFormatStateDisplay<T extends ZodEnum<any>> implements IHasCom
     public getColor(): z.infer<typeof ColorEnum> {
         return this._color.get();
     }
+
+    public delete(): void {
+        this.component.delete();
+    }
 }
 
 

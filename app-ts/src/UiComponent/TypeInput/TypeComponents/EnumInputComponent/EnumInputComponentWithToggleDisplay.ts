@@ -98,5 +98,16 @@ export class EnumInputComponentWithToggleDisplay implements IHasComponent, IInpu
         const w = this.component.element.getBoundingClientRect().width;
         return w;
     }
+
+    public delete(): void {
+        // DOM 要素を削除
+        this.component.delete();
+        // ReactiveProperty インスタンスのクリーンアップ
+        this._value.clearMethods();
+        this._darty.clearMethods();
+        this._save.clearMethods();
+        //子要素の削除
+        this._toggleFormatStateDisplay.delete();
+    }
 }
 
