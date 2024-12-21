@@ -10,6 +10,7 @@ from api.DataStore.AppSetting.AppSettingModel.CommentReciver.CommentReceiveSetti
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.NiconicoLive.NiconicoLiveSettingModel import NiconicoLiveSettingModel
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.TwitchLive.TwitchSettingModel import TwitchSettingModel
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.YoutubeLiveSettingModel import YoutubeLiveSettingModel
+from api.DataStore.AppSetting.AppSettingModel.GPTSetting.GPTSetting import GPTSettingModel
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
@@ -17,7 +18,7 @@ from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
 from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
-from api.Extend.ExtendSet import Interval, ExtendSet, ExtendSetTest
+from api.Extend.ExtendSet import ExtendDict, Interval, ExtendSet, ExtendSetTest
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.gptAI.AIRubiConverter import AIRubiConverterTest
@@ -155,7 +156,12 @@ def 構造化apiテスト():
 if __name__ == "__main__":
     # タスクグラフのテスト()
     # CharacterDestinationCollectionTest.目的設定を生成するてすと()
-    
+    d = {}
+    a = GPTSettingModel(**d)
+    print(a.model_dump_json())
+    saveSettingReq = AppSettingsModel(**d)
+    print(saveSettingReq.model_dump_json())
+    JsonAccessor.saveAppSettingTest(saveSettingReq)
 
 
 

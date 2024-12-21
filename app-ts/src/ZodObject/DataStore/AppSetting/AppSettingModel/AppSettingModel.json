@@ -1,5 +1,25 @@
 {
     "$defs": {
+        "COEIROINKv2SettingModel": {
+            "properties": {
+                "path": {
+                    "default": "",
+                    "description": "COEIROINKv2のパスを入力してください",
+                    "title": "COEIROINKv2のパス",
+                    "type": "string"
+                }
+            },
+            "title": "COEIROINKv2SettingModel",
+            "type": "object"
+        },
+        "CommentOnOff": {
+            "enum": [
+                "ON",
+                "OFF"
+            ],
+            "title": "CommentOnOff",
+            "type": "string"
+        },
         "CommentReceiveSettingModel": {
             "properties": {
                 "ニコニコ生放送": {
@@ -15,6 +35,30 @@
             "title": "CommentReceiveSettingModel",
             "type": "object"
         },
+        "GPTEnable": {
+            "enum": [
+                "ON",
+                "OFF"
+            ],
+            "title": "GPTEnable",
+            "type": "string"
+        },
+        "GPTSettingModel": {
+            "properties": {
+                "GPT起動状況": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/GPTEnable"
+                        }
+                    ],
+                    "default": "OFF",
+                    "description": "GPT起動状況を入力してください",
+                    "title": "GPT起動状況"
+                }
+            },
+            "title": "GPTSettingModel",
+            "type": "object"
+        },
         "NiconicoLiveSettingModel": {
             "properties": {
                 "配信URL": {
@@ -22,9 +66,39 @@
                     "description": "ニコ生の配信URLを入力してください",
                     "title": "ニコ生配信URL",
                     "type": "string"
+                },
+                "コメント受信": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/CommentOnOff"
+                        }
+                    ],
+                    "default": "OFF",
+                    "description": "コメント受信をONにするかOFFにするか選択してください",
+                    "title": "コメント受信"
+                },
+                "コメント禁止ワード": {
+                    "default": [
+                        "4ね"
+                    ],
+                    "description": "コメント禁止ワードを入力してください",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "コメント禁止ワード",
+                    "type": "array"
                 }
             },
             "title": "NiconicoLiveSettingModel",
+            "type": "object"
+        },
+        "SynthesisVoiceSettingModel": {
+            "properties": {
+                "COEIROINKv2設定": {
+                    "$ref": "#/$defs/COEIROINKv2SettingModel"
+                }
+            },
+            "title": "SynthesisVoiceSettingModel",
             "type": "object"
         },
         "TwitchSettingModel": {
@@ -55,6 +129,12 @@
     "properties": {
         "コメント受信設定": {
             "$ref": "#/$defs/CommentReceiveSettingModel"
+        },
+        "GPT設定": {
+            "$ref": "#/$defs/GPTSettingModel"
+        },
+        "合成音声設定": {
+            "$ref": "#/$defs/SynthesisVoiceSettingModel"
         }
     },
     "title": "AppSettingsModel",

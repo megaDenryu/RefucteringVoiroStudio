@@ -9,10 +9,9 @@ import { NormalButton } from "../../../Button/NormalButton/NormalButton";
 import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
 import { SaveState } from "../SaveState";
 
-export class EnumInputComponentWithSaveButton implements IHasComponent, IInputComponet {
+export class EnumInputComponentWithToggleDisplay implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
-    private readonly _NormalButton: NormalButton
     private _title: string;
     public title(): string { return this._title; }
     private readonly _value: ReactiveProperty<SelecteValueInfo>;
@@ -31,7 +30,6 @@ export class EnumInputComponentWithSaveButton implements IHasComponent, IInputCo
         divHtml.appendChild(selecter);
         this.component = new BaseComponent(divHtml);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
-        this._NormalButton = new NormalButton("保存", "normal");
         this.initialize(selecter);
     }
 
@@ -44,10 +42,6 @@ export class EnumInputComponentWithSaveButton implements IHasComponent, IInputCo
             "positionAbsolute",
         ]);
 
-        this._NormalButton.addOnClickEvent(() => {
-            this.save();
-        });
-
         this._darty.addMethod((value) => {
             if (value) {
                 this._toggleFormatStateDisplay.setState("未保存");
@@ -58,7 +52,6 @@ export class EnumInputComponentWithSaveButton implements IHasComponent, IInputCo
             }
         });
 
-        this.component.createArrowBetweenComponents(this, this._NormalButton);
         this.component.createArrowBetweenComponents(this, this._toggleFormatStateDisplay);
     }
 
