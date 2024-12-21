@@ -21,7 +21,7 @@ export class EnumInputComponentWithToggleDisplay implements IHasComponent, IInpu
     constructor(title: string, defautValue: SelecteValueInfo) {
         this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
-        let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate);
+        let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
             <div class="EnumInputComponent">
                 <label class="EnumInputComponentLabel">${title}</label>

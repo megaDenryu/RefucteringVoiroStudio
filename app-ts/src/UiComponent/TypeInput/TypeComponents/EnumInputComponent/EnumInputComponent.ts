@@ -18,7 +18,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
     constructor(title: string, defautValue: SelecteValueInfo) {
         this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
-        let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate);
+        let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
             <div class="EnumInputComponent">
                 <label class="EnumInputComponentLabel">${title}</label>
@@ -31,6 +31,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
 
     private initialize(selecter:HTMLSelectElement): void {
         selecter.addEventListener("change", () => {
+            console.log("change",selecter.value);
             this.setValue(selecter.value);
         });
 
@@ -51,8 +52,8 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
         this._save.addMethod(event);
     }
 
-    getValue(): SelecteValueInfo {
-        return this._value.get();
+    getValue(): string {
+        return this._value.get().value;
     }
 
     isDarty(): boolean {
