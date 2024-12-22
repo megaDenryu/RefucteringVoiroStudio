@@ -75,4 +75,7 @@ export class TypeComponentFactory {
         }
         throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }
+
+
+    
 }
