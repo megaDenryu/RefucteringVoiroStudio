@@ -97,6 +97,43 @@ class ExtendSet:
     def __init__(self, element_type, range:Interval):
         pass
 
+class DictPath:
+    _path_list = []
+    def __init__(self, path_list):
+        self._path_list = path_list
+    @staticmethod
+    def new(path_str:str, delimiter="."):
+        return DictPath(path_str.split(delimiter))
+
+class ExtendDict:
+    @staticmethod
+    def setByPath(dic:dict, path:list, value):
+        if len(path) == 1:
+            dic[path[0]] = value
+        else:
+            if path[0] not in dic:
+                dic[path[0]] = {}
+            ExtendDict.setByPath(dic[path[0]], path[1:], value)
+    @staticmethod
+    def getByPath(dic:dict, path:list):
+        if len(path) == 1:
+            return dic[path[0]]
+        else:
+            return ExtendDict.getByPath(dic[path[0]], path[1:])
+        
+    @staticmethod
+    def test():
+        dic = {}
+        ExtendDict.setByPath(dic, ["a", "b", "c"], 1)
+        print(dic)
+        print(ExtendDict.getByPath(dic, ["a", "b"]))
+        ExtendDict.setByPath(dic, ["a", "b", "d"], 2)
+        ExtendDict.setByPath(dic, ["a", "b", "c"], 3)
+        ExtendDict.setByPath(dic, ["a", "b", "c", "w"], 4)
+        print(dic)
+
+        
+
 
 class ExtendSetTest():
     def __init__(self) -> None:

@@ -1,94 +1,70 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
-import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
+import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
 import { NormalButton } from "../../../Button/NormalButton/NormalButton";
 import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
 import { IInputComponet } from "../IInputComponet";
 import { SaveState } from "../SaveState";
-import "./NumberInputComponent.css";
+import "./StringInputComponent.css";
 
 
-/// <summary>
-/// 数値入力コンポーネント
-/// 外からこのコンポーネントに委譲できる操作
-/// - 数値を取得する
-/// - 数値を設定する
-/// - 数値が変更されたときのイベントを登録する
-/// - 数値が変更されたときのイベントを削除する
-/// </summary>
-export class NumberInputComponentWithSaveButton implements IHasComponent, IInputComponet {
+
+export class StringInputComponentWithToggleDisplay implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
-    private readonly _NormalButton: NormalButton
     private readonly _title : string;
     public title():string { return this._title; }
-    private _min: number = 0;
-    private _max: number = 100;
-    private _step: number = 1;
-    private readonly _value : ReactiveProperty<number|null>;
+    private readonly _value : ReactiveProperty<string|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
-    private readonly _defaultValue : number|null;
+    private readonly _defaultValue : string|null;
+    private _onInitialaize: Array<() => void> = [];
 
-    constructor(title: string, defaultValue: number|null, min: number = 0, max: number = 100, step: number = 1) {
+    constructor(title: string, defaultValue: string|null) {
         this._title = title;
-        this._min = min;
-        this._max = max;
-        this._step = step;
         this._defaultValue = defaultValue;
         this._value = new ReactiveProperty(defaultValue);
         this._darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);
-        let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(min, max, step));
+        let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition());
         this.component = new BaseComponent(html);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
-        this._NormalButton = new NormalButton("保存", "normal");
         this.Initialize();
     }
 
     /// <summary>
     /// HTMLの定義を返す。
-    /// スライダーのHTMLを作る。
+    /// 入力のHTMLを作る。
     /// </summary>
-    private HTMLDefinition(min: number, max: number, step: number): string {
+    private HTMLDefinition(): string {
         return `
-        <div class="NumberInputComponent">
-            <label>${this._title}</label>
+        <div class="StringInputComponent">
+            <label class="StringInputComponentLabel">${this._title}</label>
             <input 
-                type="range" 
-                min="${min}" 
-                max="${max}" 
-                step="${step}" 
-                value="${this._defaultValue ?? min}"
-                class="NumberInputSlider"
+                type="text" 
+                value="${this._defaultValue ?? ''}"
+                class="string-input"
             >
-            <span class="NumberInputSliderValue">${this._value.get()}</span>
         </div>`;
     }
 
+    /**
+     * コールバックの初期化
+     */
     private Initialize() {
-        const NumberInputSlider = this.component.element.querySelector(".NumberInputSlider");
-        
-        // mousedownイベントの伝播を止める
-        NumberInputSlider?.addEventListener("mousedown", (e) => {
-            e.stopPropagation();
+        this.onInitialaize();
+        let element = this.component.element.querySelector(".string-input");
+        this.component.element.addEventListener("mousedown", (e) => {
+            this.stopPropagation(e);
         });
-    
-        // inputイベントのハンドリング
-        NumberInputSlider?.addEventListener("input", (e) => {
+        element?.addEventListener("input", (e) => {
             let target = e.target as HTMLInputElement;
-            this._value.set(Number(target.value));
-            this.component.element.querySelector(".NumberInputSliderValue")!.textContent = (this._value.get()??this._min).toString();
+            this._value.set(target.value);
             this._darty.set(true);
-            e.stopPropagation();
         });
 
         this.component.addCSSClass([
             "positionAbsolute",
         ]);
-
-        this._NormalButton.addOnClickEvent(() => {
-            this.save();
-        });
 
         this._darty.addMethod((value) => {
             if (value) {
@@ -99,9 +75,11 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
                 this._toggleFormatStateDisplay.setColor("green");
             }
         });
-
-        this.component.createArrowBetweenComponents(this, this._NormalButton);
         this.component.createArrowBetweenComponents(this, this._toggleFormatStateDisplay);
+    }
+
+    private stopPropagation(e: Event) {
+        e.stopPropagation();
     }
 
     public addOnDartyEvent(event: (value: boolean) => void): void {
@@ -112,7 +90,17 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
         this._save.addMethod(event);
     }
 
-    public getValue(): number|null {
+    public addOnInitialaize(event: () => void): void {
+        this._onInitialaize.push(event);
+    }
+
+    public onInitialaize(): void {
+        this._onInitialaize.forEach((event) => {
+            event();
+        });
+    }
+
+    public getValue(): string|null {
         return this._value.get();
     }
 
@@ -145,7 +133,7 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
         this._darty.clearMethods();
         this._save.clearMethods();
         //子要素の削除
-        this._NormalButton.delete();
         this._toggleFormatStateDisplay.delete();
     }
+
 }

@@ -28,7 +28,7 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
         this.component = new BaseComponent(html);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
         this._NormalButton = new NormalButton("保存", "normal");
-        this.Initialize();
+        this.Initialize(this.component.element.querySelector(".BooleanInputCheckBox") as HTMLInputElement);
     }
 
        /// <summary>
@@ -45,7 +45,11 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
         `;
     }
 
-    private Initialize() {
+    private Initialize(selecter: HTMLInputElement): void {
+        selecter.addEventListener("change", () => {
+            this.setValue(selecter.checked);
+        });
+
         this.component.addCSSClass([
             "positionAbsolute",
         ]);
@@ -91,6 +95,11 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
         }
     }
 
+    public setValue(value: boolean): void {
+        this._value.set(value);
+        this._darty.set(true);
+    }
+
     public getHeight(): number {
         const h = this.component.element.getBoundingClientRect().height;
         return h;
@@ -101,5 +110,16 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
         return w;
     }
 
+    public delete(): void {
+        // DOM 要素を削除
+        this.component.delete();
+        // ReactiveProperty インスタンスのクリーンアップ
+        this._value.clearMethods();
+        this._darty.clearMethods();
+        this._save.clearMethods();
+        //子要素の削除
+        this._NormalButton.delete();
+        this._toggleFormatStateDisplay.delete();
+    }
     
 }

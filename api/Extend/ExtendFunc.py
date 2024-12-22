@@ -289,7 +289,11 @@ class ExtendFunc:
         model (BaseModel): 保存するBaseModelのインスタンス
         """
         try:
-            ExtendFunc.saveDictToJson(file_path, model.model_dump())
+            json_str = model.model_dump_json() #enumも保存できるように文字列に一度変換
+            json_dict = json.loads(json_str)
+            with open(file_path, 'w', encoding="utf-8") as f:
+                json.dump(json_dict, f, ensure_ascii=False, indent=4)
+
         except Exception as e:
             ExtendFunc.ExtendPrint({
                 "エラー":"BaseModelの保存に失敗しました。",

@@ -13,20 +13,22 @@ import { CSSProxy } from "../../../../Extend/ExtendCss";
 import "../Component.css";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
 
-export class ObjectInputComponent implements IHasComponent, IInputComponet {
+export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _title : string;
     public title():string { return this._title; }
     private readonly _schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;;
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
     private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
+    private readonly _values: T;
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
+        this._values = defaultValues;
         this.initialize();
     }
 
@@ -41,7 +43,7 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
+    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
         return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
     }
 
@@ -71,12 +73,11 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         }
     }
 
-    public getValue(): object {
-        let value = {};
+    public getValue(): T {
         for (let key in this._inputComponentDict) {
-            value[key] = this._inputComponentDict[key].getValue();
+            this._values[key] = this._inputComponentDict[key].getValue();
         }
-        return value;
+        return this._values;
     }
 
     public isDarty(): boolean {
@@ -92,6 +93,10 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         for (let key in this._inputComponentDict) {
             this._inputComponentDict[key].save();
         }
+    }
+
+    public updateValue(key: string): void {
+        this._values[key] = this._inputComponentDict[key].getValue();
     }
 
     public optimizeBoardSize(): void {
@@ -142,6 +147,15 @@ export class ObjectInputComponent implements IHasComponent, IInputComponet {
         const marginRight = parseFloat(style.marginRight);
         const totalWidth = rect.width + marginLeft + marginRight;
         return totalWidth;
+    }
+
+    public delete(): void {
+        // DOM 要素を削除
+        this._squareBoardComponent.delete();
+        //子要素の削除
+        for (let key in this._inputComponentDict) {
+            this._inputComponentDict[key].delete();
+        }
     }
 
 }

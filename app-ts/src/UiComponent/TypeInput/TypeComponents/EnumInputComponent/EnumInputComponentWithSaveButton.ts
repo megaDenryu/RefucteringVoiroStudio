@@ -22,7 +22,7 @@ export class EnumInputComponentWithSaveButton implements IHasComponent, IInputCo
     constructor(title: string, defautValue: SelecteValueInfo) {
         this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
-        let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate);
+        let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
             <div class="EnumInputComponent">
                 <label class="EnumInputComponentLabel">${title}</label>
@@ -74,8 +74,8 @@ export class EnumInputComponentWithSaveButton implements IHasComponent, IInputCo
         this._save.addMethod(event);
     }
 
-    public getValue(): SelecteValueInfo {
-        return this._value.get();
+    public getValue(): string {
+        return this._value.get().value;
     }
 
     public isDarty(): boolean {
@@ -104,6 +104,18 @@ export class EnumInputComponentWithSaveButton implements IHasComponent, IInputCo
     public getWidth(): number {
         const w = this.component.element.getBoundingClientRect().width;
         return w;
+    }
+
+    public delete(): void {
+        // DOM 要素を削除
+        this.component.delete();
+        // ReactiveProperty インスタンスのクリーンアップ
+        this._value.clearMethods();
+        this._darty.clearMethods();
+        this._save.clearMethods();
+        //子要素の削除
+        this._NormalButton.delete();
+        this._toggleFormatStateDisplay.delete();
     }
 }
 

@@ -1,5 +1,13 @@
 {
     "$defs": {
+        "CommentOnOff": {
+            "enum": [
+                "ON",
+                "OFF"
+            ],
+            "title": "CommentOnOff",
+            "type": "string"
+        },
         "NiconicoLiveSettingModel": {
             "properties": {
                 "配信URL": {
@@ -7,6 +15,27 @@
                     "description": "ニコ生の配信URLを入力してください",
                     "title": "ニコ生配信URL",
                     "type": "string"
+                },
+                "コメント受信": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/CommentOnOff"
+                        }
+                    ],
+                    "default": "OFF",
+                    "description": "コメント受信をONにするかOFFにするか選択してください",
+                    "title": "コメント受信"
+                },
+                "コメント禁止ワード": {
+                    "default": [
+                        "4ね"
+                    ],
+                    "description": "コメント禁止ワードを入力してください",
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "コメント禁止ワード",
+                    "type": "array"
                 }
             },
             "title": "NiconicoLiveSettingModel",

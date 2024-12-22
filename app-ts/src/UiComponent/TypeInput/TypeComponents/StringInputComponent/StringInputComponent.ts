@@ -16,6 +16,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
     constructor(title: string, defaultValue: string|null) {
         this._title = title;
         this._defaultValue = defaultValue;
+        console.log(defaultValue);
         this._value = new ReactiveProperty(defaultValue);
         this._darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);
@@ -105,6 +106,14 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
     public getWidth(): number {
         const w = this.component.element.getBoundingClientRect().width;
         return w;
+    }
+    public delete(): void {
+        // DOM 要素を削除
+        this.component.delete();
+        // ReactiveProperty インスタンスのクリーンアップ
+        this._value.clearMethods();
+        this._darty.clearMethods();
+        this._save.clearMethods();
     }
 
 }

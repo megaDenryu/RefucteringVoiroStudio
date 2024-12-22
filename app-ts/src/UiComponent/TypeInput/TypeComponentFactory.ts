@@ -15,7 +15,15 @@ import { StringInputComponentWithSaveButton } from "./TypeComponents/StringInput
 import { ArrayInputComponentWithSaveButton } from "./TypeComponents/ArrayInputComponent/ArrayInputComponentWithSaveButton";
 
 export class TypeComponentFactory {
-    public static createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
+
+    /**
+     * 
+     * @param title : オブジェクトでのキー名
+     * @param unitSchema ： キーに対するスキーマ
+     * @param defaultValue ： デフォルト値
+     * @returns 
+     */
+    public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
         if (unitSchema instanceof z.ZodString) {
             return new StringInputComponent(title, defaultValue);
         } else if (unitSchema instanceof z.ZodNumber) {
@@ -33,12 +41,19 @@ export class TypeComponentFactory {
             return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue);
         } else if (unitSchema instanceof z.ZodDefault) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createDefaultInputComponent(title, unitSchema._def.innerType, unitSchema._def.defaultValue());
+            return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue);
         }
         throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }
 
-    public static createDefaultInputComponentWithSaveButton(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
+    /**
+     * 
+     * @param title : オブジェクトでのキー名
+     * @param unitSchema ： キーに対するスキーマ
+     * @param defaultValue ： デフォルト値
+     * @returns 
+     */
+    public static createDefaultInputComponentWithSaveButton(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
         if (unitSchema instanceof z.ZodString) {
             return new StringInputComponentWithSaveButton(title, defaultValue);
         } else if (unitSchema instanceof z.ZodNumber) {
@@ -56,7 +71,7 @@ export class TypeComponentFactory {
             return this.createDefaultInputComponentWithSaveButton(title, unitSchema._def.innerType, defaultValue);
         } else if (unitSchema instanceof z.ZodDefault) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createDefaultInputComponentWithSaveButton(title, unitSchema._def.innerType, unitSchema._def.defaultValue());
+            return this.createDefaultInputComponentWithSaveButton(title, unitSchema._def.innerType, defaultValue);
         }
         throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }

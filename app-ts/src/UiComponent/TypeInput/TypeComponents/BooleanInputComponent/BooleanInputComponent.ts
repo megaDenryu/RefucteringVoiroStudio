@@ -21,7 +21,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
         this._save = new ReactiveProperty(false);
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition());
         this.component = new BaseComponent(html);
-        this.Initialize();
+        this.Initialize(this.component.element.querySelector(".BooleanInputCheckBox") as HTMLInputElement);
     }
 
        /// <summary>
@@ -38,7 +38,11 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
         `;
     }
 
-    private Initialize() {
+    private Initialize(selecter: HTMLInputElement) {
+        selecter.addEventListener("change", () => {
+            this.setValue(selecter.checked);
+        });
+
         this.component.addCSSClass([
             "positionAbsolute",
         ]);
@@ -67,6 +71,11 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
         }
     }
 
+    public setValue(value: boolean): void {
+        this._value.set(value);
+        this._darty.set(true);
+    }
+
     public getHeight(): number {
         const h = this.component.element.getBoundingClientRect().height;
         return h;
@@ -75,6 +84,15 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet {
     public getWidth(): number {
         const w = this.component.element.getBoundingClientRect().width;
         return w;
+    }
+
+    public delete(): void {
+        // DOM 要素を削除
+        this.component.delete();
+        // ReactiveProperty インスタンスのクリーンアップ
+        this._value.clearMethods();
+        this._darty.clearMethods();
+        this._save.clearMethods();
     }
 
     

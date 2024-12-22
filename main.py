@@ -3,6 +3,8 @@ import os
 import random
 import sys
 from pathlib import Path
+
+from fastapi.exceptions import RequestValidationError
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
 from api.InstanceManager.InstanceManager import InastanceManager
@@ -21,13 +23,14 @@ from api.DataStore.AppSetting.AppSettingModule import AppSettingModule, PageMode
 from api.Epic.Epic import Epic
 from api.DataStore.Memo import Memo
 
+import logging
 from enum import Enum
 
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, Request, UploadFile, File, Form
 from fastapi.encoders import jsonable_encoder
 from starlette.websockets import WebSocket, WebSocketDisconnect
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
@@ -58,6 +61,24 @@ HumanPart.initalCheck()
 
 app = FastAPI()
 
+# カスタムフォーマッタの定義
+class CustomFormatter(logging.Formatter):
+    def format(self, record):
+        if isinstance(record.msg, dict):
+            record.msg = json.dumps(record.msg, ensure_ascii=False, indent=4)
+        return super().format(record)
+
+# ログ設定
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ファイルハンドラを追加
+file_handler = logging.FileHandler("app.log", encoding="utf-8")
+file_handler.setLevel(logging.INFO)
+formatter = CustomFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
 # CORS設定を追加
 app.add_middleware(
     CORSMiddleware,
@@ -66,6 +87,23 @@ app.add_middleware(
     allow_methods=["*"],  # 許可するHTTPメソッドを指定
     allow_headers=["*"],  # 許可するHTTPヘッダーを指定
 )
+
+# 例外ハンドラを追加
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    logger.error(f"Unhandled exception: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"message": "Internal Server Error"},
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    logger.error(f"Validation error: {exc.errors()}")
+    return JSONResponse(
+        status_code=422,
+        content={"message": "Validation Error", "details": exc.errors()},
+    )
 
 # プッシュ通知各種設定が定義されているインスタンス
 notifier = Notifier()
@@ -884,9 +922,20 @@ async def startup():
 
 @app.post("/appSettingInit")
 async def appSettingInit(appSettingInitReq: AppSettingInitReq):
-    saveData:dict = {}
+    saveData:dict = JsonAccessor.loadAppSettingTest()
     appSetting = AppSettingsModel(**saveData)
     return appSetting
+
+@app.post("/SaveSetting")
+async def saveSetting(saveSettingReq: AppSettingsModel):
+    try:
+        ExtendFunc.ExtendPrint(saveSettingReq)
+        JsonAccessor.saveAppSettingTest(saveSettingReq)
+        # 処理ロジック
+        return {"message": "設定を保存しました"}
+    except Exception as e:
+        logger.error(f"Error in /SaveSetting: {e}")
+        return JSONResponse(status_code=500, content={"message": "Internal Server Error"})
 
 # 設定の状態を取得、管理、配信するAPI
 @app.websocket("/settingStore/{client_id}/{setting_name}/{mode_name}")

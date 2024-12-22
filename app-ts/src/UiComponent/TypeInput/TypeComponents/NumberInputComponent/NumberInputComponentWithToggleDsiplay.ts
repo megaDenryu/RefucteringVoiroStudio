@@ -15,10 +15,9 @@ import "./NumberInputComponent.css";
 /// - 数値が変更されたときのイベントを登録する
 /// - 数値が変更されたときのイベントを削除する
 /// </summary>
-export class NumberInputComponentWithSaveButton implements IHasComponent, IInputComponet {
+export class NumberInputComponentWithToggleDsiplay implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
-    private readonly _NormalButton: NormalButton
     private readonly _title : string;
     public title():string { return this._title; }
     private _min: number = 0;
@@ -41,7 +40,6 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(min, max, step));
         this.component = new BaseComponent(html);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
-        this._NormalButton = new NormalButton("保存", "normal");
         this.Initialize();
     }
 
@@ -86,9 +84,6 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
             "positionAbsolute",
         ]);
 
-        this._NormalButton.addOnClickEvent(() => {
-            this.save();
-        });
 
         this._darty.addMethod((value) => {
             if (value) {
@@ -100,7 +95,6 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
             }
         });
 
-        this.component.createArrowBetweenComponents(this, this._NormalButton);
         this.component.createArrowBetweenComponents(this, this._toggleFormatStateDisplay);
     }
 
@@ -145,7 +139,6 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
         this._darty.clearMethods();
         this._save.clearMethods();
         //子要素の削除
-        this._NormalButton.delete();
         this._toggleFormatStateDisplay.delete();
     }
 }

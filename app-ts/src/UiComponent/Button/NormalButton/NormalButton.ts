@@ -37,4 +37,8 @@ export class NormalButton implements IHasComponent {
     public addOnClickEvent(f: (() => void)): void {
         this._onClick.push(f);
     }
+
+    public delete(): void {
+        this.component.delete();
+    }
 }

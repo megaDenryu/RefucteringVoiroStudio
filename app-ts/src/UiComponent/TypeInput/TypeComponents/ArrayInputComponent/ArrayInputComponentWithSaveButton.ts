@@ -83,10 +83,59 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
     }
 
-    public getValue(): any {
+    public getValue(): UnitType["_type"][] {
         return this._inputComponentList.map((inputComponent) => {
             return inputComponent.getValue();
         });
+    }
+
+    /**
+     * この addElement メソッドは、配列 _inputComponentList に要素を追加するためのものです。具体的には、最後の要素の値を取得し、それを新しい要素の初期値として設定して、新しい要素を作成します。
+     * @param index 
+     */
+    public addElement(index?: number): void {
+        const i = this._inputComponentList.length;
+        const lastElementValue = this._inputComponentList[i - 1].getValue();
+        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue);
+    
+        if (index !== undefined && 0 <= index && index <= this._inputComponentList.length) {
+            this._inputComponentList.splice(index, 0, newComponent);
+            this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, newComponent, null, index);
+        } else {
+            this._inputComponentList.push(newComponent);
+            this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, newComponent);
+        }
+
+        this.setAllchildRelative();
+        this.optimizeBoardSize();
+    }
+
+    /**
+     * この removeElement メソッドは、配列 _inputComponentList から要素を削除するためのものです。具体的には、指定された index の位置にある要素を削除します。
+     * @param index
+     */
+    public removeElement(index: number): void {
+        if (index >= 0 && index < this._inputComponentList.length) {
+            const removedComponent = this._inputComponentList.splice(index, 1);
+            removedComponent[0].delete();
+        }
+    }
+
+    /**
+     * この moveElement メソッドは、配列 _inputComponentList 内の要素を指定された位置に移動するためのものです。具体的には、fromIndex から toIndex へ要素を移動します。
+     * @param fromIndex 
+     * @param toIndex 
+     */
+    public moveElement(fromIndex: number, toIndex: number): void {
+        // インデックスが有効な範囲内にあるかをチェック
+        if (0 <= fromIndex && fromIndex < this._inputComponentList.length && 0 <= toIndex && toIndex < this._inputComponentList.length) {
+            // fromIndex の位置から要素を1つ取り出し、element に格納
+            const element = this._inputComponentList.splice(fromIndex, 1)[0];
+            // toIndex の位置に element を挿入
+            this._inputComponentList.splice(toIndex, 0, element);
+            // _squareBoardComponent に要素の移動を反映
+            this._squareBoardComponent.moveComponent(fromIndex, toIndex);
+        }
     }
 
     public isDarty(): boolean {
@@ -152,6 +201,13 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         const marginRight = parseFloat(style.marginRight);
         const totalWidth = rect.width + marginLeft + marginRight;
         return totalWidth;
+    }
+
+    public delete(): void {
+        this._inputComponentList.forEach((inputComponent) => {
+            inputComponent.delete();
+        });
+        this.component.delete();
     }
 
 }
