@@ -21,7 +21,7 @@ import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentLis
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
     private readonly _NormalButton: NormalButton
-    public readonly title : string;
+    public title : string;
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _inputComponentCompositeList : IHasInputComponent[]; //表示するInput要素のリスト
@@ -130,6 +130,10 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         if (index >= 0 && index < this._inputComponentCompositeList.length) {
             const removedComponent = this._inputComponentCompositeList.splice(index, 1);
             removedComponent[0].delete();
+            //全体の番号を振りなおす
+            this._inputComponentCompositeList.forEach((unit, i) => {
+                unit.inputComponent.title = i.toString();
+            });
         }
     }
 

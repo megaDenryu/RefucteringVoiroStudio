@@ -15,7 +15,7 @@ import { z } from "zod";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
-    public readonly title : string;
+    public title : string;
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
@@ -113,12 +113,17 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
 
     /**
      * この removeElement メソッドは、配列 _inputComponentList から要素を削除するためのものです。具体的には、指定された index の位置にある要素を削除します。
+     * 消したときに表示されてる番号が修正されていないので、修正する必要がある。
      * @param index
      */
     public removeElement(index: number): void {
         if (index >= 0 && index < this._arrayUnitList.length) {
             const removedComponent = this._arrayUnitList.splice(index, 1);
             removedComponent[0].delete();
+            //全体の番号を振りなおす
+            this._arrayUnitList.forEach((unit, i) => {
+                unit.inputComponent.title = i.toString();
+            });
         }
     }
 
