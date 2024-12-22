@@ -2,11 +2,12 @@ import { z } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_component_base";
 import { ReactiveProperty } from "../../../BaseClasses/observer";
 import { inherits } from "util";
+import { IButton } from "../IButton";
 
 
 export const NormaButtonViewEnum = z.enum(["normal", "warning", "danger"]);
 
-export class NormalButton implements IHasComponent {
+export class NormalButton implements IHasComponent, IButton {
     component: BaseComponent;
     private _title: string;
     private _view: ReactiveProperty<z.infer<typeof NormaButtonViewEnum>>;

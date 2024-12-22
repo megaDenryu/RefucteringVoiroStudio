@@ -2,6 +2,7 @@ import { z, ZodEnum } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_component_base";
 import { ReactiveProperty } from "../../../BaseClasses/observer";
 import "./ToggleFormatStateDisplay.css";
+import { IToggleFormatStateDisplay } from "../IToggleFormatStateDisplay";
 
 // CSSクラスを操作するためのEnumの定義
 export const ColorEnum = z.enum(["red", "green", "blue"]);
@@ -11,7 +12,7 @@ export const ColorEnum = z.enum(["red", "green", "blue"]);
  * 状態の候補はリストで持ち、外部のクラスに対して選択させる関数を提供する。
  * このコンポーネント自体はユーザーは操作できず、外部のUIを操作することでこのコンポーネントの状態を変更する。
  */
-export class ToggleFormatStateDisplay<T extends ZodEnum<any>> implements IHasComponent {
+export class ToggleFormatStateDisplay<T extends ZodEnum<any>> implements IHasComponent, IToggleFormatStateDisplay<T> {
     component: BaseComponent;
     private _title: string;
     private _state: ReactiveProperty<z.infer<T>>;
