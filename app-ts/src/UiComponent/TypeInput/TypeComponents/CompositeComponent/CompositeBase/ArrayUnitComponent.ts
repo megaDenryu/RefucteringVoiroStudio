@@ -19,12 +19,10 @@ import { ICompositeBase, IHasInputComponent } from "../ICompositeComponentList";
 export class ArrayUnitComponent implements ICompositeBase {
 
     public readonly component: BaseComponent;
-    private readonly _title : string;
-    public title():string { return this._title; }
-    private readonly _inputComponent : IInputComponet; //表示するInput要素のリスト
-    public get inputComponent(): IInputComponet { return this._inputComponent; }
-    private readonly _addButton: IButton; 
-    private readonly _removeButton: IButton;
+    private readonly title : string;
+    public readonly inputComponent : IInputComponet; //表示するInput要素のリスト
+    public readonly addButton: IButton; 
+    public readonly removeButton: IButton;
 
     /**
      * 
@@ -34,18 +32,18 @@ export class ArrayUnitComponent implements ICompositeBase {
      * @param toggleFormatStateDisplay 表示形式変更ボタン
      */
     constructor(title: string, inputComponent: IInputComponet, addButton: IButton, removeButton: IButton) {
-        this._title = title;
+        this.title = title;
         this.component = inputComponent.component;
-        this._inputComponent = inputComponent;
-        this._addButton = addButton;
-        this._removeButton = removeButton;
+        this.inputComponent = inputComponent;
+        this.addButton = addButton;
+        this.removeButton = removeButton;
         this.initialize();
     }
 
     private initialize() {
         this.component.addCSSClass("CompositeComponent");
-        this.component.createArrowBetweenComponents(this, this._addButton);
-        this.component.createArrowBetweenComponents(this, this._removeButton);
+        this.component.createArrowBetweenComponents(this, this.addButton);
+        this.component.createArrowBetweenComponents(this, this.removeButton);
     }
 
     public delete(): void {
@@ -61,7 +59,7 @@ export class ArrayUnitComponent implements ICompositeBase {
 
     public static newWithOthre(other: IHasInputComponent) : ArrayUnitComponent {
         return new ArrayUnitComponent(
-            other.inputComponent.title(), 
+            other.inputComponent.title, 
             other.inputComponent, 
             new NormalButton("追加", "normal"), 
             new NormalButton("削除", "warning")

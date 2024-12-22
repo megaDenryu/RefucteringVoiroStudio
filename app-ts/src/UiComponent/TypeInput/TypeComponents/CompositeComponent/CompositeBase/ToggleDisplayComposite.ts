@@ -27,6 +27,19 @@ export class ToggleDisplayComposite implements IHasInputComponent {
     private initialize() {
         this.component.addCSSClass("CompositeComponent");
         this.component.createArrowBetweenComponents(this, this._toggleFormatStateDisplay);
+        this.bindEvent();
+    }
+
+    private bindEvent() {
+        this.inputComponent.addOnDartyEvent((value) => {
+            if (value) {
+                this._toggleFormatStateDisplay.setState("未保存");
+                this._toggleFormatStateDisplay.setColor("red");
+            } else {
+                this._toggleFormatStateDisplay.setState("保存済み");
+                this._toggleFormatStateDisplay.setColor("green");
+            }
+        });
     }
 
     delete(): void {
@@ -42,7 +55,7 @@ export class ToggleDisplayComposite implements IHasInputComponent {
     static newWithOther(other: IHasInputComponent) {
         const toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
         return new ToggleDisplayComposite(
-            other.inputComponent.title(), 
+            other.inputComponent.title, 
             other.inputComponent, 
             toggleFormatStateDisplay
         );

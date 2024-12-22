@@ -12,14 +12,13 @@ import { SaveState } from "../SaveState";
 export class EnumInputComponentWithToggleDisplay implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
-    private _title: string;
-    public title(): string { return this._title; }
+    public readonly title : string;
     private readonly _value: ReactiveProperty<SelecteValueInfo>;
     private readonly _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private readonly _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
 
     constructor(title: string, defautValue: SelecteValueInfo) {
-        this._title = title;
+        this.title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`

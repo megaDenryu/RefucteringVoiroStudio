@@ -21,14 +21,13 @@ import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentLis
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
     private readonly _NormalButton: NormalButton
-    private readonly _title : string;
-    public title():string { return this._title; }
+    public readonly title : string;
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _inputComponentCompositeList : IHasInputComponent[]; //表示するInput要素のリスト
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
-        this._title = title;
+        this.title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
@@ -50,7 +49,17 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IHasInputComponent {
         //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
         // return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
-        return new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue);
+        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue);
+        //unitにイベントを追加する
+        unit.arrayUnit.addButton.addOnClickEvent(() => {
+            this.addElement();
+        });
+        unit.arrayUnit.removeButton.addOnClickEvent(() => {
+            this.removeElement(this._inputComponentCompositeList.indexOf(unit));
+        });
+        //unitにcssを追加する
+        unit.component.addCSSClass(["Indent","padding"]);
+        return unit;
     }
 
     private initialize() {
@@ -155,7 +164,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     }
 
     public addNewElement(): void {
-        let newElement = this.createDefaultInputComponent(this._title, this._schema.element, null);
+        let newElement = this.createDefaultInputComponent(this.title, this._schema.element, null);
         this._inputComponentCompositeList.push(newElement);
         this.component.createArrowBetweenComponents(this, newElement);
     }

@@ -28,9 +28,16 @@ export class SaveButtonComposite implements IHasInputComponent {
     private initialize() {
         this.component.addCSSClass("CompositeComponent");
         this.component.createArrowBetweenComponents(this, this._saveButton);
+        this.bindEvent();
     }
 
-    delete(): void {
+    private bindEvent() {
+        this._saveButton.addOnClickEvent(() => {
+            this._inputComponent.save();
+        });
+    }   
+
+    public delete(): void {
         this.component.delete();
     }
 
@@ -43,7 +50,7 @@ export class SaveButtonComposite implements IHasInputComponent {
     static newWithOther(other: IHasInputComponent) {
         const saveButton = new NormalButton("保存", "normal");
         return new SaveButtonComposite(
-            other.inputComponent.title(), 
+            other.inputComponent.title, 
             other.inputComponent, 
             saveButton
         );
