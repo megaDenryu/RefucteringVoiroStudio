@@ -15,13 +15,14 @@ import { z } from "zod";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
-    public title : string;
+    private _title : string;
+    public get title():string { return this._title; }
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
-        this.title = title;
+        this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
@@ -64,6 +65,11 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             "positionAbsolute",
         ]);
         this.setAllchildRelative();
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        this._squareBoardComponent.setTitle(title);
     }
 
     public onAddedToDom() {
@@ -122,7 +128,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             removedComponent[0].delete();
             //全体の番号を振りなおす
             this._arrayUnitList.forEach((unit, i) => {
-                unit.inputComponent.title = i.toString();
+                unit.inputComponent.setTitle(i.toString());
             });
         }
     }
@@ -158,7 +164,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     }
 
     public addNewElement(): void {
-        let newElement = this.createDefaultInputComponent(this.title, this._schema.element, null);
+        let newElement = this.createDefaultInputComponent(this._title, this._schema.element, null);
         this._arrayUnitList.push(newElement);
         this.component.createArrowBetweenComponents(this, newElement);
     }

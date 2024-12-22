@@ -14,8 +14,8 @@ import "./NumberInputComponent.css";
 /// </summary>
 export class NumberInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
-    private readonly _title : string;
-    public title():string { return this._title; }
+    private _title : string;
+    public get title():string { return this._title; }
     private _min: number = 0;
     private _max: number = 100;
     private _step: number = 1;
@@ -45,7 +45,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet {
     private HTMLDefinition(min: number, max: number, step: number): string {
         return `
         <div class="NumberInputComponent">
-            <label>${this._title}</label>
+            <label class="NumberInputComponentLabel">${this._title}</label>
             <input 
                 type="range" 
                 min="${min}" 
@@ -56,6 +56,13 @@ export class NumberInputComponent implements IHasComponent, IInputComponet {
             >
             <span class="NumberInputSliderValue">${this._value.get()}</span>
         </div>`;
+    }
+
+    public setTitle(title: string): void {
+        const labelElement = this.component.element.querySelector(".NumberInputComponentLabel");
+        if (labelElement) {
+            labelElement.textContent = title;
+        }
     }
 
     private Initialize() {

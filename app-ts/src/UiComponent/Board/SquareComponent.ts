@@ -7,6 +7,8 @@ import "./SquareComponent.css";
  * 四角形のボードのコンポーネント
  */
 export class SquareBoardComponent implements IHasComponent, IDragAble {
+    private _title: string;
+    public get title(): string { return this._title; }
     public readonly component: BaseComponent;
     public readonly dragMover: DragMover;
     public readonly id: string;
@@ -24,6 +26,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         customStyles: Partial<CSSStyleDeclaration> = {},
         id: string|null = null
     ) {
+        this._title = title;
         this.id = id ?? ExtendFunction.uuid();
         const htmlString = `
         <div class="square-board-${this.id}">
@@ -38,6 +41,10 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         this.addAdditionalClasses(additionalClassNames); // 追加クラスを適用
         this.applyCustomStyles(customStyles); // 追加スタイルを適用
         this.dragMover = new DragMover(this);
+    }
+
+    public setTitle(title: string): void {
+        this.component.element.querySelector(".boardTitle")!.innerHTML = title;
     }
 
     /**

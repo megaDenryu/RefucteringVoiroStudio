@@ -7,15 +7,15 @@ import { SelecteValueInfo } from "./SelecteValueInfo";
 import "./EnumInputComponent.css";
 
 export class EnumInputComponent implements IHasComponent, IInputComponet {
-
     public readonly component: BaseComponent;
-    public readonly title : string;
+    private _title : string;
+    public get title(): string { return this._title; }
     private _value: ReactiveProperty<SelecteValueInfo>;
     private _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
 
     constructor(title: string, defautValue: SelecteValueInfo) {
-        this.title = title;
+        this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
@@ -26,6 +26,14 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
         divHtml.appendChild(selecter);
         this.component = new BaseComponent(divHtml);
         this.initialize(selecter);
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        let titleContent = this.component.element.querySelector(".EnumInputComponentLabel");
+        if (titleContent != null) {
+            titleContent.textContent = title;
+        }
     }
 
     private initialize(selecter:HTMLSelectElement): void {

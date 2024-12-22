@@ -11,8 +11,8 @@ import "./StringInputComponent.css";
 export class StringInputComponentWithToggleDisplay implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
-    private readonly _title : string;
-    public title():string { return this._title; }
+    private _title : string;
+    public get title():string { return this._title; }
     private readonly _value : ReactiveProperty<string|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
@@ -45,6 +45,13 @@ export class StringInputComponentWithToggleDisplay implements IHasComponent, IIn
                 class="string-input"
             >
         </div>`;
+    }
+
+    public setTitle(title: string): void {
+        const labelElement = this.component.element.querySelector(".StringInputComponentLabel");
+        if (labelElement) {
+            labelElement.textContent = title;
+        }
     }
 
     /**

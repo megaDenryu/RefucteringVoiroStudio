@@ -12,13 +12,14 @@ import { SaveState } from "../SaveState";
 export class EnumInputComponentWithToggleDisplay implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
-    public readonly title : string;
+    private _title : string;
+    public get title(): string { return this._title; }
     private readonly _value: ReactiveProperty<SelecteValueInfo>;
     private readonly _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private readonly _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
 
     constructor(title: string, defautValue: SelecteValueInfo) {
-        this.title = title;
+        this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
@@ -52,6 +53,14 @@ export class EnumInputComponentWithToggleDisplay implements IHasComponent, IInpu
         });
 
         this.component.createArrowBetweenComponents(this, this._toggleFormatStateDisplay);
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        let titleContent = this.component.element.querySelector(".EnumInputComponentLabel");
+        if (titleContent != null) {
+            titleContent.textContent = title;
+        }
     }
 
     public addOnChangeEvent(event: (value: SelecteValueInfo) => void): void {
