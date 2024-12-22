@@ -91,4 +91,8 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
     public onAddedToDom() {
         this._objectInputComponent.optimizeBoardSize();
     }
+
+    public delete() {
+        this.component.delete();
+    }
 }

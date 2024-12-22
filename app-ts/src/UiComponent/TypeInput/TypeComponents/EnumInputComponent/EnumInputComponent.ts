@@ -9,14 +9,13 @@ import "./EnumInputComponent.css";
 export class EnumInputComponent implements IHasComponent, IInputComponet {
 
     public readonly component: BaseComponent;
-    private _title: string;
-    public title(): string { return this._title; }
+    public readonly title : string;
     private _value: ReactiveProperty<SelecteValueInfo>;
     private _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
 
     constructor(title: string, defautValue: SelecteValueInfo) {
-        this._title = title;
+        this.title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
@@ -60,8 +59,11 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
         return this._darty.get();
     }
 
-    save(): void {
-        this._save.set(true);
+    public save(): void {
+        if (this._darty.get() == true) {
+            this._save.set(true);
+            this._darty.set(false);
+        }
     }
 
     setValue(value: string): void {

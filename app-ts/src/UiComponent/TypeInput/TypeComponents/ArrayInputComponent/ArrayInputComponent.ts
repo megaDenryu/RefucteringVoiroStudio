@@ -4,6 +4,7 @@ import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
+import { ArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUnitComponent";
 import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { IInputComponet } from "../IInputComponet";
@@ -14,23 +15,22 @@ import { z } from "zod";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
-    private readonly _title : string;
-    public title():string { return this._title; }
+    public readonly title : string;
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
-    private readonly _inputComponentList : IInputComponet[]; //表示するInput要素のリスト
+    private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
-        this._title = title;
+        this.title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
-        this._inputComponentList = this.createDefaultInputComponentList(title, schema, defaultValues);
+        this._arrayUnitList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.initialize();
     }
 
-    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IInputComponet[] {
-        let inputComponentList : IInputComponet[] = [];
+    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : ArrayUnitComponent[] {
+        let inputComponentList : ArrayUnitComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
             let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i]);
             inputComponent.component.addCSSClass(["Indent","padding"]);
@@ -39,13 +39,24 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IInputComponet {
-        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : ArrayUnitComponent {
+        // return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+        const unit =  ArrayUnitComponent.new(title, unitSchema, defaultValue);
+        //unitにイベントを追加する
+        unit.addButton.addOnClickEvent(() => {
+            this.addElement();
+        });
+        unit.removeButton.addOnClickEvent(() => {
+            this.removeElement(this._arrayUnitList.indexOf(unit));
+        });
+        //unitにcssを追加する
+        unit.component.addCSSClass(["Indent","padding"]);
+        return unit;
     }
 
     private initialize() {
         // this._squareBoardComponent.component.setZIndex(1);
-        this._inputComponentList.forEach((inputComponent) => {
+        this._arrayUnitList.forEach((inputComponent) => {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, inputComponent);
             // inputComponent.component.setZIndex(2);
         });
@@ -61,19 +72,20 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
 
 
     public addOnDartyEvent(event: (value: boolean) => void): void {
-        this._inputComponentList.forEach((inputComponent) => {
+        //オブジェクトの分割代入:forEach ループの引数として { inputComponent } を使用しています。これは、各 CollectionUnitComponent オブジェクトから inputComponent プロパティを直接抽出するための分割代入です。
+        this._arrayUnitList.forEach(({ inputComponent }) => {
             inputComponent.addOnDartyEvent(event);
         });
     }
 
     public addOnSaveEvent(event: (value: boolean) => void): void {
-        this._inputComponentList.forEach((inputComponent) => {
+        this._arrayUnitList.forEach(({inputComponent}) => {
             inputComponent.addOnSaveEvent(event);
         });
     }
 
     public getValue(): UnitType["_type"][] {
-        return this._inputComponentList.map((inputComponent) => {
+        return this._arrayUnitList.map(({inputComponent}) => {
             return inputComponent.getValue();
         });
     }
@@ -83,15 +95,15 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
      * @param index 
      */
     public addElement(index?: number): void {
-        const i = this._inputComponentList.length;
-        const lastElementValue = this._inputComponentList[i - 1].getValue();
+        const i = this._arrayUnitList.length;
+        const lastElementValue = this._arrayUnitList[i - 1].inputComponent.getValue();
         let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue);
     
-        if (index !== undefined && 0 <= index && index <= this._inputComponentList.length) {
-            this._inputComponentList.splice(index, 0, newComponent);
+        if (index !== undefined && 0 <= index && index <= this._arrayUnitList.length) {
+            this._arrayUnitList.splice(index, 0, newComponent);
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, newComponent, null, index);
         } else {
-            this._inputComponentList.push(newComponent);
+            this._arrayUnitList.push(newComponent);
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, newComponent);
         }
 
@@ -104,8 +116,8 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
      * @param index
      */
     public removeElement(index: number): void {
-        if (index >= 0 && index < this._inputComponentList.length) {
-            const removedComponent = this._inputComponentList.splice(index, 1);
+        if (index >= 0 && index < this._arrayUnitList.length) {
+            const removedComponent = this._arrayUnitList.splice(index, 1);
             removedComponent[0].delete();
         }
     }
@@ -117,11 +129,11 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
      */
     public moveElement(fromIndex: number, toIndex: number): void {
         // インデックスが有効な範囲内にあるかをチェック
-        if (0 <= fromIndex && fromIndex < this._inputComponentList.length && 0 <= toIndex && toIndex < this._inputComponentList.length) {
+        if (0 <= fromIndex && fromIndex < this._arrayUnitList.length && 0 <= toIndex && toIndex < this._arrayUnitList.length) {
             // fromIndex の位置から要素を1つ取り出し、element に格納
-            const element = this._inputComponentList.splice(fromIndex, 1)[0];
+            const element = this._arrayUnitList.splice(fromIndex, 1)[0];
             // toIndex の位置に element を挿入
-            this._inputComponentList.splice(toIndex, 0, element);
+            this._arrayUnitList.splice(toIndex, 0, element);
             // _squareBoardComponent に要素の移動を反映
             this._squareBoardComponent.moveComponent(fromIndex, toIndex);
         }
@@ -129,26 +141,26 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
 
     public isDarty(): boolean {
 
-        return this._inputComponentList.some((inputComponent) => {
+        return this._arrayUnitList.some(({inputComponent}) => {
             return inputComponent.isDarty();
         });
     }
 
     public save(): void {
-        this._inputComponentList.forEach((inputComponent) => {
+        this._arrayUnitList.forEach(({inputComponent}) => {
             inputComponent.save();
         });
     }
 
     public addNewElement(): void {
-        let newElement = this.createDefaultInputComponent(this._title, this._schema.element, null);
-        this._inputComponentList.push(newElement);
+        let newElement = this.createDefaultInputComponent(this.title, this._schema.element, null);
+        this._arrayUnitList.push(newElement);
         this.component.createArrowBetweenComponents(this, newElement);
     }
 
     public optimizeBoardSize(): void {
         //子コンポーネントがIHassSquareBoardを実装している場合、先に子コンポーネントのサイズを最適化する。
-        this._inputComponentList.forEach((inputComponent) => {
+        this._arrayUnitList.forEach(({inputComponent}) => {
             if (inputComponent instanceof ArrayInputComponent) {
                 inputComponent.optimizeBoardSize();
             }
@@ -158,7 +170,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         });
 
         let optimizeHeight:number = this._squareBoardComponent.getTitleHeight();
-        this._inputComponentList.forEach((inputComponent) => {
+        this._arrayUnitList.forEach(({inputComponent}) => {
             optimizeHeight += inputComponent.getHeight();
         });
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
@@ -168,7 +180,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     }
 
     public setAllchildRelative() {
-        this._inputComponentList.forEach((inputComponent) => {
+        this._arrayUnitList.forEach((inputComponent) => {
             inputComponent.component.addCSSClass("positionRelative");
             inputComponent.component.removeCSSClass("positionAbsolute");
         });
@@ -193,7 +205,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     }
 
     public delete(): void {
-        this._inputComponentList.forEach((inputComponent) => {
+        this._arrayUnitList.forEach((inputComponent) => {
             inputComponent.delete();
         });
         this.component.delete();
