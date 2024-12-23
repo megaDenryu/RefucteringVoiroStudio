@@ -77,6 +77,15 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
         this.dragMover = new DragMover(this);
         this.BindArrow();
         this.setZIndex();
+
+        //全てのRayoutChangeButtonにイベントを追加
+        let rayoutChangeButtonList = this.component.element.getElementsByClassName("RayoutChangeButton");
+        for (let i = 0; i < rayoutChangeButtonList.length; i++) {
+            rayoutChangeButtonList[i].addEventListener("click", () => {
+                this._objectInputComponent.optimizeBoardSize();
+            }
+        );
+        }
     }
 
     private BindArrow() {
