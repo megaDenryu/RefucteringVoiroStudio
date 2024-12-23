@@ -47,6 +47,7 @@ const user: User = {
     zipCode: "060-0000",
   },
   roles: ["Admin", "User"],
+  所有物: []
 };
 
 // バリデーション
@@ -54,12 +55,18 @@ try {
   UserSchema.parse(user); // 正常な場合、この行はエラーを出さない
   console.log("バリデーション成功！");
 } catch (e) {
-  console.error("バリデーション失敗:", e.errors);
+  if (e instanceof z.ZodError) {
+    console.error("バリデーション失敗:", e.errors);
+  } else {
+    console.error("バリデーション失敗:", e);
+  }
 }
 
 
 let niconamaSetting: NiconicoLiveSettingModel = {
   配信URL: "https://live.nicovideo.jp/watch/lv123456789",
+  コメント受信: "ON",
+  コメント禁止ワード: []
 }
 
 let YoutubeLiveSetting: YoutubeLiveSettingModel = {

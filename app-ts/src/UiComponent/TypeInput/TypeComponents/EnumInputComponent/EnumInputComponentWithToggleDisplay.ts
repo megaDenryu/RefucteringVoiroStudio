@@ -17,8 +17,9 @@ export class EnumInputComponentWithToggleDisplay implements IHasComponent, IInpu
     private readonly _value: ReactiveProperty<SelecteValueInfo>;
     private readonly _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private readonly _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, defautValue: SelecteValueInfo) {
+    constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponet|null = null) {
         this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
@@ -30,6 +31,7 @@ export class EnumInputComponentWithToggleDisplay implements IHasComponent, IInpu
         divHtml.appendChild(selecter);
         this.component = new BaseComponent(divHtml);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
+        this.parent = parent;
         this.initialize(selecter);
     }
 

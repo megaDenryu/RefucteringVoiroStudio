@@ -35,6 +35,10 @@ export class HumanTab implements IHasComponent,IHumanTab {
         // 新しいモードを追加する場合はここに追記
     };
 
+    delete(): void {
+        this.component.delete();
+    }
+
     get human_tab_elm(): HTMLElement {
         return this.component.element;
     }
@@ -160,6 +164,10 @@ export class HumanWindow implements IHasComponent, IHumanWindow {
     public addClass(className: string) {
         this.component.element.classList.add(className);
     }
+
+    delete(): void {
+        this.component.delete();
+    }
 }
 
 export class DeleteHumanButton implements IHasComponent, IDeleteHumanButton {
@@ -171,6 +179,10 @@ export class DeleteHumanButton implements IHasComponent, IDeleteHumanButton {
     }
     addOnclick(func:()=>void) {
         this.onClick.addMethod(func);
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 }
 
@@ -196,6 +208,11 @@ export class HumanName implements IHasComponent, IHumanName {
     removeClass(className: string) {
         this.component.removeCSSClass(className);
     }
+
+    delete(): void {
+        this.component.delete();
+    }
+
     inputHumanaName() {
         this.addClass("input_now");
         let input = document.createElement("input")
@@ -233,6 +250,10 @@ export class HumanSelectPanelStartButton implements IHasComponent, IHumanSelectP
     }
     addOnClick(func:()=>void) {
         this._onClick.addMethod(func);
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 }
 
@@ -272,6 +293,10 @@ export class BodySettingButton implements IHasComponent, IBodySettingButton {
             GlobalState.setting_info[char_name] = vas;
             GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
         }
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 
 }
@@ -317,6 +342,10 @@ export class MicToggleButton implements IHasComponent, IMicToggleButton {
             }
         }
     }
+
+    delete(): void {
+        this.component.delete();
+    }
 }
 
 export class AddHumanButton implements IHasComponent, IAddHumanButton {
@@ -339,6 +368,10 @@ export class AddHumanButton implements IHasComponent, IAddHumanButton {
         GlobalState.drag_drop_file_event_list?.push(new DragDropFile(messageBox.human_tab));
     }
 
+    delete(): void {
+        this.component.delete();
+    }
+
 
 }
 
@@ -355,6 +388,10 @@ export class BackGroundImage implements IHasComponent, IBackGroundImage {
     setBackGroundImage(readerResult: string) {
         (this.component.element as HTMLImageElement).src = readerResult;
     }
+
+    delete(): void {
+        this.component.delete();
+    }
 }
 
 export class BackGroundImages implements IHasComponent, IBackGroundImages {
@@ -368,5 +405,9 @@ export class BackGroundImages implements IHasComponent, IBackGroundImages {
         let bg_image = new BackGroundImage(readerResult);
         this.component.createArrowBetweenComponents(this, bg_image);
         this.backGroundImages.push(bg_image);
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 }

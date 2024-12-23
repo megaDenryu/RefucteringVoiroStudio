@@ -12,13 +12,14 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
     private readonly _NormalButton: NormalButton
     private readonly _title : string;
-    public get _title():string { return this._title; }
+    public get title():string { return this._title; }
     private readonly _value : ReactiveProperty<boolean|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : boolean|null;
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, defaultValue: boolean|null) {
+    constructor(title: string, defaultValue: boolean|null, parent: IInputComponet|null = null) {
         this._title = title;
         this._defaultValue = defaultValue;
         this._value = new ReactiveProperty(defaultValue);
@@ -28,6 +29,7 @@ export class BooleanInputComponentWithSaveButton implements IHasComponent, IInpu
         this.component = new BaseComponent(html);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
         this._NormalButton = new NormalButton("保存", "normal");
+        this.parent = parent;
         this.Initialize(this.component.element.querySelector(".BooleanInputCheckBox") as HTMLInputElement);
     }
 
