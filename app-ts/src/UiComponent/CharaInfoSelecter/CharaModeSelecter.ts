@@ -41,6 +41,10 @@ export class CharaModeChangeFunction implements IHasComponent, IDragAble {
     private human_tab: HumanTab;
     public registerHumanName: (human_name:string, human_tab:Element, ELM_human_name:HTMLElement) => void;
 
+    delete(): void {
+        this.component.delete();
+    }
+
     get defaultTTSSoftWare(): TTSSoftware {
         return this.ttsSoftware;
     }

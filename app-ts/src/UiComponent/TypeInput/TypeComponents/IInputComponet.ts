@@ -10,4 +10,13 @@ export interface IInputComponet extends IHasComponent {
     save(): void
     getHeight(): number
     getWidth(): number
+    parent: IInputComponet|null
+}
+
+export function getRootParent(component:IInputComponet): IInputComponet {
+    if (component.parent == null) {
+        return component
+    } else {
+        return getRootParent(component.parent)
+    }
 }

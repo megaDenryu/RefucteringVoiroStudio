@@ -20,13 +20,15 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponet|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
         this._arrayUnitList = this.createDefaultInputComponentList(title, schema, defaultValues);
+        this.parent = parent;
         this.initialize();
     }
 

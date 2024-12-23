@@ -18,8 +18,9 @@ export class StringInputComponentWithToggleDisplay implements IHasComponent, IIn
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : string|null;
     private _onInitialaize: Array<() => void> = [];
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, defaultValue: string|null) {
+    constructor(title: string, defaultValue: string|null, parent: IInputComponet|null = null) {
         this._title = title;
         this._defaultValue = defaultValue;
         this._value = new ReactiveProperty(defaultValue);
@@ -28,6 +29,7 @@ export class StringInputComponentWithToggleDisplay implements IHasComponent, IIn
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition());
         this.component = new BaseComponent(html);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
+        this.parent = parent;
         this.Initialize();
     }
 

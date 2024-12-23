@@ -28,7 +28,7 @@ export const VoiceRoidState = z.object({
 export const GameState = z.object({
     humanNumber: z.number(),
     humanList: VoiceRoidList,
-    humanStateDict: HumanState,
+    humanStateDict: z.array(z.array(HumanState)),
     voiceRoidState: VoiceRoidState,
 
 });
@@ -57,11 +57,11 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
         const gameState:GameState = {
             humanNumber: 1, 
             humanList: ["結月ゆかり","初音ミク"], 
-            humanStateDict: {
+            humanStateDict: [[{
                 atack: 10,
                 emotionList: ["悲しい", "嬉しい", "怒り"],
                 HP: 100
-            },
+            }]],
             voiceRoidState: {
                 購入済み: true,
                 voiceRoidList: ["結月ゆかり","初音ミク"], 

@@ -55,6 +55,10 @@ export class TTSSoftwareSelecter implements IHasComponent {
         }
 
     }
+
+    delete(): void {
+        this.component.delete();
+    }
 }
 
 export class CharacterNameSelecter implements IHasComponent {
@@ -91,6 +95,10 @@ export class CharacterNameSelecter implements IHasComponent {
 
     public hide(): void {
         this.component.hide();
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 }
 
@@ -161,6 +169,10 @@ export class CompositeCharacterNameSelecter implements IHasComponent {
     public addOnCharacterNameChanged(method: (characterName: CharacterName) => void): void {
         this._selectedCharacterName.addMethod(method);
     }
+
+    delete(): void {
+        this.component.delete();
+    }
 }
 
 export class HumanImageSelecter implements IHasComponent {
@@ -196,6 +208,10 @@ export class HumanImageSelecter implements IHasComponent {
 
     public hide(): void {
         this.component.hide();
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 
 }
@@ -260,6 +276,10 @@ export class CompositeHumanImageSelecter implements IHasComponent {
             }
         }
     }
+
+    delete(): void {
+        this.component.delete();
+    }
 }
 
 export class VoicemodeSelecter implements IHasComponent {
@@ -305,6 +325,10 @@ export class VoicemodeSelecter implements IHasComponent {
 
     public hide(): void {
         this.component.hide();
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 }
 
@@ -365,6 +389,10 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
             }
         }
     }
+
+    delete(): void {
+        this.component.delete();
+    }
 }
 
 export class CharacterSelectDecisionButton implements IHasComponent {
@@ -391,6 +419,10 @@ export class CharacterSelectDecisionButton implements IHasComponent {
     addOnPushButton(method: () => void): void {
         this.onPushButton.addMethod(method);
     }
+
+    delete(): void {
+        this.component.delete();
+    }
 }
 
 
@@ -408,6 +440,10 @@ export class CharaSelecterDeleteButton implements IHasComponent {
 
     addOnPushButton(method: () => void): void {
         this.onPushButton.addMethod(method);
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 }
 
@@ -602,5 +638,9 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
         //ウィンドウを削除する
         //このクラスインスタンスを削除する
         document.body.removeChild(this.component.element);
+    }
+
+    delete(): void {
+        this.component.delete();
     }
 }

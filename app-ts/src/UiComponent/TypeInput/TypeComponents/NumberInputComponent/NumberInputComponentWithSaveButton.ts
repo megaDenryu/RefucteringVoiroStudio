@@ -28,8 +28,9 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : number|null;
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, defaultValue: number|null, min: number = 0, max: number = 100, step: number = 1) {
+    constructor(title: string, defaultValue: number|null, min: number = 0, max: number = 100, step: number = 1, parent: IInputComponet|null = null) {
         this._title = title;
         this._min = min;
         this._max = max;
@@ -42,6 +43,7 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
         this.component = new BaseComponent(html);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
         this._NormalButton = new NormalButton("保存", "normal");
+        this.parent = parent;
         this.Initialize();
     }
 
