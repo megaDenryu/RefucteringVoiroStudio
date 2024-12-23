@@ -12,10 +12,12 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : string|null;
     private _onInitialaize: Array<() => void> = [];
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, defaultValue: string|null) {
+    constructor(title: string, defaultValue: string|null, parent: IInputComponet|null = null) {
         this._title = title;
         this._defaultValue = defaultValue;
+        this.parent = parent;
         console.log(defaultValue);
         this._value = new ReactiveProperty(defaultValue);
         this._darty = new ReactiveProperty(false);

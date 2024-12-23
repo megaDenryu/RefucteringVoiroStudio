@@ -26,15 +26,18 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _inputComponentCompositeList : IHasInputComponent[]; //表示するInput要素のリスト
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponet|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("保存", "normal");
         this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues);
+        this.parent = parent;
         this.initialize();
+
     }
 
     private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IHasInputComponent[] {

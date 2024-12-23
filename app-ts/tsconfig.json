@@ -1,6 +1,6 @@
 {
   "include": ["./src/**/*"], // 対象のファイル
-  "exclude": [], // 除外するファイル
+  "exclude": ["node_modules", "dist"], // 除外するファイル
   "compilerOptions": {
     "target": "es2022",
     "lib": ["es2022", "DOM", "DOM.Iterable"],
@@ -30,5 +30,9 @@
 
     /* Type */
     "types": ["node"], // 型定義ファイルの指定
-  },
+
+    /* Additional settings */
+    "incremental": true, // 増分ビルドを有効にする
+    "tsBuildInfoFile": "./.tsbuildinfo" // 増分ビルド情報の保存場所
+  }
 }

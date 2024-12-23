@@ -13,10 +13,12 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
     private _value: ReactiveProperty<SelecteValueInfo>;
     private _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, defautValue: SelecteValueInfo) {
+    constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponet|null = null) {
         this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
+        this.parent = parent;
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
             <div class="EnumInputComponent">

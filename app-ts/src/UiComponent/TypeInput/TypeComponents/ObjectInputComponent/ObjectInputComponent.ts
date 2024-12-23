@@ -21,10 +21,12 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
     private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
     private readonly _values: T;
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponet|null = null) {
         this._title = title;
         this._schema = schema;
+        this.parent = parent;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);

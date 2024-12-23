@@ -7,15 +7,17 @@ import "./BooleanInputComponent.css";
 export class BooleanInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _title : string;
-    public get _title():string { return this._title; }
+    public get title():string { return this._title; }
     private readonly _value : ReactiveProperty<boolean|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : boolean|null;
+    public parent: IInputComponet|null = null;
 
-    constructor(title: string, defaultValue: boolean|null) {
+    constructor(title: string, defaultValue: boolean|null, parent: IInputComponet|null = null) {
         this._title = title;
         this._defaultValue = defaultValue;
+        this.parent = parent;
         this._value = new ReactiveProperty(defaultValue);
         this._darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);
