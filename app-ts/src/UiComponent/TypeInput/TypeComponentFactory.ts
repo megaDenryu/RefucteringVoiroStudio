@@ -13,6 +13,10 @@ import { NumberInputComponentWithSaveButton } from "./TypeComponents/NumberInput
 import { ObjectInputComponentWithSaveButton } from "./TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
 import { StringInputComponentWithSaveButton } from "./TypeComponents/StringInputComponent/StringInputComponentWithSaveButton";
 import { ArrayInputComponentWithSaveButton } from "./TypeComponents/ArrayInputComponent/ArrayInputComponentWithSaveButton";
+import { IHasInputComponent } from "./TypeComponents/CompositeComponent/ICompositeComponentList";
+import { SaveButtonComposite } from "./TypeComponents/CompositeComponent/CompositeBase/SaveButtonComposite";
+import { SaveToggleComposite } from "./TypeComponents/CompositeComponent/CompositeProduct/SaveToggleComposite";
+import { ArrayUnitToggleDisplaySaveButton } from "./TypeComponents/CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
 
 export class TypeComponentFactory {
 
@@ -72,6 +76,36 @@ export class TypeComponentFactory {
         } else if (unitSchema instanceof z.ZodDefault) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
             return this.createDefaultInputComponentWithSaveButton(title, unitSchema._def.innerType, defaultValue);
+        }
+        throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
+    }
+
+    /**
+     * 
+     * @param title : オブジェクトでのキー名
+     * @param unitSchema ： キーに対するスキーマ
+     * @param defaultValue ： デフォルト値
+     * @returns 
+     */
+    public static createInputComponentWithSaveButton2(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : IHasInputComponent {
+        if (unitSchema instanceof z.ZodString) {
+            return SaveToggleComposite.new(title, unitSchema, defaultValue);
+        } else if (unitSchema instanceof z.ZodNumber) {
+            return SaveToggleComposite.new(title, unitSchema, defaultValue);
+        } else if (unitSchema instanceof z.ZodBoolean) {
+            return SaveToggleComposite.new(title, unitSchema, defaultValue);
+        } else if (unitSchema instanceof z.ZodArray) {
+            return new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue);
+        } else if (unitSchema instanceof z.ZodEnum) {
+            return SaveToggleComposite.new(title, unitSchema, defaultValue);
+        } else if (unitSchema instanceof z.ZodObject) {
+            return SaveToggleComposite.new(title, unitSchema, defaultValue);
+        } else if (unitSchema instanceof z.ZodOptional) {
+            // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う
+            return this.createInputComponentWithSaveButton2(title, unitSchema._def.innerType, defaultValue);
+        } else if (unitSchema instanceof z.ZodDefault) {
+            // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
+            return this.createInputComponentWithSaveButton2(title, unitSchema._def.innerType, defaultValue);
         }
         throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }
