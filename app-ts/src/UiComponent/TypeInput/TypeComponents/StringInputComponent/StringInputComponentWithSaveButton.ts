@@ -12,8 +12,8 @@ export class StringInputComponentWithSaveButton implements IHasComponent, IInput
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
     private readonly _NormalButton: NormalButton
-    private readonly _title : string;
-    public title():string { return this._title; }
+    private _title : string;
+    public get title():string { return this._title; }
     private readonly _value : ReactiveProperty<string|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
@@ -47,6 +47,14 @@ export class StringInputComponentWithSaveButton implements IHasComponent, IInput
                 class="string-input"
             >
         </div>`;
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        let titleContent = this.component.element.querySelector(".StringInputComponentLabel");
+        if (titleContent != null) {
+            titleContent.textContent = title;
+        }
     }
 
     /**

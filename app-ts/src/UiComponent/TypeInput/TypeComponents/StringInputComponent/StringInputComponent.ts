@@ -5,8 +5,8 @@ import "./StringInputComponent.css";
 
 export class StringInputComponent implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
-    private readonly _title : string;
-    public title():string { return this._title; }
+    private _title : string;
+    public get title():string { return this._title; }
     private readonly _value : ReactiveProperty<string|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
@@ -59,6 +59,14 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
         this.component.addCSSClass([
             "positionAbsolute",
         ]);
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        let titleContent = this.component.element.querySelector(".StringInputComponentLabel");
+        if (titleContent != null) {
+            titleContent.textContent = title;
+        }
     }
 
     private stopPropagation(e: Event) {

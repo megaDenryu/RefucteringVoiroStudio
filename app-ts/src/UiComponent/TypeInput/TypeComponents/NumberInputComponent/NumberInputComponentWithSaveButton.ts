@@ -19,7 +19,8 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
     private readonly _NormalButton: NormalButton
-    public readonly title : string;
+    public _title : string;
+    public get title():string { return this._title; }
     private _min: number = 0;
     private _max: number = 100;
     private _step: number = 1;
@@ -29,7 +30,7 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
     private readonly _defaultValue : number|null;
 
     constructor(title: string, defaultValue: number|null, min: number = 0, max: number = 100, step: number = 1) {
-        this.title = title;
+        this._title = title;
         this._min = min;
         this._max = max;
         this._step = step;
@@ -51,7 +52,7 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
     private HTMLDefinition(min: number, max: number, step: number): string {
         return `
         <div class="NumberInputComponent">
-            <label>${this.title}</label>
+            <label class="NumberInputComponentLabel">${this._title}</label>
             <input 
                 type="range" 
                 min="${min}" 
@@ -62,6 +63,14 @@ export class NumberInputComponentWithSaveButton implements IHasComponent, IInput
             >
             <span class="NumberInputSliderValue">${this._value.get()}</span>
         </div>`;
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        let titleContent = this.component.element.querySelector(".NumberInputComponentLabel");
+        if (titleContent != null) {
+            titleContent.textContent = title;
+        }
     }
 
     private Initialize() {

@@ -11,7 +11,7 @@ export class BooleanInputComponentWithToggleDisplay implements IHasComponent, II
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
     private readonly _title : string;
-    public title():string { return this._title; }
+    public get _title():string { return this._title; }
     private readonly _value : ReactiveProperty<boolean|null>;
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
@@ -23,7 +23,7 @@ export class BooleanInputComponentWithToggleDisplay implements IHasComponent, II
         this._value = new ReactiveProperty(defaultValue);
         this._darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);
-        let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition());
+        let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(title));
         this.component = new BaseComponent(html);
         this._toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
         this.Initialize(this.component.element.querySelector(".BooleanInputCheckBox") as HTMLInputElement);
@@ -33,12 +33,13 @@ export class BooleanInputComponentWithToggleDisplay implements IHasComponent, II
     /// HTMLの定義を返す。
     /// Boolean切り替えのHTMLを作る。
     /// </summary>
-    private HTMLDefinition(): string {
+    private HTMLDefinition(title:string): string {
         return `
             <div class="BooleanInputComponent">
                 <label class="BooleanInputComponentLabel">
-                    <input class="BooleanInputCheckBox" type="checkbox">
+                    ${title}
                 </label>
+                <input class="BooleanInputCheckBox" type="checkbox">
             </div>
         `;
     }
@@ -63,6 +64,10 @@ export class BooleanInputComponentWithToggleDisplay implements IHasComponent, II
         });
 
         this.component.createArrowBetweenComponents(this, this._toggleFormatStateDisplay);
+    }
+
+    public setTitle(title: string): void {
+        this.component.element.querySelector(".BooleanInputComponentLabel")!.innerHTML = title;
     }
 
     public addOnDartyEvent(event: (value: boolean) => void): void {

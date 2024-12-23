@@ -18,8 +18,8 @@ import "./NumberInputComponent.css";
 export class NumberInputComponentWithToggleDsiplay implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _toggleFormatStateDisplay: ToggleFormatStateDisplay<typeof SaveState>
-    private readonly _title : string;
-    public title():string { return this._title; }
+    private _title : string;
+    public get title():string { return this._title; }
     private _min: number = 0;
     private _max: number = 100;
     private _step: number = 1;
@@ -50,7 +50,7 @@ export class NumberInputComponentWithToggleDsiplay implements IHasComponent, IIn
     private HTMLDefinition(min: number, max: number, step: number): string {
         return `
         <div class="NumberInputComponent">
-            <label>${this._title}</label>
+            <label class="NumberInputComponentLabel">${this._title}</label>
             <input 
                 type="range" 
                 min="${min}" 
@@ -61,6 +61,14 @@ export class NumberInputComponentWithToggleDsiplay implements IHasComponent, IIn
             >
             <span class="NumberInputSliderValue">${this._value.get()}</span>
         </div>`;
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        let titleContent = this.component.element.querySelector(".NumberInputComponentLabel");
+        if (titleContent != null) {
+            titleContent.textContent = title;
+        }
     }
 
     private Initialize() {

@@ -15,13 +15,14 @@ import { z } from "zod";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
-    public readonly title : string;
+    private _title : string;
+    public get title():string { return this._title; }
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
-        this.title = title;
+        this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
@@ -64,6 +65,11 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             "positionAbsolute",
         ]);
         this.setAllchildRelative();
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        this._squareBoardComponent.setTitle(title);
     }
 
     public onAddedToDom() {
@@ -113,12 +119,17 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
 
     /**
      * この removeElement メソッドは、配列 _inputComponentList から要素を削除するためのものです。具体的には、指定された index の位置にある要素を削除します。
+     * 消したときに表示されてる番号が修正されていないので、修正する必要がある。
      * @param index
      */
     public removeElement(index: number): void {
         if (index >= 0 && index < this._arrayUnitList.length) {
             const removedComponent = this._arrayUnitList.splice(index, 1);
             removedComponent[0].delete();
+            //全体の番号を振りなおす
+            this._arrayUnitList.forEach((unit, i) => {
+                unit.inputComponent.setTitle(i.toString());
+            });
         }
     }
 
@@ -153,7 +164,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     }
 
     public addNewElement(): void {
-        let newElement = this.createDefaultInputComponent(this.title, this._schema.element, null);
+        let newElement = this.createDefaultInputComponent(this._title, this._schema.element, null);
         this._arrayUnitList.push(newElement);
         this.component.createArrowBetweenComponents(this, newElement);
     }

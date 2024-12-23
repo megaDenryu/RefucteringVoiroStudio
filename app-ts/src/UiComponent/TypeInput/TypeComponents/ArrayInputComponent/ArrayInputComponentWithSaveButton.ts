@@ -21,13 +21,14 @@ import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentLis
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
     public readonly component: BaseComponent;
     private readonly _NormalButton: NormalButton
-    public readonly title : string;
+    private _title : string;
+    public get title():string { return this._title; }
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     private readonly _inputComponentCompositeList : IHasInputComponent[]; //表示するInput要素のリスト
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) {
-        this.title = title;
+        this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
@@ -76,6 +77,11 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
             this.save();
         });
 
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        this._squareBoardComponent.setTitle(title);
     }
 
     public onAddedToDom() {
@@ -130,6 +136,10 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         if (index >= 0 && index < this._inputComponentCompositeList.length) {
             const removedComponent = this._inputComponentCompositeList.splice(index, 1);
             removedComponent[0].delete();
+            //全体の番号を振りなおす
+            this._inputComponentCompositeList.forEach((unit, i) => {
+                unit.inputComponent.setTitle(i.toString());
+            });
         }
     }
 
@@ -164,7 +174,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     }
 
     public addNewElement(): void {
-        let newElement = this.createDefaultInputComponent(this.title, this._schema.element, null);
+        let newElement = this.createDefaultInputComponent(this._title, this._schema.element, null);
         this._inputComponentCompositeList.push(newElement);
         this.component.createArrowBetweenComponents(this, newElement);
     }

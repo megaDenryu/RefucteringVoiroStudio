@@ -15,8 +15,8 @@ import { TypeComponentFactory } from "../../TypeComponentFactory";
 
 export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
-    private readonly _title : string;
-    public title():string { return this._title; }
+    private _title : string;
+    public get title():string { return this._title; }
     private readonly _schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;;
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
     private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
@@ -55,6 +55,11 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
             "positionAbsolute",
         ]);
         this.setAllchildRelative();
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        this._squareBoardComponent.setTitle(title);
     }
 
     public onAddedToDom() {

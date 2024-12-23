@@ -24,8 +24,8 @@ import { ObjectInputComponent } from "./ObjectInputComponent";
 export class ObjectInputComponentWithSaveButton implements IHasComponent, IInputComponet {
     public readonly component: BaseComponent;
     private readonly _NormalButton: NormalButton
-    private readonly _title : string;
-    public title():string { return this._title; }
+    private _title : string;
+    public get title():string { return this._title; }
     private readonly _schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;;
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
     private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
@@ -69,7 +69,11 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
             this.save();
         });
 
-        
+    }
+
+    public setTitle(title: string): void {
+        this._title = title;
+        this._squareBoardComponent.setTitle(title);
     }
 
     public onAddedToDom() {

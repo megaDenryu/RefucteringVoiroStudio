@@ -44,6 +44,8 @@ export class ArrayUnitComponent implements ICompositeBase {
         this.component.addCSSClass("CompositeComponent");
         this.component.createArrowBetweenComponents(this, this.addButton);
         this.component.createArrowBetweenComponents(this, this.removeButton);
+        this.addButton.component.addCSSClass(["AddButton","RayoutChangeButton"]);
+        this.removeButton.component.addCSSClass(["RemoveButton","RayoutChangeButton"]);
     }
 
     public delete(): void {
@@ -58,11 +60,13 @@ export class ArrayUnitComponent implements ICompositeBase {
     }
 
     public static newWithOthre(other: IHasInputComponent) : ArrayUnitComponent {
+        const addButton = new NormalButton("追加", "normal");
+        const removeButton = new NormalButton("削除", "warning");
         return new ArrayUnitComponent(
             other.inputComponent.title, 
             other.inputComponent, 
-            new NormalButton("追加", "normal"), 
-            new NormalButton("削除", "warning")
+            addButton,
+            removeButton
         );
     }
 
