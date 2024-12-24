@@ -1,9 +1,10 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
+import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponet } from "../IInputComponet";
 import "./StringInputComponent.css";
 
-export class StringInputComponent implements IHasComponent, IInputComponet {
+export class StringInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
@@ -13,6 +14,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet {
     private readonly _defaultValue : string|null;
     private _onInitialaize: Array<() => void> = [];
     public parent: IInputComponet|null = null;
+    public get inputComponent(): IInputComponet { return this; }
 
     constructor(title: string, defaultValue: string|null, parent: IInputComponet|null = null) {
         this._title = title;

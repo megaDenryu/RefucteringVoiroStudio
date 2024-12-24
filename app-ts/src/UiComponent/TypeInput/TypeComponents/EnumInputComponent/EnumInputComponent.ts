@@ -5,8 +5,9 @@ import { IInputComponet } from "../IInputComponet";
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { SelecteValueInfo } from "./SelecteValueInfo";
 import "./EnumInputComponent.css";
+import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 
-export class EnumInputComponent implements IHasComponent, IInputComponet {
+export class EnumInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
     public readonly component: BaseComponent;
     private _title : string;
     public get title(): string { return this._title; }
@@ -14,6 +15,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet {
     private _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     public parent: IInputComponet|null = null;
+    public get inputComponent(): IInputComponet { return this; }
 
     constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponet|null = null) {
         this._title = title;

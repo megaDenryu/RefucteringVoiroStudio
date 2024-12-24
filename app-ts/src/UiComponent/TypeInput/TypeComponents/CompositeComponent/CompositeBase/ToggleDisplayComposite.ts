@@ -47,9 +47,9 @@ export class ToggleDisplayComposite implements IHasInputComponent {
     }
 
     static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : ToggleDisplayComposite {
-        const inputComponent = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
         const toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
-        return new ToggleDisplayComposite(title, inputComponent, toggleFormatStateDisplay);
+        return new ToggleDisplayComposite(title, inputComponentBox.inputComponent, toggleFormatStateDisplay);
     }
 
     static newWithOther(other: IHasInputComponent) {

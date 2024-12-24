@@ -38,9 +38,9 @@ export class SaveToggleComposite2 implements IHasInputComponent {
     }
 
     static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : SaveToggleComposite2 {
-        const inputComponent = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
         const saveButton = new NormalButton("保存", "normal");
         const toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
-        return new SaveToggleComposite2(title, inputComponent, saveButton, toggleFormatStateDisplay);
+        return new SaveToggleComposite2(title, inputComponentBox.inputComponent, saveButton, toggleFormatStateDisplay);
     }
 }

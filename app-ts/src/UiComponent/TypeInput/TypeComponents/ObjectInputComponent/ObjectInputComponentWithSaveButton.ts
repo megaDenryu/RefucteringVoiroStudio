@@ -1,37 +1,29 @@
 import { z } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { ArrayInputComponent } from "../ArrayInputComponent/ArrayInputComponent";
-import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
-import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
-import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { IInputComponet } from "../IInputComponet";
-import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
-import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import "./ObjectInputComponent.css";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
 import "../Component.css";
 import { NormalButton } from "../../../Button/NormalButton/NormalButton";
-import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
-import { SaveState } from "../SaveState";
-import { StringInputComponentWithSaveButton } from "../StringInputComponent/StringInputComponentWithSaveButton";
-import { NumberInputComponentWithSaveButton } from "../NumberInputComponent/NumberInputComponentWithSaveButton";
-import { EnumInputComponentWithSaveButton } from "../EnumInputComponent/EnumInputComponentWithSaveButton";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayInputComponentWithSaveButton";
 import { ObjectInputComponent } from "./ObjectInputComponent";
-import { SaveToggleComposite } from "../CompositeComponent/CompositeProduct/SaveToggleComposite";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
+import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 
-export class ObjectInputComponentWithSaveButton implements IHasComponent, IInputComponet {
+export class ObjectInputComponentWithSaveButton implements IHasComponent, IInputComponet, IHasInputComponent, IHasSquareBoard {
     public readonly component: BaseComponent;
     private readonly _NormalButton: NormalButton
     private _title : string;
     public get title():string { return this._title; }
     private readonly _schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;;
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
-    private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
+    public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
+    private readonly _inputComponentDict :Record<string,IHasInputComponent>; //表示するInput要素の辞書
     public parent: IInputComponet | null;
+    public get inputComponent(): IInputComponet { return this; }
 
     constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object, parent: IInputComponet|null = null) {
         this._title = title;
@@ -44,8 +36,8 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         this.initialize();
     }
 
-    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : {} {
-        let _inputComponentDict = {};
+    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : Record<string,IHasInputComponent> {
+        let _inputComponentDict:Record<string,IHasInputComponent> = {};
         for (let key in schema.shape) {
             let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key]);
             
@@ -55,8 +47,8 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
-        return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
+    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any) : IHasInputComponent {
+        return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue);
         // return SaveToggleComposite.new(title, unitSchema, defaultValue);
     }
 
@@ -87,27 +79,27 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
 
     public addOnDartyEvent(event: (value: boolean) => void): void {
         for (let key in this._inputComponentDict) {
-            this._inputComponentDict[key].addOnDartyEvent(event);
+            this._inputComponentDict[key].inputComponent.addOnDartyEvent(event);
         }
     }
 
     public addOnSaveEvent(event: (value: boolean) => void): void {
         for (let key in this._inputComponentDict) {
-            this._inputComponentDict[key].addOnSaveEvent(event);
+            this._inputComponentDict[key].inputComponent.addOnSaveEvent(event);
         }
     }
 
     public getValue(): object {
         let value = {};
         for (let key in this._inputComponentDict) {
-            value[key] = this._inputComponentDict[key].getValue();
+            value[key] = this._inputComponentDict[key].inputComponent.getValue();
         }
         return value;
     }
 
     public isDarty(): boolean {
         for (let key in this._inputComponentDict) {
-            if (this._inputComponentDict[key].isDarty()) {
+            if (this._inputComponentDict[key].inputComponent.isDarty()) {
                 return true;
             }
         }
@@ -116,7 +108,7 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
 
     public save(): void {
         for (let key in this._inputComponentDict) {
-            this._inputComponentDict[key].save();
+            this._inputComponentDict[key].inputComponent.save();
         }
     }
 
@@ -140,8 +132,8 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
 
         let optimizeHeight:number = this._squareBoardComponent.getTitleHeight();
         for (let key in this._inputComponentDict) {
-            let inputComponent = this._inputComponentDict[key];
-            optimizeHeight += inputComponent.getHeight();
+            let inputComponentBox = this._inputComponentDict[key];
+            optimizeHeight += inputComponentBox.inputComponent.getHeight();
         }
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;

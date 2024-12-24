@@ -6,6 +6,7 @@ import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { IInputComponet } from "../../IInputComponet";
 import { NormalButton } from "../../../../Button/NormalButton/NormalButton";
 import { ICompositeBase, IHasInputComponent } from "../ICompositeComponentList";
+import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 
 
 /**
@@ -31,19 +32,28 @@ export class ArrayUnitComponent implements ICompositeBase {
      * @param saveButton 保存ボタン
      * @param toggleFormatStateDisplay 表示形式変更ボタン
      */
-    constructor(title: string, inputComponent: IInputComponet, addButton: IButton, removeButton: IButton) {
+    constructor(title: string, inputComponentBox: IHasInputComponent, addButton: IButton, removeButton: IButton) {
         this.title = title;
-        this.component = inputComponent.component;
-        this.inputComponent = inputComponent;
+        this.component = inputComponentBox.inputComponent.component;
+        this.inputComponent = inputComponentBox.inputComponent;
         this.addButton = addButton;
         this.removeButton = removeButton;
         this.initialize();
     }
 
     private initialize() {
+        console.log(this.inputComponent);
         this.component.addCSSClass("CompositeComponent");
-        this.component.createArrowBetweenComponents(this, this.addButton);
-        this.component.createArrowBetweenComponents(this, this.removeButton);
+        if ((this.component as unknown as IHasSquareBoard).squareBoardComponent !== undefined) {
+            console.log("ArrayUnitComponentの初期化: スクエアボード有り");
+            const squareBoardComponent = (this.component as unknown as IHasSquareBoard).squareBoardComponent;
+            squareBoardComponent.addComponentToHeader(this.addButton);
+            squareBoardComponent.addComponentToHeader(this.removeButton);
+        } else {
+            console.log("ArrayUnitComponentの初期化: スクエアボード無し");
+            this.component.createArrowBetweenComponents(this, this.addButton);
+            this.component.createArrowBetweenComponents(this, this.removeButton);
+        }
         this.addButton.component.addCSSClass(["AddButton","RayoutChangeButton"]);
         this.removeButton.component.addCSSClass(["RemoveButton","RayoutChangeButton"]);
     }
@@ -53,10 +63,10 @@ export class ArrayUnitComponent implements ICompositeBase {
     }
 
     public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : ArrayUnitComponent {
-        const inputComponent = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
         const addButton = new NormalButton("追加", "normal");
         const removeButton = new NormalButton("削除", "warning");
-        return new ArrayUnitComponent(title, inputComponent, addButton, removeButton);
+        return new ArrayUnitComponent(title, inputComponentBox, addButton, removeButton);
     }
 
     public static newWithOthre(other: IHasInputComponent) : ArrayUnitComponent {
@@ -64,17 +74,10 @@ export class ArrayUnitComponent implements ICompositeBase {
         const removeButton = new NormalButton("削除", "warning");
         return new ArrayUnitComponent(
             other.inputComponent.title, 
-            other.inputComponent, 
+            other, 
             addButton,
             removeButton
         );
-    }
-
-    public static newWithSaveButton(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : ArrayUnitComponent {
-        const inputComponent = TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
-        const addButton = new NormalButton("追加", "normal");
-        const removeButton = new NormalButton("削除", "warning");
-        return new ArrayUnitComponent(title, inputComponent, addButton, removeButton);
     }
 
     

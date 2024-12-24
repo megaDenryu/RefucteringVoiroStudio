@@ -18,15 +18,17 @@ import { ArrayInputComponent } from "./ArrayInputComponent";
 import { ArrayUnitToggleDisplaySaveButton } from "../CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 
-export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
+export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard, IHasInputComponent {
     public readonly component: BaseComponent;
     private readonly _NormalButton: NormalButton
     private _title : string;
     public get title():string { return this._title; }
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
+    public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _inputComponentCompositeList : IHasInputComponent[]; //表示するInput要素のリスト
     public parent: IInputComponet|null = null;
+    public get inputComponent(): IInputComponet { return this; }
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponet|null = null) {
         this._title = title;
