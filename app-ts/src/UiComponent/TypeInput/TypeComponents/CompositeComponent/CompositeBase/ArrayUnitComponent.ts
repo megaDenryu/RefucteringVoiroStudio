@@ -17,10 +17,19 @@ import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
  * ArrayInputComponent内で使用する、insertやremoveなどのボタンを提供します。
  * 
  */
-export class ArrayUnitComponent implements ICompositeBase {
+
+export interface IArrayUnitComponent extends ICompositeBase{
+    readonly title: string;
+    readonly component: BaseComponent;
+    readonly inputComponent: IInputComponet;
+    readonly addButton: IButton;
+    readonly removeButton: IButton;
+}
+
+export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent {
 
     public readonly component: BaseComponent;
-    private readonly title : string;
+    public readonly title : string;
     public readonly inputComponent : IInputComponet; //表示するInput要素のリスト
     public readonly addButton: IButton; 
     public readonly removeButton: IButton;
@@ -44,16 +53,15 @@ export class ArrayUnitComponent implements ICompositeBase {
     private initialize() {
         console.log(this.inputComponent);
         this.component.addCSSClass("CompositeComponent");
-        if ((this.component as unknown as IHasSquareBoard).squareBoardComponent !== undefined) {
-            console.log("ArrayUnitComponentの初期化: スクエアボード有り");
-            const squareBoardComponent = (this.component as unknown as IHasSquareBoard).squareBoardComponent;
-            squareBoardComponent.addComponentToHeader(this.addButton);
-            squareBoardComponent.addComponentToHeader(this.removeButton);
-        } else {
-            console.log("ArrayUnitComponentの初期化: スクエアボード無し");
-            this.component.createArrowBetweenComponents(this, this.addButton);
-            this.component.createArrowBetweenComponents(this, this.removeButton);
-        }
+        // if ((this.component as unknown as IHasSquareBoard).squareBoardComponent !== undefined) {
+        //     console.log("ArrayUnitComponentの初期化: スクエアボード有り");
+        //     const squareBoardComponent = (this.component as unknown as IHasSquareBoard).squareBoardComponent;
+        //     squareBoardComponent.addComponentToHeader(this.addButton);
+        //     squareBoardComponent.addComponentToHeader(this.removeButton);
+        // } 
+        console.log("ArrayUnitComponentの初期化: スクエアボード無し");
+        this.component.createArrowBetweenComponents(this, this.addButton);
+        this.component.createArrowBetweenComponents(this, this.removeButton);
         this.addButton.component.addCSSClass(["AddButton","RayoutChangeButton"]);
         this.removeButton.component.addCSSClass(["RemoveButton","RayoutChangeButton"]);
     }
@@ -79,9 +87,53 @@ export class ArrayUnitComponent implements ICompositeBase {
             removeButton
         );
     }
+}
 
-    
 
+export class ArrayUnitComponentForHasSquareBoard implements ICompositeBase,IArrayUnitComponent {
 
-    
+    public readonly component: BaseComponent;
+    public readonly title : string;
+    public readonly inputComponent : IInputComponet&IHasSquareBoard; //表示するInput要素のリスト
+    public readonly addButton: IButton; 
+    public readonly removeButton: IButton;
+
+    /**
+     * 
+     * @param title CollectionUnitComponentのタイトル
+     * @param inputComponent CollectionUnitComponentに表示するInputComponent
+     * @param saveButton 保存ボタン
+     * @param toggleFormatStateDisplay 表示形式変更ボタン
+     */
+    constructor(title: string, inputComponent: IInputComponet&IHasSquareBoard, addButton: IButton, removeButton: IButton) {
+        this.title = title;
+        this.component = inputComponent.component;
+        this.inputComponent = inputComponent;
+        this.addButton = addButton;
+        this.removeButton = removeButton;
+        this.initialize();
+    }
+
+    private initialize() {
+        this.component.addCSSClass("CompositeComponent");
+        this.inputComponent.squareBoardComponent.addComponentToHeader(this.addButton);
+        this.inputComponent.squareBoardComponent.addComponentToHeader(this.removeButton);
+        this.addButton.component.addCSSClass(["AddButton","RayoutChangeButton"]);
+        this.removeButton.component.addCSSClass(["RemoveButton","RayoutChangeButton"]);
+    }
+
+    public delete(): void {
+        this.component.delete();
+    }
+
+    public static newWithOthre(other: IInputComponet&IHasSquareBoard) : ArrayUnitComponentForHasSquareBoard {
+        const addButton = new NormalButton("追加", "normal");
+        const removeButton = new NormalButton("削除", "warning");
+        return new ArrayUnitComponentForHasSquareBoard(
+            other.title, 
+            other, 
+            addButton,
+            removeButton
+        );
+    }
 }

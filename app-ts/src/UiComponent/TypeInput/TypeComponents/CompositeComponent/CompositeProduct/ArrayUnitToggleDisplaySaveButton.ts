@@ -1,22 +1,28 @@
 import { z } from "zod";
 import { BaseComponent } from "../../../../Base/ui_component_base";
 import { IInputComponet } from "../../IInputComponet";
-import { ArrayUnitComponent } from "../CompositeBase/ArrayUnitComponent";
+import { ArrayUnitComponent, ArrayUnitComponentForHasSquareBoard, IArrayUnitComponent } from "../CompositeBase/ArrayUnitComponent";
 import { IHasInputComponent } from "../ICompositeComponentList";
 import { SaveToggleComposite } from "./SaveToggleComposite";
 import { ArrayInputComponentWithSaveButton } from "../../ArrayInputComponent/ArrayInputComponentWithSaveButton";
 import { ObjectInputComponentWithSaveButton } from "../../ObjectInputComponent/ObjectInputComponentWithSaveButton";
+import { ComponentType } from "../../../ComponentType";
 
 
 export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
+    // public readonly componentType: ComponentType;
     public readonly component: BaseComponent;
     public readonly inputComponent: IInputComponet;
-    public readonly arrayUnit: ArrayUnitComponent;
+    public readonly arrayUnit: IArrayUnitComponent;
     public readonly saveToggle: IHasInputComponent;
 
     constructor(title: string, unitSchema: any, defaultValue:any) {
         this.saveToggle = ArrayUnitToggleDisplaySaveButton.new(title, unitSchema, defaultValue);
-        this.arrayUnit = ArrayUnitComponent.newWithOthre(this.saveToggle); //ここでアレイとオブジェクトにも付けているが、対応していないのでエラーになる
+        if (this.saveToggle instanceof SaveToggleComposite) {
+            this.arrayUnit = ArrayUnitComponent.newWithOthre(this.saveToggle);
+        } else if(this.saveToggle instanceof ArrayInputComponentWithSaveButton||this.saveToggle instanceof ObjectInputComponentWithSaveButton){
+            this.arrayUnit = ArrayUnitComponentForHasSquareBoard.newWithOthre(this.saveToggle);
+        }
         this.component = this.arrayUnit.component;
         this.inputComponent = this.arrayUnit.inputComponent;
     }
