@@ -5,6 +5,7 @@ import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
 import { ArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUnitComponent";
+import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { IInputComponet } from "../IInputComponet";
@@ -13,14 +14,16 @@ import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputCompone
 import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { z } from "zod";
 
-export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard {
+export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard, IHasInputComponent {
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
+    public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
     public parent: IInputComponet|null = null;
+    public get inputComponent(): IInputComponet { return this; }
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponet|null = null) {
         this._title = title;

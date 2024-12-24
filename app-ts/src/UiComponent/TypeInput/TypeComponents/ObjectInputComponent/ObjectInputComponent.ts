@@ -1,27 +1,26 @@
 import { z } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { ArrayInputComponent } from "../ArrayInputComponent/ArrayInputComponent";
-import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
-import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
-import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { IInputComponet } from "../IInputComponet";
-import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
-import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import "./ObjectInputComponent.css";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
 import "../Component.css";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
+import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
+import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 
-export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponet {
+export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponet, IHasInputComponent, IHasSquareBoard {
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
     private readonly _schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;;
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
+    public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
     private readonly _values: T;
     public parent: IInputComponet|null = null;
+    public get inputComponent(): IInputComponet { return this; }
 
     constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponet|null = null) {
         this._title = title;
@@ -46,7 +45,7 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     }
 
     private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
-        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue).inputComponent;
     }
 
     private initialize() {

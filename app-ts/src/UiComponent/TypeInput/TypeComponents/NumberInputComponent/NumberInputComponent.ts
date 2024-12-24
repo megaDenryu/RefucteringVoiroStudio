@@ -1,5 +1,6 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
+import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponet } from "../IInputComponet";
 import "./NumberInputComponent.css";
 
@@ -12,7 +13,7 @@ import "./NumberInputComponent.css";
 /// - 数値が変更されたときのイベントを登録する
 /// - 数値が変更されたときのイベントを削除する
 /// </summary>
-export class NumberInputComponent implements IHasComponent, IInputComponet {
+export class NumberInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
@@ -24,6 +25,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet {
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : number|null;
     public parent: IInputComponet|null = null;
+    public get inputComponent(): IInputComponet { return this; }
 
     constructor(title: string, defaultValue: number|null, min: number = 0, max: number = 100, step: number = 1, parent: IInputComponet|null = null) {
         this._title = title;

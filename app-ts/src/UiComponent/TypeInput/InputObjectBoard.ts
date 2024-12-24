@@ -73,6 +73,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
             }
         }
         this._objectInputComponent = new ObjectInputComponentWithSaveButton("ゲーム状態", GameState, gameState);
+        // this._objectInputComponent = new ObjectInputComponent("ゲーム状態", GameState, gameState);
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
         this.dragMover = new DragMover(this);
         this.BindArrow();

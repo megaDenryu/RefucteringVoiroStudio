@@ -42,9 +42,9 @@ export class SaveButtonComposite implements IHasInputComponent {
     }
 
     static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : SaveButtonComposite {
-        const inputComponent = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
         const saveButton = new NormalButton("保存", "normal");
-        return new SaveButtonComposite(title, inputComponent, saveButton);
+        return new SaveButtonComposite(title, inputComponentBox.inputComponent, saveButton);
     }
 
     static newWithOther(other: IHasInputComponent) {
