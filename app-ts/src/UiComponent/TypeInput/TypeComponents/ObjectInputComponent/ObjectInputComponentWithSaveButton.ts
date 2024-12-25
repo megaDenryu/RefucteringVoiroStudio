@@ -115,18 +115,24 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
     public optimizeBoardSize(): void {
         //子コンポーネントがIHassSquareBoardを実装している場合、先に子コンポーネントのサイズを最適化する。
         for (let key in this._inputComponentDict) {
-            let inputComponent = this._inputComponentDict[key];
+            let inputComponent = this._inputComponentDict[key].inputComponent;
             if (inputComponent instanceof ArrayInputComponent) {
-                            inputComponent.optimizeBoardSize();
+                console.log(`子要素 : ArrayInputComponent : ${inputComponent.inputComponent.title}`);
+                inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponent) {
+                console.log(`子要素 : ObjectInputComponent : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
+                console.log(`子要素 : ArrayInputComponentWithSaveButton : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
+                console.log(`子要素 : ObjectInputComponentWithSaveButton : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
+            } else {
+                console.log("未対応のコンポーネントです");
             }
         }
 

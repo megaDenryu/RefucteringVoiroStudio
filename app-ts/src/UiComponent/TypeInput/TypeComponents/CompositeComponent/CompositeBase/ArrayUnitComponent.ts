@@ -51,15 +51,7 @@ export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent {
     }
 
     private initialize() {
-        console.log(this.inputComponent);
         this.component.addCSSClass("CompositeComponent");
-        // if ((this.component as unknown as IHasSquareBoard).squareBoardComponent !== undefined) {
-        //     console.log("ArrayUnitComponentの初期化: スクエアボード有り");
-        //     const squareBoardComponent = (this.component as unknown as IHasSquareBoard).squareBoardComponent;
-        //     squareBoardComponent.addComponentToHeader(this.addButton);
-        //     squareBoardComponent.addComponentToHeader(this.removeButton);
-        // } 
-        console.log("ArrayUnitComponentの初期化: スクエアボード無し");
         this.component.createArrowBetweenComponents(this, this.addButton);
         this.component.createArrowBetweenComponents(this, this.removeButton);
         this.addButton.component.addCSSClass(["AddButton","RayoutChangeButton"]);
