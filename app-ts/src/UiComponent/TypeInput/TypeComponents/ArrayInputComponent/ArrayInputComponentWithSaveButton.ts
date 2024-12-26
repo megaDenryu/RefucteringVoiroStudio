@@ -28,35 +28,35 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _inputComponentCompositeList : IHasInputComponent[]; //表示するInput要素のリスト
-    public parent: IInputComponet|null = null;
+    public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponet|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("リスト全体保存", "normal");
-        this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues);
+        this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues, parent);
         this.parent = parent;
         this.initialize();
 
     }
 
-    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IHasInputComponent[] {
+    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent:(IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent[] {
         let inputComponentList : IHasInputComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i]);
+            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], parent);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             inputComponentList.push(inputComponent);
         }
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IHasInputComponent {
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"], parent:(IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent {
         //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
         // return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
-        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue);
+        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue, parent);
         //unitにイベントを追加する
         unit.arrayUnit.addButton.addOnClickEvent(() => {
             this.addElement();
@@ -120,7 +120,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     public addElement(index?: number): void {
         const i = this._inputComponentCompositeList.length;
         const lastElementValue = this._inputComponentCompositeList[i - 1].inputComponent.getValue();
-        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue);
+        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, this);
     
         if (index !== undefined && 0 <= index && index <= this._inputComponentCompositeList.length) {
             this._inputComponentCompositeList.splice(index, 0, newComponent);
@@ -177,12 +177,6 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         this._inputComponentCompositeList.forEach(({inputComponent}) => {
             inputComponent.save();
         });
-    }
-
-    public addNewElement(): void {
-        let newElement = this.createDefaultInputComponent(this._title, this._schema.element, null);
-        this._inputComponentCompositeList.push(newElement);
-        this.component.createArrowBetweenComponents(this, newElement);
     }
 
     public optimizeBoardSize(): void {

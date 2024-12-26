@@ -1,5 +1,6 @@
 import { ReactiveProperty } from "../../../../BaseClasses/observer";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
+import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponet } from "../IInputComponet";
 import "./NumberInputComponent.css";
@@ -24,20 +25,20 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : number|null;
-    public parent: IInputComponet|null = null;
+    public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
 
-    constructor(title: string, defaultValue: number|null, min: number = 0, max: number = 100, step: number = 1, parent: IInputComponet|null = null) {
+    constructor(title: string, defaultValue: number|null, min: number|null=null, max: number|null=null, step: number|null=null, parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;
-        this._min = min;
-        this._max = max;
-        this._step = step;
+        this._min = min??0;
+        this._max = max ?? 100;
+        this._step = step??1;
         this._defaultValue = defaultValue;
         this.parent = parent;
         this._value = new ReactiveProperty(defaultValue);
         this._darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);
-        let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(min, max, step));
+        let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(this._min, this._max, this._step));
         this.component = new BaseComponent(html);
         this.Initialize();
     }

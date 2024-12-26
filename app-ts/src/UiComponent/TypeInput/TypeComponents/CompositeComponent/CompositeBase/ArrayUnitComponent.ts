@@ -1,7 +1,6 @@
 import { z } from "zod";
-import { BaseComponent, IHasComponent } from "../../../../Base/ui_component_base";
+import { BaseComponent } from "../../../../Base/ui_component_base";
 import { IButton } from "../../../../Button/IButton";
-import { IToggleFormatStateDisplay } from "../../../../Display/IToggleFormatStateDisplay";
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { IInputComponet } from "../../IInputComponet";
 import { NormalButton } from "../../../../Button/NormalButton/NormalButton";
@@ -62,8 +61,8 @@ export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent {
         this.component.delete();
     }
 
-    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : ArrayUnitComponent {
-        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: (IHasSquareBoard & IInputComponet)) : ArrayUnitComponent {
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent);
         const addButton = new NormalButton("追加", "normal");
         const removeButton = new NormalButton("削除", "warning");
         return new ArrayUnitComponent(title, inputComponentBox, addButton, removeButton);
