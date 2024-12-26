@@ -8,7 +8,7 @@ import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
 import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
-import { IInputComponet } from "../IInputComponet";
+import { IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { SaveState } from "../SaveState";
@@ -131,7 +131,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         }
 
         this.setAllchildRelative();
-        this.optimizeBoardSize();
+        rootParentExecuteOptimizedBoardSize(this);
     }
 
     /**
@@ -147,6 +147,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
                 unit.inputComponent.setTitle(i.toString());
             });
         }
+        rootParentExecuteOptimizedBoardSize(this);
     }
 
     /**
@@ -183,20 +184,15 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         //子コンポーネントがIHassSquareBoardを実装している場合、先に子コンポーネントのサイズを最適化する。
         this._inputComponentCompositeList.forEach(({inputComponent}) => {
             if (inputComponent instanceof ArrayInputComponent) {
-                console.log(`子要素 : ArrayInputComponent : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
-            }
-            else if (inputComponent instanceof ObjectInputComponent) {
-                console.log(`子要素 : ObjectInputComponent : ${inputComponent.inputComponent.title}`);
+            } else if (inputComponent instanceof ObjectInputComponent) {
                 inputComponent.optimizeBoardSize();
             } else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
-                console.log(`子要素 : ArrayInputComponentWithSaveButton : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             } else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
-                console.log(`子要素 : ObjectInputComponentWithSaveButton : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             } else {
-                console.log(`子要素 : 未対応の型です : ${inputComponent.title} : ${inputComponent.constructor.name}`);
+                // console.log(`子要素 : 未対応の型です : ${inputComponent.title} : ${inputComponent.constructor.name}`);
             }
         });
 
