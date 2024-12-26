@@ -17,6 +17,7 @@ import { z } from "zod";
 import { ArrayInputComponent } from "./ArrayInputComponent";
 import { ArrayUnitToggleDisplaySaveButton } from "../CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
+import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard, IHasInputComponent {
     public readonly component: BaseComponent;
@@ -27,35 +28,35 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _inputComponentCompositeList : IHasInputComponent[]; //表示するInput要素のリスト
-    public parent: IInputComponet|null = null;
+    public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponet|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
-        this._NormalButton = new NormalButton("保存", "normal");
-        this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues);
+        this._NormalButton = new NormalButton("リスト全体保存", "normal");
+        this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues, parent);
         this.parent = parent;
         this.initialize();
 
     }
 
-    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IHasInputComponent[] {
+    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent:(IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent[] {
         let inputComponentList : IHasInputComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i]);
+            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], parent);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             inputComponentList.push(inputComponent);
         }
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IHasInputComponent {
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"], parent:(IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent {
         //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
         // return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
-        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue);
+        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue, parent);
         //unitにイベントを追加する
         unit.arrayUnit.addButton.addOnClickEvent(() => {
             this.addElement();
@@ -119,7 +120,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     public addElement(index?: number): void {
         const i = this._inputComponentCompositeList.length;
         const lastElementValue = this._inputComponentCompositeList[i - 1].inputComponent.getValue();
-        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue);
+        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, this);
     
         if (index !== undefined && 0 <= index && index <= this._inputComponentCompositeList.length) {
             this._inputComponentCompositeList.splice(index, 0, newComponent);
@@ -178,20 +179,24 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
     }
 
-    public addNewElement(): void {
-        let newElement = this.createDefaultInputComponent(this._title, this._schema.element, null);
-        this._inputComponentCompositeList.push(newElement);
-        this.component.createArrowBetweenComponents(this, newElement);
-    }
-
     public optimizeBoardSize(): void {
         //子コンポーネントがIHassSquareBoardを実装している場合、先に子コンポーネントのサイズを最適化する。
-        this._inputComponentCompositeList.forEach((inputComponent) => {
+        this._inputComponentCompositeList.forEach(({inputComponent}) => {
             if (inputComponent instanceof ArrayInputComponent) {
+                console.log(`子要素 : ArrayInputComponent : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponent) {
+                console.log(`子要素 : ObjectInputComponent : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
+            } else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
+                console.log(`子要素 : ArrayInputComponentWithSaveButton : ${inputComponent.inputComponent.title}`);
+                inputComponent.optimizeBoardSize();
+            } else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
+                console.log(`子要素 : ObjectInputComponentWithSaveButton : ${inputComponent.inputComponent.title}`);
+                inputComponent.optimizeBoardSize();
+            } else {
+                console.log(`子要素 : 未対応の型です : ${inputComponent.title} : ${inputComponent.constructor.name}`);
             }
         });
 
@@ -201,8 +206,11 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
+        console.log(`optimizeBoardSize : ${this._title} : ${optimizeHeight + paddingNum + marginNum}`);
         this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
+        console.log(this._squareBoardComponent.component.element.getBoundingClientRect());
 
+        
     }
 
     public setAllchildRelative() {

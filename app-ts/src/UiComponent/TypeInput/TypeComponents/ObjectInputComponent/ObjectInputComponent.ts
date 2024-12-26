@@ -19,24 +19,24 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
     private readonly _values: T;
-    public parent: IInputComponet|null = null;
+    public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponet|null = null) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;
         this._schema = schema;
         this.parent = parent;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
-        this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
+        this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues, this);
         this._values = defaultValues;
         this.initialize();
     }
 
-    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : {} {
+    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object, parent: (IHasSquareBoard & IInputComponet)|null = null) : {} {
         let _inputComponentDict = {};
         for (let key in schema.shape) {
-            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key]);
+            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], parent);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
@@ -44,8 +44,8 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : IInputComponet {
-        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue).inputComponent;
+    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: (IHasSquareBoard & IInputComponet)|null = null) : IInputComponet {
+        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent).inputComponent;
     }
 
     private initialize() {

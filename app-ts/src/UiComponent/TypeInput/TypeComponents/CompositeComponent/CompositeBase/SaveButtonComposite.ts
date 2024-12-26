@@ -7,6 +7,7 @@ import { SaveState } from "../../SaveState";
 import { IHasInputComponent } from "../ICompositeComponentList";
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { NormalButton } from "../../../../Button/NormalButton/NormalButton";
+import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 
 
 export class SaveButtonComposite implements IHasInputComponent {
@@ -41,8 +42,8 @@ export class SaveButtonComposite implements IHasInputComponent {
         this.component.delete();
     }
 
-    static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : SaveButtonComposite {
-        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+    static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:(IHasSquareBoard & IInputComponet)|null) : SaveButtonComposite {
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent);
         const saveButton = new NormalButton("保存", "normal");
         return new SaveButtonComposite(title, inputComponentBox.inputComponent, saveButton);
     }

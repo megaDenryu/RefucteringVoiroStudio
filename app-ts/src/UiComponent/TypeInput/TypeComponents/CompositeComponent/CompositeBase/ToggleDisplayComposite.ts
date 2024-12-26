@@ -7,6 +7,7 @@ import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { IInputComponet } from "../../IInputComponet";
 import { SaveState } from "../../SaveState";
 import { IHasInputComponent } from "../ICompositeComponentList";
+import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 
 
 export class ToggleDisplayComposite implements IHasInputComponent {
@@ -46,8 +47,8 @@ export class ToggleDisplayComposite implements IHasInputComponent {
         this.component.delete();
     }
 
-    static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : ToggleDisplayComposite {
-        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+    static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: (IHasSquareBoard & IInputComponet)|null = null) : ToggleDisplayComposite {
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent);
         const toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
         return new ToggleDisplayComposite(title, inputComponentBox.inputComponent, toggleFormatStateDisplay);
     }
