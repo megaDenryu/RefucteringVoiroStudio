@@ -8,7 +8,7 @@ import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
 import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
-import { IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
+import { getPath, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { SaveState } from "../SaveState";
@@ -18,6 +18,7 @@ import { ArrayInputComponent } from "./ArrayInputComponent";
 import { ArrayUnitToggleDisplaySaveButton } from "../CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
+import { RecordPath } from "../../RecordPath";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard, IHasInputComponent {
     public readonly component: BaseComponent;
@@ -30,6 +31,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     private readonly _inputComponentCompositeList : IHasInputComponent[]; //表示するInput要素のリスト
     public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
+    private _updateChildSegmentFunc: ((recordPath: RecordPath, value: any) => void) | null = null;
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;
@@ -239,6 +241,12 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
             inputComponent.delete();
         });
         this.component.delete();
+    }
+
+    public onAddUpdateChildSegment() {
+        this._inputComponentCompositeList.forEach((inputComponent) => {
+            inputComponent.onAddUpdateChildSegment();
+        });
     }
 
 }
