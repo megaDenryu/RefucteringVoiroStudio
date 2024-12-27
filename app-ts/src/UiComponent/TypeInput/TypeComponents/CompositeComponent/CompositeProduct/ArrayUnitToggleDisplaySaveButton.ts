@@ -6,12 +6,13 @@ import { IHasInputComponent } from "../ICompositeComponentList";
 import { SaveToggleComposite } from "./SaveToggleComposite";
 import { ArrayInputComponentWithSaveButton } from "../../ArrayInputComponent/ArrayInputComponentWithSaveButton";
 import { ObjectInputComponentWithSaveButton } from "../../ObjectInputComponent/ObjectInputComponentWithSaveButton";
-import { ComponentType } from "../../../ComponentType";
+import { TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 
 
 export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
-    // public readonly componentType: ComponentType;
+    public readonly componentType: TypeComponentType = "array";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasInputComponent"];
     public readonly component: BaseComponent;
     public readonly inputComponent: IInputComponet;
     public readonly arrayUnit: IArrayUnitComponent;

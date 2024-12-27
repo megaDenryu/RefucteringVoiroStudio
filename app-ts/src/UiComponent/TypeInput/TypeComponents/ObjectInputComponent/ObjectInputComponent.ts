@@ -9,8 +9,14 @@ import "../Component.css";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
+import { IRecordPathInput } from "../../RecordPath";
+import { IInputComponentCollection } from "../ICollectionComponent";
+import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 
-export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponet, IHasInputComponent, IHasSquareBoard {
+export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
+    public readonly componentType: TypeComponentType = "object";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponentCollection", "IHasInputComponent"];
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
@@ -18,9 +24,11 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
+    public get inputComponentList(): IInputComponet[] { return Object.values(this._inputComponentDict); }
     private readonly _values: T;
     public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
     constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;

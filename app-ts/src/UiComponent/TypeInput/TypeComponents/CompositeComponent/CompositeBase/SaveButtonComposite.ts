@@ -8,9 +8,12 @@ import { IHasInputComponent } from "../ICompositeComponentList";
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { NormalButton } from "../../../../Button/NormalButton/NormalButton";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
+import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
 
 
-export class SaveButtonComposite implements IHasInputComponent {
+export class SaveButtonComposite implements IHasInputComponent , ITypeComponent {
+    public readonly componentType: TypeComponentType = "any";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasInputComponent"];
     public readonly component: BaseComponent;
     private readonly _title : string;
     public title():string { return this._title; }

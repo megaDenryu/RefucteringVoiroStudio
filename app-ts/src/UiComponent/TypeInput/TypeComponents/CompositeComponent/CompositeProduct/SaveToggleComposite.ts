@@ -8,11 +8,14 @@ import { SaveButtonComposite } from "../CompositeBase/SaveButtonComposite";
 import { ToggleDisplayComposite } from "../CompositeBase/ToggleDisplayComposite";
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
+import { TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
 
 /**
  * SaveToggleComposite は、入力要素と保存ボタン、保存状態表示をまとめたコンポジットコンポーネントです。
  */
 export class SaveToggleComposite implements IHasInputComponent {
+    public readonly componentType: TypeComponentType = "any";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasInputComponent"];
     public readonly component: BaseComponent;
     public readonly inputComponent: IInputComponet;
     public readonly saveButton: SaveButtonComposite;

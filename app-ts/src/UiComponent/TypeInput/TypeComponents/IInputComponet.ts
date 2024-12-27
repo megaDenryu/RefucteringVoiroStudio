@@ -1,8 +1,10 @@
+import { EventDelegator } from "../../../BaseClasses/EventDrivenCode/Delegator"
 import { IHasComponent } from "../../Base/ui_component_base"
 import { IHasSquareBoard } from "../../Board/IHasSquareBoard"
-import { RecordPath } from "../RecordPath"
+import { ITypeComponent } from "../ComponentType"
+import { IRecordPathInput, RecordPath } from "../RecordPath"
 
-export interface IInputComponet extends IHasComponent {
+export interface IInputComponet extends IHasComponent, ITypeComponent {
     get title():string
     setTitle(title:string):void
     addOnDartyEvent(event: (value: boolean) => void): void
@@ -13,7 +15,7 @@ export interface IInputComponet extends IHasComponent {
     getHeight(): number
     getWidth(): number
     parent: (IHasSquareBoard & IInputComponet)|null
-    addUpdateChildSegmentFunc(func:((recordPath: RecordPath, value: any) => void)):void
+    updateChildSegment: EventDelegator<IRecordPathInput>
 }
 
 export function getRootParent(component:IHasSquareBoard & IInputComponet): (IHasSquareBoard & IInputComponet) {
@@ -29,7 +31,7 @@ export function rootParentExecuteOptimizedBoardSize(component:IHasSquareBoard & 
     rootParent.optimizeBoardSize()
 }
 
-export function getPath(component:IHasSquareBoard & IInputComponet): RecordPath {
+export function getPath(component:IInputComponet): RecordPath {
     if (component.parent == null) {
         return new RecordPath([component.title])
     } else {
@@ -37,9 +39,10 @@ export function getPath(component:IHasSquareBoard & IInputComponet): RecordPath 
     }
 }
 
-export function notifyValueToRootParent(component:IHasSquareBoard & IInputComponet): void {
-    let rootParent = getRootParent(component)
+export function notifyValueToRootParent(component:IInputComponet): void {
     const value = component.getValue()
     const path = getPath(component)
-    rootParent.saveValue(path, value)
+    const recordPathInput:IRecordPathInput = { recordPath: path, value: value }
+    component.updateChildSegment.invoke(recordPathInput)
+
 }

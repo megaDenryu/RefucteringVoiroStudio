@@ -2,13 +2,18 @@
 import { UnionType } from "typescript";
 import { BaseComponent, ElementCreater, HtmlElementInput, IHasComponent } from "../../../Base/ui_component_base";
 import { IInputComponet } from "../IInputComponet";
-import { ReactiveProperty } from "../../../../BaseClasses/observer";
+import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { SelecteValueInfo } from "./SelecteValueInfo";
 import "./EnumInputComponent.css";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
+import { IRecordPathInput } from "../../RecordPath";
+import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
 
 export class EnumInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
+    public readonly componentType: TypeComponentType = "enum";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent"];
     public readonly component: BaseComponent;
     private _title : string;
     public get title(): string { return this._title; }
@@ -17,6 +22,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
     constructor(title: string, defautValue: SelecteValueInfo, parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;

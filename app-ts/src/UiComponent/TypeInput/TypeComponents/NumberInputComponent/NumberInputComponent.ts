@@ -1,6 +1,9 @@
-import { ReactiveProperty } from "../../../../BaseClasses/observer";
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
+import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
+import { IRecordPathInput } from "../../RecordPath";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponet } from "../IInputComponet";
 import "./NumberInputComponent.css";
@@ -15,6 +18,8 @@ import "./NumberInputComponent.css";
 /// - 数値が変更されたときのイベントを削除する
 /// </summary>
 export class NumberInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
+    public readonly componentType: TypeComponentType = "number";    
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent"];
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
@@ -27,6 +32,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     private readonly _defaultValue : number|null;
     public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
     constructor(title: string, defaultValue: number|null, min: number|null=null, max: number|null=null, step: number|null=null, parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;

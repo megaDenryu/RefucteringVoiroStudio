@@ -8,9 +8,12 @@ import { IInputComponet } from "../../IInputComponet";
 import { SaveState } from "../../SaveState";
 import { IHasInputComponent } from "../ICompositeComponentList";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
+import { ITypeComponent, TypeComponentType, TypeComponentInterfaceType } from "../../../ComponentType";
 
 
-export class ToggleDisplayComposite implements IHasInputComponent {
+export class ToggleDisplayComposite implements IHasInputComponent, ITypeComponent {
+    public readonly componentType: TypeComponentType = "any";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasInputComponent"];
     public readonly component: BaseComponent;
     private readonly _title : string;
     public title():string { return this._title; }

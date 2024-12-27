@@ -6,6 +6,7 @@ import { IInputComponet } from "../../IInputComponet";
 import { NormalButton } from "../../../../Button/NormalButton/NormalButton";
 import { ICompositeBase, IHasInputComponent } from "../ICompositeComponentList";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
+import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
 
 
 /**
@@ -25,7 +26,9 @@ export interface IArrayUnitComponent extends ICompositeBase{
     readonly removeButton: IButton;
 }
 
-export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent {
+export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent, ITypeComponent {
+    public readonly componentType: TypeComponentType = "array";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["ICompositeBase", "IArrayUnitComponent"];
 
     public readonly component: BaseComponent;
     public readonly title : string;
@@ -82,7 +85,8 @@ export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent {
 
 
 export class ArrayUnitComponentForHasSquareBoard implements ICompositeBase,IArrayUnitComponent {
-
+    public readonly componentType: TypeComponentType = "array";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["ICompositeBase", "IArrayUnitComponent"];
     public readonly component: BaseComponent;
     public readonly title : string;
     public readonly inputComponent : IInputComponet&IHasSquareBoard; //表示するInput要素のリスト

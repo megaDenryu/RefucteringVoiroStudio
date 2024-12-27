@@ -1,3 +1,9 @@
+
+export interface IRecordPathInput {
+    recordPath: RecordPath;
+    value: any;
+}
+
 export class RecordPath {
     _path: string[];
 
@@ -26,7 +32,9 @@ export class RecordPath {
      * @param value 
      * @returns 
      */
-    public static modifyRecordByPath(record: { [key: string]: any }, path: RecordPath, value: any): { [key: string]: any } | null {
+    public static modifyRecordByPath(record: { [key: string]: any }, input:IRecordPathInput): { [key: string]: any } | null {
+        const path = input.recordPath;
+        const value = input.value;
         let currentRecord = record;
         let currentPath = path._path;
 
@@ -58,7 +66,9 @@ export class RecordPath {
      * @param value 
      * @returns 
      */
-    public static addRecordByPath(record: { [key: string]: any }, path: RecordPath, value: any): { [key: string]: any } | null {
+    public static addRecordByPath(record: { [key: string]: any }, input:IRecordPathInput): { [key: string]: any } | null {
+        const path = input.recordPath;
+        const value = input.value;
         let currentRecord = record;
         let currentPath = path._path;
 
@@ -111,7 +121,9 @@ export class RecordPath {
      * @param value 
      * @returns 
      */
-    public static modifyRecordByPathWithTypes<T>(record: T, path: RecordPath, value: any): T | null {
+    public static modifyRecordByPathWithTypes<T>(record: T, input:IRecordPathInput): T | null {
+        const path = input.recordPath;
+        const value = input.value;
         let currentRecord: any = record;
         let currentPath = path._path;
     
@@ -156,7 +168,7 @@ export function testAddRecordByPath() {
     };
 
     const path = new RecordPath(["user", "address", "city", "money"]);
-    const updatedRecord = RecordPath.addRecordByPath(record, path, "100yen");
+    const updatedRecord = RecordPath.addRecordByPath(record, {recordPath:path, value:"New Wonderland"});
 
     console.log(updatedRecord);
 }
@@ -173,7 +185,7 @@ export function testModifyRecordByPath() {
     };
 
     const path = new RecordPath(["user", "address", "city"]);
-    const updatedRecord = RecordPath.modifyRecordByPath(record, path, "New Wonderland");
+    const updatedRecord = RecordPath.modifyRecordByPath(record, {recordPath:path, value:"New Wonderland"});
 
     console.log(updatedRecord);
 }
@@ -190,7 +202,7 @@ export function testModifyRecordByPathWithTypes() {
     };
 
     const path = new RecordPath(["user", "address", "city"]);
-    const updatedRecord = RecordPath.modifyRecordByPathWithTypes(record, path, "New Wonderland");
+    const updatedRecord = RecordPath.modifyRecordByPathWithTypes(record, {recordPath:path, value:"New Wonderland"});
 
     console.log(updatedRecord);
 }

@@ -8,9 +8,12 @@ import { IButton } from "../../../../Button/IButton";
 import { IInputComponet } from "../../IInputComponet";
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
+import { ITypeComponent, TypeComponentType, TypeComponentInterfaceType } from "../../../ComponentType";
 
 
-export class ArrayUnitToggleDispaly implements ICompositeProduct {
+export class ArrayUnitToggleDispaly implements ICompositeProduct, ITypeComponent {
+    public readonly componentType: TypeComponentType = "array";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["ICompositeProduct"];
     
     public readonly component: BaseComponent;
     public readonly inputComponent: IInputComponet;

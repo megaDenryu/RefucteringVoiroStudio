@@ -1,12 +1,17 @@
-import { ReactiveProperty } from "../../../../BaseClasses/observer";
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
+import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
+import { IRecordPathInput } from "../../RecordPath";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponet } from "../IInputComponet";
 import "./BooleanInputComponent.css";
 
 
-export class BooleanInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
+export class BooleanInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, ITypeComponent {
+    public readonly componentType: TypeComponentType = "boolean";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent"];
     public readonly component: BaseComponent;
     private readonly _title : string;
     public get title():string { return this._title; }
@@ -16,6 +21,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     private readonly _defaultValue : boolean|null;
     public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
     constructor(title: string, defaultValue: boolean|null, parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;

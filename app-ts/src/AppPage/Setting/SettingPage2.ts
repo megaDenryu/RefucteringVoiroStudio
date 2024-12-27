@@ -9,6 +9,7 @@ import { ToggleFormatStateDisplay, ToggleFormatStateDisplayの使い方 } from "
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
+import { recusiveregisterUpdateChildSegment } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
 
 //todo : 保存処理とかをする必要がある。
 
@@ -80,6 +81,13 @@ export class SettingPage2  {
         this._saveButton.addOnClickEvent(() => {
             this.saveAllSettings()
         })
+
+        recusiveregisterUpdateChildSegment(
+            this._appSettingComponent, 
+            "SettingPage2",
+            (recordPath:RecordPath, value:any) => { this.updateSettingChildSegment(recordPath, value) }
+        )
+
     }
 
     private saveAllSettings() {
@@ -92,7 +100,7 @@ export class SettingPage2  {
     }
 
     public saveChildSetting(recordPath:RecordPath, value:any) {
-        RecordPath.modifyRecordByPathWithTypes(this._appSettingComponent, recordPath, value)
+        RecordPath.modifyRecordByPathWithTypes(this._appSettingComponent, {recordPath:recordPath, value:value})
     }
 
     private sendSettings(settings: AppSettingsModel) {
@@ -114,7 +122,7 @@ export class SettingPage2  {
     }
 
     public updateSettingChildSegment(recordPath:RecordPath, value:any) {
-        RecordPath.modifyRecordByPathWithTypes(this._appSettingComponent, recordPath, value)
+        RecordPath.modifyRecordByPathWithTypes(this._appSettingComponent, {recordPath:recordPath, value:value})
     }
 }
 

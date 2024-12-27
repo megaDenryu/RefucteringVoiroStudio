@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_component_base";
-import { ReactiveProperty } from "../../../BaseClasses/observer";
+import { ReactiveProperty } from "../../../BaseClasses/EventDrivenCode/observer";
 import { inherits } from "util";
 import { IButton } from "../IButton";
 

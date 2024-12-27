@@ -12,8 +12,14 @@ import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayI
 import { ObjectInputComponent } from "./ObjectInputComponent";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
+import { IRecordPathInput } from "../../RecordPath";
+import { IInputComponentCollection } from "../ICollectionComponent";
+import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 
-export class ObjectInputComponentWithSaveButton implements IHasComponent, IInputComponet, IHasInputComponent, IHasSquareBoard {
+export class ObjectInputComponentWithSaveButton implements IHasComponent, IInputComponentCollection, IHasInputComponent {
+    public readonly componentType: TypeComponentType = "object";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponentCollection", "IHasInputComponent"];
     public readonly component: BaseComponent;
     private readonly _NormalButton: NormalButton
     private _title : string;
@@ -22,8 +28,14 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _inputComponentDict :Record<string,IHasInputComponent>; //表示するInput要素の辞書
+    public get inputComponentList(): IInputComponet[] { 
+        return Object.values(this._inputComponentDict).map((inputComponent) => {
+            return inputComponent.inputComponent;
+        });
+    }
     public parent: (IHasSquareBoard & IInputComponet) | null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
     constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object, parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;

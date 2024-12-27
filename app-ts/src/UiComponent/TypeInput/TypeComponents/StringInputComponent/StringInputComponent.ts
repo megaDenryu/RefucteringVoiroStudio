@@ -1,11 +1,16 @@
-import { ReactiveProperty } from "../../../../BaseClasses/observer";
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
+import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
+import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponet } from "../IInputComponet";
 import "./StringInputComponent.css";
 
 export class StringInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
+    public readonly componentType: TypeComponentType = "string";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent"];
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
@@ -16,6 +21,8 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     private _onInitialaize: Array<() => void> = [];
     public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    
 
     constructor(title: string, defaultValue: string|null, parent: (IHasSquareBoard & IInputComponet)|null = null) {
         this._title = title;

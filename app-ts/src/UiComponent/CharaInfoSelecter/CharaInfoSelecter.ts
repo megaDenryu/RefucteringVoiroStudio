@@ -1,4 +1,4 @@
-import { ReactiveProperty } from "../../BaseClasses/observer";
+import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
 import { CharacterName, HumanImage, CharacterModeState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
