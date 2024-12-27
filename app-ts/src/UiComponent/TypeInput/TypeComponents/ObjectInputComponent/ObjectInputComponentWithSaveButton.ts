@@ -31,15 +31,15 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("全体保存", "normal");
-        this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues, parent);
+        this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.parent = parent;
         this.initialize();
     }
 
-    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object, parent: (IHasSquareBoard & IInputComponet)|null = null) : Record<string,IHasInputComponent> {
+    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : Record<string,IHasInputComponent> {
         let _inputComponentDict:Record<string,IHasInputComponent> = {};
         for (let key in schema.shape) {
-            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], parent);
+            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], this);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
@@ -117,22 +117,17 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         for (let key in this._inputComponentDict) {
             let inputComponent = this._inputComponentDict[key].inputComponent;
             if (inputComponent instanceof ArrayInputComponent) {
-                console.log(`子要素 : ArrayInputComponent : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponent) {
-                console.log(`子要素 : ObjectInputComponent : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
-                console.log(`子要素 : ArrayInputComponentWithSaveButton : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
-                console.log(`子要素 : ObjectInputComponentWithSaveButton : ${inputComponent.inputComponent.title}`);
                 inputComponent.optimizeBoardSize();
             } else {
-                console.log("未対応のコンポーネントです");
             }
         }
 

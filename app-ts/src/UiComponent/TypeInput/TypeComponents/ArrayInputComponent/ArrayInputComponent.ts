@@ -2,16 +2,10 @@ import { CSSProxy } from "../../../../Extend/ExtendCss";
 import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
-import { TypeComponentFactory } from "../../TypeComponentFactory";
-import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
 import { ArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUnitComponent";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
-import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
-import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { getRootParent, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
-import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
-import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { z } from "zod";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard, IHasInputComponent {

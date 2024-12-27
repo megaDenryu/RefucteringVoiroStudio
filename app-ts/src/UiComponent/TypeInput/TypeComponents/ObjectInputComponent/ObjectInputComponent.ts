@@ -28,15 +28,15 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         this.parent = parent;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
-        this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues, this);
+        this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this._values = defaultValues;
         this.initialize();
     }
 
-    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object, parent: (IHasSquareBoard & IInputComponet)|null = null) : {} {
+    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : {} {
         let _inputComponentDict = {};
         for (let key in schema.shape) {
-            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], parent);
+            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], this);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
