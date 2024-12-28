@@ -9,17 +9,19 @@ import { ToggleFormatStateDisplay, ToggleFormatStateDisplayの使い方 } from "
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
-import { recusiveregisterUpdateChildSegment } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
+import { recusiveRegisterUpdateChildSegment, recusiveRegisterUpdateChildSegmentToNewChild } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
+import { ObjectInputComponentWithSaveButton } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
+import { IInputComponentRootParent } from "../../UiComponent/TypeInput/TypeComponents/IInputComponentRootParent";
 
 //todo : 保存処理とかをする必要がある。
 
-export class SettingPage2  {
+export class SettingPage2 implements IInputComponentRootParent {
     private testMode: boolean = false
     public readonly title = "全体設定"
     private _appSettingModel: AppSettingsModel
     private _squareBoardComponent: SquareBoardComponent
     private _saveButton: NormalButton
-    private _appSettingComponent: ObjectInputComponent<AppSettingsModel>
+    private _appSettingComponent: ObjectInputComponentWithSaveButton<AppSettingsModel>
     
     constructor() {
         this._squareBoardComponent = new SquareBoardComponent("設定画面", 400, 600)
@@ -28,7 +30,7 @@ export class SettingPage2  {
         this.initialize()
     }
 
-    async initialize() {
+    private async initialize() {
         if (this.testMode) {
             this._appSettingModel = generateDefaultObject(AppSettingsModel)//AppSettingsModel.parse({});
             console.log("test",this._appSettingModel) // {}が返ってくる
@@ -36,7 +38,7 @@ export class SettingPage2  {
             this._appSettingModel = await this.requestAppSettingModel()
             console.log("real",this._appSettingModel) // {}が返ってくる
         }
-        this._appSettingComponent = new ObjectInputComponent(this.title, AppSettingsModel, this._appSettingModel)
+        this._appSettingComponent = new ObjectInputComponentWithSaveButton(this.title, AppSettingsModel, this._appSettingModel)
         this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._appSettingComponent)
         this.bindEvents()
         document.body.appendChild(this._squareBoardComponent.component.element)
@@ -68,11 +70,11 @@ export class SettingPage2  {
 
 
 
-    onAddedToDom() {
+    public onAddedToDom() {
         this._appSettingComponent.onAddedToDom()
     }
 
-    bindEvents() {
+    private bindEvents() {
         /**
          * 実装したいイベントはセーブボタンを押したときに
          * - セーブデータの状態をだーディーになってるものから更新する
@@ -82,12 +84,7 @@ export class SettingPage2  {
             this.saveAllSettings()
         })
 
-        recusiveregisterUpdateChildSegment(
-            this._appSettingComponent, 
-            "SettingPage2",
-            (recordPath:RecordPath, value:any) => { this.updateSettingChildSegment(recordPath, value) }
-        )
-
+        this.recusiveRegisterUpdateChildSegment()
     }
 
     private saveAllSettings() {
@@ -97,10 +94,6 @@ export class SettingPage2  {
         
         // セーブデータを送信する
         this.sendSettings(updatedSettings);
-    }
-
-    public saveChildSetting(recordPath:RecordPath, value:any) {
-        RecordPath.modifyRecordByPathWithTypes(this._appSettingComponent, {recordPath:recordPath, value:value})
     }
 
     private sendSettings(settings: AppSettingsModel) {
@@ -121,9 +114,34 @@ export class SettingPage2  {
         });
     }
 
-    public updateSettingChildSegment(recordPath:RecordPath, value:any) {
-        RecordPath.modifyRecordByPathWithTypes(this._appSettingComponent, {recordPath:recordPath, value:value})
+    public recusiveRegisterUpdateChildSegment(): void
+    {
+        recusiveRegisterUpdateChildSegment(
+            this._appSettingComponent, 
+            "SettingPage2",
+            (recordPath:RecordPath, value:any) => {
+                this.オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath, value);
+                // セーブデータを送信する
+                this.sendSettings(this._appSettingModel);
+            }
+        )
+    }
+
+    public registerEventToNewChildComponent(): void {
+        recusiveRegisterUpdateChildSegmentToNewChild(
+            this._appSettingComponent, 
+            "SettingPage2",
+            (recordPath:RecordPath, value:any) => {
+                this.オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath, value);
+                // セーブデータを送信する
+                this.sendSettings(this._appSettingModel);
+            }
+        )
+    }
+
+    public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath:RecordPath, value:any) : void {
+        RecordPath.modifyRecordByPathWithTypes<AppSettingsModel>(this._appSettingModel, {recordPath:recordPath, value:value})
     }
 }
 
-
+const setting = new SettingPage2()

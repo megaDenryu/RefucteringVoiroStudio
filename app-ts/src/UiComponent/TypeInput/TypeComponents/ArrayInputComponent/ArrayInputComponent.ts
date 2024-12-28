@@ -8,6 +8,7 @@ import { IRecordPathInput } from "../../RecordPath";
 import { ArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUnitComponent";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
+import { IInputComponentRootParent } from "../IInputComponentRootParent";
 import { getRootParent, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { z } from "zod";
@@ -26,14 +27,16 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     public parent: (IHasSquareBoard & IInputComponet)|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    public readonly componentManager: IInputComponentRootParent|null;
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null, rootParent: IInputComponentRootParent|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
         this._arrayUnitList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.parent = parent;
+        this.componentManager = rootParent;
         this.initialize();
     }
 

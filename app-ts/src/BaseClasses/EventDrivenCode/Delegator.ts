@@ -1,5 +1,5 @@
 export class EventDelegator<T = void> {
-    private _methods: Record<string, (value: T) => void> = {};
+    private readonly _methods: Record<string, (value: T) => void> = {};
 
     constructor() {}
 
@@ -11,10 +11,16 @@ export class EventDelegator<T = void> {
         this._methods[key] = event;
     }
 
+    public hasMethod(key: string): boolean {
+        return this._methods[key] !== undefined;
+    }
+
     public invoke(value: T, key: string | null = null): void {
         if (key === null) {
+            console.log("invoke all");
             for (let key in this._methods) {
                 this._methods[key](value);
+                console.log(`invoke: ${key}`);
             }
         } else {
             const method = this._methods[key];
@@ -42,7 +48,9 @@ export class EventDelegator<T = void> {
     }
 
     public clearMethods(): void {
-        this._methods = {};
+        for (let key in this._methods) {
+            delete this._methods[key];
+        }
     }
 }
 

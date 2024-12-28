@@ -8,7 +8,7 @@ import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
 import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
-import { getPath, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
+import { getPath, IInputComponet, notifyValueToRootParent, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { SaveState } from "../SaveState";
@@ -22,6 +22,7 @@ import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
+import { IInputComponentRootParent } from "../IInputComponentRootParent";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -40,35 +41,37 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
     }
     public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public readonly componentManager: IInputComponentRootParent|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null, rootParent: IInputComponentRootParent|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("リスト全体保存", "normal");
-        this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues, parent);
+        this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.parent = parent;
+        this.componentManager = rootParent;
         this.initialize();
 
     }
 
-    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent:(IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent[] {
+    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IHasInputComponent[] {
         let inputComponentList : IHasInputComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], parent);
+            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i]);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             inputComponentList.push(inputComponent);
         }
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"], parent:(IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent {
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IHasInputComponent {
         //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
         // return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
-        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue, parent);
+        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue, this);
         //unitにイベントを追加する
         unit.arrayUnit.addButton.addOnClickEvent(() => {
             this.addElement();
@@ -93,6 +96,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
 
         this._NormalButton.addOnClickEvent(() => {
             this.save();
+            notifyValueToRootParent(this.inputComponent);
         });
 
     }
@@ -132,7 +136,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     public addElement(index?: number): void {
         const i = this._inputComponentCompositeList.length;
         const lastElementValue = this._inputComponentCompositeList[i - 1].inputComponent.getValue();
-        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, this);
+        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue);
     
         if (index !== undefined && 0 <= index && index <= this._inputComponentCompositeList.length) {
             this._inputComponentCompositeList.splice(index, 0, newComponent);
@@ -214,9 +218,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
-        console.log(`optimizeBoardSize : ${this._title} : ${optimizeHeight + paddingNum + marginNum}`);
         this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
-        console.log(this._squareBoardComponent.component.element.getBoundingClientRect());
 
         
     }

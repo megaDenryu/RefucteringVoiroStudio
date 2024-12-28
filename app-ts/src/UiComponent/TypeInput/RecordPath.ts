@@ -123,16 +123,33 @@ export class RecordPath {
      */
     public static modifyRecordByPathWithTypes<T>(record: T, input:IRecordPathInput): T | null {
         const path = input.recordPath;
+        console.log("path : ", path);
         const value = input.value;
         let currentRecord: any = record;
         let currentPath = path._path;
     
         try {
+            if (currentPath.length === 0) {
+                return record;
+            }
+
             for (let i = 0; i < currentPath.length - 1; i++) {
-                if (currentRecord[currentPath[i]] === undefined) {
-                    throw new Error(`Path segment '${currentPath[i]}' does not exist in the record.`);
+                //currentRecordが配列かobjectかで分岐
+                console.log("currentRecord : ", currentRecord);
+                if (Array.isArray(currentRecord)) {
+                    const index = parseInt(currentPath[i]);
+                    console.log("index : ", index);
+                    if (currentRecord[index] === undefined) {
+                        throw new Error(`Path segment '${currentPath[i]}' does not exist in the record.2`);
+                    }
+                    currentRecord = currentRecord[index];
+                } else {
+                    console.log("key : ", currentPath[i]);
+                    if (currentRecord[currentPath[i]] === undefined) {
+                        throw new Error(`Path segment '${currentPath[i]}' does not exist in the record.`);
+                    }
+                    currentRecord = currentRecord[currentPath[i]];
                 }
-                currentRecord = currentRecord[currentPath[i]];
             }
     
             const finalSegment = currentPath[currentPath.length - 1];
@@ -147,7 +164,7 @@ export class RecordPath {
     
             currentRecord[finalSegment] = value;
         } catch (error) {
-            console.error("Error modifying record by path:", error);
+            console.error("Error modifying record by path:",currentPath, currentRecord, value ,error);
             return null; // エラーが発生した場合は null を返す
         }
     
@@ -196,12 +213,13 @@ export function testModifyRecordByPathWithTypes() {
         user: {
             name: "Alice",
             address: {
-                city: "Wonderland"
+                city: "Wonderland",
+                towns: ["town1", "town2"]
             }
         }
     };
 
-    const path = new RecordPath(["user", "address", "city"]);
+    const path = new RecordPath(["user", "address", "towns", "1"]);
     const updatedRecord = RecordPath.modifyRecordByPathWithTypes(record, {recordPath:path, value:"New Wonderland"});
 
     console.log(updatedRecord);
@@ -229,3 +247,5 @@ export function testGetDataByPath() {
 // testModifyRecordByPath();
 // testModifyRecordByPathWithTypes();
 // testGetDataByPath();
+
+testModifyRecordByPathWithTypes();

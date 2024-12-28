@@ -2,7 +2,7 @@ import { z } from "zod";
 import { BaseComponent } from "../../../../Base/ui_component_base";
 import { IButton } from "../../../../Button/IButton";
 import { ToggleFormatStateDisplay } from "../../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
-import { IInputComponet } from "../../IInputComponet";
+import { IInputComponet, notifyValueToRootParent } from "../../IInputComponet";
 import { SaveState } from "../../SaveState";
 import { IHasInputComponent } from "../ICompositeComponentList";
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
@@ -38,6 +38,8 @@ export class SaveButtonComposite implements IHasInputComponent , ITypeComponent 
     private bindEvent() {
         this._saveButton.addOnClickEvent(() => {
             this._inputComponent.save();
+            notifyValueToRootParent(this._inputComponent);
+            console.log("notifyValueToRootParent")
         });
     }   
 

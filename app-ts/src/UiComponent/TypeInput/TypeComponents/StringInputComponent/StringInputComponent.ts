@@ -28,7 +28,6 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
         this._title = title;
         this._defaultValue = defaultValue;
         this.parent = parent;
-        console.log(defaultValue);
         this._value = new ReactiveProperty(defaultValue);
         this._darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);
