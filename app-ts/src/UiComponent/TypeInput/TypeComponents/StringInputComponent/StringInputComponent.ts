@@ -7,16 +7,17 @@ import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
+import { IValueComponent } from "../IValueComponent";
 import "./StringInputComponent.css";
 
-export class StringInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
+export class StringInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent {
     public readonly componentType: TypeComponentType = "string";
-    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent"];
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
-    private readonly _value : ReactiveProperty<string|null>;
-    private readonly _darty : ReactiveProperty<boolean>;
+    public readonly value : ReactiveProperty<string|null>;
+    public readonly darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : string|null;
     private _onInitialaize: Array<() => void> = [];
@@ -29,8 +30,8 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
         this._title = title;
         this._defaultValue = defaultValue;
         this.parent = parent;
-        this._value = new ReactiveProperty(defaultValue);
-        this._darty = new ReactiveProperty(false);
+        this.value = new ReactiveProperty(defaultValue);
+        this.darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition());
         this.component = new BaseComponent(html);
@@ -64,8 +65,8 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
         });
         element?.addEventListener("input", (e) => {
             let target = e.target as HTMLInputElement;
-            this._value.set(target.value);
-            this._darty.set(true);
+            this.value.set(target.value);
+            this.darty.set(true);
         });
 
         this.component.addCSSClass([
@@ -86,7 +87,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     }
 
     public addOnDartyEvent(event: (value: boolean) => void): void {
-        this._darty.addMethod(event);
+        this.darty.addMethod(event);
     }
 
     public addOnSaveEvent(event: (value: boolean) => void): void {
@@ -104,17 +105,17 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     }
 
     public getValue(): string|null {
-        return this._value.get();
+        return this.value.get();
     }
 
     public isDarty(): boolean {
-        return this._darty.get();
+        return this.darty.get();
     }
 
     public save(): void {
-        if (this._darty.get() == true) {
+        if (this.darty.get() == true) {
             this._save.set(true);
-            this._darty.set(false);
+            this.darty.set(false);
         }
     }
 
@@ -131,8 +132,8 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
         // DOM 要素を削除
         this.component.delete();
         // ReactiveProperty インスタンスのクリーンアップ
-        this._value.clearMethods();
-        this._darty.clearMethods();
+        this.value.clearMethods();
+        this.darty.clearMethods();
         this._save.clearMethods();
     }
 

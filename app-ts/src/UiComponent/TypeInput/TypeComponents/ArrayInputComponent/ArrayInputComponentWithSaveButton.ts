@@ -21,8 +21,9 @@ import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/Obje
 import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { IInputComponentCollection } from "../ICollectionComponent";
-import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
+import { checknInterfaceType, ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IInputComponentRootParent } from "../IInputComponentRootParent";
+import { IValueComponent } from "../IValueComponent";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -71,6 +72,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
         // return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
         const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue, this);
+
         //unitにイベントを追加する
         unit.arrayUnit.addButton.addOnClickEvent(() => {
             this.addElement();
@@ -136,6 +138,11 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         const i = this._inputComponentCompositeList.length;
         const lastElementValue = this._inputComponentCompositeList[i - 1].inputComponent.getValue();
         let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue);
+        //newComponentをdaratyにする
+        if (checknInterfaceType(newComponent.inputComponent, "IValueComponent")) {
+            const valueComponent = newComponent.inputComponent as IValueComponent;
+            valueComponent.darty.set(true);
+        }
     
         if (index !== undefined && 0 <= index && index <= this._inputComponentCompositeList.length) {
             this._inputComponentCompositeList.splice(index, 0, newComponent);

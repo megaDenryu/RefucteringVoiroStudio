@@ -11,15 +11,16 @@ import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegato
 import { IRecordPathInput } from "../../RecordPath";
 import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
 import { IInputComponentCollection } from "../ICollectionComponent";
+import { IValueComponent } from "../IValueComponent";
 
-export class EnumInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
+export class EnumInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent {
     public readonly componentType: TypeComponentType = "enum";
-    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent"];
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
     private _title : string;
     public get title(): string { return this._title; }
-    private _value: ReactiveProperty<SelecteValueInfo>;
-    private _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
+    public value: ReactiveProperty<SelecteValueInfo>;
+    public darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
@@ -27,7 +28,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
 
     constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponentCollection|null = null) {
         this._title = title;
-        this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
+        this.value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         this.parent = parent;
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
@@ -60,11 +61,11 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     }
 
     addOnChangeEvent(event: (value: SelecteValueInfo) => void): void {
-        this._value.addMethod(event);
+        this.value.addMethod(event);
     }
 
     addOnDartyEvent(event: (value: boolean) => void): void {
-        this._darty.addMethod(event);
+        this.darty.addMethod(event);
     }
 
     addOnSaveEvent(event: (value: boolean) => void): void {
@@ -72,25 +73,25 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     }
 
     getValue(): string {
-        return this._value.get().value;
+        return this.value.get().value;
     }
 
     isDarty(): boolean {
-        return this._darty.get();
+        return this.darty.get();
     }
 
     public save(): void {
-        if (this._darty.get() == true) {
+        if (this.darty.get() == true) {
             this._save.set(true);
-            this._darty.set(false);
+            this.darty.set(false);
         }
     }
 
     setValue(value: string): void {
-        let info = this._value.get();
+        let info = this.value.get();
         info.value = value;
-        this._value.set(info);
-        this._darty.set(true);
+        this.value.set(info);
+        this.darty.set(true);
     }
 
     getHeight(): number {
@@ -107,8 +108,8 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
         // DOM 要素を削除
         this.component.delete();
         // ReactiveProperty インスタンスのクリーンアップ
-        this._value.clearMethods();
-        this._darty.clearMethods();
+        this.value.clearMethods();
+        this.darty.clearMethods();
         this._save.clearMethods();
     }
 }

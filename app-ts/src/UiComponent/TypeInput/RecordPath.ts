@@ -138,9 +138,18 @@ export class RecordPath {
                 console.log("currentRecord : ", currentRecord);
                 if (Array.isArray(currentRecord)) {
                     const index = parseInt(currentPath[i]);
-                    console.log("index : ", index);
+
+                    if (index > currentRecord.length) {
+                        // 配列の長さを超える場合は空白で埋める
+                        for (let j = currentRecord.length; j <= index; j++) {
+                            let 一個前の要素 = currentRecord[j - 1];
+                            currentRecord.push(一個前の要素); // ここでj番目の要素が追加される
+                        }
+                    }
+
+
                     if (currentRecord[index] === undefined) {
-                        throw new Error(`Path segment '${currentPath[i]}' does not exist in the record.2`);
+                        throw new Error(`Path segment '${currentPath[i]}' does not exist in the record.`);
                     }
                     currentRecord = currentRecord[index];
                 } else {
@@ -153,12 +162,28 @@ export class RecordPath {
             }
     
             const finalSegment = currentPath[currentPath.length - 1];
+            console.log("finalRecord : ", currentRecord[finalSegment]);
+            //currentRecordが配列かobjectかで分岐
+            if (Array.isArray(currentRecord)) {
+                const index = parseInt(finalSegment);
+
+                if (index > currentRecord.length) {
+                    // 配列の長さを超える場合は空白で埋める
+                    for (let j = currentRecord.length; j <= index; j++) {
+                        let 一個前の要素 = currentRecord[j - 1];
+                        currentRecord.push(一個前の要素); // ここでj番目の要素が追加される
+                    }
+                }
+            } 
+
             if (currentRecord[finalSegment] === undefined) {
+                console.error("finalSegment : ", finalSegment, currentRecord);
                 throw new Error(`Final path segment '${finalSegment}' does not exist in the record.`);
             }
     
             // 前の値の型と value の型を比較
             if (typeof currentRecord[finalSegment] !== typeof value) {
+                console.error("currentRecord[finalSegment] : ", currentRecord[finalSegment]);
                 throw new Error(`Type mismatch: expected type '${typeof currentRecord[finalSegment]}', but got type '${typeof value}'.`);
             }
     
