@@ -8,7 +8,7 @@ import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
 import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
-import { getPath, IInputComponet, notifyValueToRootParent, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
+import { getComponentManager, getPath, IInputComponet, notifyValueToRootParent, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { SaveState } from "../SaveState";
@@ -55,7 +55,6 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         this.parent = parent;
         this.componentManager = rootParent;
         this.initialize();
-
     }
 
     private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IHasInputComponent[] {
@@ -147,6 +146,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         }
 
         this.setAllchildRelative();
+        getComponentManager(this).recusiveRegisterUpdateChildSegment()
         rootParentExecuteOptimizedBoardSize(this);
     }
 

@@ -31,15 +31,11 @@ export function getRootParent(component:IInputComponentCollection): IInputCompon
 export function getComponentManager(component:IInputComponet): IInputComponentRootParent {
     if (component.parent == null) { throw new Error("componentManager is null")}
     const rootParent = getRootParent(component.parent)
-    if (rootParent.componentType.includes("IInputComponentCollection")) {
-        const componentManager = (rootParent as IInputComponentCollection).componentManager
-        if (componentManager == null) {
-            throw new Error("componentManager is null")
-        } 
-        return componentManager
-    } else {
+    const componentManager = rootParent.componentManager
+    if (componentManager == null) {
         throw new Error("componentManager is null")
-    }
+    } 
+    return componentManager
 }
 
 export function rootParentExecuteOptimizedBoardSize(component:IInputComponentCollection): void {

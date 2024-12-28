@@ -5,7 +5,6 @@ export class EventDelegator<T = void> {
 
     public addMethod(event: (value: T) => void, key: string): void {
         if (this._methods[key]) {
-            console.error(`Key already exists: ${key}`);
             return;
         }
         this._methods[key] = event;
