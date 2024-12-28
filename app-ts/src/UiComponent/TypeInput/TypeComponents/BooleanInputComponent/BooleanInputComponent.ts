@@ -5,6 +5,7 @@ import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IRecordPathInput } from "../../RecordPath";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
+import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
 import "./BooleanInputComponent.css";
 
@@ -19,11 +20,11 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : boolean|null;
-    public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, defaultValue: boolean|null, parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, defaultValue: boolean|null, parent: IInputComponentCollection|null = null) {
         this._title = title;
         this._defaultValue = defaultValue;
         this.parent = parent;

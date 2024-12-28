@@ -9,6 +9,7 @@ import { ToggleDisplayComposite } from "../CompositeBase/ToggleDisplayComposite"
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 import { TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
+import { IInputComponentCollection } from "../../ICollectionComponent";
 
 /**
  * SaveToggleComposite は、入力要素と保存ボタン、保存状態表示をまとめたコンポジットコンポーネントです。
@@ -32,7 +33,7 @@ export class SaveToggleComposite implements IHasInputComponent {
         this.component.delete();
     }
 
-    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:(IHasSquareBoard & IInputComponet)|null) : IHasInputComponent {
+    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:IInputComponentCollection|null) : IHasInputComponent {
         const saveButton = SaveButtonComposite.new(title, unitSchema, defaultValue, parent);
         const toggleDisplayComposite = ToggleDisplayComposite.newWithOther(saveButton);
         return new SaveToggleComposite(

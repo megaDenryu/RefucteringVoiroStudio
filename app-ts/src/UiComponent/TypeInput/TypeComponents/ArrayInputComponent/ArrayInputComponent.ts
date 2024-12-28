@@ -24,12 +24,12 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
     public get inputComponentList(): IInputComponet[] { return this._arrayUnitList.map(({inputComponent}) => inputComponent); }
-    public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
     public readonly componentManager: IInputComponentRootParent|null;
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null, rootParent: IInputComponentRootParent|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
@@ -50,7 +50,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"] , parent:(IHasSquareBoard & IInputComponet)) : ArrayUnitComponent {
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"] , parent:IInputComponentCollection) : ArrayUnitComponent {
         // return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
         const unit =  ArrayUnitComponent.new(title, unitSchema, defaultValue, parent);
         //unitにイベントを追加する

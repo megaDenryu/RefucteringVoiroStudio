@@ -35,12 +35,12 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         });
     }
     private readonly _values: T;
-    public parent: (IHasSquareBoard & IInputComponet) | null;
+    public parent: IInputComponentCollection | null;
     public readonly componentManager: IInputComponentRootParent|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: (IHasSquareBoard & IInputComponet)|null = null, rootParent: IInputComponentRootParent|null = null) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
         this._title = title;
         this._schema = schema;
         this._values = defaultValues;
@@ -65,7 +65,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any ,parent: (IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent {
+    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any ,parent: IInputComponentCollection|null = null) : IHasInputComponent {
         return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent);
         // return SaveToggleComposite.new(title, unitSchema, defaultValue);
     }

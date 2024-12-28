@@ -40,12 +40,12 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
             return inputComponent;
         });
     }
-    public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public parent: IInputComponentCollection|null = null;
     public readonly componentManager: IInputComponentRootParent|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null, rootParent: IInputComponentRootParent|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);

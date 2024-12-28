@@ -16,11 +16,11 @@ export interface IInputComponet extends IHasComponent, ITypeComponent {
     save(): void
     getHeight(): number
     getWidth(): number
-    parent: (IHasSquareBoard & IInputComponet)|null
+    parent: IInputComponentCollection|null
     updateChildSegment: EventDelegator<IRecordPathInput>
 }
 
-export function getRootParent(component:IHasSquareBoard & IInputComponet): IHasSquareBoard & IInputComponet {
+export function getRootParent(component:IInputComponentCollection): IInputComponentCollection {
     if (component.parent == null) {
         return component
     } else {
@@ -42,7 +42,7 @@ export function getComponentManager(component:IInputComponet): IInputComponentRo
     }
 }
 
-export function rootParentExecuteOptimizedBoardSize(component:IHasSquareBoard & IInputComponet): void {
+export function rootParentExecuteOptimizedBoardSize(component:IInputComponentCollection): void {
     let rootParent = getRootParent(component)
     rootParent.optimizeBoardSize()
 }

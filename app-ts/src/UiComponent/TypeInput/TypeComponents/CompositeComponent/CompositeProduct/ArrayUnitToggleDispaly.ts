@@ -9,6 +9,7 @@ import { IInputComponet } from "../../IInputComponet";
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 import { ITypeComponent, TypeComponentType, TypeComponentInterfaceType } from "../../../ComponentType";
+import { IInputComponentCollection } from "../../ICollectionComponent";
 
 
 export class ArrayUnitToggleDispaly implements ICompositeProduct, ITypeComponent {
@@ -20,7 +21,7 @@ export class ArrayUnitToggleDispaly implements ICompositeProduct, ITypeComponent
     public readonly arrayUnit: ArrayUnitComponent;
     public readonly toggleDisplay: ToggleDisplayComposite;
     
-    constructor(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection|null = null) {
         this.toggleDisplay = ToggleDisplayComposite.new(title, unitSchema, defaultValue, parent);
         this.arrayUnit = ArrayUnitComponent.newWithOthre(this.toggleDisplay);
         this.component = this.arrayUnit.component;

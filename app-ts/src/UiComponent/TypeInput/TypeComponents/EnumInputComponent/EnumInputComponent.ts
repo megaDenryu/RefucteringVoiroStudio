@@ -10,6 +10,7 @@ import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { IRecordPathInput } from "../../RecordPath";
 import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
+import { IInputComponentCollection } from "../ICollectionComponent";
 
 export class EnumInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
     public readonly componentType: TypeComponentType = "enum";
@@ -20,11 +21,11 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     private _value: ReactiveProperty<SelecteValueInfo>;
     private _darty: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
     private _save: ReactiveProperty<boolean> = new ReactiveProperty<boolean>(false);
-    public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, defautValue: SelecteValueInfo, parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponentCollection|null = null) {
         this._title = title;
         this._value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         this.parent = parent;

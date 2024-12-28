@@ -5,6 +5,7 @@ import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
 import { IRecordPathInput } from "../../RecordPath";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
+import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
 import "./NumberInputComponent.css";
 
@@ -30,11 +31,11 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     private readonly _darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : number|null;
-    public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, defaultValue: number|null, min: number|null=null, max: number|null=null, step: number|null=null, parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, defaultValue: number|null, min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null = null) {
         this._title = title;
         this._min = min??0;
         this._max = max ?? 100;

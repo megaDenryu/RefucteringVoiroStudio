@@ -27,12 +27,12 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
     public get inputComponentList(): IInputComponet[] { return Object.values(this._inputComponentDict); }
     private readonly _values: T;
-    public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public parent: IInputComponentCollection|null = null;
     public readonly componentManager: IInputComponentRootParent|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: (IHasSquareBoard & IInputComponet)|null = null, rootParent: IInputComponentRootParent|null = null) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
         this._title = title;
         this._schema = schema;
         this.parent = parent;
@@ -55,7 +55,7 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: (IHasSquareBoard & IInputComponet)|null = null) : IInputComponet {
+    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection|null = null) : IInputComponet {
         return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent).inputComponent;
     }
 
