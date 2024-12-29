@@ -1,3 +1,4 @@
+import { array } from "zod";
 
 export interface IRecordPathInput {
     recordPath: RecordPath;
@@ -5,14 +6,14 @@ export interface IRecordPathInput {
 }
 
 export class RecordPath {
-    _path: string[];
+    public readonly path: string[];
 
     constructor(path: string[]) {
-        this._path = path;
+        this.path = path;
     }
 
     public addSegment(segment: string): RecordPath {
-        this._path.push(segment);
+        this.path.push(segment);
         return this;
     }
 
@@ -36,7 +37,7 @@ export class RecordPath {
         const path = input.recordPath;
         const value = input.value;
         let currentRecord = record;
-        let currentPath = path._path;
+        let currentPath = path.path;
 
         try {
             for (let i = 0; i < currentPath.length - 1; i++) {
@@ -70,7 +71,7 @@ export class RecordPath {
         const path = input.recordPath;
         const value = input.value;
         let currentRecord = record;
-        let currentPath = path._path;
+        let currentPath = path.path;
 
         try {
             for (let i = 0; i < currentPath.length - 1; i++) {
@@ -97,7 +98,7 @@ export class RecordPath {
      */
     public static getDataByPath(record: { [key: string]: any }, path: RecordPath): any {
         let currentRecord = record;
-        let currentPath = path._path;
+        let currentPath = path.path;
 
         try {
             for (let i = 0; i < currentPath.length; i++) {
@@ -126,7 +127,7 @@ export class RecordPath {
         console.log("path : ", path);
         const value = input.value;
         let currentRecord: any = record;
-        let currentPath = path._path;
+        let currentPath = path.path;
     
         try {
             if (currentPath.length === 0) {
@@ -194,6 +195,30 @@ export class RecordPath {
         }
     
         return record;
+    }
+
+    public static deleteRecordByPathWithTypes<T extends object>(record: T, recordPath:RecordPath) {
+        //recordPathの最後のセグメントは配列の要素になっているはずなので、まず１個手前の配列を取得する
+        const arrayPath = recordPath.path.slice(0, recordPath.path.length - 1); //抽出する範囲の終わりのインデックスを指定しますが、このインデックスは抽出される範囲に含まれません。なのでlength-2までの強さではある。
+        const finalSegment = recordPath.path[recordPath.path.length - 1];
+        let lastArray = RecordPath.getDataByPath(record, new RecordPath(arrayPath));
+        if (lastArray === null) {
+            return null;
+        }
+
+        if (!Array.isArray(lastArray)) {
+            throw new Error("Final segment must be an array.");
+        }
+
+        const index = parseInt(finalSegment);
+        if (index >= lastArray.length) {
+            throw new Error("Index out of range.");
+        }
+
+        lastArray.splice(index, 1);
+
+        
+
     }
 }
 

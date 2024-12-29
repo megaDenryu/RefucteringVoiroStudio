@@ -170,6 +170,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
                 unit.inputComponent.setTitle(i.toString());
             });
         }
+        
         rootParentExecuteOptimizedBoardSize(this);
     }
 
