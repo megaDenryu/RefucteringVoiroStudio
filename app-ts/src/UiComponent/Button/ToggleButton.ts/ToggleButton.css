@@ -1,7 +1,4 @@
 .toggle-button {
-    background-color: #007bff;
-    color: white;
-    border: none;
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
@@ -9,6 +6,38 @@
     transition: background-color 0.3s ease;
 }
 
-.toggle-button:hover {
+.toggle-button.primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.toggle-button.primary:hover {
     background-color: #0056b3;
+}
+
+.toggle-button.secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.toggle-button.secondary:hover {
+    background-color: #5a6268;
+}
+
+.toggle-button.success {
+    background-color: #28a745;
+    color: white;
+}
+
+.toggle-button.success:hover {
+    background-color: #218838;
+}
+
+.toggle-button.danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.toggle-button.danger:hover {
+    background-color: #c82333;
 }

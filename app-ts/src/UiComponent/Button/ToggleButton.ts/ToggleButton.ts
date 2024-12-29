@@ -3,19 +3,29 @@ import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_comp
 import { ReactiveProperty } from "../../../BaseClasses/EventDrivenCode/observer";
 import { IButton } from "../IButton";
 
+// 見た目のモードを定義するEnum
+export enum ToggleButtonMode {
+    Primary = "primary",
+    Secondary = "secondary",
+    Success = "success",
+    Danger = "danger"
+}
+
 // トグルボタンのクラス定義
 export class ToggleButton<T extends ZodEnum<any>> implements IHasComponent, IButton {
     component: BaseComponent;
     private _title: string;
     private _state: ReactiveProperty<z.infer<T>>;
     private _onClick: (() => void)[] = [];
+    private _mode: ToggleButtonMode;
     
     // コンストラクタ
-    constructor(title: string, defaultState: z.infer<T>, private states: T) {
+    constructor(title: string, defaultState: z.infer<T>, private states: T, mode: ToggleButtonMode = ToggleButtonMode.Primary) {
         this._title = title;
         this._state = new ReactiveProperty(defaultState);
         let html = ElementCreater.createButtonElement(this._title, this.onClick.bind(this));
-        html.classList.add('toggle-button'); // CSSクラスを追加
+        this._mode = mode;
+        html.classList.add('toggle-button', this._mode); // CSSクラスを追加
         this.component = new BaseComponent(html);
         this.initialize();
     }
@@ -46,6 +56,14 @@ export class ToggleButton<T extends ZodEnum<any>> implements IHasComponent, IBut
     // クリックイベントを追加するメソッド
     public addOnClickEvent(f: (() => void)): void {
         this._onClick.push(f);
+    }
+
+    // モードを切り替えるメソッド
+    public setMode(mode: ToggleButtonMode): void {
+        const element = this.component.element;
+        element.classList.remove(this._mode);
+        this._mode = mode;
+        element.classList.add(this._mode);
     }
 
     // コンポーネントを削除するメソッド
