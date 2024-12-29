@@ -2,15 +2,19 @@ import { z } from "zod";
 import { BaseComponent } from "../../../../Base/ui_component_base";
 import { IButton } from "../../../../Button/IButton";
 import { ToggleFormatStateDisplay } from "../../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
-import { IInputComponet } from "../../IInputComponet";
+import { IInputComponet, notifyValueToRootParent } from "../../IInputComponet";
 import { SaveState } from "../../SaveState";
 import { IHasInputComponent } from "../ICompositeComponentList";
 import { TypeComponentFactory } from "../../../TypeComponentFactory";
 import { NormalButton } from "../../../../Button/NormalButton/NormalButton";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
+import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
+import { IInputComponentCollection } from "../../ICollectionComponent";
 
 
-export class SaveButtonComposite implements IHasInputComponent {
+export class SaveButtonComposite implements IHasInputComponent , ITypeComponent {
+    public readonly componentType: TypeComponentType = "any";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasInputComponent"];
     public readonly component: BaseComponent;
     private readonly _title : string;
     public title():string { return this._title; }
@@ -35,6 +39,8 @@ export class SaveButtonComposite implements IHasInputComponent {
     private bindEvent() {
         this._saveButton.addOnClickEvent(() => {
             this._inputComponent.save();
+            notifyValueToRootParent(this._inputComponent);
+            console.log("notifyValueToRootParent")
         });
     }   
 
@@ -42,7 +48,7 @@ export class SaveButtonComposite implements IHasInputComponent {
         this.component.delete();
     }
 
-    static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:(IHasSquareBoard & IInputComponet)|null) : SaveButtonComposite {
+    static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:IInputComponentCollection|null) : SaveButtonComposite {
         const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent);
         const saveButton = new NormalButton("保存", "normal");
         return new SaveButtonComposite(title, inputComponentBox.inputComponent, saveButton);

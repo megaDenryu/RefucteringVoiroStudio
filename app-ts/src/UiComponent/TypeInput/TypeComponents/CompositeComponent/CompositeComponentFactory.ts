@@ -6,10 +6,11 @@ import { ToggleDisplayComposite } from "./CompositeBase/ToggleDisplayComposite";
 import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
 import { IInputComponet } from "../IInputComponet";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { IInputComponentCollection } from "../ICollectionComponent";
 
 
 export class CompositeComponentFactory {
-    public static newArrayToggleDispalyUnit(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:(IHasSquareBoard & IInputComponet)) {
+    public static newArrayToggleDispalyUnit(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:IInputComponentCollection) {
         
         let arrayUnit = ArrayUnitComponent.new(title, unitSchema, defaultValue, parent);
         const toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");

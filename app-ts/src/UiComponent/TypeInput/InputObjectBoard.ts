@@ -49,7 +49,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble {
     public readonly component: BaseComponent<typeof this.Def["classNames"]>;
     public readonly dragMover: DragMover;
     private _squareBoardComponent: SquareBoardComponent;
-    private _objectInputComponent: ObjectInputComponentWithSaveButton;
+    private _objectInputComponent: ObjectInputComponentWithSaveButton<GameState>;
     private _boolean
 
     constructor() {

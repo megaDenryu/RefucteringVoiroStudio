@@ -6,6 +6,8 @@ import { IInputComponet } from "../../IInputComponet";
 import { NormalButton } from "../../../../Button/NormalButton/NormalButton";
 import { ICompositeBase, IHasInputComponent } from "../ICompositeComponentList";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
+import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
+import { IInputComponentCollection } from "../../ICollectionComponent";
 
 
 /**
@@ -25,7 +27,9 @@ export interface IArrayUnitComponent extends ICompositeBase{
     readonly removeButton: IButton;
 }
 
-export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent {
+export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent, ITypeComponent {
+    public readonly componentType: TypeComponentType = "array";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["ICompositeBase", "IArrayUnitComponent"];
 
     public readonly component: BaseComponent;
     public readonly title : string;
@@ -61,7 +65,7 @@ export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent {
         this.component.delete();
     }
 
-    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: (IHasSquareBoard & IInputComponet)) : ArrayUnitComponent {
+    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection) : ArrayUnitComponent {
         const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent);
         const addButton = new NormalButton("追加", "normal");
         const removeButton = new NormalButton("削除", "warning");
@@ -82,10 +86,11 @@ export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent {
 
 
 export class ArrayUnitComponentForHasSquareBoard implements ICompositeBase,IArrayUnitComponent {
-
+    public readonly componentType: TypeComponentType = "array";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["ICompositeBase", "IArrayUnitComponent"];
     public readonly component: BaseComponent;
     public readonly title : string;
-    public readonly inputComponent : IInputComponet&IHasSquareBoard; //表示するInput要素のリスト
+    public readonly inputComponent : IInputComponentCollection; //表示するInput要素のリスト
     public readonly addButton: IButton; 
     public readonly removeButton: IButton;
 
@@ -96,7 +101,7 @@ export class ArrayUnitComponentForHasSquareBoard implements ICompositeBase,IArra
      * @param saveButton 保存ボタン
      * @param toggleFormatStateDisplay 表示形式変更ボタン
      */
-    constructor(title: string, inputComponent: IInputComponet&IHasSquareBoard, addButton: IButton, removeButton: IButton) {
+    constructor(title: string, inputComponent: IInputComponentCollection, addButton: IButton, removeButton: IButton) {
         this.title = title;
         this.component = inputComponent.component;
         this.inputComponent = inputComponent;
@@ -117,7 +122,7 @@ export class ArrayUnitComponentForHasSquareBoard implements ICompositeBase,IArra
         this.component.delete();
     }
 
-    public static newWithOthre(other: IInputComponet&IHasSquareBoard) : ArrayUnitComponentForHasSquareBoard {
+    public static newWithOthre(other: IInputComponentCollection) : ArrayUnitComponentForHasSquareBoard {
         const addButton = new NormalButton("追加", "normal");
         const removeButton = new NormalButton("削除", "warning");
         return new ArrayUnitComponentForHasSquareBoard(

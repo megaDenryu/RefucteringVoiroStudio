@@ -14,6 +14,7 @@ import { SaveButtonComposite } from "./TypeComponents/CompositeComponent/Composi
 import { SaveToggleComposite } from "./TypeComponents/CompositeComponent/CompositeProduct/SaveToggleComposite";
 import { ArrayUnitToggleDisplaySaveButton } from "./TypeComponents/CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
 import { IHasSquareBoard } from "../Board/IHasSquareBoard";
+import { IInputComponentCollection } from "./TypeComponents/ICollectionComponent";
 
 export class TypeComponentFactory {
 
@@ -24,7 +25,7 @@ export class TypeComponentFactory {
      * @param defaultValue ： デフォルト値
      * @returns 
      */
-    public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:(IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent {
+    public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:IInputComponentCollection|null = null) : IHasInputComponent {
         if (unitSchema instanceof z.ZodString) {
             return new StringInputComponent(title, defaultValue, parent);
         } else if (unitSchema instanceof z.ZodNumber) {
@@ -57,7 +58,7 @@ export class TypeComponentFactory {
      * @param defaultValue ： デフォルト値
      * @returns 
      */
-    public static createInputComponentWithSaveButton2(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:(IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent {
+    public static createInputComponentWithSaveButton2(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:IInputComponentCollection|null = null) : IHasInputComponent {
         if (unitSchema instanceof z.ZodString) {
             return SaveToggleComposite.new(title, unitSchema, defaultValue, parent);
         } 

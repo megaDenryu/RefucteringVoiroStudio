@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { IHasComponent } from "../../../Base/ui_component_base";
 import { IInputComponet } from "../IInputComponet";
+import { ITypeComponent } from "../../ComponentType";
 
-export interface IHasInputComponent extends IHasComponent {
+export interface IHasInputComponent extends IHasComponent, ITypeComponent {
     inputComponent: IInputComponet;
 }
 

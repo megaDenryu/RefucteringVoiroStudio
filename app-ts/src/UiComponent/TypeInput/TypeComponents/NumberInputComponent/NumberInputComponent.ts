@@ -1,8 +1,13 @@
-import { ReactiveProperty } from "../../../../BaseClasses/observer";
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
+import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
+import { IRecordPathInput } from "../../RecordPath";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
+import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
+import { IValueComponent } from "../IValueComponent";
 import "./NumberInputComponent.css";
 
 
@@ -14,29 +19,32 @@ import "./NumberInputComponent.css";
 /// - 数値が変更されたときのイベントを登録する
 /// - 数値が変更されたときのイベントを削除する
 /// </summary>
-export class NumberInputComponent implements IHasComponent, IInputComponet, IHasInputComponent {
+export class NumberInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent {
+    public readonly componentType: TypeComponentType = "number";    
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
     private _min: number = 0;
     private _max: number = 100;
     private _step: number = 1;
-    private readonly _value : ReactiveProperty<number|null>;
-    private readonly _darty : ReactiveProperty<boolean>;
+    public readonly value : ReactiveProperty<number|null>;
+    public readonly darty : ReactiveProperty<boolean>;
     private readonly _save : ReactiveProperty<boolean>;
     private readonly _defaultValue : number|null;
-    public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, defaultValue: number|null, min: number|null=null, max: number|null=null, step: number|null=null, parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, defaultValue: number|null, min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null = null) {
         this._title = title;
         this._min = min??0;
         this._max = max ?? 100;
         this._step = step??1;
         this._defaultValue = defaultValue;
         this.parent = parent;
-        this._value = new ReactiveProperty(defaultValue);
-        this._darty = new ReactiveProperty(false);
+        this.value = new ReactiveProperty(defaultValue);
+        this.darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(this._min, this._max, this._step));
         this.component = new BaseComponent(html);
@@ -59,7 +67,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
                 value="${this._defaultValue ?? min}"
                 class="NumberInputSlider"
             >
-            <span class="NumberInputSliderValue">${this._value.get()}</span>
+            <span class="NumberInputSliderValue">${this.value.get()}</span>
         </div>`;
     }
 
@@ -81,9 +89,9 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
         // inputイベントのハンドリング
         numberInputSlider?.addEventListener("input", (e) => {
             let target = e.target as HTMLInputElement;
-            this._value.set(Number(target.value));
-            this.component.element.querySelector(".NumberInputSliderValue")!.textContent = (this._value.get()??this._min).toString();
-            this._darty.set(true);
+            this.value.set(Number(target.value));
+            this.component.element.querySelector(".NumberInputSliderValue")!.textContent = (this.value.get()??this._min).toString();
+            this.darty.set(true);
             e.stopPropagation();
         });
 
@@ -93,7 +101,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     }
 
     public addOnDartyEvent(event: (value: boolean) => void): void {
-        this._darty.addMethod(event);
+        this.darty.addMethod(event);
     }
 
     public addOnSaveEvent(event: (value: boolean) => void): void {
@@ -101,17 +109,17 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     }
 
     public getValue(): number|null {
-        return this._value.get();
+        return this.value.get();
     }
 
     public isDarty(): boolean {
-        return this._darty.get();
+        return this.darty.get();
     }
 
     public save(): void {
-        if (this._darty.get() == true) {
+        if (this.darty.get() == true) {
             this._save.set(true);
-            this._darty.set(false);
+            this.darty.set(false);
         }
     }
 
@@ -129,8 +137,8 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
         // DOM 要素を削除
         this.component.delete();
         // ReactiveProperty インスタンスのクリーンアップ
-        this._value.clearMethods();
-        this._darty.clearMethods();
+        this.value.clearMethods();
+        this.darty.clearMethods();
         this._save.clearMethods();
     }
 }

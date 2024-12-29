@@ -1,14 +1,21 @@
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
 import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
+import { TypeComponentType, TypeComponentInterfaceType, ITypeComponent } from "../../ComponentType";
+import { IRecordPathInput } from "../../RecordPath";
 import { ArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUnitComponent";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
+import { IInputComponentCollection } from "../ICollectionComponent";
+import { IInputComponentRootParent } from "../IInputComponentRootParent";
 import { getRootParent, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { z } from "zod";
 
-export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponet, IHasSquareBoard, IHasInputComponent {
+export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
+    public readonly componentType: TypeComponentType = "array";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent","IInputComponentCollection","IHasInputComponent"];
     public readonly component: BaseComponent;
     private _title : string;
     public get title():string { return this._title; }
@@ -16,16 +23,20 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
-    public parent: (IHasSquareBoard & IInputComponet)|null = null;
+    public get inputComponentList(): IInputComponet[] { return this._arrayUnitList.map(({inputComponent}) => inputComponent); }
+    public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    public readonly componentManager: IInputComponentRootParent|null;
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
         this.component = this._squareBoardComponent.component;
         this._arrayUnitList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.parent = parent;
+        this.componentManager = rootParent;
         this.initialize();
     }
 
@@ -39,7 +50,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"] , parent:(IHasSquareBoard & IInputComponet)) : ArrayUnitComponent {
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"] , parent:IInputComponentCollection) : ArrayUnitComponent {
         // return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
         const unit =  ArrayUnitComponent.new(title, unitSchema, defaultValue, parent);
         //unitにイベントを追加する

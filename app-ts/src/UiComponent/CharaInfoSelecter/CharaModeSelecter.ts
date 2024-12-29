@@ -1,5 +1,5 @@
 import { ZIndexManager } from "../../AppPage/AppVoiroStudio/ZIndexManager";
-import { ReactiveProperty } from "../../BaseClasses/observer";
+import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { VoMap } from "../../Extend/extend_collections";
 import { TTSSoftware, CharacterName, HumanImage, VoiceMode, CharacterModeState } from "../../ValueObject/Character";
 import { HumanData } from "../../ValueObject/IHumanPart";

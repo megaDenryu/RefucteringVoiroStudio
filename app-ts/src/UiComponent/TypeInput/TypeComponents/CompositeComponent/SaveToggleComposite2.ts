@@ -7,9 +7,12 @@ import { SaveState } from "../SaveState";
 import { IHasInputComponent } from "./ICompositeComponentList";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { NormalButton } from "../../../Button/NormalButton/NormalButton";
+import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 
 
 export class SaveToggleComposite2 implements IHasInputComponent {
+    public readonly componentType: TypeComponentType = "any";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasInputComponent"];
     public readonly component: BaseComponent;
     private readonly _title : string;
     public title():string { return this._title; }

@@ -1,6 +1,6 @@
 import { z, ZodEnum } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_component_base";
-import { ReactiveProperty } from "../../../BaseClasses/observer";
+import { ReactiveProperty } from "../../../BaseClasses/EventDrivenCode/observer";
 import "./ToggleFormatStateDisplay.css";
 import { IToggleFormatStateDisplay } from "../IToggleFormatStateDisplay";
 

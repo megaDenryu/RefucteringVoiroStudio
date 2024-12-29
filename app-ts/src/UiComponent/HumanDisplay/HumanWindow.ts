@@ -1,7 +1,7 @@
 
 
 import { addClickEvent2Tab, DragDropFile, GlobalState, HumanBodyManager2, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
-import { ReactiveProperty } from "../../BaseClasses/observer";
+import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { ExtendFunction } from "../../Extend/extend";
 import { CharacterId, CharacterModeState } from "../../ValueObject/Character";
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";

@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { ArrayInputComponent } from "../ArrayInputComponent/ArrayInputComponent";
-import { IInputComponet } from "../IInputComponet";
+import { IInputComponet, notifyValueToRootParent } from "../IInputComponet";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import "./ObjectInputComponent.css";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
@@ -12,8 +12,15 @@ import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayI
 import { ObjectInputComponent } from "./ObjectInputComponent";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
+import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
+import { IRecordPathInput } from "../../RecordPath";
+import { IInputComponentCollection } from "../ICollectionComponent";
+import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
+import { IInputComponentRootParent } from "../IInputComponentRootParent";
 
-export class ObjectInputComponentWithSaveButton implements IHasComponent, IInputComponet, IHasInputComponent, IHasSquareBoard {
+export class ObjectInputComponentWithSaveButton<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
+    public readonly componentType: TypeComponentType = "object";
+    public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponentCollection", "IHasInputComponent"];
     public readonly component: BaseComponent;
     private readonly _NormalButton: NormalButton
     private _title : string;
@@ -22,17 +29,28 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
     private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
     private readonly _inputComponentDict :Record<string,IHasInputComponent>; //表示するInput要素の辞書
-    public parent: (IHasSquareBoard & IInputComponet) | null;
+    public get inputComponentList(): IInputComponet[] { 
+        return Object.values(this._inputComponentDict).map((inputComponent) => {
+            return inputComponent.inputComponent;
+        });
+    }
+    private readonly _values: T;
+    public parent: IInputComponentCollection | null;
+    public readonly componentManager: IInputComponentRootParent|null;
     public get inputComponent(): IInputComponet { return this; }
+    public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object, parent: (IHasSquareBoard & IInputComponet)|null = null) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
         this._title = title;
         this._schema = schema;
+        this._values = defaultValues;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("全体保存", "normal");
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.parent = parent;
+        this.componentManager = rootParent;
+
         this.initialize();
     }
 
@@ -47,7 +65,7 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any ,parent: (IHasSquareBoard & IInputComponet)|null = null) : IHasInputComponent {
+    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any ,parent: IInputComponentCollection|null = null) : IHasInputComponent {
         return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent);
         // return SaveToggleComposite.new(title, unitSchema, defaultValue);
     }
@@ -64,6 +82,7 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
 
         this._NormalButton.addOnClickEvent(() => {
             this.save();
+            notifyValueToRootParent(this.inputComponent);
         });
 
     }
@@ -89,12 +108,14 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         }
     }
 
-    public getValue(): object {
-        let value = {};
+    public getValue(): T {
         for (let key in this._inputComponentDict) {
-            value[key] = this._inputComponentDict[key].inputComponent.getValue();
+            const v = this._inputComponentDict[key].inputComponent.getValue();
+            console.log(v);
+            this._values[key] = v;
+
         }
-        return value;
+        return this._values;
     }
 
     public isDarty(): boolean {
@@ -138,7 +159,6 @@ export class ObjectInputComponentWithSaveButton implements IHasComponent, IInput
         }
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
-        console.log(paddingNum);
         this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
        
     }
