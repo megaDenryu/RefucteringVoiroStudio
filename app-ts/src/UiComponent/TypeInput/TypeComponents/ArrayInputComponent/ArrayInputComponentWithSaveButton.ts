@@ -154,7 +154,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         }
 
         this.setAllchildRelative();
-        getComponentManager(this).recusiveRegisterUpdateChildSegment()
+        getComponentManager(this).recusiveRegisterUpdateChildSegment()//コンポーネントマネージャーに子要素の値をアップデートするイベントを追加させる
         rootParentExecuteOptimizedBoardSize(this);
     }
 

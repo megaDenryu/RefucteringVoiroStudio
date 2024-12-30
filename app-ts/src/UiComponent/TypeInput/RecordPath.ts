@@ -168,7 +168,7 @@ export class RecordPath {
             if (Array.isArray(currentRecord)) {
                 const index = parseInt(finalSegment);
 
-                if (index > currentRecord.length) {
+                if (index >= currentRecord.length) {
                     // 配列の長さを超える場合は空白で埋める
                     for (let j = currentRecord.length; j <= index; j++) {
                         let 一個前の要素 = currentRecord[j - 1];

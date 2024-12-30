@@ -114,6 +114,7 @@ export class SettingPage2 implements IInputComponentRootParent {
         });
     }
 
+    //再帰的に「セーブボタン各子要素のセーブボタンが押されたときのイベント」を登録する
     public recusiveRegisterUpdateChildSegment(): void
     {
         recusiveRegisterUpdateChildSegment(
