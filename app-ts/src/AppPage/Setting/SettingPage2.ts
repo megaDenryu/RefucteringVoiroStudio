@@ -142,6 +142,11 @@ export class SettingPage2 implements IInputComponentRootParent {
     public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath:RecordPath, value:any) : void {
         RecordPath.modifyRecordByPathWithTypes<AppSettingsModel>(this._appSettingModel, {recordPath:recordPath, value:value})
     }
+
+    public オブジェクトデータの特定の子要素の配列から特定番号を削除する(recordPath:RecordPath): void {
+        RecordPath.deleteRecordByPathWithTypes<AppSettingsModel>(this._appSettingModel, recordPath)
+        this.sendSettings(this._appSettingModel);
+    }
 }
 
 const setting = new SettingPage2()

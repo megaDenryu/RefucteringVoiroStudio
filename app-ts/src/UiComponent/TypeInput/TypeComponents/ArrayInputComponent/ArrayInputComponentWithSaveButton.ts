@@ -24,6 +24,7 @@ import { IInputComponentCollection } from "../ICollectionComponent";
 import { checknInterfaceType, ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IInputComponentRootParent } from "../IInputComponentRootParent";
 import { IValueComponent } from "../IValueComponent";
+import { get } from "http";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -164,6 +165,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     public removeElement(index: number): void {
         if (index >= 0 && index < this._inputComponentCompositeList.length) {
             const removedComponent = this._inputComponentCompositeList.splice(index, 1);
+            getComponentManager(this).オブジェクトデータの特定の子要素の配列から特定番号を削除する(getPath(removedComponent[0].inputComponent));
             removedComponent[0].delete();
             //全体の番号を振りなおす
             this._inputComponentCompositeList.forEach((unit, i) => {
