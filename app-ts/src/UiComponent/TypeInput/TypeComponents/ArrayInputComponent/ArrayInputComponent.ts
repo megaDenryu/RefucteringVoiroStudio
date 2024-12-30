@@ -9,7 +9,7 @@ import { ArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUni
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponentRootParent } from "../IInputComponentRootParent";
-import { getRootParent, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
+import { getComponentManager, getPath, getRootParent, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { z } from "zod";
 
@@ -135,6 +135,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     public removeElement(index: number): void {
         if (index >= 0 && index < this._arrayUnitList.length) {
             const removedComponent = this._arrayUnitList.splice(index, 1);
+            getComponentManager(this).オブジェクトデータの特定の子要素の配列から特定番号を削除する(getPath(removedComponent[0].inputComponent));
             removedComponent[0].delete();
             //全体の番号を振りなおす
             this._arrayUnitList.forEach((unit, i) => {

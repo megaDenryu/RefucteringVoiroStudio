@@ -207,6 +207,7 @@ export class RecordPath {
         }
 
         if (!Array.isArray(lastArray)) {
+            console.error("lastArray : ", lastArray);
             throw new Error("Final segment must be an array.");
         }
 
@@ -217,7 +218,7 @@ export class RecordPath {
 
         lastArray.splice(index, 1);
 
-        
+
 
     }
 }
