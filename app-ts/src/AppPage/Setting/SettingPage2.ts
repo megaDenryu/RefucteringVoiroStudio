@@ -128,20 +128,9 @@ export class SettingPage2 implements IComponentManager {
         )
     }
 
-    public registerEventToNewChildComponent(): void {
-        recusiveRegisterUpdateChildSegmentToNewChild(
-            this._appSettingComponent, 
-            "SettingPage2",
-            (recordPath:RecordPath, value:any) => {
-                this.オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath, value);
-                // セーブデータを送信する
-                this.sendSettings(this.manageData);
-            }
-        )
-    }
-
     public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath:RecordPath, value:any) : void {
         オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(this, recordPath, value)
+        this.sendSettings(this.manageData);
     }
 
     public オブジェクトデータの特定の子要素の配列から特定番号を削除する(recordPath:RecordPath): void {

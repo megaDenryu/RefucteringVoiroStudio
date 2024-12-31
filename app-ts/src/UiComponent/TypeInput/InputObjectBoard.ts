@@ -78,9 +78,8 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IComponentMan
         let rayoutChangeButtonList = this.component.element.getElementsByClassName("RayoutChangeButton");
         for (let i = 0; i < rayoutChangeButtonList.length; i++) {
             rayoutChangeButtonList[i].addEventListener("click", () => {
-                this._objectInputComponent.optimizeBoardSize();
-            }
-        );
+                    this._objectInputComponent.optimizeBoardSize();
+            });
         }
     }
 
@@ -101,10 +100,6 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IComponentMan
         this.component.delete();
     }
 
-    public recusiveRegisterUpdateChildSegment(): void
-    {
-        
-    }
     public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(): void
     {
         

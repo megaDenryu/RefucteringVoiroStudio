@@ -55,7 +55,6 @@ export function notifyValueToRootParent(component:IInputComponet): void {
     const value = component.getValue()
     const path = getPath(component)
     const recordPathInput:IRecordPathInput = { recordPath: path, value: value }
-    component.updateChildSegment.invoke(recordPathInput)
-    console.log("notifyValueToRootParent")
-
+    const manageComponent = getComponentManager(component)
+    manageComponent.オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(path, value)
 }

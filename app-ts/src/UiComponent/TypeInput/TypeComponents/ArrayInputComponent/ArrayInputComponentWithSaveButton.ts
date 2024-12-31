@@ -3,16 +3,8 @@ import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { NormalButton } from "../../../Button/NormalButton/NormalButton";
-import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
-import { TypeComponentFactory } from "../../TypeComponentFactory";
-import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
-import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
-import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { getComponentManager, getPath, IInputComponet, notifyValueToRootParent, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
-import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
-import { SaveState } from "../SaveState";
-import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { z } from "zod";
 import { ArrayInputComponent } from "./ArrayInputComponent";
 import { ArrayUnitToggleDisplaySaveButton } from "../CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
@@ -154,7 +146,6 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         }
 
         this.setAllchildRelative();
-        getComponentManager(this).recusiveRegisterUpdateChildSegment()//コンポーネントマネージャーに子要素の値をアップデートするイベントを追加させる
         rootParentExecuteOptimizedBoardSize(this);
     }
 
