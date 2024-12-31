@@ -15,7 +15,7 @@ import { IComponentManager, オブジェクトデータの特定の子要素の�
 
 //todo : 保存処理とかをする必要がある。
 
-export class SettingPage2 implements IComponentManager<AppSettingsModel> {
+export class SettingPage2 implements IComponentManager {
     private testMode: boolean = false
     public readonly title = "全体設定"
     public manageData: AppSettingsModel

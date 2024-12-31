@@ -46,7 +46,7 @@ export function recusiveRegisterUpdateChildSegment(
 
 /**
  * この関数は、新しい子コンポーネントが追加されたときに、その子コンポーネントに対して、updateChildSegmentを登録します。
- * 実装方法としては再帰的に登録するのはするのはrecusiveRegisterUpdateChildSegmentと同じですが、でリゲーターにeventNameが登録されていない場合のみ登録します。
+ * 実装方法としては再帰的に登録するのはするのはrecusiveRegisterUpdateChildSegmentと同じですが、デリゲーターにeventNameが登録されていない場合のみ登録します。
  * @param inputComponentCollection 
  * @param eventName 
  * @param updateChildSegment 
