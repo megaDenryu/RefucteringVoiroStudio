@@ -11,14 +11,14 @@ import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
 import { recusiveRegisterUpdateChildSegment, recusiveRegisterUpdateChildSegmentToNewChild } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
 import { ObjectInputComponentWithSaveButton } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
-import { IInputComponentRootParent } from "../../UiComponent/TypeInput/TypeComponents/IInputComponentRootParent";
+import { IComponentManager } from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 
 //todo : 保存処理とかをする必要がある。
 
-export class SettingPage2 implements IInputComponentRootParent {
+export class SettingPage2 implements IComponentManager {
     private testMode: boolean = false
     public readonly title = "全体設定"
-    private _appSettingModel: AppSettingsModel
+    public manageData: AppSettingsModel
     private _squareBoardComponent: SquareBoardComponent
     private _saveButton: NormalButton
     private _appSettingComponent: ObjectInputComponentWithSaveButton<AppSettingsModel>
@@ -32,13 +32,13 @@ export class SettingPage2 implements IInputComponentRootParent {
 
     private async initialize() {
         if (this.testMode) {
-            this._appSettingModel = generateDefaultObject(AppSettingsModel)//AppSettingsModel.parse({});
-            console.log("test",this._appSettingModel) // {}が返ってくる
+            this.manageData = generateDefaultObject(AppSettingsModel)//AppSettingsModel.parse({});
+            console.log("test",this.manageData) // {}が返ってくる
         } else {
-            this._appSettingModel = await this.requestAppSettingModel()
-            console.log("real",this._appSettingModel) // {}が返ってくる
+            this.manageData = await this.requestAppSettingModel()
+            console.log("real",this.manageData) // {}が返ってくる
         }
-        this._appSettingComponent = new ObjectInputComponentWithSaveButton(this.title, AppSettingsModel, this._appSettingModel, null, this)
+        this._appSettingComponent = new ObjectInputComponentWithSaveButton(this.title, AppSettingsModel, this.manageData, null, this)
         this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._appSettingComponent)
         this.bindEvents()
         document.body.appendChild(this._squareBoardComponent.component.element)
@@ -123,7 +123,7 @@ export class SettingPage2 implements IInputComponentRootParent {
             (recordPath:RecordPath, value:any) => {
                 this.オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath, value);
                 // セーブデータを送信する
-                this.sendSettings(this._appSettingModel);
+                this.sendSettings(this.manageData);
             }
         )
     }
@@ -135,18 +135,18 @@ export class SettingPage2 implements IInputComponentRootParent {
             (recordPath:RecordPath, value:any) => {
                 this.オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath, value);
                 // セーブデータを送信する
-                this.sendSettings(this._appSettingModel);
+                this.sendSettings(this.manageData);
             }
         )
     }
 
     public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath:RecordPath, value:any) : void {
-        RecordPath.modifyRecordByPathWithTypes<AppSettingsModel>(this._appSettingModel, {recordPath:recordPath, value:value})
+        RecordPath.modifyRecordByPathWithTypes<AppSettingsModel>(this.manageData, {recordPath:recordPath, value:value})
     }
 
     public オブジェクトデータの特定の子要素の配列から特定番号を削除する(recordPath:RecordPath): void {
-        RecordPath.deleteRecordByPathWithTypes<AppSettingsModel>(this._appSettingModel, recordPath)
-        this.sendSettings(this._appSettingModel);
+        RecordPath.deleteRecordByPathWithTypes<AppSettingsModel>(this.manageData, recordPath)
+        this.sendSettings(this.manageData);
     }
 }
 
