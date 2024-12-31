@@ -11,7 +11,7 @@ import { StringInputComponent } from "./TypeComponents/StringInputComponent/Stri
 import { ObjectInputComponent } from "./TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import "./TypeComponents/Component.css";
 import { ObjectInputComponentWithSaveButton } from "./TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
-import { IInputComponentRootParent } from "./TypeComponents/IInputComponentRootParent";
+import { IComponentManager } from "./TypeComponents/IComponentManager";
 
 export const VoiceRoidList = z.array(z.string());
 export const HumanState = z.object({
@@ -35,7 +35,7 @@ export const GameState = z.object({
 });
 export type GameState = z.infer<typeof GameState>;
 
-export class InputObjectBoard implements IHasComponent, IDragAble, IInputComponentRootParent {
+export class InputObjectBoard implements IHasComponent, IDragAble, IComponentManager {
     private readonly Def = HtmlElementInput.new(
         `
             <div class="InputObjectBoard">

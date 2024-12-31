@@ -1,11 +1,11 @@
 import { IHasSquareBoard } from "../../Board/IHasSquareBoard";
 import { RecordPath } from "../RecordPath";
-import { IInputComponentRootParent } from "./IInputComponentRootParent";
+import { IComponentManager } from "./IComponentManager";
 import { IInputComponet } from "./IInputComponet";
 
 export interface IInputComponentCollection extends IInputComponet, IHasSquareBoard {
     get inputComponentList(): IInputComponet[];
-    readonly componentManager: IInputComponentRootParent|null;
+    readonly componentManager: IComponentManager|null;
 }
 
 export function isIInputComponentCollection(inputComponent: IInputComponet): boolean {

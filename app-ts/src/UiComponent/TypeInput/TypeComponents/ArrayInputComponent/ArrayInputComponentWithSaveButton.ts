@@ -22,7 +22,7 @@ import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { checknInterfaceType, ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
-import { IInputComponentRootParent } from "../IInputComponentRootParent";
+import { IComponentManager } from "../IComponentManager";
 import { IValueComponent } from "../IValueComponent";
 import { get } from "http";
 
@@ -43,11 +43,11 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
     }
     public parent: IInputComponentCollection|null = null;
-    public readonly componentManager: IInputComponentRootParent|null;
+    public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);

@@ -4,7 +4,7 @@ import { IHasSquareBoard } from "../../Board/IHasSquareBoard"
 import { ITypeComponent } from "../ComponentType"
 import { IRecordPathInput, RecordPath } from "../RecordPath"
 import { IInputComponentCollection } from "./ICollectionComponent"
-import { IInputComponentRootParent } from "./IInputComponentRootParent"
+import { IComponentManager } from "./IComponentManager"
 
 export interface IInputComponet extends IHasComponent, ITypeComponent {
     get title():string
@@ -28,7 +28,7 @@ export function getRootParent(component:IInputComponentCollection): IInputCompon
     }
 }
 
-export function getComponentManager(component:IInputComponet): IInputComponentRootParent {
+export function getComponentManager(component:IInputComponet): IComponentManager {
     if (component.parent == null) { throw new Error("componentManager is null")}
     const rootParent = getRootParent(component.parent)
     const componentManager = rootParent.componentManager

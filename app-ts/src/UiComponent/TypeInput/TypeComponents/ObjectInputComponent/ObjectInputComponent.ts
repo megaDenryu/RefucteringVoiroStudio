@@ -13,7 +13,7 @@ import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegato
 import { IRecordPathInput } from "../../RecordPath";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
-import { IInputComponentRootParent } from "../IInputComponentRootParent";
+import { IComponentManager } from "../IComponentManager";
 
 export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "object";
@@ -28,11 +28,11 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     public get inputComponentList(): IInputComponet[] { return Object.values(this._inputComponentDict); }
     private readonly _values: T;
     public parent: IInputComponentCollection|null = null;
-    public readonly componentManager: IInputComponentRootParent|null;
+    public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
         this._title = title;
         this._schema = schema;
         this.parent = parent;
