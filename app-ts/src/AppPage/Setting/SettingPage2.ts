@@ -11,11 +11,11 @@ import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
 import { recusiveRegisterUpdateChildSegment, recusiveRegisterUpdateChildSegmentToNewChild } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
 import { ObjectInputComponentWithSaveButton } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
-import { IComponentManager } from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
+import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 
 //todo : 保存処理とかをする必要がある。
 
-export class SettingPage2 implements IComponentManager {
+export class SettingPage2 implements IComponentManager<AppSettingsModel> {
     private testMode: boolean = false
     public readonly title = "全体設定"
     public manageData: AppSettingsModel
@@ -141,11 +141,11 @@ export class SettingPage2 implements IComponentManager {
     }
 
     public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath:RecordPath, value:any) : void {
-        RecordPath.modifyRecordByPathWithTypes<AppSettingsModel>(this.manageData, {recordPath:recordPath, value:value})
+        オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(this, recordPath, value)
     }
 
     public オブジェクトデータの特定の子要素の配列から特定番号を削除する(recordPath:RecordPath): void {
-        RecordPath.deleteRecordByPathWithTypes<AppSettingsModel>(this.manageData, recordPath)
+        オブジェクトデータの特定の子要素の配列から特定番号を削除する(this, recordPath)
         this.sendSettings(this.manageData);
     }
 }
