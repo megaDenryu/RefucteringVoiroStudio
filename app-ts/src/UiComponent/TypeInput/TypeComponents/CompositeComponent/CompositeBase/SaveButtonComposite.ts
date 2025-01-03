@@ -40,7 +40,6 @@ export class SaveButtonComposite implements IHasInputComponent , ITypeComponent 
         this._saveButton.addOnClickEvent(() => {
             this._inputComponent.save();
             notifyValueToRootParent(this._inputComponent);
-            console.log("notifyValueToRootParent")
         });
     }   
 

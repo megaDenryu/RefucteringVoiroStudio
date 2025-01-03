@@ -3,16 +3,8 @@ import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { NormalButton } from "../../../Button/NormalButton/NormalButton";
-import { ToggleFormatStateDisplay } from "../../../Display/ToggleFormatStateDisplay/ToggleFormatStateDisplay";
-import { TypeComponentFactory } from "../../TypeComponentFactory";
-import { BooleanInputComponent } from "../BooleanInputComponent/BooleanInputComponent";
-import { EnumInputComponent } from "../EnumInputComponent/EnumInputComponent";
-import { SelecteValueInfo } from "../EnumInputComponent/SelecteValueInfo";
 import { getComponentManager, getPath, IInputComponet, notifyValueToRootParent, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
-import { NumberInputComponent } from "../NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
-import { SaveState } from "../SaveState";
-import { StringInputComponent } from "../StringInputComponent/StringInputComponent";
 import { z } from "zod";
 import { ArrayInputComponent } from "./ArrayInputComponent";
 import { ArrayUnitToggleDisplaySaveButton } from "../CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
@@ -22,7 +14,7 @@ import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { checknInterfaceType, ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
-import { IInputComponentRootParent } from "../IInputComponentRootParent";
+import { IComponentManager } from "../IComponentManager";
 import { IValueComponent } from "../IValueComponent";
 import { get } from "http";
 
@@ -43,11 +35,11 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
     }
     public parent: IInputComponentCollection|null = null;
-    public readonly componentManager: IInputComponentRootParent|null;
+    public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IInputComponentRootParent|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
@@ -154,7 +146,6 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         }
 
         this.setAllchildRelative();
-        getComponentManager(this).recusiveRegisterUpdateChildSegment()
         rootParentExecuteOptimizedBoardSize(this);
     }
 

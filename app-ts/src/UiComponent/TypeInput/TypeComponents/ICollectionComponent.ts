@@ -1,11 +1,11 @@
 import { IHasSquareBoard } from "../../Board/IHasSquareBoard";
 import { RecordPath } from "../RecordPath";
-import { IInputComponentRootParent } from "./IInputComponentRootParent";
+import { IComponentManager } from "./IComponentManager";
 import { IInputComponet } from "./IInputComponet";
 
 export interface IInputComponentCollection extends IInputComponet, IHasSquareBoard {
     get inputComponentList(): IInputComponet[];
-    readonly componentManager: IInputComponentRootParent|null;
+    readonly componentManager: IComponentManager|null;
 }
 
 export function isIInputComponentCollection(inputComponent: IInputComponet): boolean {
@@ -46,7 +46,7 @@ export function recusiveRegisterUpdateChildSegment(
 
 /**
  * この関数は、新しい子コンポーネントが追加されたときに、その子コンポーネントに対して、updateChildSegmentを登録します。
- * 実装方法としては再帰的に登録するのはするのはrecusiveRegisterUpdateChildSegmentと同じですが、でリゲーターにeventNameが登録されていない場合のみ登録します。
+ * 実装方法としては再帰的に登録するのはするのはrecusiveRegisterUpdateChildSegmentと同じですが、デリゲーターにeventNameが登録されていない場合のみ登録します。
  * @param inputComponentCollection 
  * @param eventName 
  * @param updateChildSegment 

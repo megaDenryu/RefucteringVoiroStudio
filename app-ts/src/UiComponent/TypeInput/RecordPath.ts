@@ -168,7 +168,7 @@ export class RecordPath {
             if (Array.isArray(currentRecord)) {
                 const index = parseInt(finalSegment);
 
-                if (index > currentRecord.length) {
+                if (index >= currentRecord.length) {
                     // 配列の長さを超える場合は空白で埋める
                     for (let j = currentRecord.length; j <= index; j++) {
                         let 一個前の要素 = currentRecord[j - 1];
@@ -213,7 +213,10 @@ export class RecordPath {
 
         const index = parseInt(finalSegment);
         if (index >= lastArray.length) {
-            throw new Error("Index out of range.");
+            // throw new Error("Index out of range.");
+            //要素を追加した後、保存しないで削除を押すと、データに保存されてないインデックスの要素を削除することもクライアントの動作としてあり得る
+            //なのでこの場合は何もしないで終わる
+            return
         }
 
         lastArray.splice(index, 1);

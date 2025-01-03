@@ -2,16 +2,9 @@ import { z, ZodString } from "zod";
 import { DragMover, IDragAble } from "../Base/DragableComponent";
 import { BaseComponent, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
 import { SquareBoardComponent } from "../Board/SquareComponent";
-import { ArrayInputComponent } from "./TypeComponents/ArrayInputComponent/ArrayInputComponent";
-import { BooleanInputComponent } from "./TypeComponents/BooleanInputComponent/BooleanInputComponent";
-import { EnumInputComponent } from "./TypeComponents/EnumInputComponent/EnumInputComponent";
-import { SelecteValueInfo } from "./TypeComponents/EnumInputComponent/SelecteValueInfo";
-import { NumberInputComponent } from "./TypeComponents/NumberInputComponent/NumberInputComponent";
-import { StringInputComponent } from "./TypeComponents/StringInputComponent/StringInputComponent";
-import { ObjectInputComponent } from "./TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import "./TypeComponents/Component.css";
 import { ObjectInputComponentWithSaveButton } from "./TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
-import { IInputComponentRootParent } from "./TypeComponents/IInputComponentRootParent";
+import { IComponentManager } from "./TypeComponents/IComponentManager";
 
 export const VoiceRoidList = z.array(z.string());
 export const HumanState = z.object({
@@ -35,7 +28,7 @@ export const GameState = z.object({
 });
 export type GameState = z.infer<typeof GameState>;
 
-export class InputObjectBoard implements IHasComponent, IDragAble, IInputComponentRootParent {
+export class InputObjectBoard implements IHasComponent, IDragAble, IComponentManager {
     private readonly Def = HtmlElementInput.new(
         `
             <div class="InputObjectBoard">
@@ -47,6 +40,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IInputCompone
         }
     );
 
+    public manageData: GameState;
     public readonly component: BaseComponent<typeof this.Def["classNames"]>;
     public readonly dragMover: DragMover;
     private _squareBoardComponent: SquareBoardComponent;
@@ -55,7 +49,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IInputCompone
 
     constructor() {
         this._squareBoardComponent = new SquareBoardComponent("テストボード",1000, 1000);
-        const gameState:GameState = {
+        this.manageData = {
             humanNumber: 1, 
             humanList: ["結月ゆかり","初音ミク"], 
             humanStateDict: [[{
@@ -73,7 +67,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IInputCompone
                 }
             }
         }
-        this._objectInputComponent = new ObjectInputComponentWithSaveButton("ゲーム状態", GameState, gameState, null, this);
+        this._objectInputComponent = new ObjectInputComponentWithSaveButton("ゲーム状態", GameState, this.manageData, null, this);
         // this._objectInputComponent = new ObjectInputComponent("ゲーム状態", GameState, gameState);
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
         this.dragMover = new DragMover(this);
@@ -84,9 +78,8 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IInputCompone
         let rayoutChangeButtonList = this.component.element.getElementsByClassName("RayoutChangeButton");
         for (let i = 0; i < rayoutChangeButtonList.length; i++) {
             rayoutChangeButtonList[i].addEventListener("click", () => {
-                this._objectInputComponent.optimizeBoardSize();
-            }
-        );
+                    this._objectInputComponent.optimizeBoardSize();
+            });
         }
     }
 
@@ -107,11 +100,12 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IInputCompone
         this.component.delete();
     }
 
-    public recusiveRegisterUpdateChildSegment(): void
+    public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(): void
     {
         
     }
-    public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(): void
+
+    public オブジェクトデータの特定の子要素の配列から特定番号を削除する(): void
     {
         
     }
