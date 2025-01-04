@@ -7,11 +7,13 @@ from pathlib import Path
 from fastapi.exceptions import RequestValidationError
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
+from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
+from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingReq import CevioAIVoiceSettingReq
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
 from api.gptAI.gpt import ChatGPT
-from api.gptAI.voiceroid_api import TTSSoftwareManager
+from api.gptAI.voiceroid_api import TTSSoftwareManager, cevio_human
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
@@ -936,6 +938,28 @@ async def saveSetting(saveSettingReq: AppSettingsModel):
     except Exception as e:
         logger.error(f"Error in /SaveSetting: {e}")
         return JSONResponse(status_code=500, content={"message": "Internal Server Error"})
+    
+@app.post("/CevioAIVoiceSettingInit")
+async def cevioAIVoiceSettingInit(cevioAIVoiceSettingReq: CevioAIVoiceSettingReq):
+    # todo :cevioにアクセスして、ボイスの設定を取得
+    tTSSoftwareManager = TTSSoftwareManager.singleton()
+    human:Human|None = inastanceManager.humanInstances.tryGetHuman(cevioAIVoiceSettingReq.character_id)
+    if human == None:
+        return
+    cevio = human.human_Voice
+    #cevio_human かどうかの判定
+    if isinstance(cevio, cevio_human):
+        cevioAIVoiceSetting = CevioAIVoiceSettingModel(
+            talker2V40=cevio.Talker2V40,
+            talkerComponentArray2=cevio.Components
+        )
+        return cevioAIVoiceSetting
+    
+@app.post("/CevioAIVoiceSetting")
+async def cevioAIVoiceSetting(cevioAIVoiceSettingModel: CevioAIVoiceSettingModel):
+    ExtendFunc.ExtendPrint(cevioAIVoiceSettingModel)
+    
+    
 
 # 設定の状態を取得、管理、配信するAPI
 @app.websocket("/settingStore/{client_id}/{setting_name}/{mode_name}")

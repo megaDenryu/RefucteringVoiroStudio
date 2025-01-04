@@ -14,6 +14,7 @@ import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
 import { CharacterModeState } from "../../ValueObject/Character";
+import { createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSettingModel";
 
 // const { promises } = require("fs");
 
@@ -256,7 +257,7 @@ export class MessageBox {
     public message_box_elm: HTMLTextAreaElement;
     public parent_ELM_input_area: HTMLElement|null
     public ELM_send_button: HTMLElement;
-    public ELM_delete_button: HTMLElement;
+    public ELM_voice_setting_button: HTMLElement;
     public message_box_manager: MessageBoxManager;
     public manage_num: number;
     public ws_nikonama_comment_reciver: WebSocket;
@@ -276,7 +277,7 @@ export class MessageBox {
         this.message_box_elm = message_box_elm;
         this.parent_ELM_input_area = this.message_box_elm.closest(".input_area");
         this.ELM_send_button = this.parent_ELM_input_area?.getElementsByClassName("send_button")[0] as HTMLElement;
-        this.ELM_delete_button = this.parent_ELM_input_area?.getElementsByClassName("delete_button")[0] as HTMLElement;
+        this.ELM_voice_setting_button = this.parent_ELM_input_area?.getElementsByClassName("voice_setting_button")[0] as HTMLElement;
         this.message_box_manager = message_box_manager;
         this.human_tab = new HumanTab(human_tab_elm);
         //メッセージボックスマネージャーにこのメッセージボックスを登録
@@ -287,6 +288,11 @@ export class MessageBox {
         //メッセージボックスの高さが変更されたときに、他のメッセージボックスの高さも変更するようにする
         this.message_box_elm.addEventListener('mousedown', this.startObsereve.bind(this));
         this.message_box_elm.addEventListener('mouseup', this.endObsereve.bind(this));
+        this.ELM_voice_setting_button.onclick = (event) => {
+            // todo ここに音声設定ウインドウを表示する処理を書く
+            console.log("音声設定ウインドウを表示します");
+            createCevioAIVoiceSetting(this.human_tab.characterId);
+        }
         
         this.ELM_send_button.onclick = async (event) => {
             await this.execContentInputMessage();
@@ -816,13 +822,6 @@ export function sendHumanName(human_name) {
     }
     GlobalState.human_ws.send(human_name);
 }
-
-function clearText(button) {
-    let text = button.parentNode.parentNode.getElementsByClassName("messageText")[0]
-    text.value = ""
-}
-
-
 
 function changeMargin(){
     //todo 今は停止中。もっと良さそうな方法があれば使う。
