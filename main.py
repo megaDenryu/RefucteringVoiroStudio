@@ -7,7 +7,7 @@ from pathlib import Path
 from fastapi.exceptions import RequestValidationError
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
-from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
+from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel, CevioAIVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingReq import CevioAIVoiceSettingReq
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
@@ -942,7 +942,6 @@ async def saveSetting(saveSettingReq: AppSettingsModel):
 @app.post("/CevioAIVoiceSettingInit")
 async def cevioAIVoiceSettingInit(cevioAIVoiceSettingReq: CevioAIVoiceSettingReq):
     # todo :cevioにアクセスして、ボイスの設定を取得
-    tTSSoftwareManager = TTSSoftwareManager.singleton()
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(cevioAIVoiceSettingReq.character_id)
     if human == None:
         return
@@ -950,14 +949,27 @@ async def cevioAIVoiceSettingInit(cevioAIVoiceSettingReq: CevioAIVoiceSettingReq
     #cevio_human かどうかの判定
     if isinstance(cevio, cevio_human):
         cevioAIVoiceSetting = CevioAIVoiceSettingModel(
-            talker2V40=cevio.Talker2V40,
+            talker2V40=cevio.talker2V40,
             talkerComponentArray2=cevio.Components
         )
         return cevioAIVoiceSetting
     
 @app.post("/CevioAIVoiceSetting")
-async def cevioAIVoiceSetting(cevioAIVoiceSettingModel: CevioAIVoiceSettingModel):
-    ExtendFunc.ExtendPrint(cevioAIVoiceSettingModel)
+async def cevioAIVoiceSetting(req: CevioAIVoiceSettingModelReq):
+    ExtendFunc.ExtendPrint(req)
+    # todo :cevioにアクセスして、ボイスの設定を保存
+    human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
+    if human == None:
+        return
+    cevio = human.human_Voice
+    #cevio_human かどうかの判定
+    if isinstance(cevio, cevio_human):
+
+        cevio.setTalker2V40(req.cevio_ai_voice_setting.talker2V40)
+        cevio.setComponents(req.cevio_ai_voice_setting.talkerComponentArray2)
+        return {"message": "CevioAIVoiceSettingを保存しました"}
+    
+
     
     
 

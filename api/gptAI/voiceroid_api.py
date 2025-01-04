@@ -278,7 +278,7 @@ class cevio_human:
         all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(CharacterName_list)
     
     @property
-    def Talker2V40(self)->Talker2V40:
+    def talker2V40(self)->Talker2V40:
         return Talker2V40(
             Cast=self.talker.Cast,
             Volume=self.talker.Volume,
@@ -287,6 +287,14 @@ class cevio_human:
             ToneScale=self.talker.ToneScale,
             Alpha=self.talker.Alpha
         )
+    
+    def setTalker2V40(self,talker2V40:Talker2V40):
+        self.talker.Cast = talker2V40.Cast
+        self.talker.Volume = talker2V40.Volume
+        self.talker.Speed = talker2V40.Speed
+        self.talker.Tone = talker2V40.Tone
+        self.talker.ToneScale = talker2V40.ToneScale
+        self.talker.Alpha = talker2V40.Alpha
     
     # 現在のキャストの感情パラメータマップを取得します。
     # 備考：
@@ -305,6 +313,10 @@ class cevio_human:
             ))
         return TalkerComponentArray2(array=components)
     
+    def setComponents(self,components:TalkerComponentArray2):
+        for component in components.array:
+            self.talker.Components.ByName(component.Name).Value = component.Value
+    
     def ComponentByName(self,name:str)->TalkerComponent2:
         t = self.talker.Components.ByName(name)
         return TalkerComponent2(
@@ -320,13 +332,6 @@ class cevio_human:
             Name=t.Name,
             Value=t.Value
         )
-    
-    def getVoiceSetting(self)->CevioAIVoiceSettingModel:
-        """
-        キャラクター名とボイスモード名を取得する
-        """
-        self.talker.Components.ByName
-        return 
         
 
 class SpeakerStyle(TypedDict):

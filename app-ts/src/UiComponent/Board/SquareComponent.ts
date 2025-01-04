@@ -24,7 +24,8 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         width: number, height: number,
         additionalClassNames: string[] = [],
         customStyles: Partial<CSSStyleDeclaration> = {},
-        id: string|null = null
+        id: string|null = null,
+        enableDrag: boolean = true
     ) {
         this._title = title;
         this.id = id ?? ExtendFunction.uuid();
@@ -41,6 +42,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         this.addAdditionalClasses(additionalClassNames); // 追加クラスを適用
         this.applyCustomStyles(customStyles); // 追加スタイルを適用
         this.dragMover = new DragMover(this);
+        this.dragMover.setEnableDrag(enableDrag);
     }
 
     public setTitle(title: string): void {

@@ -11,14 +11,16 @@ import { AppSettingInitReq } from "../../ZodObject/DataStore/AppSetting/AppSetti
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
 import { recusiveRegisterUpdateChildSegment } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
 import { CevioAIVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingReq";
+import { CevioAIVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelReq";
 
-export class CevioAIVoiceSetting<ModelType extends {}> implements IComponentManager {
+export class CevioAIVoiceSetting implements IComponentManager {
   private testMode: boolean = false
   public readonly title = "全体設定"
-  public manageData: ModelType;
+  public manageData: CevioAIVoiceSettingModel;
   private _squareBoardComponent: SquareBoardComponent
-  private _manageDataSettingComponent: ObjectInputComponentWithSaveButton<ModelType>
+  private _manageDataSettingComponent: ObjectInputComponentWithSaveButton<CevioAIVoiceSettingModel>
   private _closeButton: NormalButton
+  private _reqInfo: CevioAIVoiceSettingReq
 
   /**
    * 
@@ -26,27 +28,26 @@ export class CevioAIVoiceSetting<ModelType extends {}> implements IComponentMana
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  public constructor(SchemaType: ZodTypeAny, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, req: {}, reqURL: string) {
-    this._squareBoardComponent = new SquareBoardComponent("設定画面", 400, 600);
+  public constructor(req: CevioAIVoiceSettingReq) {
+    this._squareBoardComponent = new SquareBoardComponent("設定画面", 400, 600, [], {}, null, true);
     this._closeButton = new NormalButton("閉じる", "warning")
-    this.initialize(SchemaType, schema, req, reqURL);
+    this._reqInfo = req;
+    this.initialize(req);
   }
 
   /**
-   * 
-   * @param SchemaType スキーマーの型
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  private async initialize(SchemaType: ZodTypeAny, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, req: {}, reqURL: string) {
+  private async initialize(req: {}) {
     if (this.testMode) {
-      this.manageData = generateDefaultObject(SchemaType)//AppSettingsModel.parse({});
+      this.manageData = generateDefaultObject(CevioAIVoiceSettingModel)//AppSettingsModel.parse({});
       console.log("test", this.manageData) // {}が返ってくる
     } else {
-      this.manageData = await this.requestAppSettingModel(req, reqURL)
+      this.manageData = await this.requestAppSettingModel(req)
       console.log("real", this.manageData) // {}が返ってくる
     }
-    this._manageDataSettingComponent = new ObjectInputComponentWithSaveButton(this.title, schema, this.manageData, null, this);
+    this._manageDataSettingComponent = new ObjectInputComponentWithSaveButton(this.title, CevioAIVoiceSettingModel, this.manageData, null, this);
     this._squareBoardComponent.addComponentToHeader(this._closeButton);
     this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._manageDataSettingComponent);
     this.bindEvents()
@@ -54,11 +55,11 @@ export class CevioAIVoiceSetting<ModelType extends {}> implements IComponentMana
     this.onAddedToDom()
   }
 
-  private async requestAppSettingModel(req: {}, reqURL: string): Promise<ModelType> {
+  private async requestAppSettingModel(req: {}): Promise<CevioAIVoiceSettingModel> {
     //1. jsonに変換する
     const data = JSON.stringify(req);
     //2. 非同期fetchする
-    const response = await fetch(RequestAPI.rootURL + reqURL, {//"DecideChara", {
+    const response = await fetch(RequestAPI.rootURL + "CevioAIVoiceSettingInit", {//"DecideChara", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -68,7 +69,7 @@ export class CevioAIVoiceSetting<ModelType extends {}> implements IComponentMana
 
     const json: string = await response.json();
 
-    const appSettingsModel: ModelType = json as unknown as ModelType
+    const appSettingsModel: CevioAIVoiceSettingModel = json as CevioAIVoiceSettingModel
     return appSettingsModel;
   }
 
@@ -79,23 +80,29 @@ export class CevioAIVoiceSetting<ModelType extends {}> implements IComponentMana
   private bindEvents() {
   }
 
-  private saveAllSettings() {
+  private saveAllSettings(url: string) {
     // セーブデータの状態を更新する
     const updatedSettings = this._manageDataSettingComponent.getValue();
     console.log(updatedSettings)
 
     // セーブデータを送信する
-    this.sendSettings(updatedSettings);
+    this.sendSettings(updatedSettings, url);
   }
 
-  private sendSettings(settings: ModelType) {
+  private sendSettings(settings: CevioAIVoiceSettingModel, url: string) {
+    const settingsReq: CevioAIVoiceSettingModelReq = {
+      page_mode: this._reqInfo.page_mode,
+      client_id: this._reqInfo.client_id,
+      character_id: this._reqInfo.character_id,
+      cevio_ai_voice_setting: settings
+    }
     // セーブデータを送信するロジックをここに記述
-    fetch(RequestAPI.rootURL + "SaveSetting", {
+    fetch(RequestAPI.rootURL + url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(settings),
+      body: JSON.stringify(settingsReq),
     })
       .then(response => response.json())
       .then(data => {
@@ -108,12 +115,12 @@ export class CevioAIVoiceSetting<ModelType extends {}> implements IComponentMana
 
   public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath: RecordPath, value: any): void {
     オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(this, recordPath, value)
-    this.sendSettings(this.manageData);
+    this.sendSettings(this.manageData, "CevioAIVoiceSetting");
   }
 
   public オブジェクトデータの特定の子要素の配列から特定番号を削除する(recordPath: RecordPath): void {
     オブジェクトデータの特定の子要素の配列から特定番号を削除する(this, recordPath)
-    this.sendSettings(this.manageData);
+    this.sendSettings(this.manageData, "CevioAIVoiceSetting");
   }
 }
 
@@ -125,11 +132,8 @@ export function createCevioAIVoiceSetting(character_id: string) {
     character_id: character_id
   }
 
-  const cevioAIVoiceSetting = new CevioAIVoiceSetting<CevioAIVoiceSettingModel>(
-    CevioAIVoiceSettingModel,
-    CevioAIVoiceSettingModel,
-    cevioAIVoiceSettingReq,
-    "CevioAIVoiceSettingInit"
+  const cevioAIVoiceSetting = new CevioAIVoiceSetting(
+    cevioAIVoiceSettingReq
   )
 }
 

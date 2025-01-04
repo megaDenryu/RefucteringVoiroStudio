@@ -1,5 +1,17 @@
 {
     "$defs": {
+        "CevioAIVoiceSettingModel": {
+            "properties": {
+                "talker2V40": {
+                    "$ref": "#/$defs/Talker2V40"
+                },
+                "talkerComponentArray2": {
+                    "$ref": "#/$defs/TalkerComponentArray2"
+                }
+            },
+            "title": "CevioAIVoiceSettingModel",
+            "type": "object"
+        },
         "Talker2V40": {
             "properties": {
                 "Cast": {
@@ -89,13 +101,27 @@
         }
     },
     "properties": {
-        "talker2V40": {
-            "$ref": "#/$defs/Talker2V40"
+        "page_mode": {
+            "title": "Page Mode",
+            "type": "string"
         },
-        "talkerComponentArray2": {
-            "$ref": "#/$defs/TalkerComponentArray2"
+        "client_id": {
+            "title": "Client Id",
+            "type": "string"
+        },
+        "character_id": {
+            "title": "Character Id",
+            "type": "string"
+        },
+        "cevio_ai_voice_setting": {
+            "$ref": "#/$defs/CevioAIVoiceSettingModel"
         }
     },
-    "title": "CevioAIVoiceSettingModel",
+    "required": [
+        "page_mode",
+        "client_id",
+        "character_id"
+    ],
+    "title": "CevioAIVoiceSettingModelReq",
     "type": "object"
 }
