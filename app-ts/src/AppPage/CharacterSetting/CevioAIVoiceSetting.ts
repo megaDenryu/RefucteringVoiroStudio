@@ -17,8 +17,9 @@ import { recusiveRegisterUpdateChildSegment } from "../../UiComponent/TypeInput/
 import { CevioAIVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingReq";
 import { CevioAIVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelReq";
 import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
+import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 
-export class CevioAIVoiceSetting implements IComponentManager {
+export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow {
   private testMode: boolean = false;
   public readonly title = "全体設定";
   public manageData: CevioAIVoiceSettingModel;
