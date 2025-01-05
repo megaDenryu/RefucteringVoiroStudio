@@ -202,5 +202,4 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         }
 
     }
-
 }

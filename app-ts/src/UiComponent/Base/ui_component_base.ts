@@ -280,6 +280,10 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         }
     }
 
+    get isShow():boolean {
+        return this.element.style.display === 'block';
+    }
+
     show(): void {
         this.element.style.display = 'block';
     }

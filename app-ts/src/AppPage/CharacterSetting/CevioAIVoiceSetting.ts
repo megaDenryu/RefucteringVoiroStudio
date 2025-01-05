@@ -58,6 +58,8 @@ export class CevioAIVoiceSetting implements IComponentManager {
     this.bindEvents()
     document.body.appendChild(this._squareBoardComponent.component.element)
     this.onAddedToDom()
+    //初期位置をウインドウの真ん中の位置にする
+    this._squareBoardComponent.setInitialPosition(window.innerWidth / 2, window.innerHeight / 2);
   }
 
   private async requestAppSettingModel(req: {}): Promise<CevioAIVoiceSettingModel> {
@@ -83,6 +85,9 @@ export class CevioAIVoiceSetting implements IComponentManager {
   }
 
   private bindEvents() {
+    this._closeButton.addOnClickEvent(() => {
+      this.close()
+    })
   }
 
   private saveAllSettings(url: string) {
@@ -127,10 +132,22 @@ export class CevioAIVoiceSetting implements IComponentManager {
     オブジェクトデータの特定の子要素の配列から特定番号を削除する(this, recordPath)
     this.sendSettings(this.manageData, "CevioAIVoiceSetting");
   }
+
+  public isOpen(): boolean {
+    return this._squareBoardComponent.component.isShow;
+  }
+  
+  public open(): void {
+    this._squareBoardComponent.component.show();
+  }
+
+  public close(): void {
+      this._squareBoardComponent.component.hide();
+  }
 }
 
 
-export function createCevioAIVoiceSetting(character_id: string) {
+export function createCevioAIVoiceSetting(character_id: string):CevioAIVoiceSetting {
   const cevioAIVoiceSettingReq: CevioAIVoiceSettingReq = {
     page_mode: "App",
     client_id: "test",
@@ -140,5 +157,6 @@ export function createCevioAIVoiceSetting(character_id: string) {
   const cevioAIVoiceSetting = new CevioAIVoiceSetting(
     cevioAIVoiceSettingReq
   )
+  return cevioAIVoiceSetting
 }
 

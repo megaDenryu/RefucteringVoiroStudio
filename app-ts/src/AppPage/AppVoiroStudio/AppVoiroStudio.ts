@@ -14,7 +14,7 @@ import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
 import { CharacterModeState } from "../../ValueObject/Character";
-import { createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
+import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
 
 // const { promises } = require("fs");
 
@@ -263,6 +263,7 @@ export class MessageBox {
     public ws_nikonama_comment_reciver: WebSocket;
     public ws_youtube_comment_reciver: ExtendedWebSocket;
     public ws_twitch_comment_reciver: ExtendedWebSocket;
+    private _cevioAIVoiceSetting: CevioAIVoiceSetting|null = null;
     gpt_setting_button_manager_model: GPTSettingButtonManagerModel;
     human_tab: HumanTab;
 
@@ -290,8 +291,15 @@ export class MessageBox {
         this.message_box_elm.addEventListener('mouseup', this.endObsereve.bind(this));
         this.ELM_voice_setting_button.onclick = (event) => {
             // todo ここに音声設定ウインドウを表示する処理を書く
-            console.log("音声設定ウインドウを表示します");
-            createCevioAIVoiceSetting(this.human_tab.characterId);
+            if (this._cevioAIVoiceSetting == null) {
+                this._cevioAIVoiceSetting = createCevioAIVoiceSetting(this.human_tab.characterId);
+            }
+
+            if (this._cevioAIVoiceSetting.isOpen()) {
+                this._cevioAIVoiceSetting.close();
+            } else {
+                this._cevioAIVoiceSetting.open();
+            }
         }
         
         this.ELM_send_button.onclick = async (event) => {

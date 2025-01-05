@@ -80,7 +80,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      * @param left - 初期の left 値
      * @param top - 初期の top 値
      */
-    private setInitialPosition(left: number, top: number): void {
+    public setInitialPosition(left: number, top: number): void {
         this.component.element.style.left = `${left}px`;
         this.component.element.style.top = `${top}px`;
     }
