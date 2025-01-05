@@ -103,6 +103,11 @@ height: 65vh;
     background-color: #0000ff;
 }
 
+.human_images{
+    position: absolute;
+    z-index: 0;
+}
+
 .human_image{
     position: absolute;
     /*left: 25%;*/

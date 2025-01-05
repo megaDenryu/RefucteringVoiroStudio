@@ -14,7 +14,7 @@ import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
 import { CharacterModeState } from "../../ValueObject/Character";
-import { createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSettingModel";
+import { createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
 
 // const { promises } = require("fs");
 

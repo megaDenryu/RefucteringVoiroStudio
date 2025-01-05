@@ -21,7 +21,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      */
     constructor(
         title: string,
-        width: number, height: number,
+        width: number|null, height: number|null,
         additionalClassNames: string[] = [],
         customStyles: Partial<CSSStyleDeclaration> = {},
         id: string|null = null,
@@ -37,7 +37,8 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         </div>`;
         this.component = BaseComponent.createElementByString(htmlString);
         this.component.addCSSClass(["margin"])
-        this.setSize(width, height); // サイズを設定
+        this.setStyle(); // サイズを設定
+        this.changeSize(width, height);
         // this.setInitialPosition(0, 0); // 初期位置を設定
         this.addAdditionalClasses(additionalClassNames); // 追加クラスを適用
         this.applyCustomStyles(customStyles); // 追加スタイルを適用
@@ -50,14 +51,11 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
     }
 
     /**
-     * ボードのサイズを設定する
-     * @param size - ボードのサイズ（ピクセル単位）
+     * ボードのスタイルを設定する
      */
-    public setSize(width: number, height: number): void {
+    public setStyle(): void {
         const baseStyle = `
             .square-board-${this.id} {
-                width: ${width}px;
-                height: ${height}px;
                 background-color: #f0f0f0;
                 border: 2px solid #ccc;
                 box-sizing: border-box;
@@ -67,9 +65,14 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         this.addDynamicStyles(baseStyle);
     }
 
-    public changeSize(width: number, height: number): void {
-        this.component.element.style.width = `${width}px`;
-        this.component.element.style.height = `${height}px`;
+    public changeSize(width: number|null, height: number|null): void {
+        if (width !== null) {
+            this.component.element.style.width = `${width}px`;
+        }
+
+        if (height !== null) {
+            this.component.element.style.height = `${height}px`;
+        }
     }
 
     /**

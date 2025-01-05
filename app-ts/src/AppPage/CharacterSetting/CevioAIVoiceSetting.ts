@@ -29,7 +29,7 @@ export class CevioAIVoiceSetting implements IComponentManager {
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
   public constructor(req: CevioAIVoiceSettingReq) {
-    this._squareBoardComponent = new SquareBoardComponent("設定画面", 400, 600, [], {}, null, true);
+    this._squareBoardComponent = new SquareBoardComponent("設定画面", null, null, [], {}, null, true);
     this._closeButton = new NormalButton("閉じる", "warning")
     this._reqInfo = req;
     this.initialize(req);
@@ -48,7 +48,12 @@ export class CevioAIVoiceSetting implements IComponentManager {
       console.log("real", this.manageData) // {}が返ってくる
     }
     this._manageDataSettingComponent = new ObjectInputComponentWithSaveButton(this.title, CevioAIVoiceSettingModel, this.manageData, null, this);
+    this._manageDataSettingComponent.component.addCSSClass("positionRelative");
+    this._manageDataSettingComponent.component.removeCSSClass("positionAbsolute");
     this._squareBoardComponent.addComponentToHeader(this._closeButton);
+    this._squareBoardComponent.component.addCSSClass([
+      "positionAbsolute",
+    ]);
     this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._manageDataSettingComponent);
     this.bindEvents()
     document.body.appendChild(this._squareBoardComponent.component.element)
