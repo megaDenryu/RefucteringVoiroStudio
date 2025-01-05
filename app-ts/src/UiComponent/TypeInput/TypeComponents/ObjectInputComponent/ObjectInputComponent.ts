@@ -57,6 +57,7 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
 
     private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection|null = null) : IInputComponet {
         return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent).inputComponent;
+        // return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent).inputComponent;
     }
 
     private initialize() {

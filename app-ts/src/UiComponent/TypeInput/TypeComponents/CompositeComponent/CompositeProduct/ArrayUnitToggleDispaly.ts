@@ -22,6 +22,7 @@ export class ArrayUnitToggleDispaly implements ICompositeProduct, ITypeComponent
     public readonly toggleDisplay: ToggleDisplayComposite;
     
     constructor(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection|null = null) {
+        console.log("ArrayUnitToggleDispalyが呼ばれました");
         this.toggleDisplay = ToggleDisplayComposite.new(title, unitSchema, defaultValue, parent);
         this.arrayUnit = ArrayUnitComponent.newWithOthre(this.toggleDisplay);
         this.component = this.arrayUnit.component;

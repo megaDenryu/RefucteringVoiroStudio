@@ -20,10 +20,13 @@ export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
     public readonly saveToggle: IHasInputComponent;
 
     constructor(title: string, unitSchema: any, defaultValue:any, parent:IInputComponentCollection|null = null) {
+        console.log("ArrayUnitToggleDisplaySaveButtonが呼ばれました");
         this.saveToggle = ArrayUnitToggleDisplaySaveButton.new(title, unitSchema, defaultValue, parent);
         if (this.saveToggle instanceof SaveToggleComposite) {
             this.arrayUnit = ArrayUnitComponent.newWithOthre(this.saveToggle);
-        } else if(this.saveToggle instanceof ArrayInputComponentWithSaveButton || this.saveToggle instanceof ObjectInputComponentWithSaveButton){
+        } 
+        else if(this.saveToggle instanceof ArrayInputComponentWithSaveButton || this.saveToggle instanceof ObjectInputComponentWithSaveButton){
+            // 配列やオブジェクトなど、四角形ボードが必要な場合
             this.arrayUnit = ArrayUnitComponentForHasSquareBoard.newWithOthre(this.saveToggle);
         }
         this.component = this.arrayUnit.component;
