@@ -15,6 +15,8 @@ import { SaveToggleComposite } from "./TypeComponents/CompositeComponent/Composi
 import { ArrayUnitToggleDisplaySaveButton } from "./TypeComponents/CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
 import { IHasSquareBoard } from "../Board/IHasSquareBoard";
 import { IInputComponentCollection } from "./TypeComponents/ICollectionComponent";
+import { RecordInputComponent } from "./TypeComponents/RecordInputComponent/RecordInputComponent";
+import { RecordInputComponentWithSaveButton } from "./TypeComponents/RecordInputComponent/RecordInputComponentWithSaveButton";
 
 export class TypeComponentFactory {
 
@@ -81,6 +83,9 @@ export class TypeComponentFactory {
         else if (unitSchema instanceof z.ZodEnum) {
             return SaveToggleComposite.new(title, unitSchema, defaultValue, parent);
         } 
+        else if (unitSchema instanceof z.ZodRecord) {
+            return new RecordInputComponentWithSaveButton(title, unitSchema, defaultValue, parent);
+        }
         else if (unitSchema instanceof z.ZodObject) {
             // return SaveToggleComposite.new(title, unitSchema, defaultValue);
             return new ObjectInputComponentWithSaveButton(title, unitSchema, defaultValue as {}, parent);
