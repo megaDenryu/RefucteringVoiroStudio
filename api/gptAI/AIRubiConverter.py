@@ -11,6 +11,7 @@ class AIRubiConverter:
     _gptUnit: ChatGptApiUnit
     _systemMessageQuery: list[ChatGptApiUnit.MessageQuery]
     _messageQueryHistory: list[ChatGptApiUnit.MessageQuery]
+    on_off: bool = False
     def __init__(self):
         self._gptUnit = ChatGptApiUnit(False)
         self._systemMessageQuery = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel2"]
@@ -18,6 +19,8 @@ class AIRubiConverter:
         """
         フリガナ化文章を取得します
         """
+        if self.on_off == False:
+            return text
         messageQuery = self.createMessageQuery(text)
         response = self._gptUnit.generateResponseStructured(messageQuery, KanaText)
         if response == "テストモードです":
@@ -42,6 +45,9 @@ class AIRubiConverter:
         if text == "":
             return None
         return text
+    
+    def setOnOff(self,on_off:bool):
+        self.on_off = on_off
     
 class AIRubiConverterTest:
     @staticmethod

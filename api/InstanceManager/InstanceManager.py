@@ -29,7 +29,7 @@ class InastanceManager(InstanceManagerInterface):
         return self._clientWs
     
     @property
-    def humanInstances(self):
+    def humanInstances(self)->HumanInstanceContainer:
         return self._humanInstances
     
     @property

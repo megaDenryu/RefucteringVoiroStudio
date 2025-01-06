@@ -18,6 +18,10 @@ from pydantic import BaseModel
 from typing import Optional
 
 import sys
+from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.Talker2V40.Talker2V40 import Talker2V40
+from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponent2.TalkerComponent2 import TalkerComponent2
+from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponentArray2 import TalkerComponentArray2
+from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
@@ -272,6 +276,62 @@ class cevio_human:
         all_human_info_manager.human_images.tryAddHumanFolder(CharacterName_list)
         # 6. キャラクター名からニックネームリストを返す辞書      を更新
         all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(CharacterName_list)
+    
+    @property
+    def talker2V40(self)->Talker2V40:
+        return Talker2V40(
+            Cast=self.talker.Cast,
+            Volume=self.talker.Volume,
+            Speed=self.talker.Speed,
+            Tone=self.talker.Tone,
+            ToneScale=self.talker.ToneScale,
+            Alpha=self.talker.Alpha
+        )
+    
+    def setTalker2V40(self,talker2V40:Talker2V40):
+        self.talker.Cast = talker2V40.Cast
+        self.talker.Volume = talker2V40.Volume
+        self.talker.Speed = talker2V40.Speed
+        self.talker.Tone = talker2V40.Tone
+        self.talker.ToneScale = talker2V40.ToneScale
+        self.talker.Alpha = talker2V40.Alpha
+    
+    # 現在のキャストの感情パラメータマップを取得します。
+    # 備考：
+    # 　内容はCastによって変化します。
+    # 　例1『さとうささら』→ "普通", "元気", "怒り", "哀しみ"
+    # 　例2『小春六花』→ "嬉しい", "普通", "怒り", "哀しみ", "落ち着き"
+    @property
+    def Components(self)->TalkerComponentArray2:
+        components = []
+        for i in range(0,self.talker.Components.Length):
+            t = self.talker.Components.At(i)
+            components.append(TalkerComponent2(
+                Id=t.Id,
+                Name=t.Name,
+                Value=t.Value
+            ))
+        return TalkerComponentArray2(array=components)
+    
+    def setComponents(self,components:TalkerComponentArray2):
+        for component in components.array:
+            self.talker.Components.ByName(component.Name).Value = component.Value
+    
+    def ComponentByName(self,name:str)->TalkerComponent2:
+        t = self.talker.Components.ByName(name)
+        return TalkerComponent2(
+            Id=t.Id,
+            Name=t.Name,
+            Value=t.Value
+        )
+    
+    def ComponentAt(self,index:int)->TalkerComponent2:
+        t = self.talker.Components.At(index)
+        return TalkerComponent2(
+            Id=t.Id,
+            Name=t.Name,
+            Value=t.Value
+        )
         
 
 class SpeakerStyle(TypedDict):

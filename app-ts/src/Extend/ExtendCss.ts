@@ -82,19 +82,30 @@ export class CSSProxy {
         if (CSSProxy.classStyles[className]) {
             return new CSSProxuOut(CSSProxy.classStyles[className][property as any]) || null;
         }
-
+    
         // コレクションにない場合はスタイルシートから取得
         const styleSheets = document.styleSheets;
         for (let i = 0; i < styleSheets.length; i++) {
             const styleSheet = styleSheets[i] as CSSStyleSheet;
-            const rules = styleSheet.cssRules || styleSheet.rules;
-            for (let j = 0; j < rules.length; j++) {
-                const rule = rules[j] as CSSStyleRule;
-                if (rule.selectorText === `.${className}`) {
-                    // コレクションに保存
-                    CSSProxy.classStyles[className] = rule.style;
-                    return new CSSProxuOut(rule.style[property as any]) || null;
+    
+            // スタイルシートが同一オリジンであるかを確認
+            if (styleSheet.href && new URL(styleSheet.href).origin !== window.location.origin) {
+                continue;
+            }
+    
+            try {
+                const rules = styleSheet.cssRules || styleSheet.rules;
+                for (let j = 0; j < rules.length; j++) {
+                    const rule = rules[j] as CSSStyleRule;
+                    if (rule.selectorText === `.${className}`) {
+                        // コレクションに保存
+                        CSSProxy.classStyles[className] = rule.style;
+                        return new CSSProxuOut(rule.style[property as any]) || null;
+                    }
                 }
+            } catch (e) {
+                console.warn(`Cannot access cssRules for stylesheet: ${styleSheet.href}`, e);
+                continue;
             }
         }
         return null;

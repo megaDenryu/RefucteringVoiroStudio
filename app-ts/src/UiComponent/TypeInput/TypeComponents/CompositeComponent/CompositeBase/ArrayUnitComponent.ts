@@ -8,6 +8,8 @@ import { ICompositeBase, IHasInputComponent } from "../ICompositeComponentList";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
 import { IInputComponentCollection } from "../../ICollectionComponent";
+import { ObjectInputComponent } from "../../ObjectInputComponent/ObjectInputComponent";
+import { ArrayInputComponent } from "../../ArrayInputComponent/ArrayInputComponent";
 
 
 /**
@@ -57,6 +59,7 @@ export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent, 
         this.component.addCSSClass("CompositeComponent");
         this.component.createArrowBetweenComponents(this, this.addButton);
         this.component.createArrowBetweenComponents(this, this.removeButton);
+        console.log("クリエイトアローを通った")
         this.addButton.component.addCSSClass(["AddButton","RayoutChangeButton"]);
         this.removeButton.component.addCSSClass(["RemoveButton","RayoutChangeButton"]);
     }
@@ -65,14 +68,23 @@ export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent, 
         this.component.delete();
     }
 
-    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection) : ArrayUnitComponent {
+    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection) : IArrayUnitComponent {
+        console.log("ArrayUnitComponent.newが呼ばれました")
         const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent);
         const addButton = new NormalButton("追加", "normal");
         const removeButton = new NormalButton("削除", "warning");
-        return new ArrayUnitComponent(title, inputComponentBox, addButton, removeButton);
+        // ArrayInputComponentやObjectInputComponentの場合、四角形ボードが必要なので、それに合わせたコンポーネントを返す
+        if (inputComponentBox instanceof ObjectInputComponent || inputComponentBox instanceof ArrayInputComponent) {
+            return new ArrayUnitComponentForHasSquareBoard(title, inputComponentBox, addButton, removeButton);
+        } 
+        else{
+            return new ArrayUnitComponent(title, inputComponentBox, addButton, removeButton);
+        }
+            
     }
 
     public static newWithOthre(other: IHasInputComponent) : ArrayUnitComponent {
+        console.log("ArrayUnitComponent.newWithOthreが呼ばれました")
         const addButton = new NormalButton("追加", "normal");
         const removeButton = new NormalButton("削除", "warning");
         return new ArrayUnitComponent(

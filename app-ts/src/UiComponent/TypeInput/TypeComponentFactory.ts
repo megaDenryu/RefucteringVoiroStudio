@@ -28,23 +28,30 @@ export class TypeComponentFactory {
     public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:IInputComponentCollection|null = null) : IHasInputComponent {
         if (unitSchema instanceof z.ZodString) {
             return new StringInputComponent(title, defaultValue, parent);
-        } else if (unitSchema instanceof z.ZodNumber) {
+        } 
+        else if (unitSchema instanceof z.ZodNumber) {
             const min = unitSchema.minValue;
-            const max = unitSchema.minValue;
+            const max = unitSchema.maxValue;
             const step = 1//todo: stepの取得方法が不明。unitSchema.step; では無理だった。
             return new NumberInputComponent(title, defaultValue, min , max, step, parent);
-        } else if (unitSchema instanceof z.ZodBoolean) {
+        } 
+        else if (unitSchema instanceof z.ZodBoolean) {
             return new BooleanInputComponent(title, defaultValue, parent);
-        } else if (unitSchema instanceof z.ZodArray) {
+        } 
+        else if (unitSchema instanceof z.ZodArray) {
             return new ArrayInputComponent(title, unitSchema, defaultValue, parent);
-        } else if (unitSchema instanceof z.ZodEnum) {
+        } 
+        else if (unitSchema instanceof z.ZodEnum) {
             return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string), parent);
-        } else if (unitSchema instanceof z.ZodObject) {
+        } 
+        else if (unitSchema instanceof z.ZodObject) {
             return new ObjectInputComponent(title, unitSchema, defaultValue as {}, parent);
-        } else if (unitSchema instanceof z.ZodOptional) {
+        } 
+        else if (unitSchema instanceof z.ZodOptional) {
             // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う
             return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue, parent);
-        } else if (unitSchema instanceof z.ZodDefault) {
+        } 
+        else if (unitSchema instanceof z.ZodDefault) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
             return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue, parent);
         }

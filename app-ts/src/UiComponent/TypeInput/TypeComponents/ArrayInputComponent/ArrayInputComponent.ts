@@ -5,7 +5,7 @@ import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { TypeComponentType, TypeComponentInterfaceType, ITypeComponent } from "../../ComponentType";
 import { IRecordPathInput } from "../../RecordPath";
-import { ArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUnitComponent";
+import { ArrayUnitComponent, IArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUnitComponent";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IComponentManager } from "../IComponentManager";
@@ -22,7 +22,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     private readonly _schema: z.ZodArray<UnitType>;
     private readonly _squareBoardComponent: SquareBoardComponent; //リストの要素を表示するためのボード
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
-    private readonly _arrayUnitList : ArrayUnitComponent[]; //表示するInput要素のリスト
+    private readonly _arrayUnitList : IArrayUnitComponent[]; //表示するInput要素のリスト
     public get inputComponentList(): IInputComponet[] { return this._arrayUnitList.map(({inputComponent}) => inputComponent); }
     public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
@@ -40,8 +40,8 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         this.initialize();
     }
 
-    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : ArrayUnitComponent[] {
-        let inputComponentList : ArrayUnitComponent[] = [];
+    private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IArrayUnitComponent[] {
+        let inputComponentList : IArrayUnitComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
             let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], this);
             inputComponent.component.addCSSClass(["Indent","padding"]);
@@ -50,9 +50,9 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"] , parent:IInputComponentCollection) : ArrayUnitComponent {
-        // return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
-        const unit =  ArrayUnitComponent.new(title, unitSchema, defaultValue, parent);
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"] , parent:IInputComponentCollection) : IArrayUnitComponent {
+        //ArrayUnitComponentを作成するが、配列やオブジェクトなど、四角形ボードが必要な場合かどうかで分岐
+        const unit:IArrayUnitComponent =  ArrayUnitComponent.new(title, unitSchema, defaultValue, parent);
         //unitにイベントを追加する
         unit.addButton.addOnClickEvent(() => {
             this.addElement();

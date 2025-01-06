@@ -1,0 +1,127 @@
+{
+    "$defs": {
+        "CevioAIVoiceSettingModel": {
+            "properties": {
+                "talker2V40": {
+                    "$ref": "#/$defs/Talker2V40"
+                },
+                "talkerComponentArray2": {
+                    "$ref": "#/$defs/TalkerComponentArray2"
+                }
+            },
+            "title": "CevioAIVoiceSettingModel",
+            "type": "object"
+        },
+        "Talker2V40": {
+            "properties": {
+                "Cast": {
+                    "default": "",
+                    "title": "Cast",
+                    "type": "string"
+                },
+                "Volume": {
+                    "default": 50,
+                    "maximum": 100,
+                    "minimum": 0,
+                    "title": "Volume",
+                    "type": "integer"
+                },
+                "Speed": {
+                    "default": 50,
+                    "maximum": 100,
+                    "minimum": 0,
+                    "title": "Speed",
+                    "type": "integer"
+                },
+                "Tone": {
+                    "default": 50,
+                    "maximum": 100,
+                    "minimum": 0,
+                    "title": "Tone",
+                    "type": "integer"
+                },
+                "Alpha": {
+                    "default": 50,
+                    "maximum": 100,
+                    "minimum": 0,
+                    "title": "Alpha",
+                    "type": "integer"
+                },
+                "ToneScale": {
+                    "default": 50,
+                    "maximum": 100,
+                    "minimum": 0,
+                    "title": "Tonescale",
+                    "type": "integer"
+                }
+            },
+            "title": "Talker2V40",
+            "type": "object"
+        },
+        "TalkerComponent2": {
+            "properties": {
+                "Id": {
+                    "description": "変更不可",
+                    "title": "Id",
+                    "type": "string"
+                },
+                "Name": {
+                    "description": "変更不可",
+                    "title": "Name",
+                    "type": "string"
+                },
+                "Value": {
+                    "default": 50,
+                    "maximum": 100,
+                    "minimum": 0,
+                    "title": "Value",
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "Id",
+                "Name"
+            ],
+            "title": "TalkerComponent2",
+            "type": "object"
+        },
+        "TalkerComponentArray2": {
+            "properties": {
+                "array": {
+                    "default": [],
+                    "items": {
+                        "$ref": "#/$defs/TalkerComponent2"
+                    },
+                    "title": "Array",
+                    "type": "array"
+                }
+            },
+            "title": "TalkerComponentArray2",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "page_mode": {
+            "title": "Page Mode",
+            "type": "string"
+        },
+        "client_id": {
+            "title": "Client Id",
+            "type": "string"
+        },
+        "character_id": {
+            "title": "Character Id",
+            "type": "string"
+        },
+        "cevio_ai_voice_setting": {
+            "$ref": "#/$defs/CevioAIVoiceSettingModel"
+        }
+    },
+    "required": [
+        "page_mode",
+        "client_id",
+        "character_id"
+    ],
+    "title": "CevioAIVoiceSettingModelReq",
+    "type": "object"
+}

@@ -1,21 +1,17 @@
 {
     "コメント受信設定": {
         "ニコニコ生放送": {
-            "配信URL": "testｗｄｗｗｄ",
+            "配信URL": "test_niconico",
             "コメント受信": "OFF",
             "コメント禁止ワード": [
-                "awda",
-                "awdaadawd",
-                "awdaadawd",
-                "awdaadawd",
-                "awdaadzsczawd"
+                "4ね"
             ]
         },
         "YoutubeLive": {
-            "配信URL": "test_youtuｗだｗだ"
+            "配信URL": "test_youtube"
         },
         "Twitch": {
-            "配信URL": "ｔc"
+            "配信URL": "test_twitch"
         }
     },
     "GPT設定": {
@@ -23,7 +19,7 @@
     },
     "合成音声設定": {
         "COEIROINKv2設定": {
-            "path": "wｗだｄｗ"
+            "path": ""
         }
     }
 }

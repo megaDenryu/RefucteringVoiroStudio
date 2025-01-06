@@ -103,6 +103,11 @@ height: 65vh;
     background-color: #0000ff;
 }
 
+.human_images{
+    position: absolute;
+    z-index: 0;
+}
+
 .human_image{
     position: absolute;
     /*left: 25%;*/
@@ -192,8 +197,11 @@ display:block;
 .delete_button{
     flex-grow: 1;
 }
+.voice_setting_button{
+    flex-grow: 1;
+}
 
-.send_button, .delete_button {
+.send_button, .delete_button, .voice_setting_button {
     border: none; /* ボーダーを削除 */
     color: white; /* テキスト色を白に */
     padding: 0.5vh 1vh; /* パディングを追加 */
@@ -208,7 +216,7 @@ display:block;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* ボックスシャドウを追加 */
 }
 
-.send_button:hover, .delete_button:hover {
+.send_button:hover, .delete_button:hover, .voice_setting_button:hover {
     background-color: #555; /* ホバー時の背景色を少し明るく */
 }
 

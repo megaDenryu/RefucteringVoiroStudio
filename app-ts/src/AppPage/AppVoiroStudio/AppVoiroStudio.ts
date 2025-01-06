@@ -14,6 +14,9 @@ import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
 import { CharacterModeState } from "../../ValueObject/Character";
+import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
+import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
+import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
 
 // const { promises } = require("fs");
 
@@ -256,12 +259,13 @@ export class MessageBox {
     public message_box_elm: HTMLTextAreaElement;
     public parent_ELM_input_area: HTMLElement|null
     public ELM_send_button: HTMLElement;
-    public ELM_delete_button: HTMLElement;
+    public ELM_voice_setting_button: HTMLElement;
     public message_box_manager: MessageBoxManager;
     public manage_num: number;
     public ws_nikonama_comment_reciver: WebSocket;
     public ws_youtube_comment_reciver: ExtendedWebSocket;
     public ws_twitch_comment_reciver: ExtendedWebSocket;
+    private _characterVoiceSetting: IOpenCloseWindow|null = null;
     gpt_setting_button_manager_model: GPTSettingButtonManagerModel;
     human_tab: HumanTab;
 
@@ -276,7 +280,7 @@ export class MessageBox {
         this.message_box_elm = message_box_elm;
         this.parent_ELM_input_area = this.message_box_elm.closest(".input_area");
         this.ELM_send_button = this.parent_ELM_input_area?.getElementsByClassName("send_button")[0] as HTMLElement;
-        this.ELM_delete_button = this.parent_ELM_input_area?.getElementsByClassName("delete_button")[0] as HTMLElement;
+        this.ELM_voice_setting_button = this.parent_ELM_input_area?.getElementsByClassName("voice_setting_button")[0] as HTMLElement;
         this.message_box_manager = message_box_manager;
         this.human_tab = new HumanTab(human_tab_elm);
         //メッセージボックスマネージャーにこのメッセージボックスを登録
@@ -287,6 +291,24 @@ export class MessageBox {
         //メッセージボックスの高さが変更されたときに、他のメッセージボックスの高さも変更するようにする
         this.message_box_elm.addEventListener('mousedown', this.startObsereve.bind(this));
         this.message_box_elm.addEventListener('mouseup', this.endObsereve.bind(this));
+        this.ELM_voice_setting_button.onclick = (event) => {
+            // todo ここに音声設定ウインドウを表示する処理を書く
+            if (this._characterVoiceSetting == null) {
+                // this._characterVoiceSetting = createCevioAIVoiceSetting(this.human_tab.characterId);
+                const characterId = this.human_tab.characterId;
+                const tts_software = this.human_tab.characterModeState?.tts_software;
+                if (tts_software == null) {return;}
+                this._characterVoiceSetting = createCharacterVoiceSetting(characterId, tts_software);
+            }
+
+            if (this._characterVoiceSetting == null) {return;}
+
+            if (this._characterVoiceSetting.isOpen()) {
+                this._characterVoiceSetting.close();
+            } else {
+                this._characterVoiceSetting.open();
+            }
+        }
         
         this.ELM_send_button.onclick = async (event) => {
             await this.execContentInputMessage();
@@ -816,13 +838,6 @@ export function sendHumanName(human_name) {
     }
     GlobalState.human_ws.send(human_name);
 }
-
-function clearText(button) {
-    let text = button.parentNode.parentNode.getElementsByClassName("messageText")[0]
-    text.value = ""
-}
-
-
 
 function changeMargin(){
     //todo 今は停止中。もっと良さそうな方法があれば使う。

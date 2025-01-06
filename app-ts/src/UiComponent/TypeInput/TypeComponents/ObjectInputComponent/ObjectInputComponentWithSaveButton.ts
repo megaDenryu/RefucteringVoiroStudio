@@ -57,6 +57,9 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
     private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : Record<string,IHasInputComponent> {
         let _inputComponentDict:Record<string,IHasInputComponent> = {};
         for (let key in schema.shape) {
+            if (defaultValues[key] === undefined) {
+                console.error("defaultValuesにkeyが存在しません。key:", key, defaultValues);
+            }
             let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], this);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);
@@ -199,5 +202,4 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         }
 
     }
-
 }
