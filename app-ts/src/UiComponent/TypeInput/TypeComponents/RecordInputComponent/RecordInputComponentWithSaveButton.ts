@@ -1,12 +1,15 @@
 import { z } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { ArrayInputComponent } from "../ArrayInputComponent/ArrayInputComponent";
-import { IInputComponet } from "../IInputComponet";
+import { IInputComponet, notifyValueToRootParent } from "../IInputComponet";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
-import "./ObjectInputComponent.css";
+import "./RecordInputComponent.css";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
 import "../Component.css";
+import { NormalButton } from "../../../Button/NormalButton/NormalButton";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
+import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayInputComponentWithSaveButton";
+import { RecordInputComponent } from "./RecordInputComponent";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
@@ -14,57 +17,61 @@ import { IRecordPathInput } from "../../RecordPath";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IComponentManager } from "../IComponentManager";
-import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
-import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayInputComponentWithSaveButton";
-import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
-import { ObjectInputComponentWithSaveButton } from "./ObjectInputComponentWithSaveButton";
+import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
+import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
 
-export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
-    public readonly componentType: TypeComponentType = "object";
+export class RecordInputComponentWithSaveButton implements IHasComponent, IInputComponentCollection, IHasInputComponent {
+    public readonly componentType: TypeComponentType = "record";
     public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponentCollection", "IHasInputComponent"];
     public readonly component: BaseComponent;
+    private readonly _NormalButton: NormalButton;
     private _title : string;
     public get title():string { return this._title; }
-    private readonly _schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>;;
-    private readonly _squareBoardComponent: SquareBoardComponent; //オブジェクトの要素を表示するためのボード
+    private readonly _schema: z.ZodRecord<z.ZodTypeAny>;
+    private readonly _squareBoardComponent: SquareBoardComponent; //レコードの要素を表示するためのボード
     public get squareBoardComponent(): SquareBoardComponent { return this._squareBoardComponent; }
-    private readonly _inputComponentDict :Record<string,IInputComponet>; //表示するInput要素の辞書
-    public get inputComponentList(): IInputComponet[] { return Object.values(this._inputComponentDict); }
-    private readonly _values: T;
-    public parent: IInputComponentCollection|null = null;
+    private readonly _inputComponentDict :Record<string,IHasInputComponent>; //表示するInput要素の辞書
+    public get inputComponentList(): IInputComponet[] { 
+        return Object.values(this._inputComponentDict).map((inputComponent) => {
+            return inputComponent.inputComponent;
+        });
+    }
+    private readonly _values: {};
+    public parent: IInputComponentCollection | null;
     public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
+    constructor(title: string, schema: z.ZodRecord<z.ZodTypeAny>, defaultValues: {}, parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
         this._title = title;
         this._schema = schema;
-        this.parent = parent;
-        this.componentManager = rootParent;
+        this._values = defaultValues;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
+        this._NormalButton = new NormalButton("全体保存", "normal");
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
-        this._values = defaultValues;
+        this.parent = parent;
+        this.componentManager = rootParent;
+
         this.initialize();
     }
 
-    private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : {} {
-        let _inputComponentDict = {};
-        for (let key in schema.shape) {
-            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], this);
-            
+    private createDefaultInputObject(title: string, schema: z.ZodRecord<z.ZodTypeAny>, defaultValues: Record<string, any>) : Record<string,IHasInputComponent> {
+        let _inputComponentDict:Record<string,IHasInputComponent> = {};
+        for (let key in defaultValues) {
+            let inputComponent = this.createDefaultInputComponent(key, schema.element, defaultValues[key], this);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
         }
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection|null = null) : IInputComponet {
-        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent).inputComponent;
-        // return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent).inputComponent;
+    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection|null = null) : IHasInputComponent {
+        return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent);
     }
 
     private initialize() {
+        this._squareBoardComponent.addComponentToHeader(this._NormalButton);
         for (let key in this._inputComponentDict) {
             this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._inputComponentDict[key]);
         }
@@ -72,6 +79,11 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
             "positionAbsolute",
         ]);
         this.setAllchildRelative();
+
+        this._NormalButton.addOnClickEvent(() => {
+            this.save();
+            notifyValueToRootParent(this.inputComponent);
+        });
     }
 
     public setTitle(title: string): void {
@@ -85,26 +97,27 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
 
     public addOnDartyEvent(event: (value: boolean) => void): void {
         for (let key in this._inputComponentDict) {
-            this._inputComponentDict[key].addOnDartyEvent(event);
+            this._inputComponentDict[key].inputComponent.addOnDartyEvent(event);
         }
     }
 
     public addOnSaveEvent(event: (value: boolean) => void): void {
         for (let key in this._inputComponentDict) {
-            this._inputComponentDict[key].addOnSaveEvent(event);
+            this._inputComponentDict[key].inputComponent.addOnSaveEvent(event);
         }
     }
 
-    public getValue(): T {
+    public getValue(): {} {
         for (let key in this._inputComponentDict) {
-            this._values[key] = this._inputComponentDict[key].getValue();
+            const v = this._inputComponentDict[key].inputComponent.getValue();
+            this._values[key] = v;
         }
         return this._values;
     }
 
     public isDarty(): boolean {
         for (let key in this._inputComponentDict) {
-            if (this._inputComponentDict[key].isDarty()) {
+            if (this._inputComponentDict[key].inputComponent.isDarty()) {
                 return true;
             }
         }
@@ -113,25 +126,21 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
 
     public save(): void {
         for (let key in this._inputComponentDict) {
-            this._inputComponentDict[key].save();
+            this._inputComponentDict[key].inputComponent.save();
         }
-    }
-
-    public updateValue(key: string): void {
-        this._values[key] = this._inputComponentDict[key].getValue();
     }
 
     public optimizeBoardSize(): void {
         //子コンポーネントがIHassSquareBoardを実装している場合、先に子コンポーネントのサイズを最適化する。
         for (let key in this._inputComponentDict) {
-            let inputComponent = this._inputComponentDict[key];
+            let inputComponent = this._inputComponentDict[key].inputComponent;
             if (inputComponent instanceof ArrayInputComponent) {
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponent) {
                 inputComponent.optimizeBoardSize();
             }
-            else if (inputComponent instanceof RecordInputComponent) {  
+            else if (inputComponent instanceof RecordInputComponent) {
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
@@ -147,14 +156,13 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
 
         let optimizeHeight:number = this._squareBoardComponent.getTitleHeight();
         for (let key in this._inputComponentDict) {
-            let inputComponent = this._inputComponentDict[key];
-            optimizeHeight += inputComponent.getHeight();
+            let inputComponentBox = this._inputComponentDict[key];
+            optimizeHeight += inputComponentBox.inputComponent.getHeight();
         }
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
-        console.log(paddingNum);
         this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
-       
+        console.log("RecordInputComponentWithSaveButton optimizeBoardSize : " + (optimizeHeight));
     }
 
     public setAllchildRelative() {
@@ -187,9 +195,9 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         // DOM 要素を削除
         this._squareBoardComponent.delete();
         //子要素の削除
+        this._NormalButton.delete();
         for (let key in this._inputComponentDict) {
             this._inputComponentDict[key].delete();
         }
     }
-
 }

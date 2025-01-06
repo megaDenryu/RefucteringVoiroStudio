@@ -17,6 +17,8 @@ import { IRecordPathInput } from "../../RecordPath";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IComponentManager } from "../IComponentManager";
+import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
+import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
 
 export class ObjectInputComponentWithSaveButton<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "object";
@@ -146,12 +148,17 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
             else if (inputComponent instanceof ObjectInputComponent) {
                 inputComponent.optimizeBoardSize();
             }
+            else if (inputComponent instanceof RecordInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
             else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
                 inputComponent.optimizeBoardSize();
-            } else {
+            } 
+            else if (inputComponent instanceof RecordInputComponentWithSaveButton) {
+                inputComponent.optimizeBoardSize();
             }
         }
 

@@ -12,6 +12,10 @@ import { IComponentManager } from "../IComponentManager";
 import { getComponentManager, getPath, getRootParent, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { z } from "zod";
+import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
+import { ArrayInputComponentWithSaveButton } from "./ArrayInputComponentWithSaveButton";
+import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
+import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -181,6 +185,18 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
                 inputComponent.optimizeBoardSize();
             }
             else if (inputComponent instanceof ObjectInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof RecordInputComponent) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
+                inputComponent.optimizeBoardSize();
+            }
+            else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
+                inputComponent.optimizeBoardSize();
+            } 
+            else if (inputComponent instanceof RecordInputComponentWithSaveButton) {
                 inputComponent.optimizeBoardSize();
             }
         });

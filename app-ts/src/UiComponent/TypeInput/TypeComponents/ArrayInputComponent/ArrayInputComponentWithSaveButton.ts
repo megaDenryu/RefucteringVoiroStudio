@@ -17,6 +17,8 @@ import { checknInterfaceType, ITypeComponent, TypeComponentInterfaceType, TypeCo
 import { IComponentManager } from "../IComponentManager";
 import { IValueComponent } from "../IValueComponent";
 import { get } from "http";
+import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
+import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -201,13 +203,23 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         this._inputComponentCompositeList.forEach(({inputComponent}) => {
             if (inputComponent instanceof ArrayInputComponent) {
                 inputComponent.optimizeBoardSize();
-            } else if (inputComponent instanceof ObjectInputComponent) {
+            }
+            else if (inputComponent instanceof ObjectInputComponent) {
                 inputComponent.optimizeBoardSize();
-            } else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
+            }
+            else if (inputComponent instanceof RecordInputComponent) {
                 inputComponent.optimizeBoardSize();
-            } else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
+            }
+            else if (inputComponent instanceof ArrayInputComponentWithSaveButton) {
                 inputComponent.optimizeBoardSize();
-            } else {
+            }
+            else if (inputComponent instanceof ObjectInputComponentWithSaveButton) {
+                inputComponent.optimizeBoardSize();
+            } 
+            else if (inputComponent instanceof RecordInputComponentWithSaveButton) {
+                inputComponent.optimizeBoardSize(); 
+            } 
+            else {
                 // console.log(`子要素 : 未対応の型です : ${inputComponent.title} : ${inputComponent.constructor.name}`);
             }
         });

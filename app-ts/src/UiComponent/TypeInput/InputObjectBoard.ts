@@ -24,6 +24,8 @@ export const GameState = z.object({
     humanList: VoiceRoidList,
     humanStateDict: z.array(z.array(HumanState)),
     voiceRoidState: VoiceRoidState,
+    emotion: z.record(z.number()),
+    キャラへの感情: z.record(z.enum(["悲しい", "嬉しい", "怒り"])),
 
 });
 export type GameState = z.infer<typeof GameState>;
@@ -65,6 +67,12 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IComponentMan
                     emotionList: ["悲しい", "嬉しい", "怒り"],
                     HP: 100
                 }
+            },
+            emotion: {
+                "悲しい": 1,
+            },
+            キャラへの感情: {
+                "結月ゆかり": "悲しい",
             }
         }
         this._objectInputComponent = new ObjectInputComponentWithSaveButton("ゲーム状態", GameState, this.manageData, null, this);
@@ -94,6 +102,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IComponentMan
 
     public onAddedToDom() {
         this._objectInputComponent.optimizeBoardSize();
+        this._objectInputComponent.optimizeBoardSize(); //なぜか２回呼び出さないと、高さが最適化できない
     }
 
     public delete() {
