@@ -399,7 +399,7 @@ class voicevox_human:
             'text': text
         }
         ExtendFunc.ExtendPrintWithTitle("ボイボ音声パラメ",params)
-        query_dict:Dict[str, Any] = requests.post(self.query_url, params=params).json()
+        query_dict:Dict[str, Any] = requests.post(self.query_url, params=params).json() #todo ここでの型を特定する必要がある。おそらくここで音量や話速などのパラメータが取れる
         return query_dict
     
     
