@@ -10,6 +10,7 @@ from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.Youtube
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingReq import CevioAIVoiceSettingReq
+from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
 
 
@@ -21,7 +22,8 @@ if __name__ == "__main__":
     # BaseModelConverterTest.Zodを出力する本番(YoutubeLiveSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(TwitchSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(AppSettingInitReq)
-    BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingReq)
-    BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModelReq)
+    # BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingReq)
+    # BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModelReq)
+    BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModel)
     
