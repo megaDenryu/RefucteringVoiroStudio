@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -26,6 +27,7 @@ T = TypeVar('T', bound=Dict)
 B = TypeVar('B', bound=BaseModel)
 
 class ExtendFunc:
+    api_dir:Path
     @staticmethod
     def ExtendPrintWithTitle(title:str|list[str] = "", *args, **kwargs):
         """
@@ -277,18 +279,27 @@ class ExtendFunc:
             ret_dict = ExtendFunc.loadJsonToDict(file_path)
             return model_class(**ret_dict)
         except Exception as e:
-            return None
+            ExtendFunc.ExtendPrint({
+                "エラー":"Jsonファイルの読み込みに失敗しました。",
+                "エラー内容":str(e),
+                "file_path":f"{file_path}",
+                "model_class":model_class
+            })
+            raise e
     
     @staticmethod
     def saveBaseModelToJson(file_path: Path, model: BaseModel):
         """
-        BaseModelをjsonファイルに保存します。
+        BaseModelをjsonファイルに保存します。もし、ファイル・ディレクトリが存在しない場合は作成します。
 
         Parameters:
         file_path (Path): 保存先のjsonファイルパス
         model (BaseModel): 保存するBaseModelのインスタンス
         """
         try:
+            # ディレクトリが存在しない場合は作成
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+
             json_str = model.model_dump_json() #enumも保存できるように文字列に一度変換
             json_dict = json.loads(json_str)
             with open(file_path, 'w', encoding="utf-8") as f:
@@ -302,6 +313,14 @@ class ExtendFunc:
                 "model":model
             })
             raise e
+    
+    @staticmethod
+    async def saveBaseModelToJsonAsync(file_path: Path, model: BaseModel, waitTime: float):
+        """
+        待機してから保存する
+        """
+        await asyncio.sleep(waitTime)
+        ExtendFunc.saveBaseModelToJson(file_path, model)
         
     
     @staticmethod
@@ -715,6 +734,9 @@ class ExtendFunc:
         for key, value in dict.items():
             markdown_table += f"| {key} | {value} |\n"
         return markdown_table
+    
+# クラス変数を初期化
+ExtendFunc.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
     
 import datetime
 class TimeExtend:

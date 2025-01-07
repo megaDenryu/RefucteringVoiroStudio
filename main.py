@@ -10,11 +10,14 @@ from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettings
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingReq import CevioAIVoiceSettingReq
+from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
+from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModelReq import VoiceVoxVoiceSettingModelReq
+from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingReq import VoiceVoxVoiceSettingReq
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
 from api.gptAI.gpt import ChatGPT
-from api.gptAI.voiceroid_api import TTSSoftwareManager, cevio_human
+from api.gptAI.voiceroid_api import TTSSoftwareManager, cevio_human, voicevox_human
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
@@ -970,6 +973,29 @@ async def cevioAIVoiceSetting(req: CevioAIVoiceSettingModelReq):
         cevio.setComponents(req.cevio_ai_voice_setting.talkerComponentArray2)
         return {"message": "CevioAIVoiceSettingを保存しました"}
     
+@app.post("/VoiceVoxVoiceSettingInit")
+async def voiceVoxVoiceSettingInit(voiceVoxVoiceSettingReq: VoiceVoxVoiceSettingReq):
+    # todo :VoiceVoxにアクセスして、ボイスの設定を取得
+    human:Human|None = inastanceManager.humanInstances.tryGetHuman(voiceVoxVoiceSettingReq.character_id)
+    if human == None:
+        return
+    voiceVox = human.human_Voice
+    #voiceVox_human かどうかの判定
+    if isinstance(voiceVox, voicevox_human):
+        voiceVoxVoiceSetting = voiceVox.voiceSetting
+        return voiceVoxVoiceSetting
+    
+@app.post("/VoiceVoxVoiceSetting")
+async def voiceVoxVoiceSetting(req: VoiceVoxVoiceSettingModelReq):
+    ExtendFunc.ExtendPrint(req)
+    # todo :VoiceVoxにアクセスして、ボイスの設定を保存
+    human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
+    if human == None:
+        return
+    voiceVox = human.human_Voice
+    if isinstance(voiceVox, voicevox_human):
+        voiceVox.setVoiceSetting(req.voiceVoxVoiceSettingModel)
+        return {"message": "VoiceVoxVoiceSettingを保存しました"}
 
     
     

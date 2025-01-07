@@ -22,6 +22,7 @@ from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.Talker2V40.Talker2V
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponent2.TalkerComponent2 import TalkerComponent2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponentArray2 import TalkerComponentArray2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
+from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
@@ -348,6 +349,7 @@ class voicevox_human:
     chara_mode_state:CharacterModeState|None
     onTTSSoftware:bool = False #voicevoxが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
+    voiceSetting: VoiceVoxVoiceSettingModel
     query_url = f"http://127.0.0.1:50021/audio_query" #f"http://localhost:50021/audio_query"だとlocalhostの名前解決に時間がかかるらしい
     synthesis_url = f"http://127.0.0.1:50021/synthesis" #f"http://localhost:50021/synthesis"だとlocalhostの名前解決に時間がかかるらしい
     @property
@@ -367,7 +369,36 @@ class voicevox_human:
         self.chara_mode_state = chara_mode_state
         if started_voicevox_num == 0:
             self.start()
+        self.voiceSetting = self.loadVoiceSetting()
     
+    def setVoiceSetting(self,voiceSetting:VoiceVoxVoiceSettingModel):
+        self.voiceSetting = voiceSetting
+        self.saveVoiceSetting()
+
+    def loadVoiceSetting(self)->VoiceVoxVoiceSettingModel:
+        """
+        ボイス設定を取得する
+        """
+        path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "VoiceVoxVoiceSetting.json"
+        try:
+            voiceSetting = ExtendFunc.loadJsonToBaseModel(path,VoiceVoxVoiceSettingModel)
+        except Exception as e:
+            # ファイルがない場合はデフォルト値を保存して返す
+            voiceSetting = VoiceVoxVoiceSettingModel(**{})
+            ExtendFunc.saveBaseModelToJson(path,voiceSetting)
+        return voiceSetting
+    
+    async def saveVoiceSetting(self):
+        """
+        ボイス設定を保存する。非同期で３秒待機して保存する。待機中に呼び出した場合はスキップされる。
+        """
+        if self.isSaveWaiting:
+            return
+        self.isSaveWaiting = True
+        #非同期で３秒待機して保存する
+        path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "VoiceVoxVoiceSetting.json"
+        await ExtendFunc.saveBaseModelToJsonAsync(path,self.voiceSetting,3)
+        self.isSaveWaiting = False
     
     def start(self):
         voicevox_human.createVoiceVoxNameToNumberDict() #キャラアプデ処理旧
