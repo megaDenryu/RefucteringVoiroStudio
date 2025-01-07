@@ -16,17 +16,7 @@ export const CevioAIVoiceSettingModelReq = z.object({
         })
         .optional(),
       talkerComponentArray2: z
-        .object({
-          array: z
-            .array(
-              z.object({
-                Id: z.string().describe("変更不可"),
-                Name: z.string().describe("変更不可"),
-                Value: z.number().int().gte(0).lte(100).default(50),
-              }),
-            )
-            .default([]),
-        })
+        .object({ record: z.record(z.number().int()).default({}) })
         .optional(),
     })
     .optional(),

@@ -46,6 +46,9 @@ export class TypeComponentFactory {
         else if (unitSchema instanceof z.ZodEnum) {
             return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string), parent);
         } 
+        else if (unitSchema instanceof z.ZodRecord) {
+            return new RecordInputComponent(title, unitSchema, defaultValue, parent);
+        }
         else if (unitSchema instanceof z.ZodObject) {
             return new ObjectInputComponent(title, unitSchema, defaultValue as {}, parent);
         } 

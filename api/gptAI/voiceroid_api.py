@@ -303,19 +303,22 @@ class cevio_human:
     # 　例2『小春六花』→ "嬉しい", "普通", "怒り", "哀しみ", "落ち着き"
     @property
     def Components(self)->TalkerComponentArray2:
-        components = []
+        components = {}
         for i in range(0,self.talker.Components.Length):
             t = self.talker.Components.At(i)
-            components.append(TalkerComponent2(
-                Id=t.Id,
-                Name=t.Name,
-                Value=t.Value
-            ))
-        return TalkerComponentArray2(array=components)
+            components[t.Name] = t.Value
+            # component = TalkerComponent2(
+            #     Id=t.Id,
+            #     Name=t.Name,
+            #     Value=t.Value
+            # )
+        return TalkerComponentArray2(record=components)
+
     
     def setComponents(self,components:TalkerComponentArray2):
-        for component in components.array:
-            self.talker.Components.ByName(component.Name).Value = component.Value
+        for name in components.record:
+            self.talker.Components.ByName(name).Value = components.record[name]
+            # self.talker.Components.ByName(component.Name).Value = component.Value
     
     def ComponentByName(self,name:str)->TalkerComponent2:
         t = self.talker.Components.ByName(name)
