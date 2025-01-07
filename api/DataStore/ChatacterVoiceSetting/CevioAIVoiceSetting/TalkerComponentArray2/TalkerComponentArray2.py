@@ -6,4 +6,5 @@ from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArra
 
 
 class TalkerComponentArray2(BaseModel):
-    array: list[TalkerComponent2] = Field(default=[])
+    # array: list[TalkerComponent2] = Field(default=[])
+    record: dict[str, int] = Field(default={})

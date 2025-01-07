@@ -46,42 +46,15 @@
             "title": "Talker2V40",
             "type": "object"
         },
-        "TalkerComponent2": {
-            "properties": {
-                "Id": {
-                    "description": "変更不可",
-                    "title": "Id",
-                    "type": "string"
-                },
-                "Name": {
-                    "description": "変更不可",
-                    "title": "Name",
-                    "type": "string"
-                },
-                "Value": {
-                    "default": 50,
-                    "maximum": 100,
-                    "minimum": 0,
-                    "title": "Value",
-                    "type": "integer"
-                }
-            },
-            "required": [
-                "Id",
-                "Name"
-            ],
-            "title": "TalkerComponent2",
-            "type": "object"
-        },
         "TalkerComponentArray2": {
             "properties": {
-                "array": {
-                    "default": [],
-                    "items": {
-                        "$ref": "#/$defs/TalkerComponent2"
+                "record": {
+                    "additionalProperties": {
+                        "type": "integer"
                     },
-                    "title": "Array",
-                    "type": "array"
+                    "default": {},
+                    "title": "Record",
+                    "type": "object"
                 }
             },
             "title": "TalkerComponentArray2",
