@@ -1,0 +1,62 @@
+{
+    "$defs": {
+        "VoiceVoxVoiceSettingModel": {
+            "properties": {
+                "speedScale": {
+                    "default": 1.0,
+                    "maximum": 2.0,
+                    "minimum": 0.5,
+                    "title": "Speedscale",
+                    "type": "number"
+                },
+                "pitchScale": {
+                    "default": 0.0,
+                    "maximum": 0.15,
+                    "minimum": -0.15,
+                    "title": "Pitchscale",
+                    "type": "number"
+                },
+                "intonationScale": {
+                    "default": 1.0,
+                    "maximum": 2.0,
+                    "minimum": 0.0,
+                    "title": "Intonationscale",
+                    "type": "number"
+                },
+                "volumeScale": {
+                    "default": 1.0,
+                    "maximum": 2.0,
+                    "minimum": 0.0,
+                    "title": "Volumescale",
+                    "type": "number"
+                }
+            },
+            "title": "VoiceVoxVoiceSettingModel",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "page_mode": {
+            "title": "Page Mode",
+            "type": "string"
+        },
+        "client_id": {
+            "title": "Client Id",
+            "type": "string"
+        },
+        "character_id": {
+            "title": "Character Id",
+            "type": "string"
+        },
+        "voiceVoxVoiceSettingModel": {
+            "$ref": "#/$defs/VoiceVoxVoiceSettingModel"
+        }
+    },
+    "required": [
+        "page_mode",
+        "client_id",
+        "character_id"
+    ],
+    "title": "VoiceVoxVoiceSettingModelReq",
+    "type": "object"
+}
