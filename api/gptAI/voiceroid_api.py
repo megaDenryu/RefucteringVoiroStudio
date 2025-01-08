@@ -1300,7 +1300,7 @@ class Coeiroink:
     
     @staticmethod
     def predict_with_duration(speaker: dict, text: str, prosody: dict,
-                  speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
+                  speedScale:float, volumeScale:float, pitchScale:float, intonationScale:float,
                   prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> CoeiroinkWaveData|None:
         """
         wavBase64とlabデータを取得できる。
@@ -1311,7 +1311,7 @@ class Coeiroink:
             "styleId": speaker["styleId"],
             "text": text,
             "prosodyDetail": prosody["detail"],
-            "speedScale": 1,
+            "speedScale": speedScale,
             "volumeScale": volumeScale,
             "pitchScale": pitchScale,
             "intonationScale": intonationScale,
@@ -1443,7 +1443,7 @@ class Coeiroink:
         return wavBase64, phoneme_str,phoneme_time
 
     def getWavAndLabData(self, text: str,
-                      speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
+                      speedScale:float, volumeScale:float, pitchScale:float, intonationScale:float,
                       prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False):
         speaker = self.speaker
         if speaker is None:
@@ -1508,6 +1508,7 @@ class Coeiroink:
                 print(f"coeiroinkでwav出力します:{index + 1}/{len(sentence_list)}")
                 wav_path = f"output_wav/coeiroink_audio_{self.char_name}_{index}.wav"
                 # 設定の取得
+                ExtendFunc.ExtendPrint(self.voiceSetting)
                 speedScale = self.voiceSetting.speedScale
                 volumeScale = self.voiceSetting.volumeScale
                 pitchScale = self.voiceSetting.pitchScale

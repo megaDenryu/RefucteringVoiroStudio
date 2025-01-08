@@ -1007,7 +1007,7 @@ async def coeiroinkVoiceSetting(req: CoeiroinkVoiceSettingModelReq):
         return
     coeiroink = human.human_Voice
     if isinstance(coeiroink, Coeiroink):
-        coeiroink.setVoiceSetting(req.coeiroinkVoiceSettingModel)
+        await coeiroink.setVoiceSetting(req.coeiroinkVoiceSettingModel)
         return {"message": "CoeiroinkVoiceSettingを保存しました"}
 
     
