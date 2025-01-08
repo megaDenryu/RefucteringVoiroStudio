@@ -34,7 +34,8 @@ export class TypeComponentFactory {
         else if (unitSchema instanceof z.ZodNumber) {
             const min = unitSchema.minValue;
             const max = unitSchema.maxValue;
-            const step = 1//todo: stepの取得方法が不明。unitSchema.step; では無理だった。
+            // const step = 1//todo: stepの取得方法が不明。unitSchema.step; では無理だった。
+            const step = null
             return new NumberInputComponent(title, defaultValue, min , max, step, parent);
         } 
         else if (unitSchema instanceof z.ZodBoolean) {

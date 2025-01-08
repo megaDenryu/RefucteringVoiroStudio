@@ -1,3 +1,4 @@
+import asyncio
 from enum import Enum
 from pathlib import Path
 import win32com.client
@@ -22,6 +23,7 @@ from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.Talker2V40.Talker2V
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponent2.TalkerComponent2 import TalkerComponent2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponentArray2 import TalkerComponentArray2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
+from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxQueryBaseTypedDict import QueryDict
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
@@ -352,6 +354,7 @@ class voicevox_human:
     voiceSetting: VoiceVoxVoiceSettingModel
     query_url = f"http://127.0.0.1:50021/audio_query" #f"http://localhost:50021/audio_query"だとlocalhostの名前解決に時間がかかるらしい
     synthesis_url = f"http://127.0.0.1:50021/synthesis" #f"http://localhost:50021/synthesis"だとlocalhostの名前解決に時間がかかるらしい
+    isSaveWaiting = False
     @property
     def char_name(self):
         if self.chara_mode_state is None:
@@ -370,10 +373,6 @@ class voicevox_human:
         if started_voicevox_num == 0:
             self.start()
         self.voiceSetting = self.loadVoiceSetting()
-    
-    def setVoiceSetting(self,voiceSetting:VoiceVoxVoiceSettingModel):
-        self.voiceSetting = voiceSetting
-        self.saveVoiceSetting()
 
     def loadVoiceSetting(self)->VoiceVoxVoiceSettingModel:
         """
@@ -386,19 +385,39 @@ class voicevox_human:
             # ファイルがない場合はデフォルト値を保存して返す
             voiceSetting = VoiceVoxVoiceSettingModel(**{})
             ExtendFunc.saveBaseModelToJson(path,voiceSetting)
+        if voiceSetting is None:
+            voiceSetting = VoiceVoxVoiceSettingModel(**{})
         return voiceSetting
     
     async def saveVoiceSetting(self):
         """
         ボイス設定を保存する。非同期で３秒待機して保存する。待機中に呼び出した場合はスキップされる。
         """
-        if self.isSaveWaiting:
-            return
+        
         self.isSaveWaiting = True
         #非同期で３秒待機して保存する
         path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "VoiceVoxVoiceSetting.json"
-        await ExtendFunc.saveBaseModelToJsonAsync(path,self.voiceSetting,3)
+        # await ExtendFunc.saveBaseModelToJsonAsync(path,self.voiceSetting,0.5)
+        ExtendFunc.saveBaseModelToJson(path,self.voiceSetting)
+        ExtendFunc.ExtendPrintWithTitle("ボイス設定を保存しました",self.voiceSetting)
         self.isSaveWaiting = False
+
+    async def setVoiceSetting(self, voiceSetting: VoiceVoxVoiceSettingModel):
+        self.voiceSetting = voiceSetting
+        if self.isSaveWaiting == True:
+            return
+        await self.saveVoiceSetting()
+
+    def 設定を反映する(self,query_dict:QueryDict):
+        """
+        VoiceVoxVoiceSettingModelの設定をquery_dictに反映する
+        """
+        query_dict["speedScale"] = self.voiceSetting.speedScale
+        query_dict["pitchScale"] = self.voiceSetting.pitchScale
+        query_dict["intonationScale"] = self.voiceSetting.intonationScale
+        query_dict["volumeScale"] = self.voiceSetting.volumeScale
+        return query_dict
+        
     
     def start(self):
         voicevox_human.createVoiceVoxNameToNumberDict() #キャラアプデ処理旧
@@ -421,7 +440,7 @@ class voicevox_human:
         else:
             return ""
 
-    def getVoiceQuery(self, text: str) -> Dict[str, Any]:
+    def getVoiceQuery(self, text: str):
         """
         todo TypedDictでボイボのquery_dictを定義する。現状は動いているので後回し
         """
@@ -430,11 +449,11 @@ class voicevox_human:
             'text': text
         }
         ExtendFunc.ExtendPrintWithTitle("ボイボ音声パラメ",params)
-        query_dict:Dict[str, Any] = requests.post(self.query_url, params=params).json() #todo ここでの型を特定する必要がある。おそらくここで音量や話速などのパラメータが取れる
+        query_dict:QueryDict = requests.post(self.query_url, params=params).json() #todo ここでの型を特定する必要がある。おそらくここで音量や話速などのパラメータが取れる
         return query_dict
     
     
-    def getVoiceWav(self,query_dict:Dict[str, Any]):
+    def getVoiceWav(self,query_dict:QueryDict):
         """
         getVoiceQuery()で取得したquery_dictを引数に使ってwavを生成する.
         """
@@ -448,7 +467,7 @@ class voicevox_human:
         base64_data_str = base64_data.decode("utf-8")
         return base64_data_str
 
-    def getLabData(self,query_dict:Dict[str,Any], pitchScale = None, speedScale = None, intonationScale = None):
+    def getLabData(self,query_dict:QueryDict, pitchScale = None, speedScale = None, intonationScale = None):
         """
         参考URL:https://qiita.com/hajime_y/items/7a5b3be2eec561a6117d
         getVoiceQuery()で取得したquery_dictを引数に使ってlabdataを生成する.
@@ -497,7 +516,8 @@ class voicevox_human:
         return phonome_str,phonome_time#labdata
     
     def speak(self,text):
-        query:Dict[str, Any] = self.getVoiceQuery(text)
+        query:QueryDict = self.getVoiceQuery(text)
+        query = self.設定を反映する(query)
         pprint(query)
         phonome_str,phonome_time = self.getLabData(query)
         pprint(phonome_str)
@@ -540,7 +560,8 @@ class voicevox_human:
                 os.makedirs("output_wav", exist_ok=True)
                 print(f"voicevoxでwavを生成します:{index + 1}/{len(sentence_list)}")
                 wav_path = f"output_wav/voicevox_audio_{self.char_name}_{index}.wav"
-                query:Dict[str, Any] = self.getVoiceQuery(text)
+                query = self.getVoiceQuery(text)
+                query = self.設定を反映する(query)
                 print("query取得完了")
                 phoneme_str,phoneme_time = self.getLabData(query)
                 print("lab_data取得完了")

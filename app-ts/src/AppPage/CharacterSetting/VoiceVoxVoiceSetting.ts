@@ -1,32 +1,24 @@
-import { z, ZodTypeAny } from "zod";
 import { generateDefaultObject } from "../../Extend/ZodExtend/ZodExtend";
+import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
-import {
-  IComponentManager,
-  オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する,
-  オブジェクトデータの特定の子要素の配列から特定番号を削除する,
-} from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
-import { ObjectInputComponentWithSaveButton } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
-import { AppSettingsModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingModel";
-import { CevioAIVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModel";
-import { RequestAPI } from "../../Web/RequestApi";
-import { AppSettingInitReq } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingInitReq";
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
-import { recusiveRegisterUpdateChildSegment } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
-import { CevioAIVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingReq";
-import { CevioAIVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelReq";
+import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
-import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
+import { RequestAPI } from "../../Web/RequestApi";
+import { VoiceVoxVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
+import { VoiceVoxVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelReq";
+import { VoiceVoxVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingReq";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSettingReq";
 
-export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow {
+
+
+export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow {
   private testMode: boolean = false;
   public readonly title = "全体設定";
-  public manageData: CevioAIVoiceSettingModel;
+  public manageData: VoiceVoxVoiceSettingModel;
   private _squareBoardComponent: SquareBoardComponent;
-  // private _manageDataSettingComponent:ObjectInputComponentWithSaveButton<CevioAIVoiceSettingModel>
-  private _manageDataSettingComponent: ObjectInputComponent<CevioAIVoiceSettingModel>;
+  private _manageDataSettingComponent: ObjectInputComponent<VoiceVoxVoiceSettingModel>;
   private _closeButton: NormalButton;
   private _reqInfo: TtsSoftWareVoiceSettingReq;
 
@@ -35,7 +27,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  public constructor(req: CevioAIVoiceSettingReq) {
+  public constructor(req: TtsSoftWareVoiceSettingReq) {
     this._squareBoardComponent = new SquareBoardComponent(
       "設定画面",
       null,
@@ -56,16 +48,15 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
    */
   private async initialize(req: {}) {
     if (this.testMode) {
-      this.manageData = generateDefaultObject(CevioAIVoiceSettingModel); //AppSettingsModel.parse({});
+      this.manageData = generateDefaultObject(VoiceVoxVoiceSettingModel); //AppSettingsModel.parse({});
       console.log("test", this.manageData); // {}が返ってくる
     } else {
       this.manageData = await this.requestAppSettingModel(req);
       console.log("real", this.manageData); // {}が返ってくる
     }
-    // this._manageDataSettingComponent = new ObjectInputComponentWithSaveButton(this.title, CevioAIVoiceSettingModel, this.manageData, null, this);
     this._manageDataSettingComponent = new ObjectInputComponent(
       this.title,
-      CevioAIVoiceSettingModel,
+      VoiceVoxVoiceSettingModel,
       this.manageData,
       null,
       this
@@ -90,7 +81,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
     );
   }
 
-  private async requestAppSettingModel(req: {}): Promise<CevioAIVoiceSettingModel> {
+  private async requestAppSettingModel(req: {}): Promise<VoiceVoxVoiceSettingModel> {
     //1. jsonに変換する
     const data = JSON.stringify(req);
     //2. 非同期fetchする
@@ -106,8 +97,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
       }
     );
 
-    const appSettingsModel: CevioAIVoiceSettingModel = await response.json();
-
+    const appSettingsModel: VoiceVoxVoiceSettingModel = await response.json();
     return appSettingsModel;
   }
 
@@ -122,7 +112,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
     //セーブをオブジェクトインプットコンポーネントに,dartyになったときにセーブを実行するように登録
     this._manageDataSettingComponent.addOnDartyEvent(() => {
       this._manageDataSettingComponent.save();
-      this.saveAllSettings("CevioAIVoiceSetting");
+      this.saveAllSettings("VoiceVoxVoiceSetting");
       console.log("セーブした");
     });
   }
@@ -136,12 +126,12 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
     this.sendSettings(updatedSettings, url);
   }
 
-  private sendSettings(settings: CevioAIVoiceSettingModel, url: string) {
-    const settingsReq: CevioAIVoiceSettingModelReq = {
+  private sendSettings(settings: VoiceVoxVoiceSettingModel, url: string) {
+    const settingsReq: VoiceVoxVoiceSettingModelReq = {
       page_mode: this._reqInfo.page_mode,
       client_id: this._reqInfo.client_id,
       character_id: this._reqInfo.character_id,
-      cevio_ai_voice_setting: settings,
+      voiceVoxVoiceSettingModel: settings,
     };
     // セーブデータを送信するロジックをここに記述
     fetch(RequestAPI.rootURL + url, {
@@ -169,7 +159,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
       recordPath,
       value
     );
-    this.sendSettings(this.manageData, "CevioAIVoiceSetting");
+    this.sendSettings(this.manageData, "VoiceVoxVoiceSetting");
   }
 
   public オブジェクトデータの特定の子要素の配列から特定番号を削除する(
@@ -179,7 +169,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
       this,
       recordPath
     );
-    this.sendSettings(this.manageData, "CevioAIVoiceSetting");
+    this.sendSettings(this.manageData, "VoiceVoxVoiceSetting");
   }
 
   public isOpen(): boolean {
@@ -195,15 +185,15 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
   }
 }
 
-export function createCevioAIVoiceSetting(
+export function createVoiceVoxVoiceSetting(
   character_id: string
-): CevioAIVoiceSetting {
-  const cevioAIVoiceSettingReq: CevioAIVoiceSettingReq = {
+): VoiceVoxVoiceSetting {
+  const ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq = {
     page_mode: "App",
     client_id: "test",
     character_id: character_id,   
   };
 
-  const cevioAIVoiceSetting = new CevioAIVoiceSetting(cevioAIVoiceSettingReq);
-  return cevioAIVoiceSetting;
+  const voiceVoxVoiceSetting = new VoiceVoxVoiceSetting(ttsSoftWareVoiceSettingReq);
+  return voiceVoxVoiceSetting;
 }

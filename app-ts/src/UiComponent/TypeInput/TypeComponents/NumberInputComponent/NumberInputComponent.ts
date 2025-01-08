@@ -40,7 +40,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
         this._title = title;
         this._min = min??0;
         this._max = max ?? 100;
-        this._step = step??1;
+        this._step = step??this.defStep();
         this._defaultValue = defaultValue;
         this.parent = parent;
         this.value = new ReactiveProperty(defaultValue);
@@ -140,5 +140,24 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
         this.value.clearMethods();
         this.darty.clearMethods();
         this._save.clearMethods();
+    }
+
+    private defStep(): number {
+        //maxとminが整数なら1、そうでない場合はさらに、「minとmaxの少数の最大の桁n」を求め、10^-nを返す
+        if (Number.isInteger(this._max) && Number.isInteger(this._min)) {
+            console.log("整数");
+            return 1;
+        }
+        else {
+            let minStr = this._min.toString();
+            let maxStr = this._max.toString();
+            let minDecimal = minStr.split(".")[1];
+            let maxDecimal = maxStr.split(".")[1];
+            let minDecimalLength = minDecimal ? minDecimal.length : 0;
+            let maxDecimalLength = maxDecimal ? maxDecimal.length : 0;
+            let decimalLength = Math.max(minDecimalLength, maxDecimalLength);
+            console.log("桁：", decimalLength);
+            return Math.pow(10, -decimalLength);
+        }
     }
 }
