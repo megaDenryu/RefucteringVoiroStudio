@@ -9,14 +9,15 @@ from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettin
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
+from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModelReq import CoeiroinkVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModelReq import VoiceVoxVoiceSettingModelReq
-from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSettingReq import TtsSoftWareVoiceSettingReq
+from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
 from api.gptAI.gpt import ChatGPT
-from api.gptAI.voiceroid_api import TTSSoftwareManager, cevio_human, voicevox_human
+from api.gptAI.voiceroid_api import Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
@@ -959,6 +960,8 @@ async def cevioAIVoiceSettingInit(ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSe
     elif isinstance(tts, voicevox_human):
         voiceVoxVoiceSetting = tts.voiceSetting
         return voiceVoxVoiceSetting
+    elif isinstance(tts, Coeiroink):
+        return tts.voiceSetting
     
 @app.post("/CevioAIVoiceSetting")
 async def cevioAIVoiceSetting(req: CevioAIVoiceSettingModelReq):
@@ -988,6 +991,19 @@ async def voiceVoxVoiceSetting(req: VoiceVoxVoiceSettingModelReq):
         await voiceVox.setVoiceSetting(req.voiceVoxVoiceSettingModel)
         ExtendFunc.ExtendPrintWithTitle("VoiceVoxVoiceSettingModel",voiceVox.voiceSetting)
         return {"message": "VoiceVoxVoiceSettingを保存しました"}
+    
+@app.post("/CoeiroinkVoiceSetting")
+async def coeiroinkVoiceSetting(req: CoeiroinkVoiceSettingModelReq):
+    ExtendFunc.ExtendPrint(req)
+    # todo :Coeiroinkにアクセスして、ボイスの設定を保存
+    human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
+    if human == None:
+        ExtendFunc.ExtendPrint("humanが存在しません")
+        return
+    coeiroink = human.human_Voice
+    if isinstance(coeiroink, Coeiroink):
+        coeiroink.setVoiceSetting(req.coeiroinkVoiceSettingModel)
+        return {"message": "CoeiroinkVoiceSettingを保存しました"}
 
     
     

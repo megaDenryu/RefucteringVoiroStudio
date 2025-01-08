@@ -1,6 +1,7 @@
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { TTSSoftware } from "../../ValueObject/Character";
 import { createCevioAIVoiceSetting } from "./CevioAIVoiceSetting";
+import { createCoeiroinkVoiceSetting } from "./CoeiroinkVoiceSetting";
 import { createVoiceVoxVoiceSetting } from "./VoiceVoxVoiceSetting";
 
 export function createCharacterVoiceSetting(character_id: string, ttsSoftWare: TTSSoftware): IOpenCloseWindow|null {
@@ -9,6 +10,9 @@ export function createCharacterVoiceSetting(character_id: string, ttsSoftWare: T
     } 
     else if (ttsSoftWare === "VoiceVox") {
         return createVoiceVoxVoiceSetting(character_id);
+    }
+    else if (ttsSoftWare === "Coeiroink") {
+        return createCoeiroinkVoiceSetting(character_id);
     }
     return null;
 }

@@ -23,6 +23,7 @@ from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.Talker2V40.Talker2V
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponent2.TalkerComponent2 import TalkerComponent2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponentArray2 import TalkerComponentArray2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
+from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModel import CoeiroinkVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxQueryBaseTypedDict import QueryDict
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.Extend.ExtendFunc import ExtendFunc
@@ -1202,6 +1203,8 @@ class Coeiroink:
     server = DEFAULT_SERVER
     onTTSSoftware:bool = False #vCoeiroinkが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #Coeiroinkがインストールされているかどうか
+    voiceSetting:CoeiroinkVoiceSettingModel
+    isSaveWaiting:bool = False
 
     def __init__(self, chara_mode_state:CharacterModeState|None, started_coeiro_num:int) -> None:
         if chara_mode_state is None:
@@ -1209,6 +1212,41 @@ class Coeiroink:
         self.chara_mode_state = chara_mode_state
         self.updateAllCharaList()
         self.speaker = Coeiroink.get_speaker_info(self.styleId)
+        self.voiceSetting = self.loadVoiceSetting()
+
+    def loadVoiceSetting(self)->CoeiroinkVoiceSettingModel:
+        """
+        ボイス設定を取得する
+        """
+        path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "CoeiroinkVoiceSetting.json"
+        try:
+            voiceSetting = ExtendFunc.loadJsonToBaseModel(path,CoeiroinkVoiceSettingModel)
+        except Exception as e:
+            # ファイルがない場合はデフォルト値を保存して返す
+            voiceSetting = CoeiroinkVoiceSettingModel(**{})
+            ExtendFunc.saveBaseModelToJson(path,voiceSetting)
+        if voiceSetting is None:
+            voiceSetting = CoeiroinkVoiceSettingModel(**{})
+        return voiceSetting
+    
+    async def saveVoiceSetting(self):
+        """
+        ボイス設定を保存する。非同期で３秒待機して保存する。待機中に呼び出した場合はスキップされる。
+        """
+        
+        self.isSaveWaiting = True
+        #非同期で３秒待機して保存する
+        path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "CoeiroinkVoiceSetting.json"
+        # await ExtendFunc.saveBaseModelToJsonAsync(path,self.voiceSetting,0.5)
+        ExtendFunc.saveBaseModelToJson(path,self.voiceSetting)
+        ExtendFunc.ExtendPrintWithTitle("ボイス設定を保存しました",self.voiceSetting)
+        self.isSaveWaiting = False
+
+    async def setVoiceSetting(self, voiceSetting: CoeiroinkVoiceSettingModel):
+        self.voiceSetting = voiceSetting
+        if self.isSaveWaiting == True:
+            return
+        await self.saveVoiceSetting()
     
     # ステータスを取得する
     @staticmethod
@@ -1469,7 +1507,12 @@ class Coeiroink:
                 os.makedirs("output_wav", exist_ok=True)
                 print(f"coeiroinkでwav出力します:{index + 1}/{len(sentence_list)}")
                 wav_path = f"output_wav/coeiroink_audio_{self.char_name}_{index}.wav"
-                wav_data, phoneme_str, phoneme_time = self.getWavAndLabData(text)
+                # 設定の取得
+                speedScale = self.voiceSetting.speedScale
+                volumeScale = self.voiceSetting.volumeScale
+                pitchScale = self.voiceSetting.pitchScale
+                intonationScale = self.voiceSetting.intonationScale
+                wav_data, phoneme_str, phoneme_time = self.getWavAndLabData(text,speedScale,volumeScale,pitchScale,intonationScale) #todo : ここでピッチとか音量とかを変える
                 print("lab_data取得完了")
                 print("wav_data取得完了")
                 wav_info = {
@@ -1485,7 +1528,6 @@ class Coeiroink:
     @staticmethod
     def getCoeiroinkNameToNumberDict()->list[CoeiroinkSpeaker]:
         """
-        todo : 声色インク用の改造が終わってないので、この関数は未完成
         まず
         curl -X 'GET' \
         'http://127.0.0.1:50021/speakers' \
