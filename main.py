@@ -628,10 +628,7 @@ async def parserPsdFile(
     response_mode: ResponseMode = Form(...), 
     front_name: str = Form(...)
 ):
-    # file_contents = await req_body.file.read()
-    # filename = req_body.filename
-    # response_mode = req_body.response_mode
-    # front_name = req_body.front_name
+    
     file_contents = await file.read()
     print("ファイル受け取り完了")        
     # psdファイルが送られてくるので取得
@@ -664,11 +661,19 @@ async def parserPsdFile(
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得
         human_part = HumanPart(chara_name)
-        image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, front_name ,folder)
-        charaCreateData:CharaCreateData = {
-            "humanData":image_data_for_client,
-            "characterModeState":CharacterModeState.newFromFrontName(front_name).toDict()
-        }
+        if front_name == "????":
+            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, chara_name.name ,folder)
+            charaCreateData:CharaCreateData = {
+                "humanData":image_data_for_client,
+                "characterModeState":CharacterModeState.newFromFrontName(chara_name.name).toDict()
+            }
+        else:
+            ExtendFunc.ExtendPrint(f"{front_name=}")
+            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, front_name ,folder)
+            charaCreateData:CharaCreateData = {
+                "humanData":image_data_for_client,
+                "characterModeState":CharacterModeState.newFromFrontName(front_name).toDict()
+            }
         
         return charaCreateData
         
@@ -1002,7 +1007,7 @@ async def coeiroinkVoiceSetting(req: CoeiroinkVoiceSettingModelReq):
         return
     coeiroink = human.human_Voice
     if isinstance(coeiroink, Coeiroink):
-        coeiroink.setVoiceSetting(req.coeiroinkVoiceSettingModel)
+        await coeiroink.setVoiceSetting(req.coeiroinkVoiceSettingModel)
         return {"message": "CoeiroinkVoiceSettingを保存しました"}
 
     

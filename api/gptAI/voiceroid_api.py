@@ -1300,18 +1300,18 @@ class Coeiroink:
     
     @staticmethod
     def predict_with_duration(speaker: dict, text: str, prosody: dict,
-                  speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
+                  speedScale:float, volumeScale:float, pitchScale:float, intonationScale:float,
                   prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False) -> CoeiroinkWaveData|None:
         """
         wavBase64とlabデータを取得できる。
         """
-        
+        ExtendFunc.ExtendPrintWithTitle("Coeiroinkの音声データを取得します",f"{speedScale=},{volumeScale=},{pitchScale=},{intonationScale=}")
         post_params = {
             "speakerUuid": speaker["speakerUuid"],
             "styleId": speaker["styleId"],
             "text": text,
             "prosodyDetail": prosody["detail"],
-            "speedScale": 1,
+            "speedScale": speedScale,
             "volumeScale": volumeScale,
             "pitchScale": pitchScale,
             "intonationScale": intonationScale,
@@ -1443,7 +1443,7 @@ class Coeiroink:
         return wavBase64, phoneme_str,phoneme_time
 
     def getWavAndLabData(self, text: str,
-                      speedScale = 1, volumeScale = 1, pitchScale = 0, intonationScale = 1,
+                      speedScale:float, volumeScale:float, pitchScale:float, intonationScale:float,
                       prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000, print_error=False):
         speaker = self.speaker
         if speaker is None:
@@ -1460,15 +1460,54 @@ class Coeiroink:
         if prediction is None:
             raise Exception("Failed to get prediction.")
         wavBase64 = prediction["wavBase64"]
+        wav = Coeiroink.processWithPitch(wavBase64,volumeScale,pitchScale,intonationScale,prePhonemeLength,postPhonemeLength,outputSamplingRate)
+        wavFromProcessWithPitch_Base64 = Coeiroink.wav2base64(wav)
+        
         moraDurations = prediction["moraDurations"]
         phoneme_str, phoneme_time = Coeiroink.labDataFromMora(moraDurations)
-        return wavBase64, phoneme_str, phoneme_time
+        return wavFromProcessWithPitch_Base64, phoneme_str, phoneme_time
+    
+    @staticmethod
+    def processWithPitch(wavBase64:str, volumeScale:float, pitchScale:float, intonationScale:float,
+                  prePhonemeLength = 0.1, postPhonemeLength = 0.1, outputSamplingRate = 24000):
+        """
+        wavBase64を受け取って、pitchScaleを適用したwavBase64を返す。これにより音声設定を反映できる。
+        """
+        ProcessWithPitchRequestBody = {
+            "wavBase64": wavBase64,
+            "volumeScale": volumeScale,
+            "pitchScale": pitchScale,
+            "intonationScale": intonationScale,
+            "prePhonemeLength": prePhonemeLength,
+            "postPhonemeLength": postPhonemeLength,
+            "outputSamplingRate": outputSamplingRate
+        }
+        try:
+            response = requests.post(f"{Coeiroink.server}/v1/process_with_pitch", data=json.dumps(ProcessWithPitchRequestBody))
+            response.raise_for_status()
+            
+            # レスポンスの内容を確認
+            if response.content:
+                try:
+                    wav = response.content  # バイナリデータとして取得
+                    return wav
+                except Exception as err:
+                    ExtendFunc.ExtendPrint(f"Error processing response: {err}")
+                    return None
+            else:
+                ExtendFunc.ExtendPrint("Empty response received")
+                return None
+        except requests.exceptions.RequestException as err:
+            ExtendFunc.ExtendPrint(f"Request error: {err}")
+            return None
+        except json.JSONDecodeError as err:
+            ExtendFunc.ExtendPrint(f"JSON decode error: {err}")
+            return None
 
     
     @staticmethod
     def wav2base64(wav):
-        binary_data = wav.content
-        base64_data = base64.b64encode(binary_data)
+        base64_data = base64.b64encode(wav)
         base64_data_str = base64_data.decode("utf-8")
         return base64_data_str
     
@@ -1508,6 +1547,7 @@ class Coeiroink:
                 print(f"coeiroinkでwav出力します:{index + 1}/{len(sentence_list)}")
                 wav_path = f"output_wav/coeiroink_audio_{self.char_name}_{index}.wav"
                 # 設定の取得
+                ExtendFunc.ExtendPrint(self.voiceSetting)
                 speedScale = self.voiceSetting.speedScale
                 volumeScale = self.voiceSetting.volumeScale
                 pitchScale = self.voiceSetting.pitchScale

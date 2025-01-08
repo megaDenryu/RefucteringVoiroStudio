@@ -458,8 +458,8 @@ class CharacterModeState(HashableBaseModel):
         try:
             chara_name = manager.nick_names_manager.getCharacterName(front_name)
             if chara_name is None:
-                ExtendFunc.ExtendPrint("キャラクターが見つかりませんでした")
-                raise ValueError("キャラクターが見つかりませんでした")
+                ExtendFunc.ExtendPrint(f"キャラクターが見つかりませんでした: {front_name}")
+                raise ValueError(f"キャラクターが見つかりませんでした: {front_name}")
             ExtendFunc.ExtendPrintWithTitle("キャラクターが見つかりました", chara_name)
             # キャラクターのでふぁるとモードとデフォルト画像などを取得
             tts_software = manager.chara_names_manager.getTTSSoftware(chara_name)

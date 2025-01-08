@@ -671,3 +671,8 @@
 2025-01-08 02:10:02,759 - main - ERROR - Unhandled exception: asyncio.run() cannot be called from a running event loop
 2025-01-08 02:10:35,431 - main - ERROR - Unhandled exception: asyncio.run() cannot be called from a running event loop
 2025-01-08 02:10:35,437 - main - ERROR - Unhandled exception: asyncio.run() cannot be called from a running event loop
+2025-01-08 23:04:47,048 - main - ERROR - Unhandled exception: デフォルトが存在しない場合について検討（画像がないなど）
+2025-01-08 23:07:20,915 - main - ERROR - Unhandled exception: デフォルトが存在しない場合について検討（画像がないなど）
+2025-01-08 23:14:38,591 - main - ERROR - Unhandled exception: デフォルトが存在しない場合について検討（画像がないなど）
+2025-01-08 23:16:34,448 - main - ERROR - Unhandled exception: デフォルトが存在しない場合について検討（画像がないなど）
+2025-01-08 23:17:31,417 - main - ERROR - Unhandled exception: デフォルトが存在しない場合について検討（画像がないなど）
