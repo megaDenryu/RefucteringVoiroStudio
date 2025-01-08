@@ -9,23 +9,26 @@ from api.DataStore.AppSetting.AppSettingModel.CommentReciver.TwitchLive.TwitchSe
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.YoutubeLiveSettingModel import YoutubeLiveSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
+from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModel import CoeiroinkVoiceSettingModel
+from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModelReq import CoeiroinkVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModelReq import VoiceVoxVoiceSettingModelReq
-from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSettingReq import TtsSoftWareVoiceSettingReq
+from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
 from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
 
 
 
 if __name__ == "__main__":
-    BaseModelConverterTest.Zodを出力する本番(AppSettingsModel)
-    BaseModelConverterTest.Zodを出力する本番(CommentReceiveSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(NiconicoLiveSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(YoutubeLiveSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(TwitchSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(AppSettingInitReq)
-    BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModelReq)
-    BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModel)
-    BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModelReq)
+    # BaseModelConverterTest.Zodを出力する本番(AppSettingsModel)
+    # BaseModelConverterTest.Zodを出力する本番(CommentReceiveSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(NiconicoLiveSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(YoutubeLiveSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(TwitchSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(AppSettingInitReq)
+    # BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModelReq)
+    # BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModelReq)
     BaseModelConverterTest.Zodを出力する本番(TtsSoftWareVoiceSettingReq)
-    
+    # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModelReq)

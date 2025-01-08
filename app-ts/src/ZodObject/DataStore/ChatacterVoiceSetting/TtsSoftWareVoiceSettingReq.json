@@ -1,0 +1,23 @@
+{
+    "properties": {
+        "page_mode": {
+            "title": "Page Mode",
+            "type": "string"
+        },
+        "client_id": {
+            "title": "Client Id",
+            "type": "string"
+        },
+        "character_id": {
+            "title": "Character Id",
+            "type": "string"
+        }
+    },
+    "required": [
+        "page_mode",
+        "client_id",
+        "character_id"
+    ],
+    "title": "TtsSoftWareVoiceSettingReq",
+    "type": "object"
+}

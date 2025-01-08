@@ -18,7 +18,7 @@ import { CevioAIVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoice
 import { CevioAIVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelReq";
 import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
-import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSettingReq";
+import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 
 export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow {
   private testMode: boolean = false;
