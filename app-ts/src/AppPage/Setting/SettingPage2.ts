@@ -11,6 +11,7 @@ import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
 import { recusiveRegisterUpdateChildSegment, recusiveRegisterUpdateChildSegmentToNewChild } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
 import { ObjectInputComponentWithSaveButton } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
+import { createWebSocket } from "./SettingWebsocket";
 
 //todo : 保存処理とかをする必要がある。
 
@@ -28,11 +29,14 @@ export class SettingPage2 implements IComponentManager {
         this._saveButton = new NormalButton("保存", "normal")
         this._squareBoardComponent.addComponentToHeader(this._saveButton)
         this.initialize()
-        this._websocket = createWebSocket({
-            clientId: 'your_client_id',
-            settingName: 'your_setting_name',
-            modeName: 'mode1'
-        });
+        this._websocket = createWebSocket(
+            {
+                clientId: 'your_client_id',
+                settingName: 'your_setting_name',
+                modeName: "Setting"
+            },
+            this.handleWebSocketMessage.bind(this)
+        );
     }
 
     private async initialize() {
@@ -151,46 +155,28 @@ export class SettingPage2 implements IComponentManager {
         オブジェクトデータの特定の子要素の配列から特定番号を削除する(this, recordPath)
         this.sendSettings(this.manageData);
     }
+
+    // WebSocket メッセージを処理する関数
+    private handleWebSocketMessage(event: MessageEvent) {
+        try {
+            const data: AppSettingsModel = JSON.parse(event.data);
+            console.log("Received data:", data);
+
+            // 受信したデータを処理する
+            this.processAppSettings(data);
+        } catch (error) {
+            console.error("Error parsing WebSocket message:", error);
+        }
+    }
+
+    // 受信したデータを処理する関数
+    private processAppSettings(settings: AppSettingsModel) {
+        console.log("Processing settings:", settings);
+        // 設定データを処理するロジックをここに追加
+        this.manageData = settings;
+        this._appSettingComponent.setValue(settings);
+    }
 }
 
-export type PageMode = "Setting" | "Chat";
-export interface WebSocketParams {
-    clientId: string;
-    settingName: string;
-    modeName: PageMode;
-}
-
-export function createWebSocket(params: WebSocketParams): WebSocket {
-    const { clientId, settingName, modeName } = params;
-    const url = `ws://localhost:8000/settingStore/${clientId}/${settingName}/${modeName}`;
-    const websocket = new WebSocket(url);
-
-    websocket.onopen = (event) => {
-        console.log("WebSocket is open now.");
-    };
-
-    websocket.onmessage = (event) => {
-        console.log("WebSocket message received:", event.data);
-    };
-
-    websocket.onclose = (event) => {
-        console.log("WebSocket is closed now.");
-    };
-
-    websocket.onerror = (event) => {
-        console.error("WebSocket error observed:", event);
-    };
-
-    return websocket;
-}
-
-// 使用例
-const params: WebSocketParams = {
-    clientId: 'your_client_id',
-    settingName: 'your_setting_name',
-    modeName: 'mode1'
-};
-
-const websocket = createWebSocket(params);
 
 const setting = new SettingPage2()
