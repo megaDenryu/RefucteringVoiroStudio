@@ -41,7 +41,7 @@ class AppSettingModule:
         self.setting_client_ws[setting_mode][page_mode].append(connction)
 
 
-    async def notify(self, message_dict:dict, setting_mode: str):
+    async def notify(self, message_dict:AppSettingsModel, setting_mode: str):
         """
         同じsetting_modeのws全てにメッセージを送信します。
         """
@@ -51,14 +51,13 @@ class AppSettingModule:
         for ws in connections[PageMode.Chat]:
             await ws.ws.send_json(message_dict)
 
-    def setSetting(self, setting_mode:str, page_mode:PageMode, client_id:str, setting_dict:dict):
+    def setSetting(self, setting_mode:str, page_mode:PageMode, client_id:str, appSettingsModel:AppSettingsModel):
         """
         setting_dictをsetting_modeのjsonに保存し、対応するオブジェクトに反映します。
         """
-        self.setting = self.loadSetting()
-        for key in setting_mode:
-            self.setting[setting_mode][key] = setting_dict[key]
-        self.saveSetting(self.setting)
+        self.setting = appSettingsModel
+        JsonAccessor.saveAppSettingTest(appSettingsModel)
+        return appSettingsModel
 
 
     def loadSetting(self):

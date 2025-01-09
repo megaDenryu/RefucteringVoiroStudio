@@ -948,6 +948,27 @@ async def saveSetting(saveSettingReq: AppSettingsModel):
         logger.error(f"Error in /SaveSetting: {e}")
         return JSONResponse(status_code=500, content={"message": "Internal Server Error"})
     
+# 設定の状態を取得、管理、配信するAPI
+@app.websocket("/settingStore/{client_id}/{setting_name}/{mode_name}")
+async def settingStore(websocket: WebSocket, setting_name: str, mode_name:PageMode, client_id: str):
+    """
+    
+    """
+    print("settingStoreコネクションします")
+    await websocket.accept()
+    setting_module.addWs(setting_name, mode_name, client_id, websocket)
+    try:
+        while True:
+            # クライアントからメッセージの受け取り
+            data = await websocket.receive_json()
+            saveSettingReq = AppSettingsModel(**data)
+            new_setting = setting_module.setSetting(setting_name, mode_name, client_id, saveSettingReq)
+            await setting_module.notify(new_setting, setting_name)
+
+    # セッションが切れた場合
+    except WebSocketDisconnect:
+        print("wsエラーです:settingStore")
+    
 @app.post("/TtsSoftWareSettingInit")
 async def cevioAIVoiceSettingInit(ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq):
     # todo :cevioにアクセスして、ボイスの設定を取得
@@ -1009,34 +1030,6 @@ async def coeiroinkVoiceSetting(req: CoeiroinkVoiceSettingModelReq):
     if isinstance(coeiroink, Coeiroink):
         await coeiroink.setVoiceSetting(req.coeiroinkVoiceSettingModel)
         return {"message": "CoeiroinkVoiceSettingを保存しました"}
-
-    
-    
-
-# 設定の状態を取得、管理、配信するAPI
-@app.websocket("/settingStore/{client_id}/{setting_name}/{mode_name}")
-async def settingStore(websocket: WebSocket, setting_name: str, mode_name:PageMode, client_id: str):
-    print("settingStoreコネクションします")
-    await websocket.accept()
-    setting_module.addWs(setting_name, mode_name, client_id, websocket)
-    try:
-        while True:
-            # クライアントからメッセージの受け取り
-            data = await websocket.receive_json()
-            pprint(data)
-            #受け取ったデータをjsonに保存する
-            if type(data) != dict:
-                print("データがdict型ではありません")
-                continue
-            new_setting = setting_module.setSetting(setting_name, mode_name, data, {})
-            await setting_module.notify(new_setting, setting_name)
-
-    # セッションが切れた場合
-    except WebSocketDisconnect:
-        print("wsエラーです:settingStore")
-
-
-
 
 
 
