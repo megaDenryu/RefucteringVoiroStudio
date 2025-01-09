@@ -15,18 +15,24 @@ import { IComponentManager, オブジェクトデータの特定の子要素の�
 //todo : 保存処理とかをする必要がある。
 
 export class SettingPage2 implements IComponentManager {
-    private testMode: boolean = false
-    public readonly title = "全体設定"
-    public manageData: AppSettingsModel
-    private _squareBoardComponent: SquareBoardComponent
-    private _saveButton: NormalButton
-    private _appSettingComponent: ObjectInputComponentWithSaveButton<AppSettingsModel>
+    private testMode: boolean = false;
+    public readonly title = "全体設定";
+    public manageData: AppSettingsModel;
+    private _squareBoardComponent: SquareBoardComponent;
+    private _saveButton: NormalButton;
+    private _appSettingComponent: ObjectInputComponentWithSaveButton<AppSettingsModel>;
+    private _websocket: WebSocket;
     
     constructor() {
         this._squareBoardComponent = new SquareBoardComponent("設定画面", 400, 600)
         this._saveButton = new NormalButton("保存", "normal")
         this._squareBoardComponent.addComponentToHeader(this._saveButton)
         this.initialize()
+        this._websocket = createWebSocket({
+            clientId: 'your_client_id',
+            settingName: 'your_setting_name',
+            modeName: 'mode1'
+        });
     }
 
     private async initialize() {
@@ -113,6 +119,15 @@ export class SettingPage2 implements IComponentManager {
         });
     }
 
+    private sendSettings2(settings: AppSettingsModel) {
+        // WebSocket を使用してデータを送信
+        if (this._websocket.readyState === WebSocket.OPEN) {
+            this._websocket.send(JSON.stringify(settings));
+        } else {
+            console.error('WebSocket is not open');
+        }
+    }
+
     //再帰的に「セーブボタン各子要素のセーブボタンが押されたときのイベント」を登録する
     public recusiveRegisterUpdateChildSegment(): void
     {
@@ -137,5 +152,45 @@ export class SettingPage2 implements IComponentManager {
         this.sendSettings(this.manageData);
     }
 }
+
+export type PageMode = "Setting" | "Chat";
+export interface WebSocketParams {
+    clientId: string;
+    settingName: string;
+    modeName: PageMode;
+}
+
+export function createWebSocket(params: WebSocketParams): WebSocket {
+    const { clientId, settingName, modeName } = params;
+    const url = `ws://localhost:8000/settingStore/${clientId}/${settingName}/${modeName}`;
+    const websocket = new WebSocket(url);
+
+    websocket.onopen = (event) => {
+        console.log("WebSocket is open now.");
+    };
+
+    websocket.onmessage = (event) => {
+        console.log("WebSocket message received:", event.data);
+    };
+
+    websocket.onclose = (event) => {
+        console.log("WebSocket is closed now.");
+    };
+
+    websocket.onerror = (event) => {
+        console.error("WebSocket error observed:", event);
+    };
+
+    return websocket;
+}
+
+// 使用例
+const params: WebSocketParams = {
+    clientId: 'your_client_id',
+    settingName: 'your_setting_name',
+    modeName: 'mode1'
+};
+
+const websocket = createWebSocket(params);
 
 const setting = new SettingPage2()
