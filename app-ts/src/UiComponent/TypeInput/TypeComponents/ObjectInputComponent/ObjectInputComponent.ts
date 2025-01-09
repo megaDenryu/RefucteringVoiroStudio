@@ -102,6 +102,12 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         return this._values;
     }
 
+    public setValueWithOutSave(value: any): void {
+        for (let key in this._inputComponentDict) {
+            this._inputComponentDict[key].setValueWithOutSave(value[key]);
+        }
+    }
+
     public isDarty(): boolean {
         for (let key in this._inputComponentDict) {
             if (this._inputComponentDict[key].isDarty()) {

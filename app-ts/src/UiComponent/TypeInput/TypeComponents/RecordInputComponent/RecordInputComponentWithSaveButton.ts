@@ -115,6 +115,12 @@ export class RecordInputComponentWithSaveButton implements IHasComponent, IInput
         return this._values;
     }
 
+    public setValueWithOutSave(value: any): void {
+        for (let key in this._inputComponentDict) {
+            this._inputComponentDict[key].inputComponent.setValueWithOutSave(value[key]);
+        }
+    }
+
     public isDarty(): boolean {
         for (let key in this._inputComponentDict) {
             if (this._inputComponentDict[key].inputComponent.isDarty()) {

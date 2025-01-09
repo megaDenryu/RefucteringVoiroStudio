@@ -11,7 +11,6 @@ export class ReactiveProperty<T> {
 
     private set property(value: T) {
         this._property = value;
-        this.executeMethods(value);
     }
 
     private methods: Array<(value: T) => void> = [];
@@ -28,6 +27,11 @@ export class ReactiveProperty<T> {
 
     public set(value: T): void {
         this.property = value;
+        this.executeMethods(value);
+    }
+
+    public setWithoutEvent(value: T): void {
+        this._property = value;
     }
 
     public addMethod(event: (value :T) => void): void {

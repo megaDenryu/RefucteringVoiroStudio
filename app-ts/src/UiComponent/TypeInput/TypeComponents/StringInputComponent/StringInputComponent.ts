@@ -24,6 +24,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    private _htmlInputElement : HTMLInputElement;
     
 
     constructor(title: string, defaultValue: string|null, parent: IInputComponentCollection|null = null) {
@@ -36,6 +37,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition());
         this.component = new BaseComponent(html);
         this.Initialize();
+        this._htmlInputElement = this.component.element.querySelector(".string-input") as HTMLInputElement
     }
 
     /// <summary>
@@ -106,6 +108,13 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
 
     public getValue(): string|null {
         return this.value.get();
+    }
+
+    public setValueWithOutSave(value: string): void {
+        if (this._htmlInputElement != null) {
+            this._htmlInputElement.setAttribute("value", value);
+        }
+        this.value.setWithoutEvent(value);
     }
 
     public isDarty(): boolean {

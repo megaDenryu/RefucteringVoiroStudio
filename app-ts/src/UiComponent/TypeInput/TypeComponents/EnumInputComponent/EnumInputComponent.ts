@@ -25,6 +25,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    private _htmlSelectElement: HTMLSelectElement;
 
     constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponentCollection|null = null) {
         this._title = title;
@@ -39,6 +40,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
         divHtml.appendChild(selecter);
         this.component = new BaseComponent(divHtml);
         this.initialize(selecter);
+        this._htmlSelectElement = selecter;
     }
 
     public setTitle(title: string): void {
@@ -92,6 +94,13 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
         info.value = value;
         this.value.set(info);
         this.darty.set(true);
+    }
+
+    setValueWithOutSave(value: any): void {
+        let info = this.value.get();
+        info.value = value;
+        this._htmlSelectElement.value = value;
+        this.value.setWithoutEvent(info);
     }
 
     getHeight(): number {

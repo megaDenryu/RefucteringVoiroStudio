@@ -123,6 +123,14 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         return this._values;
     }
 
+    public setValueWithOutSave(value: T): void {
+        for (let key in this._inputComponentDict) {
+            if (value[key] !== undefined) {
+                this._inputComponentDict[key].inputComponent.setValueWithOutSave(value[key]);
+            }
+        }
+    }
+
     public isDarty(): boolean {
         for (let key in this._inputComponentDict) {
             if (this._inputComponentDict[key].inputComponent.isDarty()) {
