@@ -32,7 +32,7 @@ export class SettingPage2 implements IComponentManager {
         this._websocket = createWebSocket(
             {
                 clientId: 'your_client_id',
-                settingName: 'your_setting_name',
+                settingName: 'AppSettings',
                 modeName: "Setting"
             },
             this.handleWebSocketMessage.bind(this)
@@ -105,7 +105,7 @@ export class SettingPage2 implements IComponentManager {
         this.sendSettings(updatedSettings);
     }
 
-    private sendSettings(settings: AppSettingsModel) {
+    private sendSettings2(settings: AppSettingsModel) {
         // セーブデータを送信するロジックをここに記述
         fetch(RequestAPI.rootURL + "SaveSetting", {
             method: 'POST',
@@ -123,9 +123,11 @@ export class SettingPage2 implements IComponentManager {
         });
     }
 
-    private sendSettings2(settings: AppSettingsModel) {
+    private sendSettings(settings: AppSettingsModel) {
         // WebSocket を使用してデータを送信
+        console.log(this._websocket.readyState);
         if (this._websocket.readyState === WebSocket.OPEN) {
+            console.log("Sending");
             this._websocket.send(JSON.stringify(settings));
         } else {
             console.error('WebSocket is not open');

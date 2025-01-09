@@ -1,3 +1,4 @@
+import { RequestAPI } from "../../Web/RequestApi";
 
 
 export type PageMode = "Setting" | "Chat";
@@ -15,7 +16,7 @@ export function createWebSocket(
         handleWebSocketMessage:HandleWebSocketMessage //websocketで値を受け取ったときの処理
     ): WebSocket {
     const { clientId, settingName, modeName } = params;
-    const url = `ws://localhost:8000/settingStore/${clientId}/${settingName}/${modeName}`;
+    const url = `ws://localhost:${RequestAPI.port}/settingStore/${clientId}/${settingName}/${modeName}`;
     const websocket = new WebSocket(url);
 
     websocket.onopen = (event) => {
