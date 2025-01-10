@@ -12,6 +12,7 @@ import { recusiveRegisterUpdateChildSegment, recusiveRegisterUpdateChildSegmentT
 import { ObjectInputComponentWithSaveButton } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { createWebSocket } from "./SettingWebsocket";
+import { ExtendFunction } from "../../Extend/extend";
 
 //todo : 保存処理とかをする必要がある。
 
@@ -31,7 +32,7 @@ export class SettingPage2 implements IComponentManager {
         this.initialize()
         this._websocket = createWebSocket(
             {
-                clientId: "test",
+                clientId: ExtendFunction.uuid(),
                 setting_mode: "AppSettings",
                 page_mode: "Setting",
             },

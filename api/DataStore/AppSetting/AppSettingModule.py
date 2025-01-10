@@ -54,6 +54,16 @@ class AppSettingModule:
         except KeyError:
             ExtendFunc.ExtendPrintWithTitle(f"setting_mode:{setting_mode} かつ page_mode:{page_mode} が存在しません。",self.setting_client_ws)
 
+    def removeWs(self, setting_mode: SettingMode, page_mode:PageMode, client_id:str):
+        try:
+            connections:dict[PageMode, list[ConnectionStatus]] = self.setting_client_ws[setting_mode]
+        except KeyError:
+            return
+        for connectionStatus in connections[page_mode]:
+            if connectionStatus.client_id == client_id:
+                connections[page_mode].remove(connectionStatus)
+                break
+
 
     async def notify(self, newAppSettingsModel:AppSettingsModel, setting_mode: str):
         """

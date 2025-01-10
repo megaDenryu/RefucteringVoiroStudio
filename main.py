@@ -961,7 +961,11 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
 
     # セッションが切れた場合
     except WebSocketDisconnect:
-        print("wsエラーです:settingStore")
+        print(f"wsエラーです:settingStore : {setting_mode=}, {page_mode=}, {client_id=}, {websocket=}")
+        websocket.close()
+        ExtendFunc.ExtendPrint(setting_module)
+        setting_module.removeWs(setting_mode, page_mode, client_id)
+        ExtendFunc.ExtendPrint(setting_module)
     
 @app.post("/TtsSoftWareSettingInit")
 async def cevioAIVoiceSettingInit(ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq):
