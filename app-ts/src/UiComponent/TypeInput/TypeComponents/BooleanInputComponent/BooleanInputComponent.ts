@@ -24,6 +24,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    private _htmlCheckInputElement : HTMLInputElement;
 
     constructor(title: string, defaultValue: boolean|null, parent: IInputComponentCollection|null = null) {
         this._title = title;
@@ -34,7 +35,8 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
         this._save = new ReactiveProperty(false);
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(title));
         this.component = new BaseComponent(html);
-        this.Initialize(this.component.element.querySelector(".BooleanInputCheckBox") as HTMLInputElement);
+        this._htmlCheckInputElement = this.component.element.querySelector(".BooleanInputCheckBox") as HTMLInputElement
+        this.Initialize(this._htmlCheckInputElement);
     }
 
        /// <summary>
@@ -90,8 +92,12 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     }
 
     public setValue(value: boolean): void {
-        this.value.set(value);
-        this.darty.set(true);
+        this.value.setWithoutEvent(value);
+        this._htmlCheckInputElement.checked = value;
+    }
+
+    public setValueWithOutSave(value: boolean): void {
+
     }
 
     public getHeight(): number {

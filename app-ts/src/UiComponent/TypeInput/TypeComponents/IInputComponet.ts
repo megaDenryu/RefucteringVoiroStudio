@@ -12,6 +12,7 @@ export interface IInputComponet extends IHasComponent, ITypeComponent {
     addOnDartyEvent(event: (value: boolean) => void): void
     addOnSaveEvent(event: (value: boolean) => void): void
     getValue(): any
+    setValueWithOutSave(value: any): void
     isDarty(): boolean
     save(): void
     getHeight(): number

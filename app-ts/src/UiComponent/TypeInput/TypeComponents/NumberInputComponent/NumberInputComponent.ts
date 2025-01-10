@@ -35,6 +35,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     public parent: IInputComponentCollection|null = null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    private _htmlNumberInputElement : HTMLInputElement;
 
     constructor(title: string, defaultValue: number|null, min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null = null) {
         this._title = title;
@@ -49,6 +50,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(this._min, this._max, this._step));
         this.component = new BaseComponent(html);
         this.Initialize();
+        this._htmlNumberInputElement = this.component.element.querySelector(".NumberInputSlider") as HTMLInputElement
     }
 
     /// <summary>
@@ -110,6 +112,12 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
 
     public getValue(): number|null {
         return this.value.get();
+    }
+
+    public setValueWithOutSave(value: number): void {
+        this.value.setWithoutEvent(value);
+        this._htmlNumberInputElement.setAttribute("value", value.toString());
+        this._htmlNumberInputElement.textContent = value.toString();
     }
 
     public isDarty(): boolean {

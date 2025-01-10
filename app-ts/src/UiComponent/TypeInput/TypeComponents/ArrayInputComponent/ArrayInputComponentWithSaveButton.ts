@@ -125,6 +125,13 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
     }
 
+    public setValueWithOutSave(value: UnitType["_type"][]): void {
+        this._inputComponentCompositeList.forEach(({inputComponent}, i) => {
+            inputComponent.setValueWithOutSave(value[i]);
+        });
+    }
+
+
     /**
      * この addElement メソッドは、配列 _inputComponentList に要素を追加するためのものです。具体的には、最後の要素の値を取得し、それを新しい要素の初期値として設定して、新しい要素を作成します。
      * @param index 

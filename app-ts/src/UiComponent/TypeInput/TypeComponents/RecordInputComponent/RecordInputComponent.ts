@@ -182,6 +182,14 @@ export class RecordInputComponent implements IHasComponent, IInputComponentColle
         return totalWidth;
     }
 
+    public setValueWithOutSave(value: any): void {
+        for (let key in this._inputComponentDict) {
+            if (key in value) {
+                this._inputComponentDict[key].setValueWithOutSave(value[key]);
+            }
+        }
+    }
+
     public delete(): void {
         // DOM 要素を削除
         this._squareBoardComponent.delete();

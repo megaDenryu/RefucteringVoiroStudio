@@ -1,3 +1,4 @@
+import json
 from pydantic import BaseModel
 from starlette.websockets import WebSocket
 from enum import Enum
@@ -8,6 +9,7 @@ from api.DataStore.AppSetting.AppSettingModel.CommentReciver.NiconicoLive.Niconi
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.TwitchLive.TwitchSettingModel import TwitchSettingModel
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.YoutubeLiveSettingModel import YoutubeLiveSettingModel
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.Extend.ExtendFunc import ExtendFunc
 
 class PageMode(str, Enum):
     Setting = "Setting"
@@ -32,7 +34,8 @@ class AppSettingModule:
 
     def addWs(self, setting_mode: str, page_mode:PageMode , client_id:str, ws:WebSocket):
         connction = ConnectionStatus(client_id=client_id, ws=ws, page_mode=page_mode, setting_mode=setting_mode)
-        if page_mode not in self.setting_client_ws[setting_mode]:
+        ExtendFunc.ExtendPrint(self.setting_client_ws, setting_mode)
+        if page_mode not in self.setting_client_ws[setting_mode]:# ここでキーが存在してないのに亜空セスしてる。
             dict = {
                 PageMode.Setting: [],
                 PageMode.Chat: []
@@ -41,15 +44,22 @@ class AppSettingModule:
         self.setting_client_ws[setting_mode][page_mode].append(connction)
 
 
-    async def notify(self, message_dict:AppSettingsModel, setting_mode: str):
+    async def notify(self, newAppSettingsModel:AppSettingsModel, setting_mode: str):
         """
         同じsetting_modeのws全てにメッセージを送信します。
         """
-        connections = self.setting_client_ws[setting_mode]
-        for ws in connections[PageMode.Setting]:
-            await ws.ws.send_json(message_dict)
-        for ws in connections[PageMode.Chat]:
-            await ws.ws.send_json(message_dict)
+        try:
+            ExtendFunc.ExtendPrint(self.setting_client_ws)
+            connections:dict[PageMode, list[ConnectionStatus]] = self.setting_client_ws[setting_mode]
+        except KeyError:
+            return
+        # BaseModel を JSON 互換の形式に変換
+        newAppSettingsModel_json = newAppSettingsModel.model_dump_json()
+
+        for connectionStatus in connections[PageMode.Setting]:
+            await connectionStatus.ws.send_json(json.loads(newAppSettingsModel_json))
+        for connectionStatus in connections[PageMode.Chat]:
+            await connectionStatus.ws.send_json(json.loads(newAppSettingsModel_json))
 
     def setSetting(self, setting_mode:str, page_mode:PageMode, client_id:str, appSettingsModel:AppSettingsModel):
         """
