@@ -2,10 +2,11 @@ import { RequestAPI } from "../../Web/RequestApi";
 
 
 export type PageMode = "Setting" | "Chat";
+export type SettingMode = "AppSettings";
 export interface WebSocketParams {
     clientId: string;
-    settingName: string;
-    modeName: PageMode;
+    setting_mode: SettingMode;
+    page_mode: PageMode;
 }
 
 // handleWebSocketMessage 関数の型定義
@@ -15,8 +16,8 @@ export function createWebSocket(
         params: WebSocketParams, 
         handleWebSocketMessage:HandleWebSocketMessage //websocketで値を受け取ったときの処理
     ): WebSocket {
-    const { clientId, settingName, modeName } = params;
-    const url = `ws://localhost:${RequestAPI.port}/settingStore/${clientId}/${settingName}/${modeName}`;
+    const { clientId, setting_mode, page_mode } = params;
+    const url = `ws://localhost:${RequestAPI.port}/settingStore/${clientId}/${setting_mode}/${page_mode}`;
     const websocket = new WebSocket(url);
 
     websocket.onopen = (event) => {

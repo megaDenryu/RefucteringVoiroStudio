@@ -25,7 +25,7 @@ from api.images.image_manager.IHumanPart import HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.DataStore.AppSetting.AppSettingModule import AppSettingModule, PageMode
+from api.DataStore.AppSetting.AppSettingModule import AppSettingModule, PageMode, SettingMode
 from api.Epic.Epic import Epic
 from api.DataStore.Memo import Memo
 
@@ -111,6 +111,12 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         content={"message": "Validation Error", "details": exc.errors()},
     )
 
+# ExtendFunc.ExtendPrint("ボイスロイドの起動")
+# TTSSoftwareManager.tryStartAllTTSSoftware()
+# TTSSoftwareManager.updateAllCharaList()
+# mana = AllHumanInformationManager.singleton()
+# ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
+
 # プッシュ通知各種設定が定義されているインスタンス
 notifier = Notifier()
 inastanceManager = InastanceManager()
@@ -131,15 +137,6 @@ diary = Memo()
 
 app_setting = JsonAccessor.loadAppSetting()
 pprint(app_setting)
-
-# print("アプリ起動完了")
-# Websocket用のパス
-ExtendFunc.ExtendPrint("ボイスロイドの起動")
-# TTSSoftwareManager.tryStartAllTTSSoftware()
-# TTSSoftwareManager.updateAllCharaList()
-mana = AllHumanInformationManager.singleton()
-
-ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
 @app.on_event("startup")
 async def startup_event():
@@ -949,21 +946,18 @@ async def saveSetting(saveSettingReq: AppSettingsModel):
         return JSONResponse(status_code=500, content={"message": "Internal Server Error"})
     
 # 設定の状態を取得、管理、配信するAPI
-@app.websocket("/settingStore/{client_id}/{setting_name}/{mode_name}")
-async def settingStore(websocket: WebSocket, setting_name: str, mode_name:PageMode, client_id: str):
-    """
-    
-    """
-    print("settingStoreコネクションします")
+@app.websocket("/settingStore/{client_id}/{setting_mode}/{page_mode}")
+async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mode:PageMode, client_id: str):
+    print(f"settingStoreコネクションします")
     await websocket.accept()
-    setting_module.addWs(setting_name, mode_name, client_id, websocket)
+    setting_module.addWs(setting_mode, page_mode, client_id, websocket)
     try:
         while True:
             # クライアントからメッセージの受け取り
             data = await websocket.receive_json()
             saveSettingReq = AppSettingsModel(**data)
-            new_setting = setting_module.setSetting(setting_name, mode_name, client_id, saveSettingReq)
-            await setting_module.notify(new_setting, setting_name)
+            new_setting = setting_module.setSetting(setting_mode, page_mode, client_id, saveSettingReq)
+            await setting_module.notify(new_setting, setting_mode)
 
     # セッションが切れた場合
     except WebSocketDisconnect:

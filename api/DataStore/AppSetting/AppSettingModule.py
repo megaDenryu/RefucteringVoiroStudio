@@ -1,4 +1,6 @@
 import json
+from typing import TypedDict
+from typing_extensions import Literal
 from pydantic import BaseModel
 from starlette.websockets import WebSocket
 from enum import Enum
@@ -11,37 +13,46 @@ from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.Youtube
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 
-class PageMode(str, Enum):
-    Setting = "Setting"
-    Chat = "Chat"
-
+PageMode = Literal["Setting", "Chat"]
+SettingMode = Literal["AppSettings"]
 
 class ConnectionStatus:
     client_id: str
     ws: WebSocket
     page_mode: PageMode
-    setting_mode: str
-    def __init__(self, client_id: str, ws: WebSocket, page_mode: PageMode, setting_mode: str):
+    setting_mode: SettingMode
+    def __init__(self, client_id: str, ws: WebSocket, page_mode: PageMode, setting_mode: SettingMode):
         self.client_id = client_id
         self.ws = ws
         self.page_mode = page_mode
         self.setting_mode = setting_mode
 
+class PageModeList(TypedDict):
+    Setting: list[ConnectionStatus]
+    Chat: list[ConnectionStatus]
+
+class SettingClientWs(TypedDict):
+    AppSetting:PageModeList
+
+
+
 class AppSettingModule:
     def __init__(self):
-        self.setting_client_ws:dict[str,dict[PageMode,list[ConnectionStatus]]] = {}
+        self.setting_client_ws:SettingClientWs = {
+            "AppSettings":{
+                "Setting":[],
+                "Chat":[]
+            }
+        }
         self.setting = self.loadSetting()
 
-    def addWs(self, setting_mode: str, page_mode:PageMode , client_id:str, ws:WebSocket):
+    def addWs(self, setting_mode: SettingMode, page_mode:PageMode , client_id:str, ws:WebSocket):
         connction = ConnectionStatus(client_id=client_id, ws=ws, page_mode=page_mode, setting_mode=setting_mode)
         ExtendFunc.ExtendPrint(self.setting_client_ws, setting_mode)
-        if page_mode not in self.setting_client_ws[setting_mode]:# ここでキーが存在してないのに亜空セスしてる。
-            dict = {
-                PageMode.Setting: [],
-                PageMode.Chat: []
-            }
-            self.setting_client_ws[setting_mode] = dict
-        self.setting_client_ws[setting_mode][page_mode].append(connction)
+        try:
+            self.setting_client_ws[setting_mode][page_mode].append(connction)
+        except KeyError:
+            ExtendFunc.ExtendPrintWithTitle(f"setting_mode:{setting_mode} かつ page_mode:{page_mode} が存在しません。",self.setting_client_ws)
 
 
     async def notify(self, newAppSettingsModel:AppSettingsModel, setting_mode: str):
@@ -56,12 +67,12 @@ class AppSettingModule:
         # BaseModel を JSON 互換の形式に変換
         newAppSettingsModel_json = newAppSettingsModel.model_dump_json()
 
-        for connectionStatus in connections[PageMode.Setting]:
+        for connectionStatus in connections["Setting"]:
             await connectionStatus.ws.send_json(json.loads(newAppSettingsModel_json))
-        for connectionStatus in connections[PageMode.Chat]:
+        for connectionStatus in connections["Chat"]:
             await connectionStatus.ws.send_json(json.loads(newAppSettingsModel_json))
 
-    def setSetting(self, setting_mode:str, page_mode:PageMode, client_id:str, appSettingsModel:AppSettingsModel):
+    def setSetting(self, setting_mode:SettingMode, page_mode:PageMode, client_id:str, appSettingsModel:AppSettingsModel):
         """
         setting_dictをsetting_modeのjsonに保存し、対応するオブジェクトに反映します。
         """

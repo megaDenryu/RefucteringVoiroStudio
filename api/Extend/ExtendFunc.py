@@ -285,7 +285,7 @@ class ExtendFunc:
                 "file_path":f"{file_path}",
                 "model_class":model_class
             })
-            raise e
+            # raise e
     
     @staticmethod
     def saveBaseModelToJson(file_path: Path, model: BaseModel):

@@ -31,9 +31,9 @@ export class SettingPage2 implements IComponentManager {
         this.initialize()
         this._websocket = createWebSocket(
             {
-                clientId: 'your_client_id',
-                settingName: 'AppSettings',
-                modeName: "Setting"
+                clientId: "test",
+                setting_mode: "AppSettings",
+                page_mode: "Setting",
             },
             this.handleWebSocketMessage.bind(this)
         );
