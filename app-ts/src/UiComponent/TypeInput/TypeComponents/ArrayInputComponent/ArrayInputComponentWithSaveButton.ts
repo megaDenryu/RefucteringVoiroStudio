@@ -3,7 +3,7 @@ import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { NormalButton } from "../../../Button/NormalButton/NormalButton";
-import { getComponentManager, getPath, IInputComponet, notifyValueToRootParent, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
+import { getComponentManager, getPath, IInputComponet, notifyValueToRootParent, notifyValueToRootParentFromComponentCollection, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { z } from "zod";
 import { ArrayInputComponent } from "./ArrayInputComponent";
@@ -92,7 +92,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
 
         this._NormalButton.addOnClickEvent(() => {
             this.save();
-            notifyValueToRootParent(this.inputComponent);
+            notifyValueToRootParentFromComponentCollection(this);
         });
 
     }

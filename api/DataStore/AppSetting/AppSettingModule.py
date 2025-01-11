@@ -32,7 +32,7 @@ class PageModeList(TypedDict):
     Chat: list[ConnectionStatus]
 
 class SettingClientWs(TypedDict):
-    AppSetting:PageModeList
+    AppSettings:PageModeList
 
 
 
@@ -56,7 +56,7 @@ class AppSettingModule:
 
     def removeWs(self, setting_mode: SettingMode, page_mode:PageMode, client_id:str):
         try:
-            connections:dict[PageMode, list[ConnectionStatus]] = self.setting_client_ws[setting_mode]
+            connections = self.setting_client_ws[setting_mode]
         except KeyError:
             return
         for connectionStatus in connections[page_mode]:
