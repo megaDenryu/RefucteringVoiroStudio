@@ -19,6 +19,7 @@ import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentTy
 import { IComponentManager } from "../IComponentManager";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
+import { InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class ObjectInputComponentWithSaveButton<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "object";
@@ -41,8 +42,12 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
     public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    public readonly inputFormat: InputTypeObject|null;
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, 
+                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null,
+                inputFormat: InputTypeObject|null = null
+            ) {
         this._title = title;
         this._schema = schema;
         this._values = defaultValues;
@@ -52,7 +57,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.parent = parent;
         this.componentManager = rootParent;
-
+        this.inputFormat = inputFormat;
         this.initialize();
     }
 

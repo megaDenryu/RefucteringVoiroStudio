@@ -18,6 +18,7 @@ import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputCompone
 import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayInputComponentWithSaveButton";
 import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
 import { RecordInputComponentWithSaveButton } from "./RecordInputComponentWithSaveButton";
+import { InputTypeRecord } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class RecordInputComponent implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "record";
@@ -35,12 +36,17 @@ export class RecordInputComponent implements IHasComponent, IInputComponentColle
     public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    public readonly inputFormat: InputTypeRecord|null;
 
-    constructor(title: string, schema: z.ZodRecord, defaultValues: {}, parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
+    constructor(title: string, schema: z.ZodRecord, defaultValues: {}, 
+                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null,
+                inputFormat: InputTypeRecord|null = null
+            ) {
         this._title = title;
         this._schema = schema;
         this.parent = parent;
         this.componentManager = rootParent;
+        this.inputFormat = inputFormat;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);

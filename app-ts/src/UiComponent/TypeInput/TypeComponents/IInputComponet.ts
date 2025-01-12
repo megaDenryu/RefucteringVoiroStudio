@@ -3,6 +3,7 @@ import { IHasComponent } from "../../Base/ui_component_base"
 import { IHasSquareBoard } from "../../Board/IHasSquareBoard"
 import { ITypeComponent } from "../ComponentType"
 import { IRecordPathInput, RecordPath } from "../RecordPath"
+import { InputTypeComponentFormat } from "../TypeComponentFormat/TypeComponentFormat"
 import { IInputComponentCollection } from "./ICollectionComponent"
 import { IComponentManager } from "./IComponentManager"
 
@@ -19,6 +20,7 @@ export interface IInputComponet extends IHasComponent, ITypeComponent {
     getWidth(): number
     parent: IInputComponentCollection|null
     updateChildSegment: EventDelegator<IRecordPathInput>
+    inputFormat: InputTypeComponentFormat|null
 }
 
 export function getRootParent(component:IInputComponentCollection): IInputComponentCollection {

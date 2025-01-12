@@ -19,6 +19,7 @@ import { IValueComponent } from "../IValueComponent";
 import { get } from "http";
 import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
+import { InputTypeArray } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -40,8 +41,12 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    public readonly inputFormat: InputTypeArray | null;
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], 
+                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null,
+                inputFormat: InputTypeArray | null = null
+            ) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
@@ -50,6 +55,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.parent = parent;
         this.componentManager = rootParent;
+        this.inputFormat = inputFormat;
         this.initialize();
     }
 

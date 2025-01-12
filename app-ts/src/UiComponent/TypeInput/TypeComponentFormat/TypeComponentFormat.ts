@@ -7,11 +7,21 @@ export interface InputTypeComponentFormat {
 }
 
 export interface InputTypeArray extends InputTypeComponentFormat {
+    type: "array";
     collection: InputTypeArrayCollection;
+    format: ArrayFormat;
 }
 
-export interface InputTypeDictionary extends InputTypeComponentFormat {
+export interface InputTypeObject extends InputTypeComponentFormat {
+    type: "object";
     collection: InputTypeDictionaryCollection;
+    format: ObjectFormat;
+}
+
+export interface InputTypeRecord extends InputTypeComponentFormat {
+    type: "record";
+    collection: InputTypeDictionaryCollection;
+    format: RecordFormat;
 }
 
 export interface InputTypePrimitive extends InputTypeComponentFormat {
@@ -19,31 +29,27 @@ export interface InputTypePrimitive extends InputTypeComponentFormat {
 }
 
 export interface InputTypeString extends InputTypePrimitive {
+    type: "string";
+    collection: null;
     format: StringFormat;
 }
 
 export interface InputTypeNumber extends InputTypePrimitive {
+    type: "number";
+    collection: null;
     format: NumberFormat;
 }
 
 export interface InputTypeBoolean extends InputTypePrimitive {
+    type: "boolean";
+    collection: null;
     format: BooleanFormat;
 }
 
 export interface InputTypeEnum extends InputTypePrimitive {
+    type: "enum";
+    collection: null;
     format: EnumFormat;
-}
-
-export interface InputTypeArray extends InputTypeComponentFormat {
-    format: ArrayFormat;
-}
-
-export interface InputTypeObject extends InputTypeComponentFormat {
-    format: ObjectFormat;
-}
-
-export interface InputTypeRecord extends InputTypeComponentFormat {
-    format: RecordFormat;
 }
 
 

@@ -12,6 +12,7 @@ import { IRecordPathInput } from "../../RecordPath";
 import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IValueComponent } from "../IValueComponent";
+import { InputTypeEnum } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class EnumInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent {
     public readonly componentType: TypeComponentType = "enum";
@@ -26,11 +27,15 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
     private _htmlSelectElement: HTMLSelectElement;
+    public readonly inputFormat: InputTypeEnum|null;
 
-    constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponentCollection|null = null) {
+    constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponentCollection|null = null,
+                inputFormat: InputTypeEnum|null = null
+    ) {
         this._title = title;
         this.value = new ReactiveProperty<SelecteValueInfo>(defautValue);
         this.parent = parent;
+        this.inputFormat = inputFormat;
         let selecter:HTMLSelectElement = ElementCreater.createSelectElement(defautValue.candidate, null, defautValue.value);
         let divHtml = ElementCreater.createElementFromHTMLString(`
             <div class="EnumInputComponent">
@@ -39,8 +44,8 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
             `);
         divHtml.appendChild(selecter);
         this.component = new BaseComponent(divHtml);
-        this.initialize(selecter);
         this._htmlSelectElement = selecter;
+        this.initialize(selecter);
     }
 
     public setTitle(title: string): void {
