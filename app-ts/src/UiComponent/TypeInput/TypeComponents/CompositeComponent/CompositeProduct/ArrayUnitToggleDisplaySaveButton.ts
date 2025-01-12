@@ -9,6 +9,7 @@ import { ObjectInputComponentWithSaveButton } from "../../ObjectInputComponent/O
 import { TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 import { IInputComponentCollection } from "../../ICollectionComponent";
+import { InputTypeComponentFormat } from "../../../TypeComponentFormat/TypeComponentFormat";
 
 
 export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
@@ -19,9 +20,9 @@ export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
     public readonly arrayUnit: IArrayUnitComponent;
     public readonly saveToggle: IHasInputComponent;
 
-    constructor(title: string, unitSchema: any, defaultValue:any, parent:IInputComponentCollection|null = null) {
+    constructor(title: string, unitSchema: any, defaultValue:any, inputFormat:InputTypeComponentFormat|null, parent:IInputComponentCollection|null = null) {
         console.log("ArrayUnitToggleDisplaySaveButtonが呼ばれました");
-        this.saveToggle = ArrayUnitToggleDisplaySaveButton.new(title, unitSchema, defaultValue, parent);
+        this.saveToggle = ArrayUnitToggleDisplaySaveButton.new(title, unitSchema, defaultValue, inputFormat, parent);
         if (this.saveToggle instanceof SaveToggleComposite) {
             this.arrayUnit = ArrayUnitComponent.newWithOthre(this.saveToggle);
         } 
@@ -37,7 +38,7 @@ export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
         this.component.delete();
     }
 
-    public static new(title: string, unitSchema: any, defaultValue:any, parent:IInputComponentCollection|null = null) : IHasInputComponent {
+    public static new(title: string, unitSchema: any, defaultValue:any, inputFormat:InputTypeComponentFormat|null, parent:IInputComponentCollection|null = null) : IHasInputComponent {
         // アレイまたはオブジェクトの時はトグルディスプレイは他とは異なるので分岐させる
         console.log("呼んでる");
         if (unitSchema instanceof z.ZodString ||
@@ -45,7 +46,7 @@ export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
             unitSchema instanceof z.ZodBoolean||
             unitSchema instanceof z.ZodEnum
         ) {
-            return SaveToggleComposite.new(title, unitSchema, defaultValue, parent);
+            return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodArray) {
             return new ArrayInputComponentWithSaveButton(title, unitSchema, defaultValue, parent);
@@ -55,7 +56,7 @@ export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
         }
         else if ( unitSchema instanceof z.ZodOptional || unitSchema instanceof z.ZodDefault ) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
-            return this.new(title, unitSchema._def.innerType, defaultValue);
+            return this.new(title, unitSchema._def.innerType, inputFormat, defaultValue);
         }
         throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }

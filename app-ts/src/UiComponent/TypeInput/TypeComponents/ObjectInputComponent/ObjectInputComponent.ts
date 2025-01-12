@@ -18,7 +18,7 @@ import { RecordInputComponent } from "../RecordInputComponent/RecordInputCompone
 import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayInputComponentWithSaveButton";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 import { ObjectInputComponentWithSaveButton } from "./ObjectInputComponentWithSaveButton";
-import { InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
+import { InputTypeComponentFormat, InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "object";
@@ -57,7 +57,8 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : {} {
         let _inputComponentDict = {};
         for (let key in schema.shape) {
-            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], this);
+            const inputFormat = (this.inputFormat?.collection[key])??null;
+            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], inputFormat, this);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
@@ -65,8 +66,8 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection|null = null) : IInputComponet {
-        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent).inputComponent;
+    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent: IInputComponentCollection|null = null) : IInputComponet {
+        return TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, inputFormat, parent).inputComponent;
         // return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent).inputComponent;
     }
 

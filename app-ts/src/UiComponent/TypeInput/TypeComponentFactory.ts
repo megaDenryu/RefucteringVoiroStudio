@@ -17,6 +17,7 @@ import { IHasSquareBoard } from "../Board/IHasSquareBoard";
 import { IInputComponentCollection } from "./TypeComponents/ICollectionComponent";
 import { RecordInputComponent } from "./TypeComponents/RecordInputComponent/RecordInputComponent";
 import { RecordInputComponentWithSaveButton } from "./TypeComponents/RecordInputComponent/RecordInputComponentWithSaveButton";
+import { InputTypeComponentFormat, InputTypeObject } from "./TypeComponentFormat/TypeComponentFormat";
 
 export class TypeComponentFactory {
 
@@ -27,7 +28,7 @@ export class TypeComponentFactory {
      * @param defaultValue ： デフォルト値
      * @returns 
      */
-    public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:IInputComponentCollection|null = null) : IHasInputComponent {
+    public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent:IInputComponentCollection|null = null) : IHasInputComponent {
         if (unitSchema instanceof z.ZodString) {
             return new StringInputComponent(title, defaultValue, parent);
         } 
@@ -55,11 +56,11 @@ export class TypeComponentFactory {
         } 
         else if (unitSchema instanceof z.ZodOptional) {
             // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue, parent);
+            return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodDefault) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue, parent);
+            return this.createDefaultInputComponent(title, unitSchema._def.innerType, defaultValue, inputFormat, parent);
         }
         throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }
@@ -71,21 +72,21 @@ export class TypeComponentFactory {
      * @param defaultValue ： デフォルト値
      * @returns 
      */
-    public static createInputComponentWithSaveButton2(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent:IInputComponentCollection|null = null) : IHasInputComponent {
+    public static createInputComponentWithSaveButton2(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent:IInputComponentCollection|null = null) : IHasInputComponent {
         if (unitSchema instanceof z.ZodString) {
-            return SaveToggleComposite.new(title, unitSchema, defaultValue, parent);
+            return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodNumber) {
-            return SaveToggleComposite.new(title, unitSchema, defaultValue, parent);
+            return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodBoolean) {
-            return SaveToggleComposite.new(title, unitSchema, defaultValue, parent);
+            return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodArray) {
             return new ArrayInputComponentWithSaveButton(title, unitSchema, defaultValue, parent);
         } 
         else if (unitSchema instanceof z.ZodEnum) {
-            return SaveToggleComposite.new(title, unitSchema, defaultValue, parent);
+            return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodRecord) {
             return new RecordInputComponentWithSaveButton(title, unitSchema, defaultValue, parent);
@@ -96,11 +97,11 @@ export class TypeComponentFactory {
         }
         else if (unitSchema instanceof z.ZodOptional) {
             // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createInputComponentWithSaveButton2(title, unitSchema._def.innerType, defaultValue, parent);
+            return this.createInputComponentWithSaveButton2(title, unitSchema._def.innerType, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodDefault) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う
-            return this.createInputComponentWithSaveButton2(title, unitSchema._def.innerType, defaultValue, parent);
+            return this.createInputComponentWithSaveButton2(title, unitSchema._def.innerType, defaultValue, inputFormat, parent);
         }
         throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }

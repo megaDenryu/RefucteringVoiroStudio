@@ -19,7 +19,7 @@ import { IValueComponent } from "../IValueComponent";
 import { get } from "http";
 import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
-import { InputTypeArray } from "../../TypeComponentFormat/TypeComponentFormat";
+import { InputTypeArray, InputTypeComponentFormat } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -62,17 +62,18 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IHasInputComponent[] {
         let inputComponentList : IHasInputComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i]);
+            const inputFormat = (this.inputFormat?.collection[i])??null;
+            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], inputFormat);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             inputComponentList.push(inputComponent);
         }
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"]) : IHasInputComponent {
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"], inputFormat: InputTypeComponentFormat|null) : IHasInputComponent {
         //今は引数がUnitTypeになっているが、ここはコンポーネント生成のための関数なので、Zodにしたほうがいい。
         // return TypeComponentFactory.createDefaultInputComponentWithSaveButton(title, unitSchema, defaultValue);
-        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue, this);
+        const unit = new ArrayUnitToggleDisplaySaveButton(title, unitSchema, defaultValue, inputFormat, this);
 
         //unitにイベントを追加する
         unit.arrayUnit.addButton.addOnClickEvent(() => {
@@ -145,7 +146,8 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     public addElement(index?: number): void {
         const i = this._inputComponentCompositeList.length;
         const lastElementValue = this._inputComponentCompositeList[i - 1].inputComponent.getValue();
-        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue);
+        const inputFormat = (this.inputFormat?.collection[i])??null;
+        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, inputFormat);
         //newComponentをdaratyにする
         if (checknInterfaceType(newComponent.inputComponent, "IValueComponent")) {
             const valueComponent = newComponent.inputComponent as IValueComponent;

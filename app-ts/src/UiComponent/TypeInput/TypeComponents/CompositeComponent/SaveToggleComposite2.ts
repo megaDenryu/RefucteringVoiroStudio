@@ -8,6 +8,7 @@ import { IHasInputComponent } from "./ICompositeComponentList";
 import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { NormalButton } from "../../../Button/NormalButton/NormalButton";
 import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
+import { InputTypeComponentFormat } from "../../TypeComponentFormat/TypeComponentFormat";
 
 
 export class SaveToggleComposite2 implements IHasInputComponent {
@@ -40,8 +41,8 @@ export class SaveToggleComposite2 implements IHasInputComponent {
         this.component.delete();
     }
 
-    static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any) : SaveToggleComposite2 {
-        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue);
+    static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat:InputTypeComponentFormat|null) : SaveToggleComposite2 {
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, inputFormat);
         const saveButton = new NormalButton("保存", "normal");
         const toggleFormatStateDisplay = new ToggleFormatStateDisplay("SaveState", "保存済み", "green");
         return new SaveToggleComposite2(title, inputComponentBox.inputComponent, saveButton, toggleFormatStateDisplay);

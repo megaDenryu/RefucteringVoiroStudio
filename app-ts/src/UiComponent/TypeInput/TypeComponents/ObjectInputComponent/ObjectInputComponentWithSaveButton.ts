@@ -19,7 +19,7 @@ import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentTy
 import { IComponentManager } from "../IComponentManager";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
-import { InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
+import { InputTypeComponentFormat, InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class ObjectInputComponentWithSaveButton<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "object";
@@ -67,7 +67,8 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
             if (defaultValues[key] === undefined) {
                 console.error("defaultValuesにkeyが存在しません。key:", key, defaultValues);
             }
-            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], this);
+            const inputFormat = (this.inputFormat?.collection[key])??null;
+            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], inputFormat, this);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
@@ -75,8 +76,8 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any ,parent: IInputComponentCollection|null = null) : IHasInputComponent {
-        return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent);
+    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent: IInputComponentCollection|null = null) : IHasInputComponent {
+        return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, inputFormat, parent);
         // return SaveToggleComposite.new(title, unitSchema, defaultValue);
     }
 
