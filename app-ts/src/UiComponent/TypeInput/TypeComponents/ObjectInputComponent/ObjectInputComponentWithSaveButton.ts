@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { ArrayInputComponent } from "../ArrayInputComponent/ArrayInputComponent";
-import { IInputComponet, notifyValueToRootParent } from "../IInputComponet";
+import { IInputComponet, notifyValueToRootParent, notifyValueToRootParentFromComponentCollection } from "../IInputComponet";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import "./ObjectInputComponent.css";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
@@ -87,7 +87,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
 
         this._NormalButton.addOnClickEvent(() => {
             this.save();
-            notifyValueToRootParent(this.inputComponent);
+            notifyValueToRootParentFromComponentCollection(this);
         });
 
     }

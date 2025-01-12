@@ -32,7 +32,7 @@ class PageModeList(TypedDict):
     Chat: list[ConnectionStatus]
 
 class SettingClientWs(TypedDict):
-    AppSetting:PageModeList
+    AppSettings:PageModeList
 
 
 
@@ -56,7 +56,7 @@ class AppSettingModule:
 
     def removeWs(self, setting_mode: SettingMode, page_mode:PageMode, client_id:str):
         try:
-            connections:dict[PageMode, list[ConnectionStatus]] = self.setting_client_ws[setting_mode]
+            connections = self.setting_client_ws[setting_mode]
         except KeyError:
             return
         for connectionStatus in connections[page_mode]:
@@ -65,21 +65,22 @@ class AppSettingModule:
                 break
 
 
-    async def notify(self, newAppSettingsModel:AppSettingsModel, setting_mode: str):
+    async def notify(self, newAppSettingsModel:AppSettingsModel, setting_mode: SettingMode, page_mode: PageMode, client_id:str):
         """
         同じsetting_modeのws全てにメッセージを送信します。
         """
         try:
             ExtendFunc.ExtendPrint(self.setting_client_ws)
-            connections:dict[PageMode, list[ConnectionStatus]] = self.setting_client_ws[setting_mode]
+            connections = self.setting_client_ws[setting_mode]
         except KeyError:
             return
         # BaseModel を JSON 互換の形式に変換
         newAppSettingsModel_json = newAppSettingsModel.model_dump_json()
 
-        for connectionStatus in connections["Setting"]:
-            await connectionStatus.ws.send_json(json.loads(newAppSettingsModel_json))
-        for connectionStatus in connections["Chat"]:
+        for connectionStatus in connections[page_mode]:
+            if connectionStatus.client_id == client_id:
+                ExtendFunc.ExtendPrint(f"client_id:{client_id} は送信元なのでスキップします。")
+                continue
             await connectionStatus.ws.send_json(json.loads(newAppSettingsModel_json))
 
     def setSetting(self, setting_mode:SettingMode, page_mode:PageMode, client_id:str, appSettingsModel:AppSettingsModel):

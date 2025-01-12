@@ -111,9 +111,8 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     }
 
     public setValueWithOutSave(value: string): void {
-        if (this._htmlInputElement != null) {
-            this._htmlInputElement.setAttribute("value", value);
-        }
+        if (this.darty.get() == true) { return; } // ダーティーな状態でない場合のみセットする
+        this._htmlInputElement.value = value;
         this.value.setWithoutEvent(value);
     }
 

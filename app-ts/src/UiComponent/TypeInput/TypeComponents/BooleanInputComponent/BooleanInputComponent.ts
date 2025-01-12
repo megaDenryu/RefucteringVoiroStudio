@@ -55,6 +55,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     }
 
     private Initialize(selecter: HTMLInputElement) {
+        this.setValueWithOutSave(this._defaultValue??false);
         selecter.addEventListener("change", () => {
             this.setValue(selecter.checked);
         });
@@ -62,6 +63,11 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
         this.component.addCSSClass([
             "positionAbsolute",
         ]);
+        
+        // inputイベントのハンドリング
+        this._htmlCheckInputElement.addEventListener("input", () => {
+            this.darty.set(true);
+        });
     }
 
     public setTitle(title: string): void {
@@ -97,7 +103,9 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     }
 
     public setValueWithOutSave(value: boolean): void {
-
+        if (this.darty.get() == true) { return; } // ダーティーな状態でない場合のみセットする
+        this._htmlCheckInputElement.checked = value;
+        this.value.setWithoutEvent(value);
     }
 
     public getHeight(): number {

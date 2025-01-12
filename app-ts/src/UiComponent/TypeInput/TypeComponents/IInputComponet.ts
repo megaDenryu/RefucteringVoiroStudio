@@ -30,8 +30,19 @@ export function getRootParent(component:IInputComponentCollection): IInputCompon
 }
 
 export function getComponentManager(component:IInputComponet): IComponentManager {
-    if (component.parent == null) { throw new Error("componentManager is null")}
+    if (component.parent == null) { 
+        throw new Error("componentManager is null")
+    }
     const rootParent = getRootParent(component.parent)
+    const componentManager = rootParent.componentManager
+    if (componentManager == null) {
+        throw new Error("componentManager is null")
+    } 
+    return componentManager
+}
+
+export function getComponentManagerFromComponentCollection(component:IInputComponentCollection): IComponentManager {
+    const rootParent = getRootParent(component.parent ?? component)
     const componentManager = rootParent.componentManager
     if (componentManager == null) {
         throw new Error("componentManager is null")
@@ -57,5 +68,13 @@ export function notifyValueToRootParent(component:IInputComponet): void {
     const path = getPath(component)
     const recordPathInput:IRecordPathInput = { recordPath: path, value: value }
     const manageComponent = getComponentManager(component)
+    manageComponent.オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(path, value)
+}
+
+export function notifyValueToRootParentFromComponentCollection (component:IInputComponentCollection): void {
+    const value = component.getValue()
+    const path = getPath(component)
+    const recordPathInput:IRecordPathInput = { recordPath: path, value: value }
+    const manageComponent = getComponentManagerFromComponentCollection(component)
     manageComponent.オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(path, value)
 }

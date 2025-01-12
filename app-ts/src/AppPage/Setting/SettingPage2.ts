@@ -64,7 +64,7 @@ export class SettingPage2 implements IComponentManager {
         //1. jsonに変換する
         const data = JSON.stringify(req);
         //2. 非同期fetchする
-        const response = await fetch(RequestAPI.rootURL + "appSettingInit", {//"DecideChara", {
+        const response = await fetch(RequestAPI.rootURL + "appSettingInit", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -174,9 +174,9 @@ export class SettingPage2 implements IComponentManager {
 
     // 受信したデータを処理する関数
     private processAppSettings(settings: AppSettingsModel) {
-        console.log("Processing settings:", settings);
         // 設定データを処理するロジックをここに追加
         this.manageData = settings;
+        console.log("データを受信しました。", settings);
         this._appSettingComponent.setValueWithOutSave(settings);
     }
 }

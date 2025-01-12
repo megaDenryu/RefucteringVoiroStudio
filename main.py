@@ -120,8 +120,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # プッシュ通知各種設定が定義されているインスタンス
 notifier = Notifier()
 inastanceManager = InastanceManager()
-
-setting_module = AppSettingModule()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
 # human_dict:dict[CharacterId,Human] = {}
 # gpt_mode_dict = {}
@@ -949,6 +947,7 @@ async def saveSetting(saveSettingReq: AppSettingsModel):
 @app.websocket("/settingStore/{client_id}/{setting_mode}/{page_mode}")
 async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mode:PageMode, client_id: str):
     print(f"settingStoreコネクションします")
+    setting_module = inastanceManager.appSettingModule
     await websocket.accept()
     setting_module.addWs(setting_mode, page_mode, client_id, websocket)
     try:
@@ -957,12 +956,11 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
             data = await websocket.receive_json()
             saveSettingReq = AppSettingsModel(**data)
             new_setting = setting_module.setSetting(setting_mode, page_mode, client_id, saveSettingReq)
-            await setting_module.notify(new_setting, setting_mode)
+            await setting_module.notify(new_setting, setting_mode, page_mode, client_id)
 
     # セッションが切れた場合
     except WebSocketDisconnect:
         print(f"wsエラーです:settingStore : {setting_mode=}, {page_mode=}, {client_id=}, {websocket=}")
-        websocket.close()
         ExtendFunc.ExtendPrint(setting_module)
         setting_module.removeWs(setting_mode, page_mode, client_id)
         ExtendFunc.ExtendPrint(setting_module)

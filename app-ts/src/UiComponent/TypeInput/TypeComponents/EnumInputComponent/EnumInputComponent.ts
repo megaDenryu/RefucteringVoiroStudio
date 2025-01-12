@@ -97,6 +97,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     }
 
     setValueWithOutSave(value: any): void {
+        if (this.darty.get() == true) { return; } // ダーティーな状態でない場合のみセットする
         let info = this.value.get();
         info.value = value;
         this._htmlSelectElement.value = value;
