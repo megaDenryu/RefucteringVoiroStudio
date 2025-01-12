@@ -1,3 +1,4 @@
+from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
 from api.Epic.Epic import Epic
 from api.InstanceManager.GptAgentInstanceManager import GPTAgentInstanceManager
 from api.InstanceManager.HumanDict import HumanInstanceContainer
@@ -19,6 +20,7 @@ class InastanceManager(InstanceManagerInterface):
     _inputReciever: InputReciever
     _agentPipeManager: AgentPipeManager
     _aiRubiConverter: AIRubiConverter
+    _appSettingModule :AppSettingModule
 
     @property
     def clientIds(self):
@@ -56,6 +58,10 @@ class InastanceManager(InstanceManagerInterface):
     def aiRubiConverter(self):
         return self._aiRubiConverter
     
+    @property
+    def appSettingModule(self):
+        return self._appSettingModule
+    
 
     def __init__(self):
         self._clientIds = ClientIds()
@@ -67,6 +73,7 @@ class InastanceManager(InstanceManagerInterface):
         self._inputReciever = InputReciever(self._epic, self._gptAgentInstanceManager)
         self._agentPipeManager = AgentPipeManager(self._inputReciever)
         self._aiRubiConverter = AIRubiConverter()
+        self._appSettingModule = AppSettingModule()
         self.registerEvent()
 
     def registerEvent(self):

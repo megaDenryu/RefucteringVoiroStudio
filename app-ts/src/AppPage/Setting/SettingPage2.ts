@@ -64,7 +64,7 @@ export class SettingPage2 implements IComponentManager {
         //1. jsonに変換する
         const data = JSON.stringify(req);
         //2. 非同期fetchする
-        const response = await fetch(RequestAPI.rootURL + "appSettingInit", {//"DecideChara", {
+        const response = await fetch(RequestAPI.rootURL + "appSettingInit", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

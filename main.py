@@ -120,8 +120,6 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 # プッシュ通知各種設定が定義されているインスタンス
 notifier = Notifier()
 inastanceManager = InastanceManager()
-
-setting_module = AppSettingModule()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
 # human_dict:dict[CharacterId,Human] = {}
 # gpt_mode_dict = {}
@@ -949,6 +947,7 @@ async def saveSetting(saveSettingReq: AppSettingsModel):
 @app.websocket("/settingStore/{client_id}/{setting_mode}/{page_mode}")
 async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mode:PageMode, client_id: str):
     print(f"settingStoreコネクションします")
+    setting_module = inastanceManager.appSettingModule
     await websocket.accept()
     setting_module.addWs(setting_mode, page_mode, client_id, websocket)
     try:
