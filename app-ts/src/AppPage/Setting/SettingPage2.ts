@@ -174,9 +174,9 @@ export class SettingPage2 implements IComponentManager {
 
     // 受信したデータを処理する関数
     private processAppSettings(settings: AppSettingsModel) {
-        console.log("Processing settings:", settings);
         // 設定データを処理するロジックをここに追加
         this.manageData = settings;
+        console.log("データを受信しました。", settings);
         this._appSettingComponent.setValueWithOutSave(settings);
     }
 }

@@ -19,7 +19,7 @@ from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
 
 
 if __name__ == "__main__":
-    # BaseModelConverterTest.Zodを出力する本番(AppSettingsModel)
+    BaseModelConverterTest.Zodを出力する本番(AppSettingsModel)
     # BaseModelConverterTest.Zodを出力する本番(CommentReceiveSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(NiconicoLiveSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(YoutubeLiveSettingModel)
@@ -29,6 +29,6 @@ if __name__ == "__main__":
     # BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModelReq)
     # BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModelReq)
-    BaseModelConverterTest.Zodを出力する本番(TtsSoftWareVoiceSettingReq)
+    # BaseModelConverterTest.Zodを出力する本番(TtsSoftWareVoiceSettingReq)
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModelReq)

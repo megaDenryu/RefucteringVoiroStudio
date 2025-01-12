@@ -92,6 +92,24 @@
             "title": "NiconicoLiveSettingModel",
             "type": "object"
         },
+        "SerifSettingModel": {
+            "properties": {
+                "AI補正": {
+                    "default": true,
+                    "description": "AI補正を有効にするか選択してください",
+                    "title": "AI補正",
+                    "type": "boolean"
+                },
+                "発言間隔の秒数": {
+                    "default": 4,
+                    "description": "発言間隔の秒数を入力してください",
+                    "title": "発言間隔",
+                    "type": "integer"
+                }
+            },
+            "title": "SerifSettingModel",
+            "type": "object"
+        },
         "SynthesisVoiceSettingModel": {
             "properties": {
                 "COEIROINKv2設定": {
@@ -135,6 +153,9 @@
         },
         "合成音声設定": {
             "$ref": "#/$defs/SynthesisVoiceSettingModel"
+        },
+        "セリフ設定": {
+            "$ref": "#/$defs/SerifSettingModel"
         }
     },
     "title": "AppSettingsModel",

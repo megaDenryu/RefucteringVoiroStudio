@@ -56,5 +56,18 @@ export const AppSettingsModel = z.object({
         .optional(),
     })
     .optional(),
+  セリフ設定: z
+    .object({
+      AI補正: z
+        .boolean()
+        .describe("AI補正を有効にするか選択してください")
+        .default(true),
+      発言間隔の秒数: z
+        .number()
+        .int()
+        .describe("発言間隔の秒数を入力してください")
+        .default(4),
+    })
+    .optional(),
 });
 export type AppSettingsModel = z.infer<typeof AppSettingsModel>;

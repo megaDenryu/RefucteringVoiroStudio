@@ -957,12 +957,11 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
             data = await websocket.receive_json()
             saveSettingReq = AppSettingsModel(**data)
             new_setting = setting_module.setSetting(setting_mode, page_mode, client_id, saveSettingReq)
-            await setting_module.notify(new_setting, setting_mode)
+            await setting_module.notify(new_setting, setting_mode, page_mode, client_id)
 
     # セッションが切れた場合
     except WebSocketDisconnect:
         print(f"wsエラーです:settingStore : {setting_mode=}, {page_mode=}, {client_id=}, {websocket=}")
-        websocket.close()
         ExtendFunc.ExtendPrint(setting_module)
         setting_module.removeWs(setting_mode, page_mode, client_id)
         ExtendFunc.ExtendPrint(setting_module)

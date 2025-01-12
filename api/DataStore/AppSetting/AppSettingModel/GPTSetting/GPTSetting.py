@@ -14,3 +14,4 @@ class GPTSettingModel(BaseModel):
         title="GPT起動状況", 
         description="GPT起動状況を入力してください"
     )
+    
