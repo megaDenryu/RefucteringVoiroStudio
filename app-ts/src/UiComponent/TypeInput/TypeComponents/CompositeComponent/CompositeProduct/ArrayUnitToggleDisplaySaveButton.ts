@@ -9,7 +9,7 @@ import { ObjectInputComponentWithSaveButton } from "../../ObjectInputComponent/O
 import { TypeComponentInterfaceType, TypeComponentType } from "../../../ComponentType";
 import { IHasSquareBoard } from "../../../../Board/IHasSquareBoard";
 import { IInputComponentCollection } from "../../ICollectionComponent";
-import { InputTypeComponentFormat } from "../../../TypeComponentFormat/TypeComponentFormat";
+import { checkArrayFormat, checkObjectFormat, InputTypeComponentFormat } from "../../../TypeComponentFormat/TypeComponentFormat";
 
 
 export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
@@ -49,10 +49,10 @@ export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
             return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodArray) {
-            return new ArrayInputComponentWithSaveButton(title, unitSchema, defaultValue, parent, null);
+            return new ArrayInputComponentWithSaveButton(title, unitSchema, defaultValue, parent, null, checkArrayFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodObject) {
-            return new ObjectInputComponentWithSaveButton(title, unitSchema, defaultValue as {}, parent, null);
+            return new ObjectInputComponentWithSaveButton(title, unitSchema, defaultValue as {}, parent, null, checkObjectFormat(inputFormat));
         }
         else if ( unitSchema instanceof z.ZodOptional || unitSchema instanceof z.ZodDefault ) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う

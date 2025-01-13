@@ -13,6 +13,7 @@ import { ObjectInputComponentWithSaveButton } from "../../UiComponent/TypeInput/
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { createWebSocket } from "./SettingWebsocket";
 import { ExtendFunction } from "../../Extend/extend";
+import { AppSettingsModelFormat } from "../../ZodObject/DataStore/AppSetting/AppSettingModelFormat/AppSettingModelFormat";
 
 //todo : 保存処理とかをする必要がある。
 
@@ -48,7 +49,7 @@ export class SettingPage2 implements IComponentManager {
             this.manageData = await this.requestAppSettingModel()
             console.log("real",this.manageData) // {}が返ってくる
         }
-        this._appSettingComponent = new ObjectInputComponentWithSaveButton(this.title, AppSettingsModel, this.manageData, null, this)
+        this._appSettingComponent = new ObjectInputComponentWithSaveButton(this.title, AppSettingsModel, this.manageData, null, this, AppSettingsModelFormat)
         this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._appSettingComponent)
         this.bindEvents()
         document.body.appendChild(this._squareBoardComponent.component.element)

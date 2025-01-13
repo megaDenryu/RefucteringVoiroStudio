@@ -79,17 +79,18 @@ export class TypeComponentFactory {
             return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodArray) {
-            return new ArrayInputComponentWithSaveButton(title, unitSchema, defaultValue, parent, null);
+            return new ArrayInputComponentWithSaveButton(title, unitSchema, defaultValue, parent, null, checkArrayFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodEnum) {
             return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
+
         else if (unitSchema instanceof z.ZodRecord) {
-            return new RecordInputComponentWithSaveButton(title, unitSchema, defaultValue, parent);
+            return new RecordInputComponentWithSaveButton(title, unitSchema, defaultValue, parent, null, checkRecordFormat(inputFormat));
         }
         else if (unitSchema instanceof z.ZodObject) {
             // return SaveToggleComposite.new(title, unitSchema, defaultValue);
-            return new ObjectInputComponentWithSaveButton(title, unitSchema, defaultValue as {}, parent, null);
+            return new ObjectInputComponentWithSaveButton(title, unitSchema, defaultValue as {}, parent, null, checkObjectFormat(inputFormat));
         }
         else if (unitSchema instanceof z.ZodOptional) {
             // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う

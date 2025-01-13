@@ -6,18 +6,16 @@ export interface InputTypeComponentFormat {
     format: InputTypeFormat;
 }
 
-export interface InputTypeArray extends InputTypeComponentFormat {
+export interface InputTypeArray<T extends InputTypeComponentFormat> extends InputTypeComponentFormat {
     type: "array";
-    collection: InputTypeArrayCollection;
+    collection: T[];
     format: ArrayFormat;
 }
 
-export function checkArrayFormat(format: InputTypeComponentFormat|null): InputTypeArray|null {
+export function checkArrayFormat(format: InputTypeComponentFormat|null): InputTypeArray<InputTypeComponentFormat>|null {
     if (format == null) { return null; }
-    if (format.type != "array") {
-        console.error("フォーマットがarrayではないです。", format);
-    }
-    return format as InputTypeArray;
+    if (format.type != "array") { console.error("フォーマットがarrayではないです。", format); }
+    return format as InputTypeArray<InputTypeComponentFormat>;
 }
 
 export interface InputTypeObject extends InputTypeComponentFormat {

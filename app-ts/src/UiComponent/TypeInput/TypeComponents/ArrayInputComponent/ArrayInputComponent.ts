@@ -33,11 +33,11 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
     public readonly componentManager: IComponentManager|null;
-    public readonly inputFormat: InputTypeArray | null;
+    public readonly inputFormat: InputTypeArray<InputTypeComponentFormat> | null;
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], 
                 parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
-                inputFormat: InputTypeArray | null
+                inputFormat: InputTypeArray<InputTypeComponentFormat> | null
             ) {
         this._title = title;
         this._schema = schema;

@@ -75,7 +75,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IComponentMan
                 "結月ゆかり": "悲しい",
             }
         }
-        this._objectInputComponent = new ObjectInputComponentWithSaveButton("ゲーム状態", GameState, this.manageData, null, this);
+        this._objectInputComponent = new ObjectInputComponentWithSaveButton("ゲーム状態", GameState, this.manageData, null, this,null);
         // this._objectInputComponent = new ObjectInputComponent("ゲーム状態", GameState, gameState);
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
         this.dragMover = new DragMover(this);

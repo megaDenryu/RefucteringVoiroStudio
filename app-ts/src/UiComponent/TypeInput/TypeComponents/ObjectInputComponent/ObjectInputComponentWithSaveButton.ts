@@ -46,7 +46,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
 
     constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, 
                 parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
-                inputFormat: InputTypeObject|null = null
+                inputFormat: InputTypeObject|null
             ) {
         this._title = title;
         this._schema = schema;
