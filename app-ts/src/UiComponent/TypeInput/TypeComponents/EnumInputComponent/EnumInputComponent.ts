@@ -30,7 +30,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     public readonly inputFormat: InputTypeEnum|null;
 
     constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponentCollection|null,
-                inputFormat: InputTypeEnum|null = null
+                inputFormat: InputTypeEnum|null
     ) {
         this._title = title;
         this.value = new ReactiveProperty<SelecteValueInfo>(defautValue);

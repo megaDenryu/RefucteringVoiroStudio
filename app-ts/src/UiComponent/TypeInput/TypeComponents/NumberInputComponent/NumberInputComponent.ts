@@ -42,7 +42,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
 
     constructor(title: string, defaultValue: number|null, 
                 min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null,
-                inputFormat: InputTypeNumber|null = null
+                inputFormat: InputTypeNumber|null
             ) {
         this._title = title;
         this._min = min??0;

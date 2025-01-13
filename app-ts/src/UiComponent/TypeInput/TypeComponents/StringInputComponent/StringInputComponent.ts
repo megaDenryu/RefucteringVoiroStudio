@@ -29,7 +29,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     public inputFormat: InputTypeString | null;
 
     constructor(title: string, defaultValue: string|null, parent: IInputComponentCollection|null,
-                inputFormat: InputTypeString|null = null
+                inputFormat: InputTypeString|null
             ) {
         this._title = title;
         this._defaultValue = defaultValue;

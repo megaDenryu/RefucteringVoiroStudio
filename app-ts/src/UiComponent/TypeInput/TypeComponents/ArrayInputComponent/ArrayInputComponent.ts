@@ -37,7 +37,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], 
                 parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
-                inputFormat: InputTypeArray | null = null
+                inputFormat: InputTypeArray | null
             ) {
         this._title = title;
         this._schema = schema;

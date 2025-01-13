@@ -17,7 +17,8 @@ import { IHasSquareBoard } from "../Board/IHasSquareBoard";
 import { IInputComponentCollection } from "./TypeComponents/ICollectionComponent";
 import { RecordInputComponent } from "./TypeComponents/RecordInputComponent/RecordInputComponent";
 import { RecordInputComponentWithSaveButton } from "./TypeComponents/RecordInputComponent/RecordInputComponentWithSaveButton";
-import { InputTypeComponentFormat, InputTypeObject } from "./TypeComponentFormat/TypeComponentFormat";
+import { checkArrayFormat, checkBooleanFormat, checkEnumFormat, checkNumberFormat, checkObjectFormat, checkRecordFormat, checkStringFormat, InputTypeArray, InputTypeComponentFormat, InputTypeObject } from "./TypeComponentFormat/TypeComponentFormat";
+import { check } from "prettier";
 
 export class TypeComponentFactory {
 
@@ -30,29 +31,29 @@ export class TypeComponentFactory {
      */
     public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent:IInputComponentCollection|null = null) : IHasInputComponent {
         if (unitSchema instanceof z.ZodString) {
-            return new StringInputComponent(title, defaultValue, parent);
+            return new StringInputComponent(title, defaultValue, parent, checkStringFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodNumber) {
             const min = unitSchema.minValue;
             const max = unitSchema.maxValue;
             // const step = 1//todo: stepの取得方法が不明。unitSchema.step; では無理だった。
             const step = null
-            return new NumberInputComponent(title, defaultValue, min , max, step, parent);
+            return new NumberInputComponent(title, defaultValue, min , max, step, parent, checkNumberFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodBoolean) {
-            return new BooleanInputComponent(title, defaultValue, parent);
+            return new BooleanInputComponent(title, defaultValue, parent, checkBooleanFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodArray) {
-            return new ArrayInputComponent(title, unitSchema, defaultValue, parent, null);
+            return new ArrayInputComponent(title, unitSchema, defaultValue, parent, null, checkArrayFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodEnum) {
-            return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string), parent);
+            return new EnumInputComponent(title, new SelecteValueInfo(unitSchema.options, defaultValue as string), parent, checkEnumFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodRecord) {
-            return new RecordInputComponent(title, unitSchema, defaultValue, parent);
+            return new RecordInputComponent(title, unitSchema, defaultValue, parent, null, checkRecordFormat(inputFormat));
         }
         else if (unitSchema instanceof z.ZodObject) {
-            return new ObjectInputComponent(title, unitSchema, defaultValue as {}, parent, null);
+            return new ObjectInputComponent(title, unitSchema, defaultValue as {}, parent, null, checkObjectFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodOptional) {
             // ZodOptionalの場合、内部スキーマに対して再帰的に処理を行う

@@ -39,7 +39,7 @@ export class RecordInputComponent implements IHasComponent, IInputComponentColle
     public readonly inputFormat: InputTypeRecord|null;
 
     constructor(title: string, schema: z.ZodRecord, defaultValues: {}, 
-                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null,
+                parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
                 inputFormat: InputTypeRecord|null = null
             ) {
         this._title = title;

@@ -29,7 +29,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     public readonly inputFormat: InputTypeBoolean|null;
 
     constructor(title: string, defaultValue: boolean|null, parent: IInputComponentCollection|null,
-                inputFormat: InputTypeBoolean|null = null
+                inputFormat: InputTypeBoolean|null
             ) {
         this._title = title;
         this._defaultValue = defaultValue;
