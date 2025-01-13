@@ -28,7 +28,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     private _htmlInputElement : HTMLInputElement;
     public inputFormat: InputTypeString | null;
 
-    constructor(title: string, defaultValue: string|null, parent: IInputComponentCollection|null = null,
+    constructor(title: string, defaultValue: string|null, parent: IInputComponentCollection|null,
                 inputFormat: InputTypeString|null = null
             ) {
         this._title = title;

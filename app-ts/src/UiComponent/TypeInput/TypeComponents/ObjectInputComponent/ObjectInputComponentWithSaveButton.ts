@@ -45,7 +45,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
     public readonly inputFormat: InputTypeObject|null;
 
     constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, 
-                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null,
+                parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
                 inputFormat: InputTypeObject|null = null
             ) {
         this._title = title;
@@ -76,7 +76,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent: IInputComponentCollection|null = null) : IHasInputComponent {
+    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent: IInputComponentCollection|null) : IHasInputComponent {
         return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, inputFormat, parent);
         // return SaveToggleComposite.new(title, unitSchema, defaultValue);
     }

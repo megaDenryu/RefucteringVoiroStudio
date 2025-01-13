@@ -44,7 +44,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     public readonly inputFormat: InputTypeArray | null;
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], 
-                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null,
+                parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
                 inputFormat: InputTypeArray | null = null
             ) {
         this._title = title;

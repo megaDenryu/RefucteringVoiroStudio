@@ -49,10 +49,10 @@ export class ArrayUnitToggleDisplaySaveButton implements IHasInputComponent {
             return SaveToggleComposite.new(title, unitSchema, defaultValue, inputFormat, parent);
         } 
         else if (unitSchema instanceof z.ZodArray) {
-            return new ArrayInputComponentWithSaveButton(title, unitSchema, defaultValue, parent);
+            return new ArrayInputComponentWithSaveButton(title, unitSchema, defaultValue, parent, null);
         } 
         else if (unitSchema instanceof z.ZodObject) {
-            return new ObjectInputComponentWithSaveButton(title, unitSchema, defaultValue as {}, parent);
+            return new ObjectInputComponentWithSaveButton(title, unitSchema, defaultValue as {}, parent, null);
         }
         else if ( unitSchema instanceof z.ZodOptional || unitSchema instanceof z.ZodDefault ) {
             // ZodDefaultの場合、内部スキーマに対して再帰的に処理を行う

@@ -28,7 +28,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     private _htmlCheckInputElement : HTMLInputElement;
     public readonly inputFormat: InputTypeBoolean|null;
 
-    constructor(title: string, defaultValue: boolean|null, parent: IInputComponentCollection|null = null,
+    constructor(title: string, defaultValue: boolean|null, parent: IInputComponentCollection|null,
                 inputFormat: InputTypeBoolean|null = null
             ) {
         this._title = title;

@@ -29,7 +29,7 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
     private _htmlSelectElement: HTMLSelectElement;
     public readonly inputFormat: InputTypeEnum|null;
 
-    constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponentCollection|null = null,
+    constructor(title: string, defautValue: SelecteValueInfo, parent: IInputComponentCollection|null,
                 inputFormat: InputTypeEnum|null = null
     ) {
         this._title = title;

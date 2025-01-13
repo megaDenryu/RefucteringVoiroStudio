@@ -36,7 +36,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     public readonly inputFormat: InputTypeArray | null;
 
     constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], 
-                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null,
+                parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
                 inputFormat: InputTypeArray | null = null
             ) {
         this._title = title;

@@ -39,7 +39,7 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     public readonly inputFormat: InputTypeObject|null;
 
     constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, 
-                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null,
+                parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
                 inputFormat: InputTypeObject|null = null
             ) {
         this._title = title;

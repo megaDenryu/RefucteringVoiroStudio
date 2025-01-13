@@ -34,7 +34,7 @@ export class SettingPage  {
             this._appSettingModel = await this.requestAppSettingModel()
             console.log("real",this._appSettingModel) // {}が返ってくる
         }
-        this._appSettingComponent = new ObjectInputComponent(this.title, AppSettingsModel, this._appSettingModel)
+        this._appSettingComponent = new ObjectInputComponent(this.title, AppSettingsModel, this._appSettingModel, null, null)
         this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._appSettingComponent)
         this.bindEvents()
         document.body.appendChild(this._squareBoardComponent.component.element)

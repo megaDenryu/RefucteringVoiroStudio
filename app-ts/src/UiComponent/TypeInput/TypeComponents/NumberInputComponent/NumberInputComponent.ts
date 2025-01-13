@@ -41,7 +41,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     public readonly inputFormat: InputTypeNumber|null;
 
     constructor(title: string, defaultValue: number|null, 
-                min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null = null,
+                min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null,
                 inputFormat: InputTypeNumber|null = null
             ) {
         this._title = title;
