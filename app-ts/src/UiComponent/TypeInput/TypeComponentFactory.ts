@@ -3,22 +3,17 @@ import { ArrayInputComponent } from "./TypeComponents/ArrayInputComponent/ArrayI
 import { BooleanInputComponent } from "./TypeComponents/BooleanInputComponent/BooleanInputComponent";
 import { EnumInputComponent } from "./TypeComponents/EnumInputComponent/EnumInputComponent";
 import { SelecteValueInfo } from "./TypeComponents/EnumInputComponent/SelecteValueInfo";
-import { IInputComponet } from "./TypeComponents/IInputComponet";
 import { NumberInputComponent } from "./TypeComponents/NumberInputComponent/NumberInputComponent";
 import { ObjectInputComponent } from "./TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import { StringInputComponent } from "./TypeComponents/StringInputComponent/StringInputComponent";
 import { ObjectInputComponentWithSaveButton } from "./TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
 import { ArrayInputComponentWithSaveButton } from "./TypeComponents/ArrayInputComponent/ArrayInputComponentWithSaveButton";
 import { IHasInputComponent } from "./TypeComponents/CompositeComponent/ICompositeComponentList";
-import { SaveButtonComposite } from "./TypeComponents/CompositeComponent/CompositeBase/SaveButtonComposite";
 import { SaveToggleComposite } from "./TypeComponents/CompositeComponent/CompositeProduct/SaveToggleComposite";
-import { ArrayUnitToggleDisplaySaveButton } from "./TypeComponents/CompositeComponent/CompositeProduct/ArrayUnitToggleDisplaySaveButton";
-import { IHasSquareBoard } from "../Board/IHasSquareBoard";
 import { IInputComponentCollection } from "./TypeComponents/ICollectionComponent";
 import { RecordInputComponent } from "./TypeComponents/RecordInputComponent/RecordInputComponent";
 import { RecordInputComponentWithSaveButton } from "./TypeComponents/RecordInputComponent/RecordInputComponentWithSaveButton";
 import { checkArrayFormat, checkBooleanFormat, checkEnumFormat, checkNumberFormat, checkObjectFormat, checkRecordFormat, checkStringFormat, InputTypeArray, InputTypeComponentFormat, InputTypeObject } from "./TypeComponentFormat/TypeComponentFormat";
-import { check } from "prettier";
 
 export class TypeComponentFactory {
 
@@ -38,7 +33,7 @@ export class TypeComponentFactory {
             const max = unitSchema.maxValue;
             // const step = 1//todo: stepの取得方法が不明。unitSchema.step; では無理だった。
             const step = null
-            return new NumberInputComponent(title, defaultValue, min , max, step, parent, checkNumberFormat(inputFormat));
+            return new NumberInputComponent(title, defaultValue, min, max, step, parent, checkNumberFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodBoolean) {
             return new BooleanInputComponent(title, defaultValue, parent, checkBooleanFormat(inputFormat));
@@ -106,7 +101,4 @@ export class TypeComponentFactory {
         }
         throw new Error(`未対応の型です: ${unitSchema.constructor.name}`);
     }
-
-
-    
 }

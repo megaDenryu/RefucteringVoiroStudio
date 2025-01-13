@@ -47,8 +47,8 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
         this._title = title;
         this._min = min??0;
         this._max = max ?? 100;
-        this._step = step??this.defStep();
         this.inputFormat = inputFormat;
+        this._step = step??this.inputFormat?.format.step??this.defStep();
         this._defaultValue = defaultValue;
         this.parent = parent;
         this.value = new ReactiveProperty(defaultValue);
