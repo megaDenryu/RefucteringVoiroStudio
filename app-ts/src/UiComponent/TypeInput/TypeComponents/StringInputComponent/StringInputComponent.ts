@@ -4,6 +4,7 @@ import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_c
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
 import { IRecordPathInput, RecordPath } from "../../RecordPath";
+import { InputTypeComponentFormat, InputTypeString } from "../../TypeComponentFormat/TypeComponentFormat";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
@@ -25,12 +26,15 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
     private _htmlInputElement : HTMLInputElement;
-    
+    public inputFormat: InputTypeString | null;
 
-    constructor(title: string, defaultValue: string|null, parent: IInputComponentCollection|null = null) {
+    constructor(title: string, defaultValue: string|null, parent: IInputComponentCollection|null,
+                inputFormat: InputTypeString|null
+            ) {
         this._title = title;
         this._defaultValue = defaultValue;
         this.parent = parent;
+        this.inputFormat = inputFormat;
         this.value = new ReactiveProperty(defaultValue);
         this.darty = new ReactiveProperty(false);
         this._save = new ReactiveProperty(false);

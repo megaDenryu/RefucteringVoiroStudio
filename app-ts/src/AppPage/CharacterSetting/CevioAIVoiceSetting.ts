@@ -19,6 +19,7 @@ import { CevioAIVoiceSettingModelReq } from "../../ZodObject/DataStore/Chatacter
 import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
+import { CevioAIVoiceSettingModelFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSettingFormat/CevioAIVoiceSettingFormat";
 
 export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow {
   private testMode: boolean = false;
@@ -68,7 +69,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
       CevioAIVoiceSettingModel,
       this.manageData,
       null,
-      this
+      this, CevioAIVoiceSettingModelFormat
     );
     this._manageDataSettingComponent.component.addCSSClass("positionRelative");
     this._manageDataSettingComponent.component.removeCSSClass(

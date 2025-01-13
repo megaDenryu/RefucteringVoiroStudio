@@ -10,6 +10,7 @@ import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from ".
 import { IInputComponentCollection } from "../../ICollectionComponent";
 import { ObjectInputComponent } from "../../ObjectInputComponent/ObjectInputComponent";
 import { ArrayInputComponent } from "../../ArrayInputComponent/ArrayInputComponent";
+import { InputTypeComponentFormat, InputTypeFormat } from "../../../TypeComponentFormat/TypeComponentFormat";
 
 
 /**
@@ -68,9 +69,9 @@ export class ArrayUnitComponent implements ICompositeBase, IArrayUnitComponent, 
         this.component.delete();
     }
 
-    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection) : IArrayUnitComponent {
+    public static new(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection, inputFormat:InputTypeComponentFormat|null) : IArrayUnitComponent {
         console.log("ArrayUnitComponent.newが呼ばれました")
-        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, parent);
+        const inputComponentBox = TypeComponentFactory.createDefaultInputComponent(title, unitSchema, defaultValue, inputFormat ,parent);
         const addButton = new NormalButton("追加", "normal");
         const removeButton = new NormalButton("削除", "warning");
         // ArrayInputComponentやObjectInputComponentの場合、四角形ボードが必要なので、それに合わせたコンポーネントを返す

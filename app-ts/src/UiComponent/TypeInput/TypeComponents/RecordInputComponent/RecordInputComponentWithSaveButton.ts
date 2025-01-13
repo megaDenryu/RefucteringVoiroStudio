@@ -19,6 +19,7 @@ import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentTy
 import { IComponentManager } from "../IComponentManager";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
 import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
+import { InputTypeComponentFormat, InputTypeRecord } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class RecordInputComponentWithSaveButton implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "record";
@@ -41,11 +42,16 @@ export class RecordInputComponentWithSaveButton implements IHasComponent, IInput
     public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    public readonly inputFormat: InputTypeRecord|null;
 
-    constructor(title: string, schema: z.ZodRecord<z.ZodTypeAny>, defaultValues: {}, parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
+    constructor(title: string, schema: z.ZodRecord<z.ZodTypeAny>, defaultValues: {}, 
+                parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null,
+                inputFormat: InputTypeRecord|null
+            ) {
         this._title = title;
         this._schema = schema;
         this._values = defaultValues;
+        this.inputFormat = inputFormat;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("全体保存", "normal");
@@ -57,17 +63,18 @@ export class RecordInputComponentWithSaveButton implements IHasComponent, IInput
     }
 
     private createDefaultInputObject(title: string, schema: z.ZodRecord<z.ZodTypeAny>, defaultValues: Record<string, any>) : Record<string,IHasInputComponent> {
-        let _inputComponentDict:Record<string,IHasInputComponent> = {};
+        let _inputComponentDict:Record<string,IHasInputComponent> = {}
         for (let key in defaultValues) {
-            let inputComponent = this.createDefaultInputComponent(key, schema.element, defaultValues[key], this);
+            const inputFormat = this.inputFormat?.collection[key]??null;
+            let inputComponent = this.createDefaultInputComponent(key, schema.element, defaultValues[key], inputFormat, this);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
         }
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, parent: IInputComponentCollection|null = null) : IHasInputComponent {
-        return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent);
+    private createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent: IInputComponentCollection|null) : IHasInputComponent {
+        return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, inputFormat, parent);
     }
 
     private initialize() {

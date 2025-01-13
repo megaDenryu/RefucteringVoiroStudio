@@ -4,6 +4,7 @@ import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_c
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
 import { IRecordPathInput } from "../../RecordPath";
+import { InputTypeNumber } from "../../TypeComponentFormat/TypeComponentFormat";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
@@ -37,12 +38,17 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
     private _htmlNumberInputElement : HTMLInputElement;
     private _htmlSliderValueElement : HTMLElement;
+    public readonly inputFormat: InputTypeNumber|null;
 
-    constructor(title: string, defaultValue: number|null, min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null = null) {
+    constructor(title: string, defaultValue: number|null, 
+                min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null,
+                inputFormat: InputTypeNumber|null
+            ) {
         this._title = title;
         this._min = min??0;
         this._max = max ?? 100;
-        this._step = step??this.defStep();
+        this.inputFormat = inputFormat;
+        this._step = step??this.inputFormat?.format.step??this.defStep();
         this._defaultValue = defaultValue;
         this.parent = parent;
         this.value = new ReactiveProperty(defaultValue);

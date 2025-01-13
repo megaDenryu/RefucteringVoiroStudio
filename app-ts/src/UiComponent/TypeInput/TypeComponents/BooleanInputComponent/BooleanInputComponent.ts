@@ -4,6 +4,7 @@ import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_c
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IRecordPathInput } from "../../RecordPath";
+import { InputTypeBoolean } from "../../TypeComponentFormat/TypeComponentFormat";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
@@ -25,8 +26,11 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
     private _htmlCheckInputElement : HTMLInputElement;
+    public readonly inputFormat: InputTypeBoolean|null;
 
-    constructor(title: string, defaultValue: boolean|null, parent: IInputComponentCollection|null = null) {
+    constructor(title: string, defaultValue: boolean|null, parent: IInputComponentCollection|null,
+                inputFormat: InputTypeBoolean|null
+            ) {
         this._title = title;
         this._defaultValue = defaultValue;
         this.parent = parent;
@@ -36,6 +40,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
         let html = ElementCreater.createElementFromHTMLString(this.HTMLDefinition(title));
         this.component = new BaseComponent(html);
         this._htmlCheckInputElement = this.component.element.querySelector(".BooleanInputCheckBox") as HTMLInputElement
+        this.inputFormat = inputFormat;
         this.Initialize(this._htmlCheckInputElement);
     }
 

@@ -19,6 +19,7 @@ import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentTy
 import { IComponentManager } from "../IComponentManager";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
+import { InputTypeComponentFormat, InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class ObjectInputComponentWithSaveButton<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "object";
@@ -41,18 +42,22 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
     public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
+    public readonly inputFormat: InputTypeObject|null;
 
-    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
+    constructor(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: T, 
+                parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
+                inputFormat: InputTypeObject|null
+            ) {
         this._title = title;
         this._schema = schema;
         this._values = defaultValues;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
+        this.inputFormat = inputFormat;
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("全体保存", "normal");
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.parent = parent;
         this.componentManager = rootParent;
-
         this.initialize();
     }
 
@@ -62,7 +67,9 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
             if (defaultValues[key] === undefined) {
                 console.error("defaultValuesにkeyが存在しません。key:", key, defaultValues);
             }
-            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], this);
+            const inputFormat = (this.inputFormat?.collection[key])??null;
+            console.log(key + "のinputFormat：", inputFormat);
+            let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], inputFormat, this);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
@@ -70,8 +77,8 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         return _inputComponentDict;
     }
 
-    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any ,parent: IInputComponentCollection|null = null) : IHasInputComponent {
-        return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, parent);
+    private createDefaultInputComponent(title, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent: IInputComponentCollection|null) : IHasInputComponent {
+        return TypeComponentFactory.createInputComponentWithSaveButton2(title, unitSchema, defaultValue, inputFormat, parent);
         // return SaveToggleComposite.new(title, unitSchema, defaultValue);
     }
 

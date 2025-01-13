@@ -1,6 +1,6 @@
 {
-    "speedScale": 1.7,
-    "pitchScale": -0.1,
-    "intonationScale": 2.0,
-    "volumeScale": 1.0
+    "speedScale": 0.73,
+    "pitchScale": -0.05,
+    "intonationScale": 1.03,
+    "volumeScale": 0.0
 }

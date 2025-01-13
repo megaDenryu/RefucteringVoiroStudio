@@ -16,6 +16,7 @@ import { RecordInputComponent } from "../RecordInputComponent/RecordInputCompone
 import { ArrayInputComponentWithSaveButton } from "./ArrayInputComponentWithSaveButton";
 import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
+import { InputTypeArray, InputTypeComponentFormat, InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -32,8 +33,12 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
     public readonly componentManager: IComponentManager|null;
+    public readonly inputFormat: InputTypeArray<InputTypeComponentFormat> | null;
 
-    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null = null) {
+    constructor(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[], 
+                parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
+                inputFormat: InputTypeArray<InputTypeComponentFormat> | null
+            ) {
         this._title = title;
         this._schema = schema;
         this._squareBoardComponent = new SquareBoardComponent(title,600,600);
@@ -41,22 +46,24 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         this._arrayUnitList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.parent = parent;
         this.componentManager = rootParent;
+        this.inputFormat = inputFormat;
         this.initialize();
     }
 
     private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IArrayUnitComponent[] {
         let inputComponentList : IArrayUnitComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], this);
+            const inputFormat = (this.inputFormat?.collection[i])??null;
+            let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], this, inputFormat);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             inputComponentList.push(inputComponent);
         }
         return inputComponentList;
     }
 
-    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"] , parent:IInputComponentCollection) : IArrayUnitComponent {
+    private createDefaultInputComponent(title:string, unitSchema: UnitType, defaultValue:UnitType["_type"] , parent:IInputComponentCollection, inputFormat:InputTypeComponentFormat|null) : IArrayUnitComponent {
         //ArrayUnitComponentを作成するが、配列やオブジェクトなど、四角形ボードが必要な場合かどうかで分岐
-        const unit:IArrayUnitComponent =  ArrayUnitComponent.new(title, unitSchema, defaultValue, parent);
+        const unit:IArrayUnitComponent =  ArrayUnitComponent.new(title, unitSchema, defaultValue, parent, inputFormat);
         //unitにイベントを追加する
         unit.addButton.addOnClickEvent(() => {
             this.addElement();
@@ -123,7 +130,8 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     public addElement(index?: number): void {
         const i = this._arrayUnitList.length;
         const lastElementValue = this._arrayUnitList[i - 1].inputComponent.getValue();
-        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, this);
+        const inputFormat = (this.inputFormat?.collection[i])??null;
+        let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, this, inputFormat);
     
         if (index !== undefined && 0 <= index && index <= this._arrayUnitList.length) {
             this._arrayUnitList.splice(index, 0, newComponent);
