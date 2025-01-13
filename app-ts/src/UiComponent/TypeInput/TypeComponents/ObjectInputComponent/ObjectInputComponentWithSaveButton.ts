@@ -52,12 +52,12 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         this._schema = schema;
         this._values = defaultValues;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
+        this.inputFormat = inputFormat;
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("全体保存", "normal");
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.parent = parent;
         this.componentManager = rootParent;
-        this.inputFormat = inputFormat;
         this.initialize();
     }
 
@@ -68,6 +68,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
                 console.error("defaultValuesにkeyが存在しません。key:", key, defaultValues);
             }
             const inputFormat = (this.inputFormat?.collection[key])??null;
+            console.log(key + "のinputFormat：", inputFormat);
             let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], inputFormat, this);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);

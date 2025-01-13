@@ -8,6 +8,7 @@ import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents
 import { RequestAPI } from "../../Web/RequestApi";
 import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModel";
 import { CoeiroinkVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModelReq";
+import { CoeiroinkVoiceSettingFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSettingFormat/CoeiroinkVoiceSettingFormat";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 
 
@@ -58,7 +59,7 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
       CoeiroinkVoiceSettingModel,
       this.manageData,
       null,
-      this
+      this, CoeiroinkVoiceSettingFormat
     );
     this._manageDataSettingComponent.component.addCSSClass("positionRelative");
     this._manageDataSettingComponent.component.removeCSSClass(

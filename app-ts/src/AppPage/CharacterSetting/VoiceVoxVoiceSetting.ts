@@ -9,6 +9,7 @@ import { RequestAPI } from "../../Web/RequestApi";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { VoiceVoxVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
 import { VoiceVoxVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelReq";
+import { VoiceVoxVoiceSettingFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSettingFormat/VoiceVoxVoiceSettingFormat";
 
 
 
@@ -58,7 +59,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
       VoiceVoxVoiceSettingModel,
       this.manageData,
       null,
-      this
+      this, VoiceVoxVoiceSettingFormat
     );
     this._manageDataSettingComponent.component.addCSSClass("positionRelative");
     this._manageDataSettingComponent.component.removeCSSClass(
