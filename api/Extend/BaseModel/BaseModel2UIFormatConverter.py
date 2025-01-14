@@ -51,6 +51,9 @@ class TypeScriptFormatGenerator:
         elif get_origin(prop_type) == dict:
             body = self._generate_record_format(prop_type)
             type_as = f"InputTypeRecord<{self._get_type_name(get_args(prop_type)[1])}>"
+        elif isinstance(prop_type, type) and issubclass(prop_type, BaseModel):
+            # ネストされた BaseModel を別のプロセスで出力する想定
+            return f"        {prop}: {prop_type.__name__} as InputTypeObject,\n"
         else:
             raise TypeError(f"Unsupported property type: {prop_type}")
 

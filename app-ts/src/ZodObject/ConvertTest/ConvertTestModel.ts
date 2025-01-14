@@ -1,4 +1,5 @@
 import { InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, InputTypeArray, InputTypeRecord } from "../../UiComponent/TypeInput/TypeComponentFormat/TypeComponentFormat";
+import { NestedModel } from "./NestedModel";
 
 export const ConvertTestModel:InputTypeObject = {
     type: "object",
@@ -41,6 +42,7 @@ export const ConvertTestModel:InputTypeObject = {
             },
             format: { visualType: "record" }
         } as InputTypeRecord<InputTypeNumber>,
+        Nested: NestedModel as InputTypeObject,
     },
     format: {
         visualType: "object",

@@ -31,7 +31,7 @@ from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection, InitMemoryCollectionTest
 from pydantic.fields import FieldInfo
 
-from tests.test_BaseModel2UIFormatConverter import manual_run_test
+from tests.test_BaseModel2UIFormatConverter import  ベースモデルのフォーマットを生成するテスト
 
 
 def test1():
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     # saveSettingReq = AppSettingsModel(**d)
     # print(saveSettingReq.model_dump_json())
     # JsonAccessor.saveAppSettingTest(saveSettingReq)
-    manual_run_test()
+    ベースモデルのフォーマットを生成するテスト()
 
 
 
