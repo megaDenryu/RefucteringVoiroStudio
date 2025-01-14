@@ -53,7 +53,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IArrayUnitComponent[] {
         let inputComponentList : IArrayUnitComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            const inputFormat = (this.inputFormat?.collection[i])??null;
+            const inputFormat = (this.inputFormat?.collectionType[i])??null;
             let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], this, inputFormat);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             inputComponentList.push(inputComponent);
@@ -130,7 +130,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
     public addElement(index?: number): void {
         const i = this._arrayUnitList.length;
         const lastElementValue = this._arrayUnitList[i - 1].inputComponent.getValue();
-        const inputFormat = (this.inputFormat?.collection[i])??null;
+        const inputFormat = (this.inputFormat?.collectionType[i])??null;
         let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, this, inputFormat);
     
         if (index !== undefined && 0 <= index && index <= this._arrayUnitList.length) {

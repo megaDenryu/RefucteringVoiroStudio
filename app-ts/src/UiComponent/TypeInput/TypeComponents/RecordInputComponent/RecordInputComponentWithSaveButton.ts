@@ -65,7 +65,7 @@ export class RecordInputComponentWithSaveButton implements IHasComponent, IInput
     private createDefaultInputObject(title: string, schema: z.ZodRecord<z.ZodTypeAny>, defaultValues: Record<string, any>) : Record<string,IHasInputComponent> {
         let _inputComponentDict:Record<string,IHasInputComponent> = {}
         for (let key in defaultValues) {
-            const inputFormat = this.inputFormat?.collection[key]??null;
+            const inputFormat = this.inputFormat?.collectionType[key]??null;
             let inputComponent = this.createDefaultInputComponent(key, schema.element, defaultValues[key], inputFormat, this);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;

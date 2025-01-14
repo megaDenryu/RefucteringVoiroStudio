@@ -4,15 +4,15 @@ import { InputTypeNumber, InputTypeObject, InputTypeRecord, InputTypeString } fr
 
 export const Talker2V40:InputTypeObject = {
     type: "object",
-    collection: {
+    collectionType: {
         Cast: {
             type: "string",
-            collection: null,
+            collectionType: null,
             format: { visualType: "string" }
         } as InputTypeString,
         Volume: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { 
                 visualType: "number",
                 step: 1,
@@ -20,22 +20,22 @@ export const Talker2V40:InputTypeObject = {
         } as InputTypeNumber,
         Speed: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { visualType: "number", step: 1 }
         } as InputTypeNumber,
         Tone: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { visualType: "number", step: 1 }
         } as InputTypeNumber,
         Alpha: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { visualType: "number", step: 1 }
         } as InputTypeNumber,
         ToneScale: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { visualType: "number", step: 1 }
         } as InputTypeNumber,
     },
@@ -46,10 +46,10 @@ export const Talker2V40:InputTypeObject = {
 
 export const TalkerComponentArray2:InputTypeObject = {
     type: "object",
-    collection: {
+    collectionType: {
         record: {
             type: "record",
-            collection: {},
+            collectionType: {},
             format: { visualType: "record"}
         } as InputTypeRecord,
     },
@@ -60,7 +60,7 @@ export const TalkerComponentArray2:InputTypeObject = {
 
 export const CevioAIVoiceSettingModelFormat:InputTypeObject = {
     type: "object",
-    collection: {
+    collectionType: {
         talker2V40: Talker2V40,
         talkerComponentArray2: TalkerComponentArray2,
     },

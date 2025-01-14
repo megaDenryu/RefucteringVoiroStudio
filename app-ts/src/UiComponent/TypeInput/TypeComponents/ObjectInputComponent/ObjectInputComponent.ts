@@ -57,7 +57,7 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
     private createDefaultInputObject(title: string, schema: z.ZodObject<{ [key: string]: z.ZodTypeAny }>, defaultValues: object) : {} {
         let _inputComponentDict = {};
         for (let key in schema.shape) {
-            const inputFormat = (this.inputFormat?.collection[key])??null;
+            const inputFormat = (this.inputFormat?.collectionType[key])??null;
             let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], inputFormat, this);
             
             inputComponent.component.addCSSClass(["Indent","padding"]);

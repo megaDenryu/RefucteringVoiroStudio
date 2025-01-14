@@ -67,7 +67,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
             if (defaultValues[key] === undefined) {
                 console.error("defaultValuesにkeyが存在しません。key:", key, defaultValues);
             }
-            const inputFormat = (this.inputFormat?.collection[key])??null;
+            const inputFormat = (this.inputFormat?.collectionType[key])??null;
             console.log(key + "のinputFormat：", inputFormat);
             let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], inputFormat, this);
             
