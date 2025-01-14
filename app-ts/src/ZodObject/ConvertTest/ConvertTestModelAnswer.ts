@@ -25,11 +25,11 @@ export const ConvertTestModel:InputTypeObject = {
         } as InputTypeBoolean,
         Options: {
             type: "array",
-            collectionType: {
+            collectionType: { 
                 type: "string",
                 collectionType: null,
                 format: { visualType: "string" }
-            },
+             } as InputTypeString,
             format: { visualType: "array" }
         } as InputTypeArray<InputTypeString>,
         Settings: {

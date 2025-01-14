@@ -14,7 +14,6 @@ from api.DataStore.AppSetting.AppSettingModel.GPTSetting.GPTSetting import GPTSe
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
-from api.Extend.BaseModel.BaseModel2UIFormatConverter import BaseModelからフォーマット定義のtsを自動生成する
 from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
 from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
@@ -31,6 +30,8 @@ from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformat
 from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
 from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection, InitMemoryCollectionTest
 from pydantic.fields import FieldInfo
+
+from tests.test_BaseModel2UIFormatConverter import manual_run_test
 
 
 def test1():
@@ -166,7 +167,7 @@ if __name__ == "__main__":
     # saveSettingReq = AppSettingsModel(**d)
     # print(saveSettingReq.model_dump_json())
     # JsonAccessor.saveAppSettingTest(saveSettingReq)
-    BaseModelからフォーマット定義のtsを自動生成する()
+    manual_run_test()
 
 
 

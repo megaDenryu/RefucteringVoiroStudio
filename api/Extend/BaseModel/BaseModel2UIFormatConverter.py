@@ -7,54 +7,131 @@ from enum import Enum
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 
-def generate_ts_format(model: Type[BaseModel]) -> str:
-    properties = model.__annotations__
-    ts_format = f"export const {model.__name__}:InputTypeObject = {{\n"
-    ts_format += "    type: \"object\",\n"
-    ts_format += "    collectionType: {\n"
+class TypeScriptFormatGenerator:
+    def __init__(self, model: Type[BaseModel]):
+        self.model = model
+        self.properties = model.__annotations__
 
-    for prop, prop_type in properties.items():
-        ts_format += f"        {prop}: {{\n"
+    def generate(self) -> str:
+        ts_format = f"""export const {self.model.__name__}:InputTypeObject = {{
+    type: "object",
+    collectionType: {{
+"""
+        for prop, prop_type in self.properties.items():
+            ts_format += self._generate_property_format(prop, prop_type)
+
+        ts_format += """    },
+    format: {
+        visualType: "object",
+    },
+}
+"""
+        return ts_format
+
+    def _generate_property_format(self, prop: str, prop_type: Any) -> str:
+        # プロパティのヘッダ
+        result = f"        {prop}: {{\n"
+
+        # プロパティの中身
         if prop_type == str:
-            ts_format += "            type: \"string\",\n"
-            ts_format += "            collectionType: null,\n"
-            ts_format += "            format: { visualType: \"string\" }\n"
-            ts_format += "        } as InputTypeString,\n"
+            body = self._generate_string_format()
+            type_as = "InputTypeString"
         elif prop_type == int:
-            ts_format += "            type: \"number\",\n"
-            ts_format += "            collectionType: null,\n"
-            ts_format += "            format: { visualType: \"number\", step: 1 }\n"
-            ts_format += "        } as InputTypeNumber,\n"
+            body = self._generate_number_format()
+            type_as = "InputTypeNumber"
         elif prop_type == bool:
-            ts_format += "            type: \"boolean\",\n"
-            ts_format += "            collectionType: null,\n"
-            ts_format += "            format: { visualType: \"boolean\" }\n"
-            ts_format += "        } as InputTypeBoolean,\n"
+            body = self._generate_boolean_format()
+            type_as = "InputTypeBoolean"
         elif isinstance(prop_type, type) and issubclass(prop_type, Enum):
-            ts_format += "            type: \"enum\",\n"
-            ts_format += "            collectionType: null,\n"
-            ts_format += "            format: { visualType: \"enum\" }\n"
-            ts_format += "        } as InputTypeEnum,\n"
+            body = self._generate_enum_format()
+            type_as = "InputTypeEnum"
         elif get_origin(prop_type) == list:
-            ts_format += "            type: \"array\",\n"
-            ts_format += "            collectionType: [],\n"
-            ts_format += "            format: { visualType: \"array\" }\n"
-            ts_format += "        } as InputTypeArray,\n"
+            body = self._generate_array_format(prop_type)
+            type_as = f"InputTypeArray<{self._get_type_name(get_args(prop_type)[0])}>"
         elif get_origin(prop_type) == dict:
-            ts_format += "            type: \"record\",\n"
-            ts_format += "            collectionType: {},\n"
-            ts_format += "            format: { visualType: \"record\" }\n"
-            ts_format += "        } as InputTypeRecord,\n"
+            body = self._generate_record_format(prop_type)
+            type_as = f"InputTypeRecord<{self._get_type_name(get_args(prop_type)[1])}>"
         else:
             raise TypeError(f"Unsupported property type: {prop_type}")
 
-    ts_format += "    },\n"
-    ts_format += "    format: {\n"
-    ts_format += "        visualType: \"object\",\n"
-    ts_format += "    },\n"
-    ts_format += "}\n"
+        # フッタで "        } as InputTypeXXX," を付ける
+        result += body
+        result += f"        }} as {type_as},\n"
+        return result
 
-    return ts_format
+    def _generate_string_format(self) -> str:
+        return """            type: "string",
+            collectionType: null,
+            format: { visualType: "string" }
+"""
+
+    def _generate_number_format(self) -> str:
+        return """            type: "number",
+            collectionType: null,
+            format: { visualType: "number", step: 1 }
+"""
+
+    def _generate_boolean_format(self) -> str:
+        return """            type: "boolean",
+            collectionType: null,
+            format: { visualType: "boolean" }
+"""
+
+    def _generate_enum_format(self) -> str:
+        return """            type: "enum",
+            collectionType: null,
+            format: { visualType: "enum" }
+"""
+
+    def _generate_array_format(self, prop_type: Any) -> str:
+        element_type = get_args(prop_type)[0]
+        return f"""            type: "array",
+            collectionType: {{
+                type: "{self._get_raw_type_name(element_type)}",
+                collectionType: null,
+                format: {{ visualType: "{self._get_raw_type_name(element_type)}" }}
+            }},
+            format: {{ visualType: "array" }}
+"""
+
+    def _generate_record_format(self, prop_type: Any) -> str:
+        value_type = get_args(prop_type)[1]
+        return f"""            type: "record",
+            collectionType: {{
+                type: "{self._get_raw_type_name(value_type)}",
+                collectionType: null,
+                format: {{ visualType: "{self._get_raw_type_name(value_type)}", step: 1 }}
+            }},
+            format: {{ visualType: "record" }}
+"""
+
+    def _get_type_name(self, prop_type: Any) -> str:
+        if prop_type == str:
+            return "InputTypeString"
+        elif prop_type == int:
+            return "InputTypeNumber"
+        elif prop_type == bool:
+            return "InputTypeBoolean"
+        elif isinstance(prop_type, type) and issubclass(prop_type, Enum):
+            return "InputTypeEnum"
+        elif get_origin(prop_type) == list:
+            return "InputTypeArray"
+        elif get_origin(prop_type) == dict:
+            return "InputTypeRecord"
+        else:
+            raise TypeError(f"Unsupported property type: {prop_type}")
+
+    def _get_raw_type_name(self, prop_type: Any) -> str:
+        # 実際の type: "string" などに使う短い名前
+        if prop_type == str:
+            return "string"
+        elif prop_type == int:
+            return "number"
+        elif prop_type == bool:
+            return "boolean"
+        elif isinstance(prop_type, type) and issubclass(prop_type, Enum):
+            return "enum"
+        return "object"  # 簡易的に省略
 
 # テスト用のBaseModel
 class ConvertTestModel(BaseModel):
@@ -63,24 +140,10 @@ class ConvertTestModel(BaseModel):
     Value: int = Field(ge=0, le=100, default=50)
     IsActive: bool = Field(default=True)
     Options: List[str] = Field(default_factory=list)
-    Settings: dict[str, int] = Field(default_factory=dict)
+    Settings: TypingDict[str, int] = Field(default_factory=dict)
 
 def write_to_ts_file(content: str, file_path: Path):
     with open(file_path, "w", encoding="utf-8") as f:
         f.write(content)
-
-# テスト実行
-def BaseModelからフォーマット定義のtsを自動生成する():
-    model: Type[BaseModel] = ConvertTestModel
-    ts_content = generate_ts_format(model)
-    app_ts_dir = ExtendFunc.api_dir.parent / "app-ts" #app-ts\src\ZodObject\DataStore
-    target_dir = app_ts_dir / "src/ZodObject/ConvertTest"
-    os.makedirs(target_dir, exist_ok=True)
-    output_file_path = target_dir / f"{model.__name__}.ts"
-    write_to_ts_file(ts_content, output_file_path)
-    print(f"TypeScript format has been written to {output_file_path}")
-
-# テスト実行
-BaseModelからフォーマット定義のtsを自動生成する()
 
 
