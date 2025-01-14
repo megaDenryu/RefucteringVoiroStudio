@@ -14,6 +14,7 @@ from api.DataStore.AppSetting.AppSettingModel.GPTSetting.GPTSetting import GPTSe
 from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
+from api.Extend.BaseModel.BaseModel2UIFormatConverter import BaseModelからフォーマット定義のtsを自動生成する
 from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
 from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
@@ -21,7 +22,7 @@ from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import ExtendDict, Interval, ExtendSet, ExtendSetTest
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
-from api.ObjectConverter.ObjectConverterTest import generate_zod_schema, write_to_ts_file, テストMain
+from api.ObjectConverter.ObjectConverterTest import generate_zod_schema, write_to_ts_file
 from api.gptAI.AIRubiConverter import AIRubiConverterTest
 from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
@@ -165,7 +166,7 @@ if __name__ == "__main__":
     # saveSettingReq = AppSettingsModel(**d)
     # print(saveSettingReq.model_dump_json())
     # JsonAccessor.saveAppSettingTest(saveSettingReq)
-    テストMain()
+    BaseModelからフォーマット定義のtsを自動生成する()
 
 
 
