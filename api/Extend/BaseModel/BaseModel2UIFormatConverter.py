@@ -133,17 +133,6 @@ class TypeScriptFormatGenerator:
             return "enum"
         return "object"  # 簡易的に省略
 
-# テスト用のBaseModel
-class ConvertTestModel(BaseModel):
-    Id: str = Field(frozen=True, description="変更不可")
-    Name: str = Field(frozen=True, description="変更不可")
-    Value: int = Field(ge=0, le=100, default=50)
-    IsActive: bool = Field(default=True)
-    Options: List[str] = Field(default_factory=list)
-    Settings: TypingDict[str, int] = Field(default_factory=dict)
 
-def write_to_ts_file(content: str, file_path: Path):
-    with open(file_path, "w", encoding="utf-8") as f:
-        f.write(content)
 
 
