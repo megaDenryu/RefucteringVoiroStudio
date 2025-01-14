@@ -2,25 +2,25 @@ import { InputTypeNumber, InputTypeObject } from "../../../../UiComponent/TypeIn
 
 export const CoeiroinkVoiceSettingFormat:InputTypeObject = {
     type: "object",
-    collection: {
+    collectionType: {
         speedScale: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { visualType: "number", step: 0.01 }
         } as InputTypeNumber,
         pitchScale: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { visualType: "number", step: 0.01 }
         } as InputTypeNumber,
         intonationScale: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { visualType: "number", step: 0.01 }
         } as InputTypeNumber,
         volumeScale: {
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { visualType: "number", step: 0.01 }
         } as InputTypeNumber,
     },

@@ -3,10 +3,10 @@ import { InputTypeObject, InputTypeString, InputTypeNumber } from "../../../../U
 
 export const VoiceVoxVoiceSettingFormat:InputTypeObject = {
     type: "object",
-    collection: {
+    collectionType: {
         speedScale :{
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { 
                 visualType: "number",
                 step: 0.1,
@@ -14,7 +14,7 @@ export const VoiceVoxVoiceSettingFormat:InputTypeObject = {
         } as InputTypeNumber,
         pitchScale :{
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { 
                 visualType: "number",
                 step: 0.01,
@@ -22,7 +22,7 @@ export const VoiceVoxVoiceSettingFormat:InputTypeObject = {
         } as InputTypeNumber,
         intonationScale :{
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { 
                 visualType: "number",
                 step: 0.1,
@@ -30,7 +30,7 @@ export const VoiceVoxVoiceSettingFormat:InputTypeObject = {
         } as InputTypeNumber,
         volumeScale :{
             type: "number",
-            collection: null,
+            collectionType: null,
             format: { 
                 visualType: "number",
                 step: 0.1,

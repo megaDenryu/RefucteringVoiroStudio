@@ -62,7 +62,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     private createDefaultInputComponentList(title: string, schema: z.ZodArray<UnitType>, defaultValues: (UnitType["_type"])[]) : IHasInputComponent[] {
         let inputComponentList : IHasInputComponent[] = [];
         for (let i = 0; i < defaultValues.length; i++) {
-            const inputFormat = (this.inputFormat?.collection[i])??null;
+            const inputFormat = (this.inputFormat?.collectionType[i])??null;
             let inputComponent = this.createDefaultInputComponent(i.toString(), schema.element, defaultValues[i], inputFormat);
             inputComponent.component.addCSSClass(["Indent","padding"]);
             inputComponentList.push(inputComponent);
@@ -146,7 +146,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
     public addElement(index?: number): void {
         const i = this._inputComponentCompositeList.length;
         const lastElementValue = this._inputComponentCompositeList[i - 1].inputComponent.getValue();
-        const inputFormat = (this.inputFormat?.collection[i])??null;
+        const inputFormat = (this.inputFormat?.collectionType[i])??null;
         let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, inputFormat);
         //newComponentをdaratyにする
         if (checknInterfaceType(newComponent.inputComponent, "IValueComponent")) {

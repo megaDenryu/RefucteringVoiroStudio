@@ -2,13 +2,13 @@ import { TypeComponentType } from "../ComponentType";
 
 export interface InputTypeComponentFormat {
     type: TypeComponentType;
-    collection: InputTypeArrayCollection|InputTypeDictionaryCollection|null;
+    collectionType: InputTypeArrayCollection|InputTypeDictionaryCollection|null;
     format: InputTypeFormat;
 }
 
 export interface InputTypeArray<T extends InputTypeComponentFormat> extends InputTypeComponentFormat {
     type: "array";
-    collection: T[];
+    collectionType: T[];
     format: ArrayFormat;
 }
 
@@ -20,7 +20,7 @@ export function checkArrayFormat(format: InputTypeComponentFormat|null): InputTy
 
 export interface InputTypeObject extends InputTypeComponentFormat {
     type: "object";
-    collection: InputTypeDictionaryCollection;
+    collectionType: InputTypeDictionaryCollection;
     format: ObjectFormat;
 }
 
@@ -34,7 +34,7 @@ export function checkObjectFormat(format: InputTypeComponentFormat|null): InputT
 
 export interface InputTypeRecord extends InputTypeComponentFormat {
     type: "record";
-    collection: InputTypeDictionaryCollection;
+    collectionType: InputTypeDictionaryCollection;
     format: RecordFormat;
 }
 
@@ -45,12 +45,12 @@ export function checkRecordFormat(format: InputTypeComponentFormat|null): InputT
 }
 
 export interface InputTypePrimitive extends InputTypeComponentFormat {
-    collection: null;
+    collectionType: null;
 }
 
 export interface InputTypeString extends InputTypePrimitive {
     type: "string";
-    collection: null;
+    collectionType: null;
     format: StringFormat;
 }
 
@@ -62,7 +62,7 @@ export function checkStringFormat(format: InputTypeComponentFormat|null): InputT
 
 export interface InputTypeNumber extends InputTypePrimitive {
     type: "number";
-    collection: null;
+    collectionType: null;
     format: NumberFormat;
 }
 
@@ -74,7 +74,7 @@ export function checkNumberFormat(format: InputTypeComponentFormat|null): InputT
 
 export interface InputTypeBoolean extends InputTypePrimitive {
     type: "boolean";
-    collection: null;
+    collectionType: null;
     format: BooleanFormat;
 }
 
@@ -86,7 +86,7 @@ export function checkBooleanFormat(format: InputTypeComponentFormat|null): Input
 
 export interface InputTypeEnum extends InputTypePrimitive {
     type: "enum";
-    collection: null;
+    collectionType: null;
     format: EnumFormat;
 }
 
