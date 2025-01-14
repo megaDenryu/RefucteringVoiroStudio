@@ -2,13 +2,13 @@ import { TypeComponentType } from "../ComponentType";
 
 export interface InputTypeComponentFormat {
     type: TypeComponentType;
-    collectionType: InputTypeArrayCollection|InputTypeDictionaryCollection|null;
+    collectionType: InputTypeArrayCollectionElemnt|InputTypeDictionaryCollection|InputTypeRecordCollectionElement|null;
     format: InputTypeFormat;
 }
 
-export interface InputTypeArray<T extends InputTypeComponentFormat> extends InputTypeComponentFormat {
+export interface InputTypeArray<T extends InputTypeArrayCollectionElemnt> extends InputTypeComponentFormat {
     type: "array";
-    collectionType: T[];
+    collectionType: T;
     format: ArrayFormat;
 }
 
@@ -32,16 +32,65 @@ export function checkObjectFormat(format: InputTypeComponentFormat|null): InputT
     return format as InputTypeObject;
 }
 
-export interface InputTypeRecord extends InputTypeComponentFormat {
+export interface InputTypeRecord<T extends InputTypeRecordCollectionElement> extends InputTypeComponentFormat {
     type: "record";
-    collectionType: InputTypeDictionaryCollection;
+    collectionType: T;
     format: RecordFormat;
 }
 
-export function checkRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord|null {
+export function checkRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord<InputTypeArrayCollectionElemnt>|null {
     if (format == null) { return null; }
     if (format.type != "record") { console.error("フォーマットがrecordではないです。", format); }
-    return format as InputTypeRecord;
+    return format as InputTypeRecord<InputTypeArrayCollectionElemnt>;
+}
+
+export function checkStringRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord<InputTypeString>|null {
+    if (format == null) { return null; }
+    if (format.type != "record") { console.error("フォーマットがrecordではないです。", format); }
+    if (format.collectionType?.type != "string") { console.error("フォーマットがstringではないです。", format); }
+    return format as InputTypeRecord<InputTypeString>;
+}
+
+export function checkNumberRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord<InputTypeNumber>|null {
+    if (format == null) { return null; }
+    if (format.type != "record") { console.error("フォーマットがrecordではないです。", format); }
+    if (format.collectionType?.type != "number") { console.error("フォーマットがnumberではないです。", format); }
+    return format as InputTypeRecord<InputTypeNumber>;
+}
+
+export function checkBooleanRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord<InputTypeBoolean>|null {
+    if (format == null) { return null; }
+    if (format.type != "record") { console.error("フォーマットがrecordではないです。", format); }
+    if (format.collectionType?.type != "boolean") { console.error("フォーマットがbooleanではないです。", format); }
+    return format as InputTypeRecord<InputTypeBoolean>;
+}
+
+export function checkEnumRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord<InputTypeEnum>|null {
+    if (format == null) { return null; }
+    if (format.type != "record") { console.error("フォーマットがrecordではないです。", format); }
+    if (format.collectionType?.type != "enum") { console.error("フォーマットがenumではないです。", format); }
+    return format as InputTypeRecord<InputTypeEnum>;
+}
+
+export function checkArrayRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord<InputTypeArrayCollectionElemnt>|null {
+    if (format == null) { return null; }
+    if (format.type != "record") { console.error("フォーマットがrecordではないです。", format); }
+    if (format.collectionType?.type != "array") { console.error("フォーマットがarrayではないです。", format); }
+    return format as InputTypeRecord<InputTypeArrayCollectionElemnt>;
+}
+
+export function checkObjectRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord<InputTypeObject>|null {
+    if (format == null) { return null; }
+    if (format.type != "record") { console.error("フォーマットがrecordではないです。", format); }
+    if (format.collectionType?.type != "object") { console.error("フォーマットがobjectではないです。", format); }
+    return format as InputTypeRecord<InputTypeObject>;
+}
+
+export function checkRecordRecordFormat(format: InputTypeComponentFormat|null): InputTypeRecord<InputTypeRecordCollectionElement>|null {
+    if (format == null) { return null; }
+    if (format.type != "record") { console.error("フォーマットがrecordではないです。", format); }
+    if (format.collectionType?.type != "record") { console.error("フォーマットがrecordではないです。", format); }
+    return format as InputTypeRecord<InputTypeRecordCollectionElement>;
 }
 
 export interface InputTypePrimitive extends InputTypeComponentFormat {
@@ -103,7 +152,9 @@ export type InputTypeDictionaryCollection = {
     [key: string]: InputTypeComponentFormat;
 }
 
-export type InputTypeArrayCollection = InputTypeComponentFormat[];
+export type InputTypeArrayCollectionElemnt = InputTypeComponentFormat; //配列の要素の型はUnion型は許さないので、配列の要素の型を１個指定すれば良いので、配列形式にする必要はない。
+
+export type InputTypeRecordCollectionElement = InputTypeComponentFormat; //辞書は配列と同じ理由で、辞書の値の型を１個指定すれば良いので、辞書形式にする必要はない。基本的にdict[str,any]のような形式であり、anyの部分にInputTypeComponentFormatを指定する。
 
 export interface InputTypeFormat {
     visualType: string;
