@@ -1,16 +1,20 @@
 import os
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any, Dict, Type, List, Dict as TypingDict, get_origin, get_args
+from typing import Any, Dict, Type, List, Dict as TypingDict, TypedDict, get_origin, get_args
 from enum import Enum
 
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 
+class importInfo(TypedDict):
+    model: Type[BaseModel]
+    path: Path
+
 class TypeScriptFormatGenerator:
     model: Type[BaseModel]
     properties: dict[str, Any]
-    importPathList: list[Path]
+    importPathList: list[importInfo]
     targetTsPath: Path|None = None
     processFlag = {
         "contentGenerated": False,
@@ -54,8 +58,10 @@ class TypeScriptFormatGenerator:
         importContent = f"""
 import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, InputTypeArray, InputTypeRecord, InputTypeEnum }} from \"{src_relative_dir}/UiComponent/TypeInput/TypeComponentFormat/TypeComponentFormat\";\n
 """
-        for importFilePath in self.importPathList:
-            importContent += f"import {{ {importFilePath.stem} }} from \"{(self.createRelativePath(self.targetTsPath,importFilePath)).replace('.ts', '')}\";\n"
+        for importInfo in self.importPathList:
+            model = importInfo["model"]
+            importFilePath = importInfo["path"]
+            importContent += f"import {{ {model.__name__}Format }} from \"{(self.createRelativePath(self.targetTsPath,importFilePath)).replace('.ts', '')}\";\n"
         return importContent
     
     def saveThisModel(self):
@@ -184,7 +190,10 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         return "object"  # 簡易的に省略
     
     def _processNestedModel(self, prop_type: type[BaseModel]):
-            self.importPathList.append(self.calcSavePath(prop_type))
+            self.importPathList.append({
+                "model":prop_type,
+                "path":self.calcSavePath(prop_type)
+            })
             型の変換と保存(prop_type)
 
     @staticmethod
