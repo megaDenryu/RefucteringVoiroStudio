@@ -29,7 +29,7 @@ class TypeScriptFormatGenerator:
         return uiformat_path
 
     def generate(self) -> str:
-        ts_format = f"""export const {self.model.__name__}:InputTypeObject = {{
+        ts_format = f"""export const {self.model.__name__}Format:InputTypeObject = {{
     type: "object",
     collectionType: {{
 """
@@ -200,7 +200,7 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             nowDirPath = filePath
 
         # まず何回親に行けばいいか計算
-        n = 0
+        n = -1
         path = nowDirPath
         while True:
             if path.stem == targetDir:
