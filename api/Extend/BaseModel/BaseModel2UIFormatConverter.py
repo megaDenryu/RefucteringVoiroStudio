@@ -52,7 +52,7 @@ class TypeScriptFormatGenerator:
             raise Exception("targetTsPathを先に計算してください")
         src_relative_dir = self.calcTsRelativeDir(self.targetTsPath, "src")
         importContent = f"""
-import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, InputTypeArray, InputTypeRecord }} from \"{src_relative_dir}/UiComponent/TypeInput/TypeComponentFormat/TypeComponentFormat\";\n
+import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, InputTypeArray, InputTypeRecord, InputTypeEnum }} from \"{src_relative_dir}/UiComponent/TypeInput/TypeComponentFormat/TypeComponentFormat\";\n
 """
         for importFilePath in self.importPathList:
             importContent += f"import {{ {importFilePath.stem} }} from \"{self.createRelativePath(self.targetTsPath,importFilePath)}\";\n"
@@ -194,13 +194,19 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         "../.."のような文字列を計算する。最後の/は含まない
         """
         # filePathがfileかdirかで処理を分ける
+        ExtendFunc.ExtendPrint({
+            "filePath": filePath,
+            "targetDir": targetDir
+        })
         if filePath.is_file():
             nowDirPath = filePath.parent
         else:
             nowDirPath = filePath
-
+        ExtendFunc.ExtendPrint({
+            "nowDirPath": nowDirPath
+        })
         # まず何回親に行けばいいか計算
-        n = -1
+        n = 0
         path = nowDirPath
         while True:
             if path.stem == targetDir:
