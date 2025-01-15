@@ -55,7 +55,7 @@ class TypeScriptFormatGenerator:
 import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, InputTypeArray, InputTypeRecord, InputTypeEnum }} from \"{src_relative_dir}/UiComponent/TypeInput/TypeComponentFormat/TypeComponentFormat\";\n
 """
         for importFilePath in self.importPathList:
-            importContent += f"import {{ {importFilePath.stem} }} from \"{(self.createRelativePath(self.targetTsPath,importFilePath))}\";\n"
+            importContent += f"import {{ {importFilePath.stem} }} from \"{(self.createRelativePath(self.targetTsPath,importFilePath)).replace('.ts', '')}\";\n"
         return importContent
     
     def saveThisModel(self):
