@@ -14,13 +14,11 @@ const コメント受信: InputTypeEnum = {
 
 const コメント禁止ワード: InputTypeArray<InputTypeString> = {
     type: "array",
-    collectionType: [
-        {
-            type: "string",
-            collectionType: null,
-            format: { visualType: "text" }
-        } as InputTypeString
-    ],
+    collectionType: {
+        type: "string",
+        collectionType: null,
+        format: { visualType: "text" }
+    } as InputTypeString,
     format: { visualType: "list" }
 };
 
