@@ -56,6 +56,7 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
 """
         for importFilePath in self.importPathList:
             importContent += f"import {{ {importFilePath.stem} }} from \"{self.createRelativePath(self.targetTsPath,importFilePath)}\";\n"
+        return importContent
     
     def saveThisModel(self):
         self.targetTsPath = self.calcSavePath(self.model)

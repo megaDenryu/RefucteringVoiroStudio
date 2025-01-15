@@ -170,7 +170,7 @@ if __name__ == "__main__":
     # JsonAccessor.saveAppSettingTest(saveSettingReq)
 
     # ベースモデルのフォーマットを生成するテスト()
-    型の変換と保存(AppSettingInitReq)
+    型の変換と保存(AppSettingsModel)
 
 
 
