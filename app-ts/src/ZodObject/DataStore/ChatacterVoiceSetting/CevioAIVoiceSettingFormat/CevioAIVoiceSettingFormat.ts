@@ -49,9 +49,13 @@ export const TalkerComponentArray2:InputTypeObject = {
     collectionType: {
         record: {
             type: "record",
-            collectionType: {},
+            collectionType: {
+                type: "number",
+                collectionType: null,
+                format: { visualType: "number", step: 1 }
+            },
             format: { visualType: "record"}
-        } as InputTypeRecord,
+        } as InputTypeRecord<InputTypeNumber>,
     },
     format: {
         visualType: "object",

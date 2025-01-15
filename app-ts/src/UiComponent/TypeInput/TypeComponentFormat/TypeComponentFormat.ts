@@ -154,7 +154,7 @@ export type InputTypeDictionaryCollection = {
 
 export type InputTypeArrayCollectionElemnt = InputTypeComponentFormat; //配列の要素の型はUnion型は許さないので、配列の要素の型を１個指定すれば良いので、配列形式にする必要はない。
 
-export type InputTypeRecordCollectionElement = InputTypeComponentFormat; //辞書は配列と同じ理由で、辞書の値の型を１個指定すれば良いので、辞書形式にする必要はない。基本的にdict[str,any]のような形式であり、anyの部分にInputTypeComponentFormatを指定する。
+export type InputTypeRecordCollectionElement = InputTypeComponentFormat|null; //辞書は配列と同じ理由で、辞書の値の型を１個指定すれば良いので、辞書形式にする必要はない。基本的にdict[str,any]のような形式であり、anyの部分にInputTypeComponentFormatを指定する。
 
 export interface InputTypeFormat {
     visualType: string;
