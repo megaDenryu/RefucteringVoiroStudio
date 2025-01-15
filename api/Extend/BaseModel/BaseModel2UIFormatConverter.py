@@ -55,7 +55,7 @@ class TypeScriptFormatGenerator:
 import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, InputTypeArray, InputTypeRecord, InputTypeEnum }} from \"{src_relative_dir}/UiComponent/TypeInput/TypeComponentFormat/TypeComponentFormat\";\n
 """
         for importFilePath in self.importPathList:
-            importContent += f"import {{ {importFilePath.stem} }} from \"{self.createRelativePath(self.targetTsPath,importFilePath)}\";\n"
+            importContent += f"import {{ {importFilePath.stem} }} from \"{(self.createRelativePath(self.targetTsPath,importFilePath))}\";\n"
         return importContent
     
     def saveThisModel(self):
@@ -100,7 +100,7 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         elif isinstance(prop_type, type) and issubclass(prop_type, BaseModel):
             self._processNestedModel(prop_type)
             # ネストされた BaseModel を別のプロセスで出力する想定
-            return f"        {prop}: {prop_type.__name__} as InputTypeObject,\n"
+            return f"        {prop}: {prop_type.__name__}Format as InputTypeObject,\n"
         else:
             raise TypeError(f"Unsupported property type: {prop_type}")
 
@@ -218,13 +218,15 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         return ret[:-1]
     
     @staticmethod
-    def createRelativePath(basePath: Path, targetPath: Path)->str:
+    def createRelativePath(basePath: Path, targetPath: Path) -> str:
         """
         basePathから見たtargetPathの相対パスを計算する
         """
         relativePath = targetPath.relative_to(basePath.parent)
-        return str(relativePath)
-    
+        relativePathStr = str(relativePath).replace("\\", "/")
+        if not relativePathStr.startswith("../"):
+            relativePathStr = "./" + relativePathStr
+        return relativePathStr
     
 
 def 型の変換と保存(model: Type[BaseModel]):
