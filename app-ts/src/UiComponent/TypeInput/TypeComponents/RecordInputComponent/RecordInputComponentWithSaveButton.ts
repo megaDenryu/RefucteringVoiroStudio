@@ -42,11 +42,11 @@ export class RecordInputComponentWithSaveButton implements IHasComponent, IInput
     public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
-    public readonly inputFormat: InputTypeRecord|null;
+    public readonly inputFormat: InputTypeRecord<any>|null;
 
     constructor(title: string, schema: z.ZodRecord<z.ZodTypeAny>, defaultValues: {}, 
                 parent: IInputComponentCollection|null = null, rootParent: IComponentManager|null,
-                inputFormat: InputTypeRecord|null
+                inputFormat: InputTypeRecord<any>|null
             ) {
         this._title = title;
         this._schema = schema;

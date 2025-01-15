@@ -36,11 +36,11 @@ export class RecordInputComponent implements IHasComponent, IInputComponentColle
     public readonly componentManager: IComponentManager|null;
     public get inputComponent(): IInputComponet { return this; }
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
-    public readonly inputFormat: InputTypeRecord|null;
+    public readonly inputFormat: InputTypeRecord<any>|null;
 
     constructor(title: string, schema: z.ZodRecord, defaultValues: {}, 
                 parent: IInputComponentCollection|null, rootParent: IComponentManager|null,
-                inputFormat: InputTypeRecord|null = null
+                inputFormat: InputTypeRecord<any>|null = null
             ) {
         this._title = title;
         this._schema = schema;
