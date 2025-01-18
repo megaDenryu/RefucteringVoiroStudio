@@ -1,5 +1,13 @@
 {
     "$defs": {
+        "AISentenceConverter": {
+            "enum": [
+                "無効",
+                "ChatGPT"
+            ],
+            "title": "AISentenceConverter",
+            "type": "string"
+        },
         "Talker2V40": {
             "properties": {
                 "Cast": {
@@ -74,6 +82,14 @@
             "minimum": 0.0,
             "title": "読み上げ間隔",
             "type": "number"
+        },
+        "AIによる文章変換": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/AISentenceConverter"
+                }
+            ],
+            "default": "無効"
         }
     },
     "title": "CevioAIVoiceSettingModel",

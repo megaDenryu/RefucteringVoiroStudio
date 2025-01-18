@@ -10,6 +10,7 @@ from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettings
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModelReq import CoeiroinkVoiceSettingModelReq
+from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISentenceConverter
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModelReq import VoiceVoxVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
@@ -976,7 +977,9 @@ async def cevioAIVoiceSettingInit(ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSe
     if isinstance(tts, cevio_human):
         cevioAIVoiceSetting = CevioAIVoiceSettingModel(
             talker2V40=tts.talker2V40,
-            talkerComponentArray2=tts.Components
+            talkerComponentArray2=tts.Components,
+            読み上げ間隔=1,
+            AIによる文章変換=AISentenceConverter.無効,
         )
         return cevioAIVoiceSetting 
     elif isinstance(tts, voicevox_human):
