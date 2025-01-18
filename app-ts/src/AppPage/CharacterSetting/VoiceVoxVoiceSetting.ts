@@ -8,8 +8,8 @@ import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents
 import { RequestAPI } from "../../Web/RequestApi";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { VoiceVoxVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
+import { VoiceVoxVoiceSettingModelFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelFormat";
 import { VoiceVoxVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelReq";
-import { VoiceVoxVoiceSettingFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSettingFormat/VoiceVoxVoiceSettingFormat";
 
 
 
@@ -59,7 +59,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
       VoiceVoxVoiceSettingModel,
       this.manageData,
       null,
-      this, VoiceVoxVoiceSettingFormat
+      this, VoiceVoxVoiceSettingModelFormat
     );
     this._manageDataSettingComponent.component.addCSSClass("positionRelative");
     this._manageDataSettingComponent.component.removeCSSClass(
