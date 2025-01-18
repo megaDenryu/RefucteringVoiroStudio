@@ -158,6 +158,7 @@ export type InputTypeRecordCollectionElement = InputTypeComponentFormat|null; //
 
 export interface InputTypeFormat {
     visualType: string;
+    visualTitle: string|null;
 }
 
 export interface StringFormat extends InputTypeFormat {

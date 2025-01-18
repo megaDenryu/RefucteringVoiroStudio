@@ -27,6 +27,13 @@
             "minimum": 0.0,
             "title": "Volumescale",
             "type": "number"
+        },
+        "読み上げ間隔": {
+            "default": 0.0,
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "読み上げ間隔",
+            "type": "number"
         }
     },
     "title": "CoeiroinkVoiceSettingModel",

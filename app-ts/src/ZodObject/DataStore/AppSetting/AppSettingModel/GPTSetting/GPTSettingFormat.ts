@@ -7,10 +7,11 @@ export const GPTSettingModelFormat:InputTypeObject = {
         GPT起動状況: {
             type: "enum",
             collectionType: null,
-            format: { visualType: "enum" }
+            format: { visualType: "enum", visualTitle: null }
         } as InputTypeEnum,
     },
     format: {
         visualType: "object",
+        visualTitle: null
     },
 }

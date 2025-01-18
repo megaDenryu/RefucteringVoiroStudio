@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
@@ -17,6 +18,7 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
     private readonly _title : string;
+    private _unitSchema: z.ZodTypeAny;
     public get title():string { return this._title; }
     public readonly value : ReactiveProperty<boolean|null>;
     public readonly darty : ReactiveProperty<boolean>;
@@ -28,10 +30,11 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
     private _htmlCheckInputElement : HTMLInputElement;
     public readonly inputFormat: InputTypeBoolean|null;
 
-    constructor(title: string, defaultValue: boolean|null, parent: IInputComponentCollection|null,
+    constructor(title: string, unitSchema: z.ZodTypeAny, defaultValue: boolean|null, parent: IInputComponentCollection|null,
                 inputFormat: InputTypeBoolean|null
             ) {
         this._title = title;
+        this._unitSchema = unitSchema;
         this._defaultValue = defaultValue;
         this.parent = parent;
         this.value = new ReactiveProperty(defaultValue);

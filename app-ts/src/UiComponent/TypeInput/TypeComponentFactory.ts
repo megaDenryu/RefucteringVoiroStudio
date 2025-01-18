@@ -26,17 +26,17 @@ export class TypeComponentFactory {
      */
     public static createDefaultInputComponent(title: string, unitSchema: z.ZodTypeAny, defaultValue:any, inputFormat: InputTypeComponentFormat|null, parent:IInputComponentCollection|null = null) : IHasInputComponent {
         if (unitSchema instanceof z.ZodString) {
-            return new StringInputComponent(title, defaultValue, parent, checkStringFormat(inputFormat));
+            return new StringInputComponent(title, unitSchema, defaultValue, parent, checkStringFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodNumber) {
             const min = unitSchema.minValue;
             const max = unitSchema.maxValue;
             // const step = 1//todo: stepの取得方法が不明。unitSchema.step; では無理だった。
             const step = null
-            return new NumberInputComponent(title, defaultValue, min, max, step, parent, checkNumberFormat(inputFormat));
+            return new NumberInputComponent(title, unitSchema, defaultValue, min, max, step, parent, checkNumberFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodBoolean) {
-            return new BooleanInputComponent(title, defaultValue, parent, checkBooleanFormat(inputFormat));
+            return new BooleanInputComponent(title, unitSchema, defaultValue, parent, checkBooleanFormat(inputFormat));
         } 
         else if (unitSchema instanceof z.ZodArray) {
             return new ArrayInputComponent(title, unitSchema, defaultValue, parent, null, checkArrayFormat(inputFormat));

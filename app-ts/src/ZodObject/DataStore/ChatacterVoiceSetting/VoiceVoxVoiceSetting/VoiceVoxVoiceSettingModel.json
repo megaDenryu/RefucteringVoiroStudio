@@ -2,9 +2,10 @@
     "properties": {
         "speedScale": {
             "default": 1.0,
+            "description": "読み上げ速度を調整します。",
             "maximum": 2.0,
             "minimum": 0.5,
-            "title": "Speedscale",
+            "title": "読み上げ速度",
             "type": "number"
         },
         "pitchScale": {
@@ -26,6 +27,13 @@
             "maximum": 2.0,
             "minimum": 0.0,
             "title": "Volumescale",
+            "type": "number"
+        },
+        "読み上げ間隔": {
+            "default": 0.0,
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "読み上げ間隔",
             "type": "number"
         }
     },

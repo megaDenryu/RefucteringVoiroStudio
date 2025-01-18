@@ -43,6 +43,7 @@ class TypeScriptFormatGenerator:
         ts_format += """    },
     format: {
         visualType: "object",
+        visualTitle: null
     },
 }
 """
@@ -88,7 +89,7 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         if prop_type == str:
             body = self._generate_string_format()
             type_as = "InputTypeString"
-        elif prop_type == int:
+        elif prop_type == int or prop_type == float:
             body = self._generate_number_format()
             type_as = "InputTypeNumber"
         elif prop_type == bool:
@@ -118,25 +119,25 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
     def _generate_string_format(self) -> str:
         return """            type: "string",
             collectionType: null,
-            format: { visualType: "string" }
+            format: { visualType: "string", visualTitle: null }
 """
 
     def _generate_number_format(self) -> str:
         return """            type: "number",
             collectionType: null,
-            format: { visualType: "number", step: 1 }
+            format: { visualType: "number", visualTitle: null, step: 1 }
 """
 
     def _generate_boolean_format(self) -> str:
         return """            type: "boolean",
             collectionType: null,
-            format: { visualType: "boolean" }
+            format: { visualType: "boolean", visualTitle: null }
 """
 
     def _generate_enum_format(self) -> str:
         return """            type: "enum",
             collectionType: null,
-            format: { visualType: "enum" }
+            format: { visualType: "enum", visualTitle: null }
 """
 
     def _generate_array_format(self, prop_type: Any) -> str:
@@ -145,9 +146,9 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             collectionType: {{
                 type: "{self._get_raw_type_name(element_type)}",
                 collectionType: null,
-                format: {{ visualType: "{self._get_raw_type_name(element_type)}" }}
+                format: {{ visualType: "{self._get_raw_type_name(element_type)}", visualTitle: null }}
             }},
-            format: {{ visualType: "array" }}
+            format: {{ visualType: "array", visualTitle: null }}
 """
 
     def _generate_record_format(self, prop_type: Any) -> str:
@@ -156,9 +157,9 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             collectionType: {{
                 type: "{self._get_raw_type_name(value_type)}",
                 collectionType: null,
-                format: {{ visualType: "{self._get_raw_type_name(value_type)}", step: 1 }}
+                format: {{ visualType: "{self._get_raw_type_name(value_type)}", visualTitle: null, step: 1 }}
             }},
-            format: {{ visualType: "record" }}
+            format: {{ visualType: "record", visualTitle: null }}
 """
 
     def _get_type_name(self, prop_type: Any) -> str:

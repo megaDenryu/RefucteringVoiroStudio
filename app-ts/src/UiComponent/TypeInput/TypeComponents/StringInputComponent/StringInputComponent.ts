@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
@@ -16,6 +17,7 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
     private _title : string;
+    private _unitSchema: z.ZodTypeAny
     public get title():string { return this._title; }
     public readonly value : ReactiveProperty<string|null>;
     public readonly darty : ReactiveProperty<boolean>;
@@ -27,11 +29,16 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
     public readonly updateChildSegment: EventDelegator<IRecordPathInput> = new EventDelegator<IRecordPathInput>();
     private _htmlInputElement : HTMLInputElement;
     public inputFormat: InputTypeString | null;
+    public get visualTitle(): string { 
+        // スキーマに書かれたタイトルを返す。なければデータ上のタイトルを返す
+        return this.inputFormat?.format.visualTitle ?? this._title;
+    }
 
-    constructor(title: string, defaultValue: string|null, parent: IInputComponentCollection|null,
+    constructor(title: string, unitSchema: z.ZodTypeAny, defaultValue: string|null, parent: IInputComponentCollection|null,
                 inputFormat: InputTypeString|null
             ) {
         this._title = title;
+        this._unitSchema = unitSchema;
         this._defaultValue = defaultValue;
         this.parent = parent;
         this.inputFormat = inputFormat;

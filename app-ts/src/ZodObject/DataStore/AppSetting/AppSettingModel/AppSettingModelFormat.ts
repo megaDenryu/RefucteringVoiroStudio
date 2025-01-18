@@ -15,5 +15,6 @@ export const AppSettingsModelFormat:InputTypeObject = {
     },
     format: {
         visualType: "object",
+        visualTitle: null
     },
 }

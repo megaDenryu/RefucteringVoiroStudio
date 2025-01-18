@@ -7,15 +7,16 @@ export const SerifSettingModelFormat:InputTypeObject = {
         AI補正: {
             type: "boolean",
             collectionType: null,
-            format: { visualType: "boolean" }
+            format: { visualType: "boolean", visualTitle: null }
         } as InputTypeBoolean,
         発言間隔の秒数: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", step: 1 }
+            format: { visualType: "number", visualTitle: null, step: 1 }
         } as InputTypeNumber,
     },
     format: {
         visualType: "object",
+        visualTitle: null
     },
 }

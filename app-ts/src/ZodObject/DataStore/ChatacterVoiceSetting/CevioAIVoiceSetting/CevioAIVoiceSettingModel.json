@@ -67,6 +67,13 @@
         },
         "talkerComponentArray2": {
             "$ref": "#/$defs/TalkerComponentArray2"
+        },
+        "読み上げ間隔": {
+            "default": 0.0,
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "読み上げ間隔",
+            "type": "number"
         }
     },
     "title": "CevioAIVoiceSettingModel",

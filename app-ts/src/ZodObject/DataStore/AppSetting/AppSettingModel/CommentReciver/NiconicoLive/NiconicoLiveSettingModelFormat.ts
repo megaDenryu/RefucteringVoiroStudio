@@ -7,24 +7,25 @@ export const NiconicoLiveSettingModelFormat:InputTypeObject = {
         配信URL: {
             type: "string",
             collectionType: null,
-            format: { visualType: "string" }
+            format: { visualType: "string", visualTitle: null }
         } as InputTypeString,
         コメント受信: {
             type: "enum",
             collectionType: null,
-            format: { visualType: "enum" }
+            format: { visualType: "enum", visualTitle: null }
         } as InputTypeEnum,
         コメント禁止ワード: {
             type: "array",
             collectionType: {
                 type: "string",
                 collectionType: null,
-                format: { visualType: "string" }
+                format: { visualType: "string", visualTitle: null }
             },
-            format: { visualType: "array" }
+            format: { visualType: "array", visualTitle: null }
         } as InputTypeArray<InputTypeString>,
     },
     format: {
         visualType: "object",
+        visualTitle: null
     },
 }
