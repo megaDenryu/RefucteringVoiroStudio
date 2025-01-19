@@ -549,6 +549,7 @@ function receiveMessage(event) {
 export interface WavInfo {
     path: string; // wavファイルのパス
     wav_data: string; // wavファイルのデータ（Base64形式）
+    wav_time: number; // wavファイルの再生時間
     phoneme_time: string; // 音素の開始時間と終了時間の情報
     phoneme_str: string[][]; // 音素の情報
     char_name: string; // キャラの名前
@@ -713,11 +714,15 @@ async function execAudioList(obj:WavInfo[],audio_group:Element) {
  * @param {Number} maxAudioElements 
  * @returns 
  */
-async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:number = 100) {
+async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:number = 100):Promise<Element> {
     //wavファイルをバイナリー形式で開き、base64エンコードした文字列を取得
-    var wav_binary = obj["wav_data"]
+    let wav_binary = obj["wav_data"]
     //wavファイルをbase64エンコードした文字列をaudioタグのsrcに設定
-    var lab_data = obj["phoneme_str"];
+    let lab_data = obj["phoneme_str"];
+    if (lab_data.length == 0) {
+        console.log("lab_dataが空です")
+        return audio_group;
+    }
     const voice_system_name = obj["voice_system_name"];
     console.log("lab_data=",lab_data)
     var audio = document.createElement('audio');
@@ -734,8 +739,15 @@ async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:numb
     await new Promise(resolve => audio.onloadedmetadata = resolve);
     //audioの長さを取得
     const time_length = audio.duration * 1000;
+    console.log("time_lengthを確認します",[time_length, obj.wav_time*1000])
     //labdataの最後の要素の終了時間を取得
-    const last_end_time = Number(lab_data[lab_data.length-1][2]) * 1000;
+    try{
+        var last_end_time = Number(lab_data[lab_data.length-1][2]) * 1000;
+    } catch (e) {
+        console.log(e)
+        console.log("lab_dataのアクセスエラーです")
+        return audio_group;
+    }
     let ratio = 1;
     if (voice_system_name == "Coeiroink") {
         ratio = time_length / last_end_time;
