@@ -17,6 +17,7 @@ import { CharacterModeState } from "../../ValueObject/Character";
 import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
+import { ICharacterModeState } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
 // const { promises } = require("fs");
 
@@ -554,6 +555,7 @@ export interface WavInfo {
     phoneme_str: string[][]; // 音素の情報
     char_name: string; // キャラの名前
     voice_system_name: string; // 音声合成のシステムの名前
+    characterModeState: ICharacterModeState; // キャラのモードの状態
 }
 
 //gptで生成された会話データを受信したときのイベント関数

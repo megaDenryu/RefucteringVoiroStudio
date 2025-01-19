@@ -3,6 +3,8 @@
 from typing import Literal, TypedDict
 from pydantic import BaseModel
 
+from api.gptAI.HumanInformation import ICharacterModeState
+
 
 class WavInfoB(BaseModel):
     path:str
@@ -19,6 +21,7 @@ class WavInfo(TypedDict):
     phoneme_time:list[str]
     phoneme_str:list[list[str]]
     char_name:str
+    characterModeState:ICharacterModeState
     voice_system_name:Literal["AIVoice","Cevio","VoiceVox","Coeiroink"]
 
 

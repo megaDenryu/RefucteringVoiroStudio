@@ -140,7 +140,8 @@ class cevio_human:
                     "phoneme_str":phoneme_str,
                     "char_name":self.name,
                     "cevio_name":self.cevio_name,
-                    "voice_system_name":"Cevio"
+                    "voice_system_name":"Cevio",
+                    "characterModeState": self.chara_mode_state.toDict()
                 }
                 #pprint(f"{wav_info=}")
                 self.output_wav_info_list.append(wav_info)
@@ -592,7 +593,8 @@ class voicevox_human:
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
-                    "voice_system_name":"VoiceVox"
+                    "voice_system_name":"VoiceVox",
+                    "characterModeState": self.chara_mode_state.toDict()
                 }
                 self.output_wav_info_list.append(wav_info)
 
@@ -906,7 +908,8 @@ class AIVoiceHuman:
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
                     "aivoice_name":self.aivoice_name,
-                    "voice_system_name":"AIVoice"
+                    "voice_system_name":"AIVoice",
+                    "characterModeState": self.chara_mode_state.toDict()
                 }
                 #pprint(f"{wav_info=}")
                 self.output_wav_info_list.append(wav_info)
@@ -1591,7 +1594,8 @@ class Coeiroink:
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
-                    "voice_system_name":"Coeiroink"
+                    "voice_system_name":"Coeiroink",
+                    "characterModeState": self.chara_mode_state.toDict()
                 }
 
                 self.output_wav_info_list.append(wav_info)
