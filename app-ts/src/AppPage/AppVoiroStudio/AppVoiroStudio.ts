@@ -691,17 +691,16 @@ function updateSubtitle(subtitle,text){
     // console.log("subtitle.innerText=",subtitle.innerText)
 }
 
-/**
- * @param {WavInfo[]} obj 
- * @param {Element} audio_group 
- */
-async function execAudioList(obj,audio_group) {
+
+
+async function execAudioList(obj:WavInfo[],audio_group:Element) {
     console.log(obj)
-        
+
     for await(let item of obj){
         console.log("audio準備開始")
         audio_group = await execAudio(item,audio_group);
         console.log(item["char_name"]+`音源再生終了`)
+        // todo ここで待機時間分待機
     }
     console.log("全て再生終了")
 }

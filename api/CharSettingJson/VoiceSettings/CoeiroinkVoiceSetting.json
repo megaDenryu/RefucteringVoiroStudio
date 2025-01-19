@@ -2,6 +2,7 @@
     "speedScale": 0.5,
     "pitchScale": -0.05,
     "intonationScale": 1.03,
-    "volumeScale": 0.0,
-    "読み上げ間隔": 1.0
+    "volumeScale": 1.0,
+    "読み上げ間隔": 1.0,
+    "AIによる文章変換": "無効"
 }

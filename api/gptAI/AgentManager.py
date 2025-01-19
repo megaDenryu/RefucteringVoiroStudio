@@ -37,6 +37,7 @@ from typing_extensions import TypedDict
 from pydantic import BaseModel
 
 from api.gptAI.PastConversation import PastConversation
+from api.gptAI.VoiceInfo import SendData, WavInfo
 
 
 
@@ -333,38 +334,31 @@ class AgentManager:
         self.serif_agent = SerifAgent(self,self.chara_name)
         self.non_thinking_serif_agent = NonThinkingSerifAgent(self,self.chara_name)
         
-    def createSendData(self, sentence:str, human:Human, chara_type:Literal["gpt","player"]):
+    def createSendData(self, sentence:str, human:Human, chara_type:Literal["gpt","player"])->SendData:
         human.outputWaveFile(sentence)
         #wavデータを取得
-        wav_info:list["WavInfo"] = human.human_Voice.output_wav_info_list
+        wav_info:list[WavInfo] = human.human_Voice.output_wav_info_list
         sentence_info = {human.front_name:sentence}
 
-        class WavInfo(BaseModel):
-            path:str
-            wav_data:str
-            phoneme_time:list[str]
-            phoneme_str:list[list[str]]
-            char_name:str
-            voice_system_name:str
-        class SendData(BaseModel):
-            sentence:dict[str,str]
-            wav_info:list[WavInfo]
-            chara_type:Literal["gpt","player"]
+        # class WavInfo(BaseModel):
+        #     path:str
+        #     wav_data:str
+        #     phoneme_time:list[str]
+        #     phoneme_str:list[list[str]]
+        #     char_name:str
+        #     voice_system_name:str
+        # class SendData(BaseModel):
+        #     sentence:dict[str,str]
+        #     wav_info:list[WavInfo]
+        #     chara_type:Literal["gpt","player"]
 
-        send_data = {
+        send_data:SendData = {
             "sentence":sentence_info,
             "wav_info":wav_info,
             "chara_type":chara_type
         }
-        # send_data = SendData(
-        #     sentence = sentence_info,
-        #     wav_info = wav_info,
-        #     chara_type = chara_type
-        # )
+
         return send_data
-        # #バイナリーをjson形式で送信
-        # print(f"{human_ai.char_name}のwavデータを送信します")
-        # await websocket.send_json(json.dumps(wav_info))
 
     def modifyMemory(self):
         """
