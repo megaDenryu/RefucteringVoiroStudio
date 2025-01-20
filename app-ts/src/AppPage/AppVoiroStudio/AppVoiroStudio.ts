@@ -325,14 +325,15 @@ export class MessageBox {
         this.message_box_manager.resizeObserver.unobserve(this.message_box_elm);
     }
     async execContentInputMessage() {
-        const front_name = this.front_name;
+        // const front_name = this.front_name;
+        const characterId = this.human_tab.characterId;
         const message = this.message_box_elm.value;
         //messageに「コメビュモード:{room_id}」と入力されている場合
         if (message.includes("コメビュモード:")) {
             //コメビュモードに入る
             const room_id = message.split(":")[1];
             //websocketを開く
-            this.ws_nikonama_comment_reciver = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver/${room_id}/${front_name}`);
+            this.ws_nikonama_comment_reciver = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver/${room_id}/${characterId}`);
             this.ws_nikonama_comment_reciver.onmessage = this.receiveNikoNamaComment.bind(this);
             //メッセージボックスの中身を削除
             this.message_box_elm.value = "";
@@ -342,7 +343,7 @@ export class MessageBox {
             //コメビュモードに入る
             const room_id = message.split("https://live.nicovideo.jp/watch/")[1];
             //websocketを開く
-            this.ws_nikonama_comment_reciver = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver/${room_id}/${front_name}`);
+            this.ws_nikonama_comment_reciver = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver/${room_id}/${characterId}`);
             this.ws_nikonama_comment_reciver.onmessage = this.receiveNikoNamaComment.bind(this);
             //メッセージボックスの中身を削除
             this.message_box_elm.value = "";

@@ -126,10 +126,10 @@ inastanceManager = InastanceManager()
 # gpt_mode_dict = {}
 #game_masterのインスタンスを生成
 yukarinet_enable = True
-nikonama_comment_reciever_list:dict[str,NicoNamaCommentReciever] = {}
-new_nikonama_comment_reciever_list:dict[str,newNikonamaCommentReciever] = {}
-YoutubeCommentReciever_list:dict[str,YoutubeCommentReciever] = {}
-twitchBotList:dict[str,TwitchBot] = {}
+nikonama_comment_reciever_list:dict[CharacterId,NicoNamaCommentReciever] = {}
+new_nikonama_comment_reciever_list:dict[CharacterId,newNikonamaCommentReciever] = {}
+YoutubeCommentReciever_list:dict[CharacterId,YoutubeCommentReciever] = {}
+twitchBotList:dict[CharacterId,TwitchBot] = {}
 # input_reciever = InputReciever(epic ,gpt_agent_dict, gpt_mode_dict)
 diary = Memo()
 
@@ -333,11 +333,10 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
         # 切れたセッションの削除
         notifier.remove(websocket)
 
-@app.websocket("/nikonama_comment_reciver/{room_id}/{front_name}")
-async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, front_name: str):
+@app.websocket("/nikonama_comment_reciver/{room_id}/{characterId}")
+async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, characterId: CharacterId):
     await websocket.accept()
-    char_name = Human.setCharName((front_name))
-    print(f"{char_name}で{room_id}のニコ生コメント受信開始")
+    ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}で{room_id}のニコ生コメント受信開始")
     update_room_id_query = {
         "ニコ生コメントレシーバー設定": {
             "生放送URL":room_id
@@ -346,7 +345,7 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, fro
     JsonAccessor.updateAppSettingJson(update_room_id_query)
     end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
     ndgr_client = newNikonamaCommentReciever(room_id, end_keyword)
-    new_nikonama_comment_reciever_list[char_name.name] = ndgr_client
+    new_nikonama_comment_reciever_list[characterId] = ndgr_client
     nulvm = NiconamaUserLinkVoiceroidModule()
 
     async for NDGRComment in ndgr_client.streamComments():
@@ -369,12 +368,11 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, fro
         ExtendFunc.ExtendPrint(comment)
         await websocket.send_text(json.dumps(comment))
 
-@app.post("/nikonama_comment_reciver_stop/{front_name}")
-async def nikonama_comment_reciver_stop(front_name: str):
-    char_name = Human.setCharName(front_name)
-    if char_name in nikonama_comment_reciever_list:
-        print(f"{front_name}のニコ生コメント受信停止")
-        nikonama_comment_reciever = new_nikonama_comment_reciever_list[char_name]
+@app.post("/nikonama_comment_reciver_stop/{characterId}")
+async def nikonama_comment_reciver_stop(characterId: CharacterId):
+    if characterId in nikonama_comment_reciever_list:
+        print(f"{characterId}のニコ生コメント受信停止")
+        nikonama_comment_reciever = new_nikonama_comment_reciever_list[characterId]
         nikonama_comment_reciever.stopRecieve()
         return
     

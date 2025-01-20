@@ -113,12 +113,11 @@ export class HumanTab implements IHasComponent,IHumanTab {
         //ニコ生コメント受信を停止する。nikonama_comment_reciver_stopにfront_nameをfetchで送信する。
         const front_name = this.front_name;
         if (!front_name) {return;}
-        fetch(`http://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver_stop/${front_name}`, {
+        fetch(`http://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver_stop/${this.characterId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ front_name: front_name })
+            body: JSON.stringify({ characterId: this.characterId })
         })
-        const char_name = GlobalState.front2chara_name[front_name]
         //設定タブを開いてるならエレメントを削除し、setting_infoからも削除
         if (this.characterId in GlobalState.setting_info) {
             GlobalState.setting_info[this.characterId].ELM_accordion.remove();

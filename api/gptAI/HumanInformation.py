@@ -1,7 +1,7 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import Literal, TypeAlias, TypedDict
+from typing import Literal, NewType, TypeAlias, TypedDict
 from uuid import uuid4
 from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
@@ -424,6 +424,8 @@ class AllHumanInformationDict(BaseModel):
 
 FrontName: TypeAlias = str # フロントでの名前。これはいずれNickNameとCharacterIdで置き換える
 CharacterId: TypeAlias = str
+# CharacterId = NewType('CharacterId', str)
+
 
 class ICharacterModeState(TypedDict):
     id: CharacterId
