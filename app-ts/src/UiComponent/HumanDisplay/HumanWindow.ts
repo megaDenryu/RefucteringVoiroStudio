@@ -120,11 +120,9 @@ export class HumanTab implements IHasComponent,IHumanTab {
         })
         const char_name = GlobalState.front2chara_name[front_name]
         //設定タブを開いてるならエレメントを削除し、setting_infoからも削除
-        console.log("設定タブを開いてるならエレメントを削除し、setting_infoからも削除")
-        if (char_name in GlobalState.setting_info) {
-            console.log(char_name+"setteng_infoにあるので削除")
-            GlobalState.setting_info[char_name].ELM_accordion.remove();
-            delete GlobalState.setting_info[char_name];
+        if (this.characterId in GlobalState.setting_info) {
+            GlobalState.setting_info[this.characterId].ELM_accordion.remove();
+            delete GlobalState.setting_info[this.characterId];
             
         }
         
@@ -272,25 +270,21 @@ export class BodySettingButton implements IHasComponent, IBodySettingButton {
         if (this.humanTab.front_name === null) {return;}
         const char_name = GlobalState.front2chara_name[this.humanTab.front_name]; //humanTabを生成したときにfront_nameを付けてないのでエラーになる
         const characterId = this.humanTab.characterId;
-        if (char_name in GlobalState.setting_info) {
-            console.log(char_name+"setteng_infoにある")
-            if (GlobalState.setting_info[char_name].ELM_accordion.classList.contains("vissible")){
-                console.log("vissibleを削除",GlobalState.setting_info[char_name].ELM_accordion)
-                GlobalState.setting_info[char_name].ELM_accordion.classList.remove("vissible")
-                GlobalState.setting_info[char_name].ELM_accordion.classList.add("non_vissible")
+        if (characterId in GlobalState.setting_info) {
+            if (GlobalState.setting_info[characterId].ELM_accordion.classList.contains("vissible")){
+                GlobalState.setting_info[characterId].ELM_accordion.classList.remove("vissible")
+                GlobalState.setting_info[characterId].ELM_accordion.classList.add("non_vissible")
             }else{
-                console.log("vissibleを追加",GlobalState.setting_info[char_name].ELM_accordion)
-                GlobalState.setting_info[char_name].ELM_accordion.classList.remove("non_vissible")
-                GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
+                GlobalState.setting_info[characterId].ELM_accordion.classList.remove("non_vissible")
+                GlobalState.setting_info[characterId].ELM_accordion.classList.add("vissible")
             }
         } else {
-            console.log(char_name+"setteng_infoにない")
             if (!(characterId in GlobalState.humans_list)) {return;}
             const chara_human_body_manager = GlobalState.humans_list[characterId]
             var vas = new VoiroAISetting(chara_human_body_manager, this.humanTab);
             GlobalState.humans_list[characterId].BindVoiroAISetting(vas);
-            GlobalState.setting_info[char_name] = vas;
-            GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
+            GlobalState.setting_info[characterId] = vas;
+            GlobalState.setting_info[characterId].ELM_accordion.classList.add("vissible")
         }
     }
 

@@ -3574,7 +3574,7 @@ export class GlobalState {
     static isProcessing = false;
     static humans_list: Record<CharacterId, HumanBodyManager2> = {};
     static front2chara_name: Record<string, string> = {};
-    static setting_info: Record<string, VoiroAISetting> = {};
+    static setting_info: Record<CharacterId, VoiroAISetting> = {};
     static first_human_tab;
     static drag_drop_file_event_list: DragDropFile[] = [];
     static client_id: string;
