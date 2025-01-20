@@ -129,9 +129,8 @@ export class HumanTab implements IHasComponent,IHumanTab {
         }
         
         //このタブのキャラのデータを削除
-        if (char_name in GlobalState.humans_list) {
-            console.log(char_name+"humans_listにあるので削除")
-            delete GlobalState.humans_list[char_name];
+        if (this.characterId in GlobalState.humans_list) {
+            delete GlobalState.humans_list[this.characterId];
         }
         
         //message_box_managerからも削除
@@ -145,7 +144,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
 
     createHuman(charaCreateData:CharaCreateData){
         const humanData:HumanData = charaCreateData.humanData;
-        GlobalState.humans_list[humanData["char_name"]] = new HumanBodyManager2(humanData,charaCreateData.characterModeState,this.humanWindow.component.element);
+        GlobalState.humans_list[charaCreateData.characterModeState.id] = new HumanBodyManager2(humanData, charaCreateData.characterModeState, this.humanWindow.component.element);
         GlobalState.front2chara_name[humanData["front_name"]] = humanData["char_name"];
         
         const characterModeState:CharacterModeState = CharacterModeState.fromDict(charaCreateData.characterModeState);
@@ -272,6 +271,7 @@ export class BodySettingButton implements IHasComponent, IBodySettingButton {
         this.component.addCSSClass("setting_now");
         if (this.humanTab.front_name === null) {return;}
         const char_name = GlobalState.front2chara_name[this.humanTab.front_name]; //humanTabを生成したときにfront_nameを付けてないのでエラーになる
+        const characterId = this.humanTab.characterId;
         if (char_name in GlobalState.setting_info) {
             console.log(char_name+"setteng_infoにある")
             if (GlobalState.setting_info[char_name].ELM_accordion.classList.contains("vissible")){
@@ -285,11 +285,10 @@ export class BodySettingButton implements IHasComponent, IBodySettingButton {
             }
         } else {
             console.log(char_name+"setteng_infoにない")
-            console.log(GlobalState.humans_list)
-            if (!(char_name in GlobalState.humans_list)) {return;}
-            const chara_human_body_manager = GlobalState.humans_list[char_name]
+            if (!(characterId in GlobalState.humans_list)) {return;}
+            const chara_human_body_manager = GlobalState.humans_list[characterId]
             var vas = new VoiroAISetting(chara_human_body_manager, this.humanTab);
-            GlobalState.humans_list[char_name].BindVoiroAISetting(vas);
+            GlobalState.humans_list[characterId].BindVoiroAISetting(vas);
             GlobalState.setting_info[char_name] = vas;
             GlobalState.setting_info[char_name].ELM_accordion.classList.add("vissible")
         }

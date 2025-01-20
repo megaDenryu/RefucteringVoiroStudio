@@ -333,47 +333,6 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
         # 切れたセッションの削除
         notifier.remove(websocket)
 
-
-# @app.websocket("/old_nikonama_comment_reciver/{room_id}/{front_name}")
-# async def old_nicowebsocket_endpoint(websocket: WebSocket, room_id: str, front_name: str):
-#     await websocket.accept()
-#     char_name = Human.setCharName(front_name)
-#     print(f"{char_name}で{room_id}のニコ生コメント受信開始")
-#     update_room_id_query = {
-#         "ニコ生コメントレシーバー設定": {
-#             "生放送URL":room_id
-#         }
-#     }
-#     JsonAccessor.updateAppSettingJson(update_room_id_query)
-#     end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
-#     nikonama_comment_reciever = NicoNamaCommentReciever(room_id,end_keyword)
-#     nikonama_comment_reciever_list[char_name] = nikonama_comment_reciever
-#     nulvm = NiconamaUserLinkVoiceroidModule()
-
-#     async for comment in nikonama_comment_reciever.get_comments():
-#         pprint(comment)
-#         if "user_id" in comment:
-#             user_id = comment["user_id"]
-#             if "@" in comment["comment"] or "＠" in comment["comment"]:
-#                 print("ユーザーIDとキャラ名を紐づけます")
-#                 char_name = nulvm.registerNikonamaUserIdToCharaName(comment["comment"],user_id)
-
-#             comment["char_name"] = nulvm.getCharaNameByNikonamaUser(user_id)
-        
-#             if "/info 3" in comment["comment"]:
-#                 comment["comment"] = comment["comment"].replace("/info 3","")
-            
-#         await websocket.send_text(json.dumps(comment))
-
-# @app.post("/old_nikonama_comment_reciver_stop/{front_name}")
-# async def old_nikonama_comment_reciver_stop(front_name: str):
-#     char_name = Human.setCharName(front_name)
-#     if char_name in nikonama_comment_reciever_list:
-#         print(f"{front_name}のニコ生コメント受信停止")
-#         nikonama_comment_reciever = nikonama_comment_reciever_list[char_name]
-#         nikonama_comment_reciever.stopRecieve()
-#         return
-
 @app.websocket("/nikonama_comment_reciver/{room_id}/{front_name}")
 async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, front_name: str):
     await websocket.accept()

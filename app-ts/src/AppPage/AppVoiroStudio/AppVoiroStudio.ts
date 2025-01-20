@@ -13,7 +13,7 @@ import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
 import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
-import { CharacterModeState } from "../../ValueObject/Character";
+import { CharacterId, CharacterModeState } from "../../ValueObject/Character";
 import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
@@ -531,7 +531,7 @@ function receiveMessage(event) {
     console.log("human_listに追加:"+body_parts["char_name"])
         
     try{
-        GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts,characterModeState);
+        GlobalState.humans_list[characterModeState.id] = new HumanBodyManager2(body_parts,characterModeState);
     } catch (e) {
         console.log(e)
         console.log("human_listに追加失敗:"+body_parts["char_name"])
@@ -780,7 +780,7 @@ async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:numb
                 if (start_time <= current_time && current_time <= end_time ) {
                     // console.log("通ってる",obj["char_name"],lab_data[lab_pos][0]);
                     try{
-                        GlobalState.humans_list[obj["char_name"]].changeLipImage(obj["char_name"],lab_data[lab_pos][0]);
+                        GlobalState.humans_list[obj["characterModeState"]["id"]].changeLipImage(obj["characterModeState"]["id"],lab_data[lab_pos][0]);
                     } catch (e) {
                         console.log(e)
                         console.log(("口画像が設定されていない"))
@@ -795,7 +795,7 @@ async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:numb
                 if (lab_pos >= lab_data.length) {
                     //終わったら口パクを終了して口を閉じる
                     try{
-                        GlobalState.humans_list[obj["char_name"]].changeLipImage(obj["char_name"],"end");
+                        GlobalState.humans_list[obj["characterModeState"]["id"]].changeLipImage(obj["characterModeState"]["id"],"end");
                     } catch (e) {
                         console.log(e)
                         console.log(("口画像が設定されていない"))
@@ -1691,10 +1691,10 @@ export class HumanBodyManager2 {
 
     /**
      * 口パクの画像を変更する
-     * @param {string} char_name - キャラの名前
+     * @param {CharacterId} id - キャラの名前
      * @param {string} phoneme - 音素
      */
-    changeLipImage(char_name:string ,phoneme:string){
+    changeLipImage(id:CharacterId ,phoneme:string){
         // if (this.mouse_images.size > 1) {
         //     console.log("口を動かす。",phoneme);
         //     if (this.mouse_images.has(phoneme)){
@@ -3572,7 +3572,7 @@ export class GlobalState {
     static init_human_tab:HTMLLIElement;
     static messageQueue: MessageEvent[] = [];
     static isProcessing = false;
-    static humans_list: Record<string, HumanBodyManager2> = {};
+    static humans_list: Record<CharacterId, HumanBodyManager2> = {};
     static front2chara_name: Record<string, string> = {};
     static setting_info: Record<string, VoiroAISetting> = {};
     static first_human_tab;
