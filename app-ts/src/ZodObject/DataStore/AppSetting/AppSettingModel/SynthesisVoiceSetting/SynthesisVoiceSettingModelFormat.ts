@@ -9,5 +9,6 @@ export const SynthesisVoiceSettingModelFormat:InputTypeObject = {
     },
     format: {
         visualType: "object",
+        visualTitle: null
     },
 }

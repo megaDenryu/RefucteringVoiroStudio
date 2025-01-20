@@ -1,6 +1,8 @@
 import asyncio
+import contextlib
 from pathlib import Path
 from pprint import pprint
+import wave
 from api.AppSettingJson.CharacterDestination.CharacterDestinationCollection import CharacterDestinationCollectionTest
 from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollectionTest
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
@@ -20,6 +22,7 @@ from api.Extend.BaseModel.BaseModelListMap import MapHasListValue
 from api.Extend.BaseModel.ExtendBaseModel import Map, MapItem
 from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import ExtendDict, Interval, ExtendSet, ExtendSetTest
+from api.Extend.ExtendSound import ExtendSound
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.ObjectConverter.ObjectConverterTest import generate_zod_schema, write_to_ts_file
@@ -168,11 +171,9 @@ if __name__ == "__main__":
     # saveSettingReq = AppSettingsModel(**d)
     # print(saveSettingReq.model_dump_json())
     # JsonAccessor.saveAppSettingTest(saveSettingReq)
-
-    # ベースモデルのフォーマットを生成するテスト()
-    型の変換と保存(AppSettingsModel)
-
-
+    
+    duration = ExtendSound.get_wav_duration("./output_wav/cevio_audio_フィーちゃん_0.wav")
+    print(duration)
 
 
 

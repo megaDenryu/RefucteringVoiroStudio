@@ -13,5 +13,7 @@ export const CevioAIVoiceSettingModel = z.object({
   talkerComponentArray2: z
     .object({ record: z.record(z.number().int()).default({}) })
     .optional(),
+  読み上げ間隔: z.number().gte(0).lte(2).default(0),
+  AIによる文章変換: z.enum(["無効", "ChatGPT"]).default("無効"),
 });
 export type CevioAIVoiceSettingModel = z.infer<typeof CevioAIVoiceSettingModel>;

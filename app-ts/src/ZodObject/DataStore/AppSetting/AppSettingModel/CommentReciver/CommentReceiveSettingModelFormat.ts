@@ -13,5 +13,6 @@ export const CommentReceiveSettingModelFormat:InputTypeObject = {
     },
     format: {
         visualType: "object",
+        visualTitle: null
     },
 }

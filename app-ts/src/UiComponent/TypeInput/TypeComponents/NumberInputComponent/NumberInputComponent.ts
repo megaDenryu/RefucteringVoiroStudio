@@ -1,3 +1,4 @@
+import { z } from "zod";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
@@ -25,6 +26,7 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
     private _title : string;
+    _unitSchema: z.ZodTypeAny;
     public get title():string { return this._title; }
     private _min: number = 0;
     private _max: number = 100;
@@ -40,11 +42,12 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
     private _htmlSliderValueElement : HTMLElement;
     public readonly inputFormat: InputTypeNumber|null;
 
-    constructor(title: string, defaultValue: number|null, 
+    constructor(title: string, unitSchema: z.ZodTypeAny,  defaultValue: number|null, 
                 min: number|null=null, max: number|null=null, step: number|null=null, parent: IInputComponentCollection|null,
                 inputFormat: InputTypeNumber|null
             ) {
         this._title = title;
+        this._unitSchema = unitSchema;
         this._min = min??0;
         this._max = max ?? 100;
         this.inputFormat = inputFormat;

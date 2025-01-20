@@ -11,10 +11,11 @@ import datetime
 import psutil
 import os
 import base64
+from requests import Response
 
 #AI.VOICE Editor API用のライブラリ
 import clr
-from typing import Dict, Any, Literal, TypedDict, Protocol
+from typing import Dict, Any, Literal, TypedDict, Protocol, Union
 from pydantic import BaseModel
 from typing import Optional
 
@@ -28,10 +29,13 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxQueryBaseT
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.Extend.ExtendSound import ExtendSound
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
 
 import subprocess
 import winreg
+
+from api.gptAI.VoiceInfo import WavInfo
 
 
 
@@ -42,6 +46,7 @@ class TTSSoftwareInstallState(Enum):
 
 class cevio_human:
     chara_mode_state:CharacterModeState|None
+    output_wav_info_list:list[WavInfo]
     @property
     def name(self):
         if self.chara_mode_state is None:
@@ -125,14 +130,18 @@ class cevio_human:
                 phoneme_str = [[phoneme.at(x).Phoneme,phoneme.at(x).StartTime,phoneme.at(x).EndTime] for x in range(0,phoneme.Length)]
                 phoneme_time = [phoneme.at(x).Phoneme for x in range(0,phoneme.Length)]
                 wav_data = self.openWavFile(wav_path)   #wabのbinaryデータ
-                wav_info = {
+                wav_time = ExtendSound.get_wav_duration(wav_path) #wavの再生時間
+                ExtendFunc.ExtendPrintWithTitle(f"{text}のwav_time",wav_time)
+                wav_info:WavInfo = {
                     "path":wav_path,
                     "wav_data":wav_data,
+                    "wav_time":wav_time,
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.name,
                     "cevio_name":self.cevio_name,
-                    "voice_system_name":"Cevio"
+                    "voice_system_name":"Cevio",
+                    "characterModeState": self.chara_mode_state.toDict()
                 }
                 #pprint(f"{wav_info=}")
                 self.output_wav_info_list.append(wav_info)
@@ -356,6 +365,7 @@ class voicevox_human:
     query_url = f"http://127.0.0.1:50021/audio_query" #f"http://localhost:50021/audio_query"だとlocalhostの名前解決に時間がかかるらしい
     synthesis_url = f"http://127.0.0.1:50021/synthesis" #f"http://localhost:50021/synthesis"だとlocalhostの名前解決に時間がかかるらしい
     isSaveWaiting = False
+    output_wav_info_list:list[WavInfo]
     @property
     def char_name(self):
         if self.chara_mode_state is None:
@@ -454,7 +464,7 @@ class voicevox_human:
         return query_dict
     
     
-    def getVoiceWav(self,query_dict:QueryDict):
+    def getVoiceWav(self,query_dict:QueryDict)->Response:
         """
         getVoiceQuery()で取得したquery_dictを引数に使ってwavを生成する.
         """
@@ -462,8 +472,13 @@ class voicevox_human:
         wav = requests.post(self.synthesis_url, params={'speaker': self.mode}, data=query_json)
         return wav
     
-    def wav2base64(self,wav):
-        binary_data = wav.content
+    def wav2base64(self, wav: Union[bytes, Response]) -> str:
+        if isinstance(wav, bytes):
+            binary_data = wav
+        elif isinstance(wav, Response):
+            binary_data = wav.content
+        else:
+            raise TypeError("Unsupported type for wav parameter")
         base64_data = base64.b64encode(binary_data)
         base64_data_str = base64_data.decode("utf-8")
         return base64_data_str
@@ -551,7 +566,6 @@ class voicevox_human:
         self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
-        #output_wav_info_listを初期化
         self.output_wav_info_list = []
         for index,text in enumerate(sentence_list):
             if text == "":
@@ -566,16 +580,21 @@ class voicevox_human:
                 print("query取得完了")
                 phoneme_str,phoneme_time = self.getLabData(query)
                 print("lab_data取得完了")
-                wav_data = self.wav2base64(self.getVoiceWav(query))
+                wav_binary = self.getVoiceWav(query)
+                wav_time = ExtendSound.get_wav_duration_from_data(wav_binary.content)
+                ExtendFunc.ExtendPrintWithTitle(f"{text}のwav_time",wav_time)
+                wav_data = self.wav2base64(wav_binary)
                 print("wav_data取得完了")
 
-                wav_info = {
+                wav_info:WavInfo = {
                     "path":wav_path,
                     "wav_data":wav_data,
+                    "wav_time":wav_time,
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
-                    "voice_system_name":"VoiceVox"
+                    "voice_system_name":"VoiceVox",
+                    "characterModeState": self.chara_mode_state.toDict()
                 }
                 self.output_wav_info_list.append(wav_info)
 
@@ -770,6 +789,7 @@ class VoicePresetModel(BaseModel):
 
 class AIVoiceHuman:
     chara_mode_state:CharacterModeState|None
+    output_wav_info_list:list[WavInfo]
     @property
     def char_name(self):
         if self.chara_mode_state is None:
@@ -878,14 +898,18 @@ class AIVoiceHuman:
                 # 送信するデータを作成する
                 phoneme_str, phoneme_time = self.getPhonemes(f"{wav_path}.lab")
                 wav_data = self.openWavFile(f"{wav_path}.wav")   #wabのbinaryデータ
-                wav_info = {
+                wav_time = ExtendSound.get_wav_duration(f"{wav_path}.wav")
+                ExtendFunc.ExtendPrintWithTitle(f"{text}のwav_time",wav_time)
+                wav_info:WavInfo = {
                     "path":wav_path,
                     "wav_data":wav_data,
+                    "wav_time":wav_time,
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
                     "aivoice_name":self.aivoice_name,
-                    "voice_system_name":"AIVoice"
+                    "voice_system_name":"AIVoice",
+                    "characterModeState": self.chara_mode_state.toDict()
                 }
                 #pprint(f"{wav_info=}")
                 self.output_wav_info_list.append(wav_info)
@@ -1184,6 +1208,7 @@ class CoeiroinkSpeaker(TypedDict):
 
 class Coeiroink:
     chara_mode_state:CharacterModeState|None
+    output_wav_info_list:list[WavInfo]
     @property
     def char_name(self):
         if self.chara_mode_state is None:
@@ -1448,12 +1473,12 @@ class Coeiroink:
         speaker = self.speaker
         if speaker is None:
             print("Failed to get speaker info.")
-            return None, None, None
+            return None, None, None, None
         
         prosody = Coeiroink.estimate_prosody(text)
         if prosody is None:
             print("Failed to estimate prosody.")
-            return None, None, None
+            return None, None, None, None
         prediction = Coeiroink.predict_with_duration(speaker, text, prosody,
                                                       speedScale, volumeScale, pitchScale, intonationScale,
                                                       prePhonemeLength, postPhonemeLength, outputSamplingRate, print_error)
@@ -1461,11 +1486,12 @@ class Coeiroink:
             raise Exception("Failed to get prediction.")
         wavBase64 = prediction["wavBase64"]
         wav = Coeiroink.processWithPitch(wavBase64,volumeScale,pitchScale,intonationScale,prePhonemeLength,postPhonemeLength,outputSamplingRate)
+        wav_time = ExtendSound.get_wav_duration_from_data(wav)
         wavFromProcessWithPitch_Base64 = Coeiroink.wav2base64(wav)
         
         moraDurations = prediction["moraDurations"]
         phoneme_str, phoneme_time = Coeiroink.labDataFromMora(moraDurations)
-        return wavFromProcessWithPitch_Base64, phoneme_str, phoneme_time
+        return wavFromProcessWithPitch_Base64, phoneme_str, phoneme_time ,wav_time
     
     @staticmethod
     def processWithPitch(wavBase64:str, volumeScale:float, pitchScale:float, intonationScale:float,
@@ -1552,17 +1578,26 @@ class Coeiroink:
                 volumeScale = self.voiceSetting.volumeScale
                 pitchScale = self.voiceSetting.pitchScale
                 intonationScale = self.voiceSetting.intonationScale
-                wav_data, phoneme_str, phoneme_time = self.getWavAndLabData(text,speedScale,volumeScale,pitchScale,intonationScale) #todo : ここでピッチとか音量とかを変える
+                wav_data, phoneme_str, phoneme_time, wav_time = self.getWavAndLabData(text,speedScale,volumeScale,pitchScale,intonationScale) #todo : ここでピッチとか音量とかを変える
+                # wav_time = ExtendSound.get_wav_duration_from_data(wav_data)
+                ExtendFunc.ExtendPrint(f"{self.char_name}のwav_time",wav_time)
                 print("lab_data取得完了")
                 print("wav_data取得完了")
-                wav_info = {
+                if wav_data is None or phoneme_str is None or phoneme_time is None or wav_time is None:
+                    ExtendFunc.ExtendPrint("声色インクの音声データの取得に失敗しました")
+                    return
+                
+                wav_info:WavInfo = {
                     "path":wav_path,
                     "wav_data":wav_data,
+                    "wav_time":wav_time,
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
-                    "voice_system_name":"Coeiroink"
+                    "voice_system_name":"Coeiroink",
+                    "characterModeState": self.chara_mode_state.toDict()
                 }
+
                 self.output_wav_info_list.append(wav_info)
     
     @staticmethod

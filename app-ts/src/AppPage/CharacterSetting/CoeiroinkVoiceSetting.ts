@@ -7,8 +7,8 @@ import { IComponentManager, オブジェクトデータの特定の子要素の�
 import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import { RequestAPI } from "../../Web/RequestApi";
 import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModel";
+import { CoeiroinkVoiceSettingModelFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModelFormat";
 import { CoeiroinkVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModelReq";
-import { CoeiroinkVoiceSettingFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSettingFormat/CoeiroinkVoiceSettingFormat";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 
 
@@ -59,7 +59,7 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
       CoeiroinkVoiceSettingModel,
       this.manageData,
       null,
-      this, CoeiroinkVoiceSettingFormat
+      this, CoeiroinkVoiceSettingModelFormat
     );
     this._manageDataSettingComponent.component.addCSSClass("positionRelative");
     this._manageDataSettingComponent.component.removeCSSClass(

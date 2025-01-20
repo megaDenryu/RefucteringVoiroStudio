@@ -17,6 +17,7 @@ import { CharacterModeState } from "../../ValueObject/Character";
 import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
+import { ICharacterModeState } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
 // const { promises } = require("fs");
 
@@ -530,8 +531,7 @@ function receiveMessage(event) {
     console.log("human_listに追加:"+body_parts["char_name"])
         
     try{
-        GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts)
-        console.log("human_listに追加成功:",GlobalState.humans_list)
+        GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts,characterModeState);
     } catch (e) {
         console.log(e)
         console.log("human_listに追加失敗:"+body_parts["char_name"])
@@ -549,10 +549,12 @@ function receiveMessage(event) {
 export interface WavInfo {
     path: string; // wavファイルのパス
     wav_data: string; // wavファイルのデータ（Base64形式）
+    wav_time: number; // wavファイルの再生時間
     phoneme_time: string; // 音素の開始時間と終了時間の情報
     phoneme_str: string[][]; // 音素の情報
     char_name: string; // キャラの名前
     voice_system_name: string; // 音声合成のシステムの名前
+    characterModeState: ICharacterModeState; // キャラのモードの状態
 }
 
 //gptで生成された会話データを受信したときのイベント関数
@@ -691,17 +693,16 @@ function updateSubtitle(subtitle,text){
     // console.log("subtitle.innerText=",subtitle.innerText)
 }
 
-/**
- * @param {WavInfo[]} obj 
- * @param {Element} audio_group 
- */
-async function execAudioList(obj,audio_group) {
+
+
+async function execAudioList(obj:WavInfo[],audio_group:Element) {
     console.log(obj)
-        
+
     for await(let item of obj){
         console.log("audio準備開始")
         audio_group = await execAudio(item,audio_group);
         console.log(item["char_name"]+`音源再生終了`)
+        // todo ここで待機時間分待機
     }
     console.log("全て再生終了")
 }
@@ -714,11 +715,15 @@ async function execAudioList(obj,audio_group) {
  * @param {Number} maxAudioElements 
  * @returns 
  */
-async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:number = 100) {
+async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:number = 100):Promise<Element> {
     //wavファイルをバイナリー形式で開き、base64エンコードした文字列を取得
-    var wav_binary = obj["wav_data"]
+    let wav_binary = obj["wav_data"]
     //wavファイルをbase64エンコードした文字列をaudioタグのsrcに設定
-    var lab_data = obj["phoneme_str"];
+    let lab_data = obj["phoneme_str"];
+    if (lab_data.length == 0) {
+        console.log("lab_dataが空です")
+        return audio_group;
+    }
     const voice_system_name = obj["voice_system_name"];
     console.log("lab_data=",lab_data)
     var audio = document.createElement('audio');
@@ -735,8 +740,15 @@ async function execAudio(obj:WavInfo ,audio_group:Element, maxAudioElements:numb
     await new Promise(resolve => audio.onloadedmetadata = resolve);
     //audioの長さを取得
     const time_length = audio.duration * 1000;
+    console.log("time_lengthを確認します",[time_length, obj.wav_time*1000])
     //labdataの最後の要素の終了時間を取得
-    const last_end_time = Number(lab_data[lab_data.length-1][2]) * 1000;
+    try{
+        var last_end_time = Number(lab_data[lab_data.length-1][2]) * 1000;
+    } catch (e) {
+        console.log(e)
+        console.log("lab_dataのアクセスエラーです")
+        return audio_group;
+    }
     let ratio = 1;
     if (voice_system_name == "Coeiroink") {
         ratio = time_length / last_end_time;
@@ -1180,11 +1192,13 @@ export class HumanBodyManager2 {
     pakupaku_info:ExtendedMap<PakupakuType, ExtendedMap<any, any>>
     pakupaku_folder_names:ExtendedMap<any, any>
     voiro_ai_setting: VoiroAISetting
-    
-    
+    public characterModeState: ICharacterModeState 
+    public get characterId(): string {
+        return this.characterModeState.id;
+    }
 
-
-    constructor(body_parts: HumanData,human_window:Element|null = null){
+    constructor(body_parts:HumanData,characterModeState:ICharacterModeState,human_window:Element|null = null){
+        this.characterModeState = characterModeState;
         this.debug = false;
         this.front_name = body_parts.front_name;
         this.char_name = body_parts["char_name"];
@@ -3343,25 +3357,10 @@ export class DragDropFile{
                             body: formData
                         })
                         .then(response => response.json())
-                        .then(data => {
-                            //JavaScriptでは、オブジェクトからデータを抽出して新しい変数に格納するために、以下のようにデストラクチャリング（Destructuring）という機能を使用することができます。
-                            const { body_parts_iamges, init_image_info, front_name, char_name } = data;
-                            // これで、dataから各データが新しい変数に格納されます。
-                            // body_parts_iamges, init_image_info, front_name, char_nameという名前の変数が作成され、それぞれに対応するデータが格納されます
+                        .then(json => {
+                            const charaCreateData:CharaCreateData = json;
+                            this.humanTab.createHuman(charaCreateData);
 
-                            /**
-                             * @type {BodyParts}
-                             */
-                            const body_parts = {
-                                "front_name": front_name,
-                                "char_name": char_name,
-                                "body_parts_iamges": body_parts_iamges,
-                                "init_image_info": init_image_info
-                            }
-                            
-                            // registerHumanName(front_name,this.human_tab,this.human_name)
-                            GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts,this.human_window)
-                            GlobalState.front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
                         })
                         .catch(error => console.error(error));
                     } else if (response_mode == "FrontName_noNeedBodyParts") {

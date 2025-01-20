@@ -7,10 +7,11 @@ export const YoutubeLiveSettingModelFormat:InputTypeObject = {
         配信URL: {
             type: "string",
             collectionType: null,
-            format: { visualType: "string" }
+            format: { visualType: "string", visualTitle: null }
         } as InputTypeString,
     },
     format: {
         visualType: "object",
+        visualTitle: null
     },
 }
