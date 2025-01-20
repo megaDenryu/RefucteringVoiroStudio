@@ -531,8 +531,7 @@ function receiveMessage(event) {
     console.log("human_listに追加:"+body_parts["char_name"])
         
     try{
-        GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts)
-        console.log("human_listに追加成功:",GlobalState.humans_list)
+        GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts,characterModeState);
     } catch (e) {
         console.log(e)
         console.log("human_listに追加失敗:"+body_parts["char_name"])
@@ -1193,11 +1192,13 @@ export class HumanBodyManager2 {
     pakupaku_info:ExtendedMap<PakupakuType, ExtendedMap<any, any>>
     pakupaku_folder_names:ExtendedMap<any, any>
     voiro_ai_setting: VoiroAISetting
-    
-    
+    public characterModeState: ICharacterModeState 
+    public get characterId(): string {
+        return this.characterModeState.id;
+    }
 
-
-    constructor(body_parts: HumanData,human_window:Element|null = null){
+    constructor(body_parts:HumanData,characterModeState:ICharacterModeState,human_window:Element|null = null){
+        this.characterModeState = characterModeState;
         this.debug = false;
         this.front_name = body_parts.front_name;
         this.char_name = body_parts["char_name"];
@@ -3356,25 +3357,10 @@ export class DragDropFile{
                             body: formData
                         })
                         .then(response => response.json())
-                        .then(data => {
-                            //JavaScriptでは、オブジェクトからデータを抽出して新しい変数に格納するために、以下のようにデストラクチャリング（Destructuring）という機能を使用することができます。
-                            const { body_parts_iamges, init_image_info, front_name, char_name } = data;
-                            // これで、dataから各データが新しい変数に格納されます。
-                            // body_parts_iamges, init_image_info, front_name, char_nameという名前の変数が作成され、それぞれに対応するデータが格納されます
+                        .then(json => {
+                            const charaCreateData:CharaCreateData = json;
+                            this.humanTab.createHuman(charaCreateData);
 
-                            /**
-                             * @type {BodyParts}
-                             */
-                            const body_parts = {
-                                "front_name": front_name,
-                                "char_name": char_name,
-                                "body_parts_iamges": body_parts_iamges,
-                                "init_image_info": init_image_info
-                            }
-                            
-                            // registerHumanName(front_name,this.human_tab,this.human_name)
-                            GlobalState.humans_list[body_parts["char_name"]] = new HumanBodyManager2(body_parts,this.human_window)
-                            GlobalState.front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
                         })
                         .catch(error => console.error(error));
                     } else if (response_mode == "FrontName_noNeedBodyParts") {
