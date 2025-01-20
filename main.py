@@ -413,43 +413,40 @@ async def getYoutubeComment(websocket: WebSocket, video_id: str, characterId: Ch
             del YoutubeCommentReciever_list[characterId]
 class TwitchCommentReceiver(BaseModel):
     video_id: str
-    front_name: str
+    characterId: CharacterId
 
 @app.post("/RunTwitchCommentReceiver")
 async def runTwitchCommentReceiver(req:TwitchCommentReceiver):
     ExtendFunc.ExtendPrint("ツイッチ開始")
     ExtendFunc.ExtendPrint(req)
     video_id = req.video_id
-    front_name = req.front_name
-    char_name = Human.setCharName(front_name)
-    print(f"{char_name}でTwitchコメント受信開始")
+    characterId = req.characterId
+    ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}でTwitchコメント受信開始")
     TWTITCH_ACCESS_TOKEN = TwitchBot.getAccessToken()
     twitchBot = TwitchBot(video_id, TWTITCH_ACCESS_TOKEN)
-    twitchBotList[char_name.name] = twitchBot
+    twitchBotList[characterId] = twitchBot
     twitchBot.run()
     # return {"message":"Twitchコメント受信開始"}
 
 class StopTwitchCommentReceiver(BaseModel):
-    front_name: str
+    characterId: CharacterId
 
 @app.post("/StopTwitchCommentReceiver")
 async def stopTwitchCommentReceiver(req:StopTwitchCommentReceiver):
     print("Twitchコメント受信停止")
-    front_name = req.front_name
-    chara_name = Human.setCharName(front_name)
-    await twitchBotList[chara_name.name].stop()
-    twitchBotList.pop(chara_name.name)
+    characterId = req.characterId
+    await twitchBotList[characterId].stop()
+    twitchBotList.pop(characterId)
     return {"message":"Twitchコメント受信停止"}
 
-@app.websocket("/TwitchCommentReceiver/{video_id}/{front_name}")
-async def twitchCommentReceiver(websocket: WebSocket, video_id: str, front_name: str):
+@app.websocket("/TwitchCommentReceiver/{video_id}/{characterId}")
+async def twitchCommentReceiver(websocket: WebSocket, video_id: str, characterId: CharacterId):
     ExtendFunc.ExtendPrint("TwitchCommentReceiver")
     await websocket.accept()
-    char_name = Human.setCharName(front_name)
-    message_queue:asyncio.Queue[TwitchMessageUnit] = twitchBotList[char_name.name].message_queue
+    message_queue:asyncio.Queue[TwitchMessageUnit] = twitchBotList[characterId].message_queue
     nulvm = NiconamaUserLinkVoiceroidModule()
     try:
-        while True and char_name in twitchBotList:
+        while True and characterId in twitchBotList:
             comment = {}
             messageUnit:TwitchMessageUnit = await message_queue.get()
             ExtendFunc.ExtendPrint(f"messageUnit:{messageUnit}")
@@ -466,7 +463,7 @@ async def twitchCommentReceiver(websocket: WebSocket, video_id: str, front_name:
             ExtendFunc.ExtendPrint("ツイッチ受信コメントをクライアントに送信完了")
         ExtendFunc.ExtendPrint("TwitchCommentReceiver終了")
     except WebSocketDisconnect:
-        ExtendFunc.ExtendPrint(f"WebSocket が切断されました。 for {char_name} and {video_id}")
+        ExtendFunc.ExtendPrint(f"WebSocket が切断されました。 for {inastanceManager.humanInstances.tryGetHuman(characterId)} and {video_id}")
 
 
 

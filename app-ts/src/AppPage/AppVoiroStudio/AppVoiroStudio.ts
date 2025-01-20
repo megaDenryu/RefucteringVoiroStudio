@@ -376,18 +376,18 @@ export class MessageBox {
         } else if (message.includes("https://www.twitch.tv/")) {
             //twitchのコメントを受信する
             const video_id = message.split("https://www.twitch.tv/")[1];
-            console.log(video_id,front_name)
+            console.log(video_id,characterId)
             //Postを送信してRunTwitchCommentReceiverを実行
             await fetch(`http://${GlobalState.localhost}:${GlobalState.port}/RunTwitchCommentReceiver`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ video_id: video_id, front_name: front_name })
+                body: JSON.stringify({ video_id: video_id, characterId: characterId })
             });
             
             await new Promise(resolve => setTimeout(resolve, 3000));
 
             //websocketを開く
-            this.ws_twitch_comment_reciver = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/TwitchCommentReceiver/${video_id}/${front_name}`);
+            this.ws_twitch_comment_reciver = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/TwitchCommentReceiver/${video_id}/${characterId}`);
             this.ws_twitch_comment_reciver.onmessage = this.receiveNikoNamaComment.bind(this);
             //接続を完了するまで待つ
             this.ws_twitch_comment_reciver.onopen = () => {
@@ -407,7 +407,7 @@ export class MessageBox {
             fetch(`http://${GlobalState.localhost}:${GlobalState.port}/StopTwitchCommentReceiver`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ front_name: front_name })
+                body: JSON.stringify({ characterId: characterId })
             }).then(response => {
                 console.log(response)
             });
