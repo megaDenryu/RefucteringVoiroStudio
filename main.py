@@ -376,26 +376,21 @@ async def nikonama_comment_reciver_stop(characterId: CharacterId):
         nikonama_comment_reciever.stopRecieve()
         return
     
-@app.websocket("/YoutubeCommentReceiver/{video_id}/{front_name}")
-async def getYoutubeComment(websocket: WebSocket, video_id: str, front_name: str):
+@app.websocket("/YoutubeCommentReceiver/{video_id}/{characterId}")
+async def getYoutubeComment(websocket: WebSocket, video_id: str, characterId: CharacterId):
     print("YoutubeCommentReceiver")
     await websocket.accept()
-    char_name = Human.setCharName(front_name)
 
     try:
         while True:
             datas:dict = await websocket.receive_json()
             start_stop = datas["start_stop"]
-            print(f"{front_name=} , {video_id=} , {start_stop=}")
             if start_stop == "start":
                 nulvm = NiconamaUserLinkVoiceroidModule()
-                print(f"{char_name}で{video_id}のYoutubeコメント受信開始")
+                ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}で{video_id}のYoutubeコメント受信開始")
                 #コメント受信を開始
                 ycr = YoutubeCommentReciever(video_id=video_id)
-                if char_name == "名前が無効です":
-                    ExtendFunc.ExtendPrint("名前が無効です")
-                    return
-                YoutubeCommentReciever_list[char_name.name] = ycr
+                YoutubeCommentReciever_list[characterId] = ycr
                 async for comment in ycr.fetch_comments(ycr.video_id):
                     print(f"478:{comment=}") # {'author': 'ぴっぴ', 'datetime': '2024-04-20 16:48:47', 'message': 'はろー'}
                     author = comment["author"]
@@ -406,16 +401,16 @@ async def getYoutubeComment(websocket: WebSocket, video_id: str, front_name: str
                     comment["char_name"] = nulvm.getCharaNameByNikonamaUser(author)
                     await websocket.send_text(json.dumps(comment))
             else:
-                print(f"{char_name}で{video_id}のYoutubeコメント受信停止")
-                if char_name in YoutubeCommentReciever_list:
-                    YoutubeCommentReciever_list[char_name].stop()
-                    del YoutubeCommentReciever_list[char_name]
+                ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}で{video_id}のYoutubeコメント受信停止")
+                if characterId in YoutubeCommentReciever_list:
+                    YoutubeCommentReciever_list[characterId].stop()
+                    del YoutubeCommentReciever_list[characterId]
                     await websocket.close()
     except WebSocketDisconnect:
-        print(f"WebSocket disconnected unexpectedly for {char_name} and {video_id}")
-        if char_name in YoutubeCommentReciever_list:
-            YoutubeCommentReciever_list[char_name].stop()
-            del YoutubeCommentReciever_list[char_name]
+        print(f"WebSocket disconnected unexpectedly for {characterId} and {video_id}")
+        if characterId in YoutubeCommentReciever_list:
+            YoutubeCommentReciever_list[characterId].stop()
+            del YoutubeCommentReciever_list[characterId]
 class TwitchCommentReceiver(BaseModel):
     video_id: str
     front_name: str

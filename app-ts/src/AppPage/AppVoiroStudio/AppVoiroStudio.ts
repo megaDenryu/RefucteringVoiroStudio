@@ -354,7 +354,7 @@ export class MessageBox {
             const video_id = message.split("https://www.youtube.com/watch?v=")[1];
             console.log(video_id)
             //websocketを開く
-            this.ws_youtube_comment_reciver = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/YoutubeCommentReceiver/${video_id}/${front_name}`);
+            this.ws_youtube_comment_reciver = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/YoutubeCommentReceiver/${video_id}/${characterId}`);
             this.ws_youtube_comment_reciver.onmessage = this.receiveYoutubeLiveComment.bind(this);
             //接続を完了するまで待つ
             this.ws_youtube_comment_reciver.onopen = () => {
