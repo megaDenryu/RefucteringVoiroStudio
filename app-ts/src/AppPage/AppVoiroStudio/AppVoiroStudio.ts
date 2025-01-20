@@ -161,11 +161,11 @@ export class MessageBoxManager {
         return this.message_box_list.map((message_box) => message_box.human_tab);
     }
 
-    get humanTabDict(): Record<string, HumanTab> {
+    get humanTabDict(): Record<CharacterId, HumanTab> {
         const dict = {};
         for (let message_box of this.message_box_list) {
-            if (message_box.front_name == null) {continue;}
-            dict[message_box.front_name] = message_box.human_tab;
+            if (message_box.human_tab.characterId == null) {continue;}
+            dict[message_box.human_tab.characterId] = message_box.human_tab;
         }
         return dict;
     }
