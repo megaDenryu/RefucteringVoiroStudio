@@ -37,7 +37,7 @@ from typing_extensions import TypedDict
 from pydantic import BaseModel
 
 from api.gptAI.PastConversation import PastConversation
-from api.gptAI.VoiceInfo import SentenceOrWavSendData, WavInfo
+from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData, WavInfo
 
 
 
@@ -338,7 +338,10 @@ class AgentManager:
         human.outputWaveFile(sentence)
         #wavデータを取得
         wav_info:list[WavInfo] = human.human_Voice.output_wav_info_list
-        sentence_info = {human.front_name:sentence}
+        sentence_info:list[SentenceInfo] = [{
+            "characterModeState":human.chara_mode_state,
+            "sentence":sentence
+        }]
 
         send_data:SentenceOrWavSendData = {
             "sentence":sentence_info,
