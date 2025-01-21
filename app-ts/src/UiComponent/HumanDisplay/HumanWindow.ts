@@ -3,7 +3,7 @@
 import { addClickEvent2Tab, DragDropFile, GlobalState, HumanBodyManager2, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
 import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { ExtendFunction } from "../../Extend/extend";
-import { CharacterId, CharacterModeState } from "../../ValueObject/Character";
+import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Character";
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
 import { DragMover } from "../Base/DragableComponent";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
@@ -47,9 +47,6 @@ export class HumanTab implements IHasComponent,IHumanTab {
         return this.human_window_elm;
     }
 
-    get front_name(): string|null {
-        return this.humanName.front_name;
-    }
 
     /**
      * 
@@ -98,21 +95,19 @@ export class HumanTab implements IHasComponent,IHumanTab {
         }
     }
 
-    registerHumanName(front_name: string) {
-        this.humanWindow.addClass(front_name);
-        this.humanName.setName(front_name);
-        // registerHumanName(front_name, this.component.element, this.characterId);
-        //messageBoxにhuman_nameを格納
+    //キャラを選択してフロントネームが確定したときにキャラ名表示の場所にフロントネームを表示し、messageBoxやhumanTabにキャラクターIDを登録する
+    registerHumanInfo(nick_name:NickName) { //おそらくここだけは唯一front_nameがなければならない場所。
+        this.humanWindow.addClass(this.characterId);
+        this.humanName.setName(nick_name);
         //今のhuman_tabの番号を取得
         const tab_num = this.component.element.getAttribute('data-tab_num');
-        GlobalState.message_box_manager.linkHumanNameAndNum(front_name,tab_num)
+        if (tab_num === null) {return;}
+        GlobalState.message_box_manager.linkCharaIdAndNum(this.characterId,Number(tab_num))
     }
 
     deleteHumanTab() {
         this.component.element.remove();
-        //ニコ生コメント受信を停止する。nikonama_comment_reciver_stopにfront_nameをfetchで送信する。
-        const front_name = this.front_name;
-        if (!front_name) {return;}
+        //ニコ生コメント受信を停止する。nikonama_comment_reciver_stopにcharacterIdをfetchで送信する。
         fetch(`http://${GlobalState.localhost}:${GlobalState.port}/nikonama_comment_reciver_stop/${this.characterId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -131,7 +126,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
         }
         
         //message_box_managerからも削除
-        GlobalState.message_box_manager.message_box_dict.delete(front_name);
+        GlobalState.message_box_manager.message_box_dict.delete(this.characterId);
     }
 
     charaSelectPanelStart() {
@@ -184,7 +179,7 @@ export class DeleteHumanButton implements IHasComponent, IDeleteHumanButton {
 
 export class HumanName implements IHasComponent, IHumanName {
     component: BaseComponent;
-    front_name: string|null = null;
+    nick_name: NickName|null = null;
     onClick:ReactiveProperty<boolean> = new ReactiveProperty(false);
     humanTab: HumanTab;
     constructor(element: HTMLElement, humanTab: HumanTab) {
@@ -193,9 +188,9 @@ export class HumanName implements IHasComponent, IHumanName {
         this.humanTab = humanTab;
         this.onClick.addMethod(() => {this.inputHumanaName()});
     }
-    setName(name: string) {
-        this.front_name = name;
-        this.component.element.innerText = name;
+    setName(nick_name:NickName) {
+        this.nick_name = nick_name;
+        this.component.element.innerText = nick_name.name;
         this.component.removeCSSClass("input_now");
     }
     addClass(className: string) {
@@ -224,9 +219,9 @@ export class HumanName implements IHasComponent, IHumanName {
             if (event.key === "Enter") {
                 //removeInputCharaNameイベントを解除する
                 input.removeEventListener("blur", handleBlur);
-                const human_name = input.value;
-                this.humanTab.registerHumanName(human_name);
-                sendHumanName(human_name)
+                const nick_name = new NickName(input.value);
+                this.humanTab.registerHumanInfo(nick_name);
+                sendHumanName(nick_name)
                 input.remove();
             }
         });
@@ -266,8 +261,6 @@ export class BodySettingButton implements IHasComponent, IBodySettingButton {
     pushSettingButton() {
         console.log("pushSettingButton")
         this.component.addCSSClass("setting_now");
-        if (this.humanTab.front_name === null) {return;}
-        const char_name = GlobalState.front2chara_name[this.humanTab.front_name]; //humanTabを生成したときにfront_nameを付けてないのでエラーになる
         const characterId = this.humanTab.characterId;
         if (characterId in GlobalState.setting_info) {
             if (GlobalState.setting_info[characterId].ELM_accordion.classList.contains("vissible")){

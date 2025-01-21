@@ -1,6 +1,6 @@
 import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
-import { CharacterName, HumanImage, CharacterModeState, TTSSoftware, TTSSoftwareEnum, VoiceMode } from "../../ValueObject/Character";
+import { CharacterName, HumanImage, CharacterModeState, TTSSoftware, TTSSoftwareEnum, VoiceMode, NickName } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../HumanDisplay/HumanWindow";
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
@@ -611,8 +611,7 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
         //情報をまとめてサーバーにPostでリクエストを投げる
         console.log("キャラクターが決定されました");
         console.log(selectState);
-        // this.registerHumanName(selectState.character_name.name, this.human_tab.component.element, this.ELM_human_name);
-        this.human_tab.registerHumanName(selectState.character_name.name);
+        this.human_tab.registerHumanInfo(new NickName(selectState.character_name.name));
         let response_json:CharaCreateData = await RequestAPI.fetchOnDecideCharaInfo(selectState);
         console.log(response_json);
         // this._onReceiveDecideCharacterResponse.set(response_json);
@@ -626,12 +625,6 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
 
     public addOnReceiveDecideCharacterResponse(method: (response: HumanData|null) => void): void {
         this._onReceiveDecideCharacterResponse.addMethod(method);
-    }
-
-    
-
-    private fetchCharaInfo(): void {
-        
     }
 
     private deleteWiondow(): void {

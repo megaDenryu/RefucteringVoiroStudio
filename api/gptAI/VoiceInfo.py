@@ -26,7 +26,7 @@ class WavInfo(TypedDict):
 
 
 
-class SendData(TypedDict):
-    sentence:dict[str,str]
+class SentenceOrWavSendData(TypedDict):
+    sentence:dict[str,str] # todo : ここがキーはキャラ名、値はセンテンスの辞書になっているが、設計として終わっているのでなんか型を付ける
     wav_info:list[WavInfo]
     chara_type:Literal["gpt","player"]

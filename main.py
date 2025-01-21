@@ -17,6 +17,7 @@ from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSo
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
+from api.gptAI.VoiceInfo import SentenceOrWavSendData
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
 from api.gptAI.Human import Human
@@ -313,7 +314,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         #wavデータを取得
                         wav_info = human_ai.human_Voice.output_wav_info_list
                         #バイナリーをjson形式で送信
-                        send_data = {
+                        send_data:SentenceOrWavSendData = {
                             "sentence":{human_ai.front_name:sentence},
                             "wav_info":wav_info,
                             "chara_type":"player"
