@@ -16,6 +16,7 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSetti
 from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
+from api.gptAI.GPTMode import GPTModeReq, GptMode
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
 from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
 from api.gptAI.gpt import ChatGPT
@@ -250,7 +251,7 @@ MessageDict = dict[FrontName, MessageUnit]  #FrontName型をstrと仮定。た�
 
 class SendData(TypedDict):
     message: MessageDict
-    gpt_mode: dict[str,str]
+    gpt_mode: dict[CharacterId, str]
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint2(websocket: WebSocket, client_id: str):
@@ -264,13 +265,8 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             # クライアントからメッセージの受け取り
             datas:SendData = json.loads(await websocket.receive_text()) 
             message:MessageDict = datas["message"]
-            recieve_gpt_mode_dict = Human.convertDictKeyToCharName(datas["gpt_mode"])
-            # for character_id in recieve_gpt_mode_dict.keys():
-            #     inastanceManager.gptModeManager.setCharacterGptMode(character_id, recieve_gpt_mode_dict[character_id])
             input = ""
             input_dict:dict[CharacterId,str] = {}
-            json_data = json.dumps(message, ensure_ascii=False)
-            #await notifier.push(json_data)
             inputer = ""
             for front_name,message_unit in message.items():
                 if message_unit["characterModeState"] == None:
@@ -470,11 +466,6 @@ async def twitchCommentReceiver(websocket: WebSocket, video_id: str, characterId
     except WebSocketDisconnect:
         ExtendFunc.ExtendPrint(f"WebSocket が切断されました。 for {inastanceManager.humanInstances.tryGetHuman(characterId)} and {video_id}")
 
-
-
-            
-
-
 @app.websocket("/InputPokemon")
 async def inputPokemon(websocket: WebSocket):
     # クライアントとのコネクション確立
@@ -516,7 +507,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             print("データ受け取り開始！")
             # クライアントからキャラクター名のメッセージの受け取り
             name_data = await websocket.receive_text()
-            print("human:" + name_data)
+            ExtendFunc.ExtendPrint("human:" + name_data)
             
             if Human.setCharName(name_data) == "":
                 print("キャラ名が無効です")
@@ -706,29 +697,15 @@ async def ws_combi_img_reciver(websocket: WebSocket):
         # 切れたセッションの削除
         # notifier.remove(websocket)
 
-@app.websocket("/gpt_mode")
-async def ws_gpt_mode(websocket: WebSocket):
-    # クライアントとのコネクション確立
-    print("gpt_modeコネクションします")
-    await websocket.accept()
-    try:
-        while True:
-            # クライアントからメッセージの受け取り
-            data = json.loads(await websocket.receive_text())
-            recieve_gpt_mode_dict = Human.convertDictKeyToCharName(data)
-            #受け取ったデータをjsonに保存する
-            for name in recieve_gpt_mode_dict.keys():
-                # gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
-                inastanceManager.gptModeManager.setCharacterGptMode(name, recieve_gpt_mode_dict[name])
-            if inastanceManager.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev"):
-                print("individual_process0501devがないので終了します")
-                await inastanceManager.inputReciever.stopObserveEpic()
-                break
-                
-            
-    # セッションが切れた場合
-    except WebSocketDisconnect:
-        print("wsを切断:ws_gpt_mode")
+
+@app.post("/gpt_mode")
+async def post_gpt_mode(req: GPTModeReq):
+    ExtendFunc.ExtendPrintWithTitle("gpt_mode",req)
+    inastanceManager.gptModeManager.setCharacterGptMode(req.characterId, req.gptMode)
+    if inastanceManager.gptModeManager.特定のモードが動いてるか確認(GptMode.individual_process0501dev):
+        print("individual_process0501devがないので終了します")
+        ExtendFunc.ExtendPrint( {"message": "individual_process0501devがないので終了します"})
+    ExtendFunc.ExtendPrint({"message": f"{req.gptMode.value}の変更に成功しました"})
 
 @app.websocket("/gpt_routine_test/{front_name}")
 async def ws_gpt_routine(websocket: WebSocket, front_name: str):
@@ -837,7 +814,6 @@ async def AllCharaInfo():
     AllHumanInformationManager.singleton().load() #変更があるかもしれないのでリロード
     mana = AllHumanInformationDict()
     ExtendFunc.ExtendPrint(mana)
-    # mana.save()
     return mana
 
 

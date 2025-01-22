@@ -16,6 +16,7 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSetti
 from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
 from api.Extend.BaseModel.BaseModel2UIFormatConverter import 型の変換と保存
 from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
+from api.gptAI.GPTMode import GPTModeReq
 
 
 
@@ -26,20 +27,22 @@ if __name__ == "__main__":
     # BaseModelConverterTest.Zodを出力する本番(YoutubeLiveSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(TwitchSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(AppSettingInitReq)
-    BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(CevioAIVoiceSettingModelReq)
 
-    BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(VoiceVoxVoiceSettingModelReq)
     # BaseModelConverterTest.Zodを出力する本番(TtsSoftWareVoiceSettingReq)
-    BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModelReq)
+    BaseModelConverterTest.Zodを出力する本番(GPTModeReq)
+    
 
     
-    型の変換と保存(AppSettingsModel)
-    型の変換と保存(CevioAIVoiceSettingModel)
-    型の変換と保存(VoiceVoxVoiceSettingModel)
-    型の変換と保存(CoeiroinkVoiceSettingModel)
+    # 型の変換と保存(AppSettingsModel)
+    # 型の変換と保存(CevioAIVoiceSettingModel)
+    # 型の変換と保存(VoiceVoxVoiceSettingModel)
+    # 型の変換と保存(CoeiroinkVoiceSettingModel)
 
     
 

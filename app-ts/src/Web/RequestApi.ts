@@ -35,26 +35,26 @@ export class RequestAPI {
         return `http://localhost:${this.port}/`;
     }
 
+    private static async post(url, data:object):Promise<Response> {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        return response;
+    }
+
+    public static async postRequest<T extends Record<string, any>>(endPoint:string, object:object):Promise<T> {
+        const response = await RequestAPI.post(RequestAPI.rootURL + endPoint, object);
+        const json:string = await response.json();
+        const retrunObject:T = JSON.parse(json);
+        return retrunObject;
+    }
 
     static async fetchOnDecideCharaInfo(humanNameState: CharacterModeState):Promise<CharaCreateData> {
         //キャラインフォが決まったときに呼びdして、サーバーにキャラインフォを送り、ボイスロイドを起動して、画像データを取得する。
         let req = new CharacterModeStateReq(humanNameState, this.client_id);
-
-        //1. jsonに変換する
-        const data = JSON.stringify(req.toDict());
-        console.log(data);
-        //2. 非同期fetchする
-        const response = await fetch(RequestAPI.rootURL + "DecideChara", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: data
-        })
-
-        const json:string = await response.json();
-        const charaCreateData:CharaCreateData = JSON.parse(json);
-        return charaCreateData;
+        return RequestAPI.postRequest<CharaCreateData>("DecideChara",req.toDict());
     }
 
 

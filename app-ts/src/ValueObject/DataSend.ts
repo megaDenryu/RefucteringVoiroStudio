@@ -13,3 +13,4 @@ export interface SendData {
     message: MessageDict;
     gpt_mode: Record<string, string>;
 }
+

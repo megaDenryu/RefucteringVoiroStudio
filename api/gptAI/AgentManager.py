@@ -1976,16 +1976,16 @@ class TaskDecompositionCheckerAgent(LifeProcessModule):
         return transported_item
 
 class TaskUnit(BaseModel):
-        id:str
-        description:str
-        dependencies:list[str]
-        def __init__(self):
-            return self
+    id:str
+    description:str
+    dependencies:list[str]
+    def __init__(self):
+        return self
 
-        @staticmethod
-        def init(id:str|None, タスクの説明:str|None, 依存するタスクのid:list[str]|None)->"TaskUnit":
-            tu = TaskUnit()
-            return tu
+    @staticmethod
+    def init(id:str|None, タスクの説明:str|None, 依存するタスクのid:list[str]|None)->"TaskUnit":
+        tu = TaskUnit()
+        return tu
 class TaskToJsonConverterAgent(LifeProcessModule):
     def __init__(self,testmode:bool = False):
         super().__init__(test_mode=testmode)

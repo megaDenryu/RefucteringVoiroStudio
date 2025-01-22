@@ -18,6 +18,7 @@ import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSett
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
 import { ICharacterModeState, ICharacterModeStateReq } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { GPTModeReq, GptMode } from "../../ZodObject/gptAI/GPTMode";
 
 // const { promises } = require("fs");
 
@@ -436,36 +437,9 @@ export class MessageBox {
             "gpt_mode" : this.message_box_manager.getAllGptModeByDict()
         }
         let ret = JSON.stringify(send_data);
-        console.log("ret")
-        console.log(ret)
-        GlobalState.ws.send(JSON.stringify(send_data));
+        console.log("websocketで送信するデータ",ret)
+        GlobalState.ws.send(ret);
     }
-}
-
-function getMessageBoxByCharName(char_name) {
-    return GlobalState.message_box_manager.message_box_dict.get(char_name);
-}
-
-//キャラ名を送信するときのイベント関数
-function sendMessage(event: Event) {
-    event.preventDefault()
-    var human_tabs = document.getElementsByClassName("human_tab")
-    let inputs_dict = {}
-    for (let i=0;i<human_tabs.length;i++){
-        let human_name = human_tabs[i].getFirstHTMLElementByClassName("human_name").innerText
-        let input_elem = human_tabs[i].getFirstTextAreaElementByClassName("messageText")
-        inputs_dict[human_name] = input_elem.value
-        input_elem.value = ""
-    }
-    let inputs_json = JSON.stringify(inputs_dict)
-    GlobalState.ws.send(inputs_json)
-
-    //sendを押したキャラタブのmessageTextにフォーカスを移す。
-    let ELM_input_area = (event.target as HTMLElement)?.closest(".input_area")
-    let ELM_messageText = ELM_input_area?.getFirstHTMLElementByClassName("messageText")[0]
-    ELM_messageText.focus()
-
-    
 }
 
 export type AllData = Record<string, Record<string, string>>;
@@ -1213,10 +1187,7 @@ export class HumanBodyManager2 {
             resolve();
         })
         promise_setBodyParts2Elm.then(() => {
-            console.log(`${this.front_name}インスタンスを生成しました。`);
-            console.log(this.human_window);
-
-            this.human_window = document.getElementsByClassName(`${this.front_name}`)[0];
+            this.human_window = document.getElementsByClassName(`${this.characterId}`)[0];
             this.human_images = this.human_window.getElementsByClassName("human_images")[0];
             //画像をドラッグで動かせるようにする
             addMoveImageEvent(this.human_images,this);
@@ -2937,9 +2908,9 @@ export class GPTSettingButtonManagerModel {
         this.Map_ELM_gpt_setting_button = this.getMapELMGPTSettingButton(gpt_mode_name_list);
         this.Map_ELM_gpt_setting_button.forEach((value, key, map) => {
             let ELM_gpt_setting_button = value;
-            const mode_name = key;
-            ELM_gpt_setting_button.addEventListener("click", (/** @type {Event} */ event) => { 
-                this.clickEvent(event, mode_name);
+            const mode_name = key as GptMode;
+            ELM_gpt_setting_button.addEventListener("click", async (event: Event) => { 
+                await this.clickEvent(event, mode_name);
             });
         });
         this.gpt_mode_accordion_open_close_button = (this.ELM_gpt_setting.querySelector(".gpt_mode_accordion_open_close_button")) ?? (() => {throw new Error("gpt_mode_accordion_open_close_buttonが見つかりません")})();
@@ -3002,13 +2973,13 @@ export class GPTSettingButtonManagerModel {
         });
     }
 
-    clickEvent(event: Event, mode:string): void {
+    async clickEvent(event: Event, mode:GptMode): Promise<void> {
         console.log("GPTSettingButtonManaerModelがクリックされたよ")
         console.log(event, mode)
         this.radioChangeGPTSettingStatus(mode);
         this.radioChangeButtonView(mode);
         this.sendGPTSettingStatus(mode);
-        this.sendGPTSettingStatus2Server(mode);
+        await this.sendGPTSettingStatus2Server(mode);
         if (mode == "individual_process0501dev") {
             alert("individual_process0501devがクリックされた")
             this.startGptRoutine();
@@ -3070,7 +3041,22 @@ export class GPTSettingButtonManagerModel {
      * @param {string} mode
      * @returns {void}
      */
-    sendGPTSettingStatus2Server(mode) { 
+    async sendGPTSettingStatus2Server(mode: GptMode) {
+        const data:GPTModeReq = {
+            "characterId":this.characterId,
+            "gptMode":mode,
+            "clientId":GlobalState.client_id
+        }
+
+        console.log("gpt_modeが送信される",data)
+        //Postで送信する
+        const state:object = await RequestAPI.postRequest("gpt_mode", data)
+        console.log("state",state)
+        return state;
+        
+
+
+
         //websocketを作成
         var ws_gpt_mode_sender = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/gpt_mode`)
         ws_gpt_mode_sender.onopen =  ( _ ) => {

@@ -221,7 +221,7 @@ export class HumanName implements IHasComponent, IHumanName {
                 input.removeEventListener("blur", handleBlur);
                 const nick_name = new NickName(input.value);
                 this.humanTab.registerHumanInfo(nick_name);
-                sendHumanName(nick_name)
+                sendHumanName(nick_name);
                 input.remove();
             }
         });
