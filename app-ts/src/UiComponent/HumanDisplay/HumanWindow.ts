@@ -1,6 +1,6 @@
 
 
-import { addClickEvent2Tab, DragDropFile, GlobalState, HumanBodyManager2, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
+import { createHumanBox, DragDropFile, GlobalState, HumanBodyManager2, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
 import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { ExtendFunction } from "../../Extend/extend";
 import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Character";
@@ -42,6 +42,9 @@ export class HumanTab implements IHasComponent,IHumanTab {
     get human_tab_elm(): HTMLElement {
         return this.component.element;
     }
+    get message_col_elm(): HTMLElement {
+        return this.human_tab_elm.getElementsByClassName("message_col")[0] as HTMLElement;
+    }
 
     get human_window_elm(): HTMLElement {
         return this.human_window_elm;
@@ -51,7 +54,6 @@ export class HumanTab implements IHasComponent,IHumanTab {
     /**
      * 
      * @param {HTMLElement} human_tab_elm 
-     * @param {string} front_name 
      */
     constructor(human_tab_elm:HTMLElement) {
         this.component = new BaseComponent(human_tab_elm);
@@ -63,7 +65,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
         this.micToggleButton = new MicToggleButton(human_tab_elm.getFirstHTMLElementByClassName("mic_toggle_button"));
         this.addHumanButton = new AddHumanButton(human_tab_elm.getFirstHTMLElementByClassName("add_human_button"));
         this.backGroundImages = new BackGroundImages(human_tab_elm.getFirstHTMLElementByClassName("bg_images"));
-        this.characterId = ExtendFunction.uuid();
+        this.characterId = ExtendFunction.uuid() as CharacterId;
         this.Initialize();
     }
 
@@ -96,7 +98,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
     }
 
     //キャラを選択してフロントネームが確定したときにキャラ名表示の場所にフロントネームを表示し、messageBoxやhumanTabにキャラクターIDを登録する
-    registerHumanInfo(nick_name:NickName) { //おそらくここだけは唯一front_nameがなければならない場所。
+    registerHumanInfo(nick_name:NickName) {
         this.humanWindow.addClass(this.characterId);
         this.humanName.setName(nick_name);
         //今のhuman_tabの番号を取得
@@ -126,7 +128,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
         }
         
         //message_box_managerからも削除
-        GlobalState.message_box_manager.message_box_dict.delete(this.characterId);
+        GlobalState.message_box_manager.deleteMessageBoxByCharId(this.characterId);
     }
 
     charaSelectPanelStart() {
@@ -137,8 +139,6 @@ export class HumanTab implements IHasComponent,IHumanTab {
     createHuman(charaCreateData:CharaCreateData){
         const humanData:HumanData = charaCreateData.humanData;
         GlobalState.humans_list[charaCreateData.characterModeState.id] = new HumanBodyManager2(humanData, charaCreateData.characterModeState, this.humanWindow.component.element);
-        GlobalState.front2chara_name[humanData["front_name"]] = humanData["char_name"];
-        
         const characterModeState:CharacterModeState = CharacterModeState.fromDict(charaCreateData.characterModeState);
         this.characterModeState = characterModeState;
 
@@ -349,7 +349,7 @@ export class AddHumanButton implements IHasComponent, IAddHumanButton {
         clone.classList.add("tab");
         (clone.getElementsByClassName('human_name')[0] as HTMLElement).innerText = "????";
         humans_space.append(clone);
-        let messageBox = addClickEvent2Tab(clone);
+        let messageBox = createHumanBox(clone);
         GlobalState.drag_drop_file_event_list?.push(new DragDropFile(messageBox.human_tab));
     }
 

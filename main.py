@@ -17,7 +17,7 @@ from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSo
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
-from api.gptAI.VoiceInfo import SentenceOrWavSendData
+from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
 from api.gptAI.Human import Human
@@ -313,9 +313,13 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         human_ai.outputWaveFile(sentence)
                         #wavデータを取得
                         wav_info = human_ai.human_Voice.output_wav_info_list
+                        sentence_info:list[SentenceInfo] = [{
+                                "characterModeState":human_ai.chara_mode_state.toDict(),
+                                "sentence":sentence
+                                }]
                         #バイナリーをjson形式で送信
                         send_data:SentenceOrWavSendData = {
-                            "sentence":{human_ai.front_name:sentence},
+                            "sentence":sentence_info,
                             "wav_info":wav_info,
                             "chara_type":"player"
                         }
@@ -783,7 +787,7 @@ async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 
-@app.websocket("/gpt_routine/{front_name}")
+@app.websocket("/gpt_routine/{characterId}")
 async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routineコネクションします")
@@ -800,7 +804,7 @@ async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
-@app.websocket("/gpt_routine3/{front_name}")
+@app.websocket("/gpt_routine3/{characterId}")
 async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routineコネクションします")

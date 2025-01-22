@@ -339,7 +339,7 @@ class AgentManager:
         #wavデータを取得
         wav_info:list[WavInfo] = human.human_Voice.output_wav_info_list
         sentence_info:list[SentenceInfo] = [{
-            "characterModeState":human.chara_mode_state,
+            "characterModeState":human.chara_mode_state.toDict(),
             "sentence":sentence
         }]
 
@@ -2484,7 +2484,8 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
     
     def replaceDictDef(self, input: ThoughtsSerifnizeTransportedItem)->dict[str,str]:
         # 未定義
-        pass
+        raise NotImplementedError("未定義")
+        return {}
 
     async def request(self, query:list[ChatGptApiUnit.MessageQuery])->str:
         print(f"{self.name}がリクエストを送信します")

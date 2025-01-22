@@ -139,7 +139,6 @@ class cevio_human:
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.name,
-                    "cevio_name":self.cevio_name,
                     "voice_system_name":"Cevio",
                     "characterModeState": self.chara_mode_state.toDict()
                 }
@@ -907,7 +906,6 @@ class AIVoiceHuman:
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
-                    "aivoice_name":self.aivoice_name,
                     "voice_system_name":"AIVoice",
                     "characterModeState": self.chara_mode_state.toDict()
                 }
@@ -1272,6 +1270,12 @@ class Coeiroink:
         if self.isSaveWaiting == True:
             return
         await self.saveVoiceSetting()
+
+    def speak(self,text:str):
+        """
+        テキストを読み上げる
+        """
+        pass
     
     # ステータスを取得する
     @staticmethod

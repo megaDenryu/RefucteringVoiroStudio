@@ -17,14 +17,12 @@ import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Cha
 import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
-import { ICharacterModeState } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { ICharacterModeState, ICharacterModeStateReq } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 
 // const { promises } = require("fs");
 
 
-export function addClickEvent2Tab(human_tab_elm: HTMLElement):MessageBox {
-    // タブに対してクリックイベントを適用
-    // タブ識別用にdata属性を追加
+export function createHumanBox(human_tab_elm: HTMLElement):MessageBox {
     const num:Number = GlobalState.message_box_manager.message_box_list.length;
     human_tab_elm.setAttribute('data-tab_num', num.toString());
     //メッセージボックスのサイズが変更された時のイベントを追加
@@ -145,10 +143,25 @@ export class MessageBoxManager {
         this.Map_all_char_gpt_mode_status = new ExtendedMap();
     }
 
-    setMessageBox(message_box:MessageBox):number {
+    addMessageBox(message_box:MessageBox):number {
         this.message_box_list.push(message_box);
         var assign_number = this.message_box_list.length - 1;
         return assign_number;
+    }
+
+    deleteMessageBox(message_box:MessageBox) {
+        const index = this.message_box_list.indexOf(message_box);
+        if (index == -1) {
+            return;
+        }
+        this.message_box_list.splice(index, 1);
+    }
+
+    deleteMessageBoxByCharId(characterId:CharacterId) {
+        const message_box = this.message_box_dict.get(characterId);
+        if (message_box == null) {return;}
+        this.deleteMessageBox(message_box);
+        this.message_box_dict.delete(characterId);
     }
 
     //１つのメッセージボックスの大きさが変更されたときに、他のメッセージボックスの大きさも変更する関数
@@ -186,24 +199,6 @@ export class MessageBoxManager {
             gpt_mode_dict[key] = value;
         }
         return gpt_mode_dict;
-    }
-
-
-    getMessageBoxByFrontName(front_name:string):MessageBox|null {
-        //front_nameがfront2chara_nameにない場合はnullを返す
-        if (front_name in GlobalState.front2chara_name) {
-            return this.message_box_dict.get(front_name);
-        } else {
-            return null;
-        }
-    }
-
-    getMessageBoxByCharName(char_name:string):MessageBox|undefined {
-        const front_name = chara_name2front_name(char_name);
-        if (front_name == "no_front_name") {
-            return undefined;
-        }
-        return this.message_box_dict.get(front_name);
     }
 
 }
@@ -244,7 +239,7 @@ export class MessageBox {
         this.message_box_manager = message_box_manager;
         this.human_tab = new HumanTab(human_tab_elm);
         //メッセージボックスマネージャーにこのメッセージボックスを登録
-        this.manage_num = this.message_box_manager.setMessageBox(this);
+        this.manage_num = this.message_box_manager.addMessageBox(this);
         if(manage_num != this.manage_num) {
             alert("message_box_managerに登録された番号と、message_boxの番号が一致しません。")
         }
@@ -394,7 +389,7 @@ export class MessageBox {
         if (char_name == this.char_name) {
             this.sendMessage(comment);
         } else {
-            let message_box = GlobalState.message_box_manager.getMessageBoxByCharName(char_name)
+            let message_box = GlobalState.getMessageBoxByCharacterId(this.human_tab.characterId);
             if (message_box == null) {
                 this.sendMessage(comment);
             } else {
@@ -411,7 +406,7 @@ export class MessageBox {
         if (char_name == this.char_name) {
             this.sendMessage(comment);
         } else {
-            let message_box = GlobalState.message_box_manager.getMessageBoxByCharName(char_name)
+            let message_box = GlobalState.getMessageBoxByCharacterId(this.human_tab.characterId);
             if (message_box == null) {
                 this.sendMessage(comment);
             } else {
@@ -497,9 +492,6 @@ function receiveMessage(event) {
         console.log("human_listに追加失敗:"+body_parts["char_name"])
     }
 
-    GlobalState.front2chara_name[body_parts["front_name"]] = body_parts["char_name"]
-    console.log("front2chara_name=",GlobalState.front2chara_name)
-
     //CharacterModeStateの登録
     let humanTab:HumanTab = GlobalState.message_box_manager.message_box_dict.get(characterModeState.id)?.human_tab ?? (() => {throw new Error("human_tabが見つかりませんでした。")})();
     humanTab.characterModeState = characterModeState;
@@ -517,8 +509,13 @@ export interface WavInfo {
     characterModeState: ICharacterModeState; // キャラのモードの状態
 }
 
+export interface SentenceInfo {
+    characterModeState:ICharacterModeState
+    sentence:string
+}
+
 export interface SentenceOrWavSendData {
-    sentence: Record<string, string>;
+    sentence: SentenceInfo[];
     wav_info: WavInfo[];
     chara_type: "gpt" | "player";
 }
@@ -528,37 +525,25 @@ export async function receiveConversationData(event) {
     var human_tab = document.getElementsByClassName('human_tab');
     let obj:SentenceOrWavSendData = JSON.parse(JSON.parse(event.data));
     var audio_group = document.getElementsByClassName("audio_group")[0]
+    const sentenceInfoList:SentenceInfo[] = obj["sentence"];
+    if (sentenceInfoList.length == 0) {console.error("sentenceInfoListが空です。", obj);return;}
+    const character_id = sentenceInfoList[0].characterModeState.id;
+    const textPromise = execText(sentenceInfoList,human_tab)
+    //音声を再生
+    const wav_info:WavInfo[]  = obj["wav_info"];
+    const audioPromise = execAudioList(wav_info,audio_group)
+    // 両方の処理が終わるのを待つ
+    await Promise.all([textPromise, audioPromise]);
     if (obj["chara_type"] == "gpt") {
-        //文章を表示
-        const sentence:Record<string,string> = obj["sentence"];
-        const textPromise = execText(sentence,human_tab)
-
-        //音声を再生
-        const wav_info:WavInfo[]  = obj["wav_info"];
-        const audioPromise = execAudioList(wav_info,audio_group)
-
-        // 両方の処理が終わるのを待つ
-        await Promise.all([textPromise, audioPromise]);
-
         //gptからの音声だった場合は終了を通知。
-        const front_name = getNthKeyFromObject(sentence, 0) //todo : 本当はここでfront_nameではなくCharaIdで識別できるようにしないといけないがこれはサーバーに手を入れないといけない
-        const message_box = GlobalState.message_box_manager.getMessageBoxByFrontName(front_name);
+        const message_box = GlobalState.getMessageBoxByCharacterId(character_id);
         if (message_box) {
-            const human_gpt_routine_ws = message_box.gpt_setting_button_manager_model.human_gpt_routine_ws_dict[front_name];
+            const human_gpt_routine_ws = message_box.gpt_setting_button_manager_model.human_gpt_routine_ws_dict[character_id];
             human_gpt_routine_ws.sendJson({ "gpt_voice_complete": "complete" });
         }
         
     } else if(obj["chara_type"] == "player") {
-        //文章を表示
-        const sentence:Record<string,string> = obj["sentence"];
-        const textPromise = execText(sentence,human_tab)
-
-        //音声を再生
-        const wav_info:WavInfo[]  = obj["wav_info"];
-        const audioPromise = execAudioList(wav_info,audio_group)
-
-        // 両方の処理が終わるのを待つ
-        await Promise.all([textPromise, audioPromise]);
+       
     } else {
         console.error("データ型が不正です。この下の古いパターンを通っている可能性があります。todo: 以下のコメントアウトを削除", obj);
         // if (0 in obj && "wav_data" in obj[0]) {
@@ -575,86 +560,44 @@ export async function receiveConversationData(event) {
 /**
  * //テキストが送られてきたときの処理
  */
-async function execText(obj: Record<string,string>, human_tab: HTMLCollectionOf<Element>) {
-    console.log(obj)
-    for(let i=1; i<human_tab.length;i++){
-        //human_tabの中のhuman_nameを取得
-        let message = document.createElement('li')
-        //human_nameを取得
-        let name = human_tab[i].getFirstHTMLElementByClassName("human_name").innerText
-        //message_colを取得
-        let message_col = human_tab[i].getElementsByClassName("message_col")[0]
-
-        let str = ""
+async function execText(sentenceInfoList: SentenceInfo[], human_tab: HTMLCollectionOf<Element>) {
+    for(let sentenceInfo of sentenceInfoList){
+        const characterId = sentenceInfo.characterModeState.id;
+        //characterIdに一致するhuman_tabを取得
+        const humanTab:HumanTab = GlobalState.getHumanTabByCharacterId(characterId);
+        let message_col = humanTab.message_col_elm;
+        const sentence = sentenceInfo.sentence;
         //messageを作成
-        if(obj.hasOwnProperty(name)){
-            if(typeof obj[name] == "object"){
-                console.log("上を通った")
-                for(let key in obj[name] as object){
-                    if (key == "感情"){
-                        str = `${key}:${JSON.stringify(obj[name][key])}\n\n`
-                    }else{
-                        str = `${key}:${obj[name][key]}\n\n`
-                    }
-                    
-                    let content = document.createTextNode(str)
-                    message.appendChild(content)
-                }
-            }else{
-                console.log("下を通った")
-                console.log("obj[name]=",obj[name])
-                let content = document.createTextNode(obj[name])
-                message.appendChild(content)
-            }
-            
+        let message = document.createElement('li')
+        let content = document.createTextNode(sentence)
+        message.appendChild(content)
+
+        const i = GlobalState.CurrentHumanTabIndexInHumanTabList(characterId);
+        if (i == null) { console.error("iがnullです"); return; }
         
-            //class = "subtitle"を取得してinnerTextをmessageに変更
-            let subtitle = human_tab[i].getElementsByClassName("subtitle")[0]
-            if (subtitle instanceof HTMLElement) {
-                updateSubtitle(subtitle, obj[name])
-            }
-            
-
-            //class = "message"を追加
-            message.classList.add("message")
-            message_col.appendChild(message)
-            
-            //mode_integrateのmessage_colにも追加
-            let message_col_integrate = document.getElementsByClassName("message_col mode_integrate")[0]
-            let message_integrate = message.cloneNode(true) as HTMLElement
-            message_integrate.classList.add("message_integrate")
-            //message_integrateに番号情報を追加。後で位置の再調整に使う。
-            message_integrate.setAttribute("data-tab_num", i.toString())
-            //message_integrateの横のmarginに使う値
-            const base_margin = 6
-            //message_integrateの横位置を調整
-            message_integrate.style.marginLeft = `${100 / (human_tab.length-1) * (i-1) + base_margin / (human_tab.length-1)}%`
-            //message_integrateのwidthを調整
-            message_integrate.style.width = `${100 / (human_tab.length-1) - base_margin / (human_tab.length-1) * 2}%`
-
-            message_col_integrate.appendChild(message_integrate)
-            //一番下にスクロール
-            message_col.scrollTop = message_col.scrollHeight;
-            message_col_integrate.scrollTop = message_col_integrate.scrollHeight;
-        }
-
+        //class = "message"を追加
+        message.classList.add("message")
+        message_col.appendChild(message)
         
-        //humans_list.ONE_chan.changeTail()
+        //mode_integrateのmessage_colにも追加
+        let message_col_integrate = document.getElementsByClassName("message_col mode_integrate")[0]
+        let message_integrate = message.cloneNode(true) as HTMLElement
+        message_integrate.classList.add("message_integrate")
+        //message_integrateに番号情報を追加。後で位置の再調整に使う。
+        message_integrate.setAttribute("data-tab_num", i.toString())
+        //message_integrateの横のmarginに使う値
+        const base_margin = 6
+        //message_integrateの横位置を調整
+        message_integrate.style.marginLeft = `${100 / (human_tab.length-1) * (i-1) + base_margin / (human_tab.length-1)}%`
+        //message_integrateのwidthを調整
+        message_integrate.style.width = `${100 / (human_tab.length-1) - base_margin / (human_tab.length-1) * 2}%`
+
+        message_col_integrate.appendChild(message_integrate)
+        //一番下にスクロール
+        message_col.scrollTop = message_col.scrollHeight;
+        message_col_integrate.scrollTop = message_col_integrate.scrollHeight;
     }
 }
-
-/**
- * 吹き出しのテキストを更新する。
- * @param {HTMLElement} subtitle
- * @param {string} text
- */
-function updateSubtitle(subtitle,text){
-
-    // subtitle.innerText = text;
-    // console.log("subtitle.innerText=",subtitle.innerText)
-}
-
-
 
 async function execAudioList(obj:WavInfo[],audio_group:Element) {
     console.log(obj)
@@ -2976,14 +2919,14 @@ export class GPTSettingButtonManagerModel {
      **/
     Map_ELM_gpt_setting_button:ExtendedMap<string,HTMLElement>;
     message_box:MessageBox;
-    front_name :string;
+    characterId :CharacterId;
     gpt_mode_name_list:string[];
     ELM_gpt_setting:HTMLUListElement;
     gpt_mode_accordion_open_close_button:HTMLElement;
-    human_gpt_routine_ws_dict:Record<string, ExtendedWebSocket> = {};
+    human_gpt_routine_ws_dict:Record<CharacterId, ExtendedWebSocket> = {};
 
-    constructor(front_name:string, message_box:MessageBox, gpt_mode_name_list:string[]) {
-        this.front_name = front_name;
+    constructor(characterId:CharacterId, message_box:MessageBox, gpt_mode_name_list:string[]) {
+        this.characterId = characterId;
         this.message_box = message_box;
         this.gpt_mode_name_list = gpt_mode_name_list;
 
@@ -3131,7 +3074,7 @@ export class GPTSettingButtonManagerModel {
         //websocketを作成
         var ws_gpt_mode_sender = new WebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/gpt_mode`)
         ws_gpt_mode_sender.onopen =  ( _ ) => {
-            const data = {[this.front_name]: mode}
+            const data = {[this.characterId]: mode}
             console.log("gpt_modeが開かれた。このデータを送る。", mode)
             ws_gpt_mode_sender.send(JSON.stringify(data));
             ws_gpt_mode_sender.close();
@@ -3149,9 +3092,16 @@ export class GPTSettingButtonManagerModel {
     }
     startGptRoutine() {
         alert("startGptRoutineが呼ばれた")
-        const front_name = this.front_name;
-        let ws_gpt_routine = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/gpt_routine/${front_name}`);
+        const characterId = this.characterId;
+        let ws_gpt_routine = new ExtendedWebSocket(`ws://${GlobalState.localhost}:${GlobalState.port}/gpt_routine/${characterId}`);
+        const characterModeState = this.message_box.human_tab.characterModeState;
+        if (characterModeState == null) {throw new Error("characterModeStateがnullです。");}
         ws_gpt_routine.onopen = (event) => {
+            const req:ICharacterModeStateReq = {
+                "characterModeState" : characterModeState.toDict(),
+                "client_id" : GlobalState.client_id,
+            }
+            ws_gpt_routine.sendJson(req);
             console.log("gpt_routineが開かれた")
         }
         ws_gpt_routine.onclose = (event) => {
@@ -3165,7 +3115,7 @@ export class GPTSettingButtonManagerModel {
             processMessages();
             console.log("messageQueue=",GlobalState.messageQueue,"イベントを一つとりだした後のmessageQueueです");
         }
-        this.human_gpt_routine_ws_dict[front_name] = ws_gpt_routine;
+        this.human_gpt_routine_ws_dict[characterId] = ws_gpt_routine;
     }
 }
 
@@ -3223,17 +3173,6 @@ async function getClientId(): Promise<string> {
             reject(error);
         };
     });
-}
-
-function chara_name2front_name(chara_name){
-    //front2chara_nameのvalueがchara_nameと一致するkeyを取得する
-    //この関数は、front2chara_nameオブジェクトのキーの中で、そのキーに対応する値がchara_nameと一致する最初のキーを返します。
-    var front_name = Object.keys(GlobalState.front2chara_name).find(key => GlobalState.front2chara_name[key] === chara_name);
-    if (front_name === undefined){
-        //一致するキーがない場合は、"no_front_name"を返す
-        return "no_front_name";
-    }
-    return front_name;
 }
 
 //キャラクターのあだ名を送り、キャラクターのパーツの画像のpathを受け取る
@@ -3531,7 +3470,6 @@ export class GlobalState {
     static messageQueue: MessageEvent[] = [];
     static isProcessing = false;
     static humans_list: Record<CharacterId, HumanBodyManager2> = {};
-    static front2chara_name: Record<string, string> = {};
     static setting_info: Record<CharacterId, VoiroAISetting> = {};
     static first_human_tab;
     static drag_drop_file_event_list: DragDropFile[] = [];
@@ -3540,10 +3478,38 @@ export class GlobalState {
     static human_ws: WebSocket;
     static test = 0;
 
+    static getMessageBoxByCharacterId(character_id: CharacterId): MessageBox {
+        const messageBox =  GlobalState.message_box_manager.message_box_dict.get(character_id)
+        if (messageBox == undefined) { throw new Error("messageBoxが見つかりません") };
+        return messageBox;
+    }
+
+    static getHumanTabByCharacterId(character_id: CharacterId): HumanTab {
+        return this.getMessageBoxByCharacterId(character_id).human_tab;
+    }
+
+    static CurrentHumanTabIndexInHumanTabList(character_id: CharacterId): number|null {
+        const human_tab_list = document.getElementsByClassName("human_tab");
+        for (let i = 0; i < human_tab_list.length; i++) {
+            if (human_tab_list[i] == GlobalState.getHumanTabByCharacterId(character_id).component.element) {
+                return i;
+            }
+        }
+        return null;
+
+        // メッセージボックスリストがまともに追加と削除が行われている場合はこちらを使う
+        for (let i=0; i < GlobalState.message_box_manager.message_box_list.length; i++) {
+            let humanTab = GlobalState.message_box_manager.message_box_list[i].human_tab;
+            if ( humanTab.characterId == character_id) {
+                return i;
+            }
+        }
+    }
+
     static async initialize() {
         GlobalState.message_box_manager = new MessageBoxManager();
         GlobalState.init_human_tab = document.getElementsByClassName("tab human_tab")[0] as HTMLLIElement;
-        addClickEvent2Tab(GlobalState.init_human_tab);
+        createHumanBox(GlobalState.init_human_tab);
         GlobalState.first_human_tab = document.getElementsByClassName("tab human_tab")[0];
         
         console.log("ドラッグアンドドロップイベントを追加しました。");
