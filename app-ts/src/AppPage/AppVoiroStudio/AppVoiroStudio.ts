@@ -19,6 +19,7 @@ import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
 import { ICharacterModeState, ICharacterModeStateReq } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { GPTModeReq, GptMode } from "../../ZodObject/gptAI/GPTMode";
+import { IVoiceSetting } from "../CharacterSetting/IVoiceSetting";
 
 // const { promises } = require("fs");
 
@@ -218,9 +219,13 @@ export class MessageBox {
     public ws_nikonama_comment_reciver: WebSocket;
     public ws_youtube_comment_reciver: ExtendedWebSocket;
     public ws_twitch_comment_reciver: ExtendedWebSocket;
-    private _characterVoiceSetting: IOpenCloseWindow|null = null;
+    private _characterVoiceSetting: IVoiceSetting|null = null;
     gpt_setting_button_manager_model: GPTSettingButtonManagerModel;
     human_tab: HumanTab;
+
+    get 読み上げ間隔():number {
+        return this._characterVoiceSetting?.読み上げ間隔 ?? 0;
+    }
 
     get front_name(): string|null {
         if (this.human_tab.humanName.nick_name == null) {
@@ -271,6 +276,7 @@ export class MessageBox {
         };
         this.execContentInputMessage = this.execContentInputMessage.bind(this);
     }
+
     startObsereve():void {
         this.message_box_manager.observe_target_num = this.manage_num;
         this.message_box_manager.resizeObserver.observe(this.message_box_elm);
@@ -513,7 +519,6 @@ export async function receiveConversationData(event) {
             const human_gpt_routine_ws = message_box.gpt_setting_button_manager_model.human_gpt_routine_ws_dict[character_id];
             human_gpt_routine_ws.sendJson({ "gpt_voice_complete": "complete" });
         }
-        
     } else if(obj["chara_type"] == "player") {
        
     } else {
@@ -579,13 +584,15 @@ async function execAudioList(obj:WavInfo[],audio_group:Element) {
         audio_group = await execAudio(item,audio_group);
         console.log(item["char_name"]+`音源再生終了`)
         // todo ここで待機時間分待機
+        const message_box:MessageBox = GlobalState.getMessageBoxByCharacterId(item.characterModeState.id);
+        const time = message_box.読み上げ間隔;
+        await new Promise(resolve => setTimeout(resolve, time * 1000));
     }
     console.log("全て再生終了")
 }
 
 
 /**
- * 
  * @param {WavInfo} obj 
  * @param {Element} audio_group 
  * @param {Number} maxAudioElements 

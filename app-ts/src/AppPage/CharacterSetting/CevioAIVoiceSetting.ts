@@ -20,8 +20,9 @@ import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { CevioAIVoiceSettingModelFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelFormat";
+import { IVoiceSetting } from "./IVoiceSetting";
 
-export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow {
+export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting {
   private testMode: boolean = false;
   public readonly title = "全体設定";
   public manageData: CevioAIVoiceSettingModel;
@@ -30,6 +31,10 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
   private _manageDataSettingComponent: ObjectInputComponent<CevioAIVoiceSettingModel>;
   private _closeButton: NormalButton;
   private _reqInfo: TtsSoftWareVoiceSettingReq;
+
+  public get 読み上げ間隔() {
+    return this.manageData.読み上げ間隔;
+  }
 
   /**
    * @param SchemaType スキーマーの型
@@ -132,6 +137,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow 
     // セーブデータの状態を更新する
     const updatedSettings = this._manageDataSettingComponent.getValue();
     console.log(updatedSettings);
+    this.manageData = updatedSettings;
 
     // セーブデータを送信する
     this.sendSettings(updatedSettings, url);

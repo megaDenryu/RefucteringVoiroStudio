@@ -10,10 +10,11 @@ import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterV
 import { VoiceVoxVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
 import { VoiceVoxVoiceSettingModelFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelFormat";
 import { VoiceVoxVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelReq";
+import { IVoiceSetting } from "./IVoiceSetting";
 
 
 
-export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow {
+export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting {
   private testMode: boolean = false;
   public readonly title = "全体設定";
   public manageData: VoiceVoxVoiceSettingModel;
@@ -21,6 +22,10 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
   private _manageDataSettingComponent: ObjectInputComponent<VoiceVoxVoiceSettingModel>;
   private _closeButton: NormalButton;
   private _reqInfo: TtsSoftWareVoiceSettingReq;
+
+  public get 読み上げ間隔() {
+    return this.manageData.読み上げ間隔;
+  }
 
   /**
    * @param SchemaType スキーマーの型
@@ -121,7 +126,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
     // セーブデータの状態を更新する
     const updatedSettings = this._manageDataSettingComponent.getValue();
     console.log(updatedSettings);
-
+    this.manageData = updatedSettings;
     // セーブデータを送信する
     this.sendSettings(updatedSettings, url);
   }
@@ -134,26 +139,15 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
       voiceVoxVoiceSettingModel: settings,
     };
     // セーブデータを送信するロジックをここに記述
-    fetch(RequestAPI.rootURL + url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(settingsReq),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Success:", data);
-      })
-      .catch((error) => {
-        console.error("Error:", error);
-      });
+    RequestAPI.postRequest<VoiceVoxVoiceSettingModelReq>(url, settingsReq)
+    .then((data) => {
+      console.log("Success:", data);
+    }).catch((error) => {
+      console.error("Error:", error);
+    });
   }
 
-  public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(
-    recordPath: RecordPath,
-    value: any
-  ): void {
+  public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath: RecordPath, value: any): void {
     オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(
       this,
       recordPath,
@@ -162,9 +156,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
     this.sendSettings(this.manageData, "VoiceVoxVoiceSetting");
   }
 
-  public オブジェクトデータの特定の子要素の配列から特定番号を削除する(
-    recordPath: RecordPath
-  ): void {
+  public オブジェクトデータの特定の子要素の配列から特定番号を削除する(recordPath: RecordPath): void {
     オブジェクトデータの特定の子要素の配列から特定番号を削除する(
       this,
       recordPath
