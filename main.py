@@ -4,6 +4,7 @@ import random
 import sys
 from pathlib import Path
 
+from fastapi.concurrency import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
@@ -17,7 +18,7 @@ from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSo
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.GPTMode import GPTModeReq, GptMode
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
 from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
@@ -68,7 +69,30 @@ class CharacterModeStateReq(BaseModel):
 #フォルダーがあるか確認
 HumanPart.initalCheck()
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # サーバ起動時の処理
+    print("Server is starting...")
+    await notifier.generator.asend(None)
+    
+    yield
+    
+    # サーバ終了時の処理
+    print("Server is shutting down...")
+    cevio_shutdowned = False
+    for human in inastanceManager.humanInstances.Humans:
+        if cevio_shutdowned == False and human.voice_system == "cevio":
+            try:
+                # human.human_Voice.kill_cevio()
+                # human.human_Voice.cevio.shutDown()
+                cevio_shutdowned = True
+            except Exception as e:
+                print(e)
+                print("cevioを終了できませんでした")
+    print("cevioを終了しました")
+    exit()
+
+app = FastAPI(lifespan=lifespan)
 
 # カスタムフォーマッタの定義
 class CustomFormatter(logging.Formatter):
@@ -139,35 +163,11 @@ diary = Memo()
 app_setting = JsonAccessor.loadAppSetting()
 pprint(app_setting)
 
-@app.on_event("startup")
-async def startup_event():
-    print("Server is starting...")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    print("Server is shutting down...")
-    # ここに終了処理を書く
-    # cevioを起動していたら終了させる
-    cevio_shutdowned = False
-    for human in inastanceManager.humanInstances.Humans:
-        if cevio_shutdowned==False and human.voice_system == "cevio":
-            try:
-                #human.human_Voice.kill_cevio()
-                #human.human_Voice.cevio.shutDown()
-                shutdowned = True
-            except Exception as e:
-                print(e)
-                print("cevioを終了できませんでした")
-    print("cevioを終了しました")
-    exit()
-    
-
 @app.websocket("/id_create")
 async def create_id(websocket: WebSocket):
     await websocket.accept()
     id = inastanceManager.clientIds.createNewId()
     await websocket.send_text(id)
-
 
 # この関数が @app.get("./") より上にあるので /app-ts/ はこっちで処理される
 @app.get("/app-ts/{path_param:path}")
@@ -247,11 +247,10 @@ class MessageUnit(TypedDict):
     text: str
     characterModeState: ICharacterModeState|None
 
-MessageDict = dict[FrontName, MessageUnit]  #FrontName型をstrと仮定。ただしCharacterId型にいずれ変更する。クライアント側の実装と一緒に対応する
+MessageDict = dict[CharacterId, MessageUnit]  #FrontName型をstrと仮定。ただしCharacterId型にいずれ変更する。クライアント側の実装と一緒に対応する
 
 class SendData(TypedDict):
     message: MessageDict
-    gpt_mode: dict[CharacterId, str]
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint2(websocket: WebSocket, client_id: str):
@@ -268,7 +267,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             input = ""
             input_dict:dict[CharacterId,str] = {}
             inputer = ""
-            for front_name,message_unit in message.items():
+            for message_unit in message.values():
                 if message_unit["characterModeState"] == None:
                     continue
                 characterModeState = CharacterModeState.fromDict(message_unit["characterModeState"])
@@ -577,7 +576,6 @@ async def parserPsdFile(
     if chara_name == "名前が無効です":
         return {"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください"}
     # ファイルの保存先を指定
-    api_dir = Path(__file__).parent.parent.parent / 'api'
     folder_name = f"{filename.split('.')[0]}"
     folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name.name / folder_name)
 
@@ -643,8 +641,6 @@ class PatiSetting(BaseModel):
 @app.post("/pati_setting")
 async def pati_setting(req: PatiSetting):
     characterModeState = req.characterModeState
-    chara_name = req.chara_name
-    front_name = req.front_name
     pati_setting = req.pati_setting
     now_onomatopoeia_action = req.now_onomatopoeia_action
     
@@ -674,7 +670,6 @@ async def ws_combi_img_reciver(websocket: WebSocket):
                 #受け取ったデータをjsonに保存する
                 characterModeState:ICharacterModeState = data["characterModeState"]
                 json_data = data["combination_data"]
-                human_name = data["chara_name"]
                 combination_name = data["combination_name"]
                 # human:Human = human_dict[characterModeState["id"]]
                 human:Human|None = inastanceManager.humanInstances.tryGetHuman(characterModeState["id"])
@@ -850,12 +845,6 @@ async def push_to_connected_websockets(message: str):
     # ブロードキャスト
     print("ブロードキャスト")
     await notifier.push(f"! Push notification: {message} !")
-
-# サーバ起動時の処理
-@app.on_event("startup")
-async def startup():
-    # プッシュ通知の準備
-    await notifier.generator.asend(None)
 
 @app.post("/appSettingInit")
 async def appSettingInit(appSettingInitReq: AppSettingInitReq):

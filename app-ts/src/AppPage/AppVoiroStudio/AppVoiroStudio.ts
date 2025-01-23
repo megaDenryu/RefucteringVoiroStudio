@@ -280,7 +280,6 @@ export class MessageBox {
         this.message_box_manager.resizeObserver.unobserve(this.message_box_elm);
     }
     async execContentInputMessage() {
-        // const front_name = this.front_name;
         const characterId = this.human_tab.characterId;
         const message = this.message_box_elm.value;
         //messageに「コメビュモード:{room_id}」と入力されている場合
@@ -434,7 +433,6 @@ export class MessageBox {
         };
         const send_data:SendData = {
             "message" : message_dict,
-            "gpt_mode" : this.message_box_manager.getAllGptModeByDict()
         }
         let ret = JSON.stringify(send_data);
         console.log("websocketで送信するデータ",ret)
