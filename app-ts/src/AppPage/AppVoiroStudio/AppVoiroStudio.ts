@@ -176,7 +176,6 @@ export class MessageBoxManager {
                 this.message_box_list[i].message_box_elm.style.height = height;
             }
         }
-
     }
 
     /**

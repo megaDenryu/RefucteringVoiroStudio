@@ -38,7 +38,6 @@ class VoiceModeNamesManager:
             return [VoiceMode(**mode) for mode in voice_modes]
         except ValidationError as e:
             raise e
-
     
     def loadAllVoiceModeNames(self)->dict[TTSSoftware, list[VoiceMode]]:
         all_voice_mode_names = {}
@@ -435,6 +434,7 @@ class ICharacterModeState(TypedDict):
     voice_state: IVoiceState
     front_name: str
 
+# ゲームループ状に存在しているキャラクターの状態を管理するクラス
 class CharacterModeState(HashableBaseModel):
     id: CharacterId
     tts_software: TTSSoftwareType

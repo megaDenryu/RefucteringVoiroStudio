@@ -141,7 +141,6 @@ export class HumanTab implements IHasComponent,IHumanTab {
         GlobalState.humans_list[charaCreateData.characterModeState.id] = new HumanBodyManager2(humanData, charaCreateData.characterModeState, this.humanWindow.component.element);
         const characterModeState:CharacterModeState = CharacterModeState.fromDict(charaCreateData.characterModeState);
         this.characterModeState = characterModeState;
-
     }
 
 }
