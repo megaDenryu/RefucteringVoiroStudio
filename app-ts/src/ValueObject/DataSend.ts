@@ -11,5 +11,5 @@ export type MessageDict = Record<CharacterId, MessageUnit>;
 
 export interface SendData {
     message: MessageDict;
-    gpt_mode: Record<string, string>;
 }
+

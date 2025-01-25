@@ -37,7 +37,7 @@ from typing_extensions import TypedDict
 from pydantic import BaseModel
 
 from api.gptAI.PastConversation import PastConversation
-from api.gptAI.VoiceInfo import SendData, WavInfo
+from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData, WavInfo
 
 
 
@@ -334,25 +334,16 @@ class AgentManager:
         self.serif_agent = SerifAgent(self,self.chara_name)
         self.non_thinking_serif_agent = NonThinkingSerifAgent(self,self.chara_name)
         
-    def createSendData(self, sentence:str, human:Human, chara_type:Literal["gpt","player"])->SendData:
+    def createSendData(self, sentence:str, human:Human, chara_type:Literal["gpt","player"])->SentenceOrWavSendData:
         human.outputWaveFile(sentence)
         #wavデータを取得
         wav_info:list[WavInfo] = human.human_Voice.output_wav_info_list
-        sentence_info = {human.front_name:sentence}
+        sentence_info:list[SentenceInfo] = [{
+            "characterModeState":human.chara_mode_state.toDict(),
+            "sentence":sentence
+        }]
 
-        # class WavInfo(BaseModel):
-        #     path:str
-        #     wav_data:str
-        #     phoneme_time:list[str]
-        #     phoneme_str:list[list[str]]
-        #     char_name:str
-        #     voice_system_name:str
-        # class SendData(BaseModel):
-        #     sentence:dict[str,str]
-        #     wav_info:list[WavInfo]
-        #     chara_type:Literal["gpt","player"]
-
-        send_data:SendData = {
+        send_data:SentenceOrWavSendData = {
             "sentence":sentence_info,
             "wav_info":wav_info,
             "chara_type":chara_type
@@ -1457,7 +1448,7 @@ class SerifAgent(Agent):
         if serif_list == None:
             return
         for serif in serif_list:
-            send_data = self.agent_manager.createSendData(serif, self.agent_manager.human,"gpt")
+            send_data:SentenceOrWavSendData = self.agent_manager.createSendData(serif, self.agent_manager.human,"gpt")
             # await self.agent_manager.websocket.send_json(json.dumps(send_data))
             # await self.saveSuccesSerifToMemory(serif)
             # # 区分音声の再生が完了したかメッセージを貰う
@@ -1985,16 +1976,16 @@ class TaskDecompositionCheckerAgent(LifeProcessModule):
         return transported_item
 
 class TaskUnit(BaseModel):
-        id:str
-        description:str
-        dependencies:list[str]
-        def __init__(self):
-            return self
+    id:str
+    description:str
+    dependencies:list[str]
+    def __init__(self):
+        return self
 
-        @staticmethod
-        def init(id:str|None, タスクの説明:str|None, 依存するタスクのid:list[str]|None)->"TaskUnit":
-            tu = TaskUnit()
-            return tu
+    @staticmethod
+    def init(id:str|None, タスクの説明:str|None, 依存するタスクのid:list[str]|None)->"TaskUnit":
+        tu = TaskUnit()
+        return tu
 class TaskToJsonConverterAgent(LifeProcessModule):
     def __init__(self,testmode:bool = False):
         super().__init__(test_mode=testmode)
@@ -2493,7 +2484,8 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
     
     def replaceDictDef(self, input: ThoughtsSerifnizeTransportedItem)->dict[str,str]:
         # 未定義
-        pass
+        raise NotImplementedError("未定義")
+        return {}
 
     async def request(self, query:list[ChatGptApiUnit.MessageQuery])->str:
         print(f"{self.name}がリクエストを送信します")

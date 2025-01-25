@@ -1,7 +1,7 @@
 
 from enum import Enum
 from pathlib import Path
-from typing import Literal, TypeAlias, TypedDict
+from typing import Literal, NewType, TypeAlias, TypedDict
 from uuid import uuid4
 from pydantic import BaseModel, ValidationError
 from api.DataStore.JsonAccessor import JsonAccessor
@@ -38,7 +38,6 @@ class VoiceModeNamesManager:
             return [VoiceMode(**mode) for mode in voice_modes]
         except ValidationError as e:
             raise e
-
     
     def loadAllVoiceModeNames(self)->dict[TTSSoftware, list[VoiceMode]]:
         all_voice_mode_names = {}
@@ -422,8 +421,9 @@ class AllHumanInformationDict(BaseModel):
         data = ExtendFunc.loadJsonToDict(path)
         return AllHumanInformationDict(**data)
 
-FrontName: TypeAlias = str # フロントでの名前。これはいずれNickNameとCharacterIdで置き換える
 CharacterId: TypeAlias = str
+# CharacterId = NewType('CharacterId', str)
+
 
 class ICharacterModeState(TypedDict):
     id: CharacterId
@@ -434,6 +434,7 @@ class ICharacterModeState(TypedDict):
     voice_state: IVoiceState
     front_name: str
 
+# ゲームループ状に存在しているキャラクターの状態を管理するクラス
 class CharacterModeState(HashableBaseModel):
     id: CharacterId
     tts_software: TTSSoftwareType

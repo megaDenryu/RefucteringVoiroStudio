@@ -3,6 +3,6 @@
     "pitchScale": -0.06,
     "intonationScale": 2.0,
     "volumeScale": 1.8,
-    "読み上げ間隔": 2.0,
+    "読み上げ間隔": 0.0,
     "AIによる文章変換": "無効"
 }

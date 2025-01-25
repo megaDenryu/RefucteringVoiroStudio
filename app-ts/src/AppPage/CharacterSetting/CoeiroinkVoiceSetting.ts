@@ -10,10 +10,11 @@ import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterV
 import { CoeiroinkVoiceSettingModelFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModelFormat";
 import { CoeiroinkVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModelReq";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
+import { IVoiceSetting } from "./IVoiceSetting";
 
 
 
-export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindow {
+export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting {
   private testMode: boolean = false;
   public readonly title = "全体設定";
   public manageData: CoeiroinkVoiceSettingModel;
@@ -21,6 +22,10 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
   private _manageDataSettingComponent: ObjectInputComponent<CoeiroinkVoiceSettingModel>;
   private _closeButton: NormalButton;
   private _reqInfo: TtsSoftWareVoiceSettingReq;
+
+  public get 読み上げ間隔() {
+    return this.manageData.読み上げ間隔;
+  }
 
   /**
    * @param SchemaType スキーマーの型
@@ -121,6 +126,7 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
     // セーブデータの状態を更新する
     const updatedSettings = this._manageDataSettingComponent.getValue();
     console.log(updatedSettings);
+    this.manageData = updatedSettings;
 
     // セーブデータを送信する
     this.sendSettings(updatedSettings, url);

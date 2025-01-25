@@ -1,0 +1,32 @@
+{
+    "$defs": {
+        "GptMode": {
+            "enum": [
+                "off",
+                "individual_process0501dev"
+            ],
+            "title": "GptMode",
+            "type": "string"
+        }
+    },
+    "properties": {
+        "characterId": {
+            "title": "Characterid",
+            "type": "string"
+        },
+        "gptMode": {
+            "$ref": "#/$defs/GptMode"
+        },
+        "clientId": {
+            "title": "Clientid",
+            "type": "string"
+        }
+    },
+    "required": [
+        "characterId",
+        "gptMode",
+        "clientId"
+    ],
+    "title": "GPTModeReq",
+    "type": "object"
+}

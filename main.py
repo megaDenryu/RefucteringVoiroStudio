@@ -4,6 +4,7 @@ import random
 import sys
 from pathlib import Path
 
+from fastapi.concurrency import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
@@ -16,7 +17,9 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSetti
 from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
-from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId, FrontName
+from api.gptAI.GPTMode import GPTModeReq, GptMode
+from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
+from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
 from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
 from api.gptAI.Human import Human
@@ -66,7 +69,30 @@ class CharacterModeStateReq(BaseModel):
 #フォルダーがあるか確認
 HumanPart.initalCheck()
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # サーバ起動時の処理
+    print("Server is starting...")
+    await notifier.generator.asend(None)
+    
+    yield
+    
+    # サーバ終了時の処理
+    print("Server is shutting down...")
+    cevio_shutdowned = False
+    for human in inastanceManager.humanInstances.Humans:
+        if cevio_shutdowned == False and human.voice_system == "cevio":
+            try:
+                # human.human_Voice.kill_cevio()
+                # human.human_Voice.cevio.shutDown()
+                cevio_shutdowned = True
+            except Exception as e:
+                print(e)
+                print("cevioを終了できませんでした")
+    print("cevioを終了しました")
+    exit()
+
+app = FastAPI(lifespan=lifespan)
 
 # カスタムフォーマッタの定義
 class CustomFormatter(logging.Formatter):
@@ -126,10 +152,10 @@ inastanceManager = InastanceManager()
 # gpt_mode_dict = {}
 #game_masterのインスタンスを生成
 yukarinet_enable = True
-nikonama_comment_reciever_list:dict[str,NicoNamaCommentReciever] = {}
-new_nikonama_comment_reciever_list:dict[str,newNikonamaCommentReciever] = {}
-YoutubeCommentReciever_list:dict[str,YoutubeCommentReciever] = {}
-twitchBotList:dict[str,TwitchBot] = {}
+nikonama_comment_reciever_list:dict[CharacterId,NicoNamaCommentReciever] = {}
+new_nikonama_comment_reciever_list:dict[CharacterId,newNikonamaCommentReciever] = {}
+YoutubeCommentReciever_list:dict[CharacterId,YoutubeCommentReciever] = {}
+twitchBotList:dict[CharacterId,TwitchBot] = {}
 # input_reciever = InputReciever(epic ,gpt_agent_dict, gpt_mode_dict)
 diary = Memo()
 
@@ -137,35 +163,11 @@ diary = Memo()
 app_setting = JsonAccessor.loadAppSetting()
 pprint(app_setting)
 
-@app.on_event("startup")
-async def startup_event():
-    print("Server is starting...")
-
-@app.on_event("shutdown")
-async def shutdown_event():
-    print("Server is shutting down...")
-    # ここに終了処理を書く
-    # cevioを起動していたら終了させる
-    cevio_shutdowned = False
-    for human in inastanceManager.humanInstances.Humans:
-        if cevio_shutdowned==False and human.voice_system == "cevio":
-            try:
-                #human.human_Voice.kill_cevio()
-                #human.human_Voice.cevio.shutDown()
-                shutdowned = True
-            except Exception as e:
-                print(e)
-                print("cevioを終了できませんでした")
-    print("cevioを終了しました")
-    exit()
-    
-
 @app.websocket("/id_create")
 async def create_id(websocket: WebSocket):
     await websocket.accept()
     id = inastanceManager.clientIds.createNewId()
     await websocket.send_text(id)
-
 
 # この関数が @app.get("./") より上にあるので /app-ts/ はこっちで処理される
 @app.get("/app-ts/{path_param:path}")
@@ -245,11 +247,10 @@ class MessageUnit(TypedDict):
     text: str
     characterModeState: ICharacterModeState|None
 
-MessageDict = dict[FrontName, MessageUnit]  #FrontName型をstrと仮定。ただしCharacterId型にいずれ変更する。クライアント側の実装と一緒に対応する
+MessageDict = dict[CharacterId, MessageUnit]  #FrontName型をstrと仮定。ただしCharacterId型にいずれ変更する。クライアント側の実装と一緒に対応する
 
 class SendData(TypedDict):
     message: MessageDict
-    gpt_mode: dict[str,str]
 
 @app.websocket("/ws/{client_id}")
 async def websocket_endpoint2(websocket: WebSocket, client_id: str):
@@ -263,15 +264,10 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             # クライアントからメッセージの受け取り
             datas:SendData = json.loads(await websocket.receive_text()) 
             message:MessageDict = datas["message"]
-            recieve_gpt_mode_dict = Human.convertDictKeyToCharName(datas["gpt_mode"])
-            # for character_id in recieve_gpt_mode_dict.keys():
-            #     inastanceManager.gptModeManager.setCharacterGptMode(character_id, recieve_gpt_mode_dict[character_id])
             input = ""
             input_dict:dict[CharacterId,str] = {}
-            json_data = json.dumps(message, ensure_ascii=False)
-            #await notifier.push(json_data)
             inputer = ""
-            for front_name,message_unit in message.items():
+            for message_unit in message.values():
                 if message_unit["characterModeState"] == None:
                     continue
                 characterModeState = CharacterModeState.fromDict(message_unit["characterModeState"])
@@ -312,9 +308,13 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                         human_ai.outputWaveFile(sentence)
                         #wavデータを取得
                         wav_info = human_ai.human_Voice.output_wav_info_list
+                        sentence_info:list[SentenceInfo] = [{
+                                "characterModeState":human_ai.chara_mode_state.toDict(),
+                                "sentence":sentence
+                                }]
                         #バイナリーをjson形式で送信
-                        send_data = {
-                            "sentence":{human_ai.front_name:sentence},
+                        send_data:SentenceOrWavSendData = {
+                            "sentence":sentence_info,
                             "wav_info":wav_info,
                             "chara_type":"player"
                         }
@@ -333,52 +333,10 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
         # 切れたセッションの削除
         notifier.remove(websocket)
 
-
-# @app.websocket("/old_nikonama_comment_reciver/{room_id}/{front_name}")
-# async def old_nicowebsocket_endpoint(websocket: WebSocket, room_id: str, front_name: str):
-#     await websocket.accept()
-#     char_name = Human.setCharName(front_name)
-#     print(f"{char_name}で{room_id}のニコ生コメント受信開始")
-#     update_room_id_query = {
-#         "ニコ生コメントレシーバー設定": {
-#             "生放送URL":room_id
-#         }
-#     }
-#     JsonAccessor.updateAppSettingJson(update_room_id_query)
-#     end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
-#     nikonama_comment_reciever = NicoNamaCommentReciever(room_id,end_keyword)
-#     nikonama_comment_reciever_list[char_name] = nikonama_comment_reciever
-#     nulvm = NiconamaUserLinkVoiceroidModule()
-
-#     async for comment in nikonama_comment_reciever.get_comments():
-#         pprint(comment)
-#         if "user_id" in comment:
-#             user_id = comment["user_id"]
-#             if "@" in comment["comment"] or "＠" in comment["comment"]:
-#                 print("ユーザーIDとキャラ名を紐づけます")
-#                 char_name = nulvm.registerNikonamaUserIdToCharaName(comment["comment"],user_id)
-
-#             comment["char_name"] = nulvm.getCharaNameByNikonamaUser(user_id)
-        
-#             if "/info 3" in comment["comment"]:
-#                 comment["comment"] = comment["comment"].replace("/info 3","")
-            
-#         await websocket.send_text(json.dumps(comment))
-
-# @app.post("/old_nikonama_comment_reciver_stop/{front_name}")
-# async def old_nikonama_comment_reciver_stop(front_name: str):
-#     char_name = Human.setCharName(front_name)
-#     if char_name in nikonama_comment_reciever_list:
-#         print(f"{front_name}のニコ生コメント受信停止")
-#         nikonama_comment_reciever = nikonama_comment_reciever_list[char_name]
-#         nikonama_comment_reciever.stopRecieve()
-#         return
-
-@app.websocket("/nikonama_comment_reciver/{room_id}/{front_name}")
-async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, front_name: str):
+@app.websocket("/nikonama_comment_reciver/{room_id}/{characterId}")
+async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, characterId: CharacterId):
     await websocket.accept()
-    char_name = Human.setCharName((front_name))
-    print(f"{char_name}で{room_id}のニコ生コメント受信開始")
+    ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}で{room_id}のニコ生コメント受信開始")
     update_room_id_query = {
         "ニコ生コメントレシーバー設定": {
             "生放送URL":room_id
@@ -387,7 +345,7 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, fro
     JsonAccessor.updateAppSettingJson(update_room_id_query)
     end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
     ndgr_client = newNikonamaCommentReciever(room_id, end_keyword)
-    new_nikonama_comment_reciever_list[char_name.name] = ndgr_client
+    new_nikonama_comment_reciever_list[characterId] = ndgr_client
     nulvm = NiconamaUserLinkVoiceroidModule()
 
     async for NDGRComment in ndgr_client.streamComments():
@@ -410,35 +368,29 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, fro
         ExtendFunc.ExtendPrint(comment)
         await websocket.send_text(json.dumps(comment))
 
-@app.post("/nikonama_comment_reciver_stop/{front_name}")
-async def nikonama_comment_reciver_stop(front_name: str):
-    char_name = Human.setCharName(front_name)
-    if char_name in nikonama_comment_reciever_list:
-        print(f"{front_name}のニコ生コメント受信停止")
-        nikonama_comment_reciever = new_nikonama_comment_reciever_list[char_name]
+@app.post("/nikonama_comment_reciver_stop/{characterId}")
+async def nikonama_comment_reciver_stop(characterId: CharacterId):
+    if characterId in nikonama_comment_reciever_list:
+        print(f"{characterId}のニコ生コメント受信停止")
+        nikonama_comment_reciever = new_nikonama_comment_reciever_list[characterId]
         nikonama_comment_reciever.stopRecieve()
         return
     
-@app.websocket("/YoutubeCommentReceiver/{video_id}/{front_name}")
-async def getYoutubeComment(websocket: WebSocket, video_id: str, front_name: str):
+@app.websocket("/YoutubeCommentReceiver/{video_id}/{characterId}")
+async def getYoutubeComment(websocket: WebSocket, video_id: str, characterId: CharacterId):
     print("YoutubeCommentReceiver")
     await websocket.accept()
-    char_name = Human.setCharName(front_name)
 
     try:
         while True:
             datas:dict = await websocket.receive_json()
             start_stop = datas["start_stop"]
-            print(f"{front_name=} , {video_id=} , {start_stop=}")
             if start_stop == "start":
                 nulvm = NiconamaUserLinkVoiceroidModule()
-                print(f"{char_name}で{video_id}のYoutubeコメント受信開始")
+                ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}で{video_id}のYoutubeコメント受信開始")
                 #コメント受信を開始
                 ycr = YoutubeCommentReciever(video_id=video_id)
-                if char_name == "名前が無効です":
-                    ExtendFunc.ExtendPrint("名前が無効です")
-                    return
-                YoutubeCommentReciever_list[char_name.name] = ycr
+                YoutubeCommentReciever_list[characterId] = ycr
                 async for comment in ycr.fetch_comments(ycr.video_id):
                     print(f"478:{comment=}") # {'author': 'ぴっぴ', 'datetime': '2024-04-20 16:48:47', 'message': 'はろー'}
                     author = comment["author"]
@@ -449,55 +401,52 @@ async def getYoutubeComment(websocket: WebSocket, video_id: str, front_name: str
                     comment["char_name"] = nulvm.getCharaNameByNikonamaUser(author)
                     await websocket.send_text(json.dumps(comment))
             else:
-                print(f"{char_name}で{video_id}のYoutubeコメント受信停止")
-                if char_name in YoutubeCommentReciever_list:
-                    YoutubeCommentReciever_list[char_name].stop()
-                    del YoutubeCommentReciever_list[char_name]
+                ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}で{video_id}のYoutubeコメント受信停止")
+                if characterId in YoutubeCommentReciever_list:
+                    YoutubeCommentReciever_list[characterId].stop()
+                    del YoutubeCommentReciever_list[characterId]
                     await websocket.close()
     except WebSocketDisconnect:
-        print(f"WebSocket disconnected unexpectedly for {char_name} and {video_id}")
-        if char_name in YoutubeCommentReciever_list:
-            YoutubeCommentReciever_list[char_name].stop()
-            del YoutubeCommentReciever_list[char_name]
+        print(f"WebSocket disconnected unexpectedly for {characterId} and {video_id}")
+        if characterId in YoutubeCommentReciever_list:
+            YoutubeCommentReciever_list[characterId].stop()
+            del YoutubeCommentReciever_list[characterId]
 class TwitchCommentReceiver(BaseModel):
     video_id: str
-    front_name: str
+    characterId: CharacterId
 
 @app.post("/RunTwitchCommentReceiver")
 async def runTwitchCommentReceiver(req:TwitchCommentReceiver):
     ExtendFunc.ExtendPrint("ツイッチ開始")
     ExtendFunc.ExtendPrint(req)
     video_id = req.video_id
-    front_name = req.front_name
-    char_name = Human.setCharName(front_name)
-    print(f"{char_name}でTwitchコメント受信開始")
+    characterId = req.characterId
+    ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}でTwitchコメント受信開始")
     TWTITCH_ACCESS_TOKEN = TwitchBot.getAccessToken()
     twitchBot = TwitchBot(video_id, TWTITCH_ACCESS_TOKEN)
-    twitchBotList[char_name.name] = twitchBot
+    twitchBotList[characterId] = twitchBot
     twitchBot.run()
     # return {"message":"Twitchコメント受信開始"}
 
 class StopTwitchCommentReceiver(BaseModel):
-    front_name: str
+    characterId: CharacterId
 
 @app.post("/StopTwitchCommentReceiver")
 async def stopTwitchCommentReceiver(req:StopTwitchCommentReceiver):
     print("Twitchコメント受信停止")
-    front_name = req.front_name
-    chara_name = Human.setCharName(front_name)
-    await twitchBotList[chara_name.name].stop()
-    twitchBotList.pop(chara_name.name)
+    characterId = req.characterId
+    await twitchBotList[characterId].stop()
+    twitchBotList.pop(characterId)
     return {"message":"Twitchコメント受信停止"}
 
-@app.websocket("/TwitchCommentReceiver/{video_id}/{front_name}")
-async def twitchCommentReceiver(websocket: WebSocket, video_id: str, front_name: str):
+@app.websocket("/TwitchCommentReceiver/{video_id}/{characterId}")
+async def twitchCommentReceiver(websocket: WebSocket, video_id: str, characterId: CharacterId):
     ExtendFunc.ExtendPrint("TwitchCommentReceiver")
     await websocket.accept()
-    char_name = Human.setCharName(front_name)
-    message_queue:asyncio.Queue[TwitchMessageUnit] = twitchBotList[char_name.name].message_queue
+    message_queue:asyncio.Queue[TwitchMessageUnit] = twitchBotList[characterId].message_queue
     nulvm = NiconamaUserLinkVoiceroidModule()
     try:
-        while True and char_name in twitchBotList:
+        while True and characterId in twitchBotList:
             comment = {}
             messageUnit:TwitchMessageUnit = await message_queue.get()
             ExtendFunc.ExtendPrint(f"messageUnit:{messageUnit}")
@@ -514,12 +463,7 @@ async def twitchCommentReceiver(websocket: WebSocket, video_id: str, front_name:
             ExtendFunc.ExtendPrint("ツイッチ受信コメントをクライアントに送信完了")
         ExtendFunc.ExtendPrint("TwitchCommentReceiver終了")
     except WebSocketDisconnect:
-        ExtendFunc.ExtendPrint(f"WebSocket が切断されました。 for {char_name} and {video_id}")
-
-
-
-            
-
+        ExtendFunc.ExtendPrint(f"WebSocket が切断されました。 for {inastanceManager.humanInstances.tryGetHuman(characterId)} and {video_id}")
 
 @app.websocket("/InputPokemon")
 async def inputPokemon(websocket: WebSocket):
@@ -562,7 +506,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             print("データ受け取り開始！")
             # クライアントからキャラクター名のメッセージの受け取り
             name_data = await websocket.receive_text()
-            print("human:" + name_data)
+            ExtendFunc.ExtendPrint("human:" + name_data)
             
             if Human.setCharName(name_data) == "":
                 print("キャラ名が無効です")
@@ -632,7 +576,6 @@ async def parserPsdFile(
     if chara_name == "名前が無効です":
         return {"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください"}
     # ファイルの保存先を指定
-    api_dir = Path(__file__).parent.parent.parent / 'api'
     folder_name = f"{filename.split('.')[0]}"
     folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name.name / folder_name)
 
@@ -698,8 +641,6 @@ class PatiSetting(BaseModel):
 @app.post("/pati_setting")
 async def pati_setting(req: PatiSetting):
     characterModeState = req.characterModeState
-    chara_name = req.chara_name
-    front_name = req.front_name
     pati_setting = req.pati_setting
     now_onomatopoeia_action = req.now_onomatopoeia_action
     
@@ -729,7 +670,6 @@ async def ws_combi_img_reciver(websocket: WebSocket):
                 #受け取ったデータをjsonに保存する
                 characterModeState:ICharacterModeState = data["characterModeState"]
                 json_data = data["combination_data"]
-                human_name = data["chara_name"]
                 combination_name = data["combination_name"]
                 # human:Human = human_dict[characterModeState["id"]]
                 human:Human|None = inastanceManager.humanInstances.tryGetHuman(characterModeState["id"])
@@ -752,29 +692,15 @@ async def ws_combi_img_reciver(websocket: WebSocket):
         # 切れたセッションの削除
         # notifier.remove(websocket)
 
-@app.websocket("/gpt_mode")
-async def ws_gpt_mode(websocket: WebSocket):
-    # クライアントとのコネクション確立
-    print("gpt_modeコネクションします")
-    await websocket.accept()
-    try:
-        while True:
-            # クライアントからメッセージの受け取り
-            data = json.loads(await websocket.receive_text())
-            recieve_gpt_mode_dict = Human.convertDictKeyToCharName(data)
-            #受け取ったデータをjsonに保存する
-            for name in recieve_gpt_mode_dict.keys():
-                # gpt_mode_dict[name] = recieve_gpt_mode_dict[name]
-                inastanceManager.gptModeManager.setCharacterGptMode(name, recieve_gpt_mode_dict[name])
-            if inastanceManager.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev"):
-                print("individual_process0501devがないので終了します")
-                await inastanceManager.inputReciever.stopObserveEpic()
-                break
-                
-            
-    # セッションが切れた場合
-    except WebSocketDisconnect:
-        print("wsを切断:ws_gpt_mode")
+
+@app.post("/gpt_mode")
+async def post_gpt_mode(req: GPTModeReq):
+    ExtendFunc.ExtendPrintWithTitle("gpt_mode",req)
+    inastanceManager.gptModeManager.setCharacterGptMode(req.characterId, req.gptMode)
+    if inastanceManager.gptModeManager.特定のモードが動いてるか確認(GptMode.individual_process0501dev):
+        print("individual_process0501devがないので終了します")
+        ExtendFunc.ExtendPrint( {"message": "individual_process0501devがないので終了します"})
+    ExtendFunc.ExtendPrint({"message": f"{req.gptMode.value}の変更に成功しました"})
 
 @app.websocket("/gpt_routine_test/{front_name}")
 async def ws_gpt_routine(websocket: WebSocket, front_name: str):
@@ -833,7 +759,7 @@ async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 
-@app.websocket("/gpt_routine/{front_name}")
+@app.websocket("/gpt_routine/{characterId}")
 async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routineコネクションします")
@@ -850,7 +776,7 @@ async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
     await pipe
     ExtendFunc.ExtendPrint("gpt_routine終了")
 
-@app.websocket("/gpt_routine3/{front_name}")
+@app.websocket("/gpt_routine3/{characterId}")
 async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq):
     # クライアントとのコネクション確立
     print("gpt_routineコネクションします")
@@ -883,7 +809,6 @@ async def AllCharaInfo():
     AllHumanInformationManager.singleton().load() #変更があるかもしれないのでリロード
     mana = AllHumanInformationDict()
     ExtendFunc.ExtendPrint(mana)
-    # mana.save()
     return mana
 
 
@@ -920,12 +845,6 @@ async def push_to_connected_websockets(message: str):
     # ブロードキャスト
     print("ブロードキャスト")
     await notifier.push(f"! Push notification: {message} !")
-
-# サーバ起動時の処理
-@app.on_event("startup")
-async def startup():
-    # プッシュ通知の準備
-    await notifier.generator.asend(None)
 
 @app.post("/appSettingInit")
 async def appSettingInit(appSettingInitReq: AppSettingInitReq):

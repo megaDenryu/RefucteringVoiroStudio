@@ -3,7 +3,7 @@ import { VoMap } from "../Extend/extend_collections";
 import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ICharacterModeState, IVoiceMode, ICharacterModeStateReq } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { VoiceState } from "./VoiceState";
 
-export type CharacterId = string;
+export type CharacterId = string&{ readonly brand: unique symbol };    
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
 export class TTSSoftwareEnum {

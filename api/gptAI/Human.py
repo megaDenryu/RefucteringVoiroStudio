@@ -11,6 +11,7 @@ from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
 from api.images.image_manager.IHumanPart import HumanData
+from api.gptAI.HumanInformation import CharacterId
 from .gpt import ChatGPT
 from .voiceroid_api import voicevox_human
 from .voiceroid_api import Coeiroink
@@ -243,12 +244,13 @@ class Human:
 
     
     @staticmethod
-    def convertDictKeyToCharName(dict:dict):
+    def convertDictKeyToCharName(dict:dict[CharacterId, str]):
         """
         辞書のキーfront_nameからchar_nameに変換する
         """
         return_dict = {}
-        for front_name,value in dict.items():
+        ExtendFunc.ExtendPrint(dict)
+        for characterId,value in dict.items():
             return_dict[Human.setCharName(front_name)] = value
         return return_dict
 
