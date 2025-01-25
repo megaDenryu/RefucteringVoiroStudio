@@ -761,8 +761,11 @@ class TimeExtend:
         return self.toSecond() > other.toSecond()
     def __ge__(self, other: "TimeExtend"):
         return self.toSecond() >= other.toSecond()
-    def __eq__(self, o: "TimeExtend") -> bool:
-        return self.date == o.date
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, TimeExtend):
+            return NotImplemented
+        return self.date == other.date
+    
     def toSecond(self) -> float:
         """
         日付と時刻を秒数に変換します。
