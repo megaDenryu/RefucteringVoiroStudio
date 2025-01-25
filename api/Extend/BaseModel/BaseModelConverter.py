@@ -109,7 +109,7 @@ class BaseModelConverterTest:
         # base_modelの中にNesteされたBaseModelがある場合、NestedModelもZodに変換する
         # そのためにbase_modelの中のプロパティを再帰的に調べて、BaseModelがあればZodに変換する
         for prop, prop_type in base_model.__annotations__.items():
-            if issubclass(prop_type, BaseModel):
+            if isinstance(prop_type, type) and issubclass(prop_type, BaseModel):
                 BaseModelConverterTest.再帰的にZodを出力する本番(prop_type)
         BaseModelConverterTest.Zodを出力する本番(base_model)
 

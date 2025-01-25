@@ -42,12 +42,9 @@ if __name__ == "__main__":
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModelReq)
     # BaseModelConverterTest.Zodを出力する本番(GPTModeReq)
-    BaseModelConverterTest.Zodを出力する本番(VoiceVoxCharacterSettingSaveModel)
-    BaseModelConverterTest.Zodを出力する本番(CoeiroinkCharacterSettingSaveModel)
-    BaseModelConverterTest.Zodを出力する本番(CevioAICharacterSettingSaveModel)
-    BaseModelConverterTest.Zodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
-    BaseModelConverterTest.Zodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
-    BaseModelConverterTest.Zodを出力する本番(CevioAICharacterSettingSaveModelReq)
+    BaseModelConverterTest.再帰的にZodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
+    BaseModelConverterTest.再帰的にZodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
+    BaseModelConverterTest.再帰的にZodを出力する本番(CevioAICharacterSettingSaveModelReq)
 
     
     # 型の変換と保存(AppSettingsModel)

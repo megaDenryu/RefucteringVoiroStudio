@@ -1,0 +1,14 @@
+{
+    "properties": {
+        "record": {
+            "additionalProperties": {
+                "type": "integer"
+            },
+            "default": {},
+            "title": "Record",
+            "type": "object"
+        }
+    },
+    "title": "TalkerComponentArray2",
+    "type": "object"
+}
