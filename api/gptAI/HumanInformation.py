@@ -423,6 +423,7 @@ class AllHumanInformationDict(BaseModel):
 
 CharacterId: TypeAlias = str
 # CharacterId = NewType('CharacterId', str)
+CharacterSaveId: TypeAlias = str
 
 
 class ICharacterModeState(TypedDict):

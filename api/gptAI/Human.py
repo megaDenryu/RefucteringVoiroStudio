@@ -1,23 +1,15 @@
-import sys
-from pathlib import Path
-import os
-import json
-import time
 import re
-from pprint import pprint
-from typing_extensions import TypedDict
+from typing import Literal
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
-from api.images.image_manager.IHumanPart import HumanData
+from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
 from api.gptAI.HumanInformation import CharacterId
-from .gpt import ChatGPT
 from .voiceroid_api import voicevox_human
 from .voiceroid_api import Coeiroink
 
 from ..images.image_manager.HumanPart import HumanPart
-from starlette.websockets import WebSocket
 
 try:
     from .voiceroid_api import cevio_human
@@ -29,11 +21,14 @@ try:
 except ImportError:
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
 
-
-
+VoiceSystem = Literal["cevio","voicevox","AIVOICE","Coeiroink","ボイロにいない名前が入力されたので起動に失敗しました。","ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"]
 class Human:
+    voice_switch = True # debug用の変数
     chara_mode_state:CharacterModeState
     image_data_for_client:HumanData
+    body_parts_pathes_for_gpt:AllBodyFileInfo
+    human_part:HumanPart
+    voice_system:VoiceSystem
     @property
     def front_name(self): #フロントで入力してウインドウに表示されてる名前
         return self.chara_mode_state.front_name
@@ -45,36 +40,16 @@ class Human:
         return self.chara_mode_state.id
     def __init__(self,chara_mode_state:CharacterModeState ,voiceroid_dict) -> None:
         """
-        @param front_name: フロントで入力してウインドウに表示されてる名前
         @param voiceroid_dict: 使用してる合成音声の種類をカウントする辞書。{"cevio":0,"voicevox":0,"AIVOICE":0}。cevioやAIVOICEの起動管理に使用。
         """
-        # debug用の変数
-        self.voice_switch = True
-        self.gpt_switch = True
-        self.send_image_switch = True
-
         # 以下コンストラクタのメイン処理
         self.chara_mode_state = chara_mode_state
-        self.voice_mode = "wav出力"
-
-        print(f"char_name:{self.char_name.name}")
-        self.personal_id = 2
         # 体画像周りを準備する
         self.human_part = HumanPart(self.char_name)
         self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name, self.front_name)
-        # dictを正規化する
-        self.response_dict:dict = {
-            self.char_name.name:"",
-            "感情":"",
-            "コード":"",
-            "json返答":""
-        }
-        self.sentence = ""
-        self.sentence_count = 0
-        self.voice_system:str = self.start(voiceroid_dict)
-
+        self.voice_system:VoiceSystem = self.start(voiceroid_dict)
     
-    def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0}):#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
+    def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
             if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
                 tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
@@ -130,71 +105,6 @@ class Human:
         else:
             print("wav出力できるボイロが起動してないのでwav出力できませんでした。")
 
-    def format_response(self,text:str):
-        """
-        gptから送られてきたjson文字列を辞書に代入する関数
-        """
-        try:
-            tmp_dict:dict = json.loads(text)
-            for key in self.response_dict.keys():
-                if key in tmp_dict:
-                    self.response_dict[key] = tmp_dict[key]
-                else:
-                    self.response_dict[key] = ""
-            self.response_dict["json返答"] = "成功"
-            self.saveResponse()
-        except Exception as e:
-            # textがjson形式でない時はエラーになるのでtextをそのまま全部会話の部分に入れる。
-            self.response_dict[self.char_name] = text
-            self.response_dict["json返答"] = "失敗"
-
-    def appendSentence(self,input_sentence:str, inputer_name:str):
-        if self.sentence_count == 0:
-            self.sentence = f"{inputer_name}:{input_sentence}"
-        else:
-            self.sentence = f"{self.sentence}, {inputer_name}:{input_sentence}"
-        self.sentence_count += 1
-        return self.sentence,self.sentence_count
-    def resetSentence(self):
-        self.sentence = ""
-
-    def execLastResponse(self):
-        if "成功" == self.response_dict["json返答"]:
-            print("json返答に成功してるので発声します")
-            if "直接発声" == self.voice_mode:
-                self.speak(self.response_dict[self.char_name])
-            elif "wav出力" == self.voice_mode:
-                self.outputWaveFile(self.response_dict[self.char_name])
-            self.execGPTsCode(self.response_dict["コード"])
-            # 反応がなければもう一度続きの反応を生成して声をかける処理を入れる
-        else:
-            print("json返答に失敗したので発声を中止します")
-
-    def saveResponse(self):
-        pass
-    
-    def execGPTsCode(self,code_text:str):
-        """
-        コードテキストを実行可能な形に整形
-        """
-        replace_words = [
-            "```python\\n",
-            "```"
-        ]
-        for word in replace_words:
-            try:
-                code_text.replace(word,"")
-            except Exception as e:
-                print("プログラムの形式がおかしいです")
-        try:
-            ret = eval(code_text)
-            self.speak(ret)
-        except Exception as e:
-            print(e)
-            try:
-                exec(code_text)
-            except Exception as e:
-                print(e)
     
     @staticmethod
     def getNameList()->dict[NickName, CharacterName]:
@@ -217,7 +127,7 @@ class Human:
         except Exception as e:
             ExtendFunc.ExtendPrint(f"{nickName}は対応するキャラがサーバーに登録されていません。")
             raise e
-    
+
     @staticmethod
     def pickFrontName(filename:str):
         """
@@ -243,18 +153,6 @@ class Human:
         return "名前が無効です"
 
     
-    @staticmethod
-    def convertDictKeyToCharName(dict:dict[CharacterId, str]):
-        """
-        辞書のキーfront_nameからchar_nameに変換する
-        """
-        return_dict = {}
-        ExtendFunc.ExtendPrint(dict)
-        for characterId,value in dict.items():
-            return_dict[Human.setCharName(front_name)] = value
-        return return_dict
-
-    
     def getHumanImage(self):
         return self.image_data_for_client
     
@@ -271,18 +169,6 @@ class Human:
         sentence_list = list(filter(lambda x: x != "", sentence_list))
         ExtendFunc.ExtendPrint(sentence_list)
         return sentence_list
-    
-    @staticmethod
-    def extractSentence4low(response)->str:
-        try:
-            data = json.loads(response)
-            if "status" in data and "speak" == data["status"] and "spoken_words" in data:
-                return data["spoken_words"]
-            else:
-                return ""
-        except json.JSONDecodeError:
-            return response.split(":")[-1].split("：")[-1]
-        
 
 
 

@@ -8,6 +8,9 @@ from fastapi.concurrency import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
+from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
+from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
+from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import VoiceVoxCharacterSettingSaveModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModelReq import CoeiroinkVoiceSettingModelReq
@@ -886,7 +889,7 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
         ExtendFunc.ExtendPrint(setting_module)
     
 @app.post("/TtsSoftWareSettingInit")
-async def cevioAIVoiceSettingInit(ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq):
+async def ttsSoftWareSettingInit(ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq):
     # todo :cevioにアクセスして、ボイスの設定を取得
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(ttsSoftWareVoiceSettingReq.character_id)
     if human == None:
@@ -900,12 +903,29 @@ async def cevioAIVoiceSettingInit(ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSe
             読み上げ間隔=1,
             AIによる文章変換=AISentenceConverter.無効,
         )
-        return cevioAIVoiceSetting 
+
+        cevioAICharaSetting = CevioAICharacterSettingSaveModel(
+            saveID=tts.charaSetting.saveID,
+            characterInfo=tts.characterInfo,
+            voiceSetting=cevioAIVoiceSetting
+        )
+        return cevioAICharaSetting 
     elif isinstance(tts, voicevox_human):
         voiceVoxVoiceSetting = tts.voiceSetting
-        return voiceVoxVoiceSetting
+        voiceVoxCharacterSetting = VoiceVoxCharacterSettingSaveModel(
+            saveID=tts.charaSetting.saveID,
+            characterInfo=tts.characterInfo,
+            voiceSetting=voiceVoxVoiceSetting
+        )
+        return voiceVoxCharacterSetting
     elif isinstance(tts, Coeiroink):
+        return CoeiroinkCharacterSettingSaveModel(
+            saveID=tts.charaSetting.saveID,
+            characterInfo=tts.characterInfo,
+            voiceSetting=tts.voiceSetting
+        )
         return tts.voiceSetting
+
     
 @app.post("/CevioAIVoiceSetting")
 async def cevioAIVoiceSetting(req: CevioAIVoiceSettingModelReq):
