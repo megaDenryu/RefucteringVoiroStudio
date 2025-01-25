@@ -24,7 +24,7 @@ import { IVoiceSetting } from "./IVoiceSetting";
 
 export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting {
   private testMode: boolean = false;
-  public readonly title = "全体設定";
+  public readonly title = "音声設定";
   public manageData: CevioAIVoiceSettingModel;
   private _squareBoardComponent: SquareBoardComponent;
   // private _manageDataSettingComponent:ObjectInputComponentWithSaveButton<CevioAIVoiceSettingModel>
