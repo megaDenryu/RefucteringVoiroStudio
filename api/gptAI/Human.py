@@ -14,11 +14,13 @@ from ..images.image_manager.HumanPart import HumanPart
 try:
     from .voiceroid_api import cevio_human
 except ImportError:
+    cevio_human = None
     print("cevio_human module could not be imported. Please ensure the required application is installed.")
 
 try:
     from .voiceroid_api import AIVoiceHuman
 except ImportError:
+    AIVoiceHuman = None
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
 
 VoiceSystem = Literal["cevio","voicevox","AIVOICE","Coeiroink","ボイロにいない名前が入力されたので起動に失敗しました。","ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"]
@@ -52,6 +54,8 @@ class Human:
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
             if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
+                if cevio_human is None:
+                    raise ImportError("cevio_human module is not available.")
                 tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
@@ -66,6 +70,8 @@ class Human:
                 self.human_Voice.speak("起動完了")
                 return "voicevox"
             elif TTSSoftware.AIVoice.equal(self.chara_mode_state.tts_software):
+                if AIVoiceHuman is None:
+                    raise ImportError("AIVoiceHuman module is not available.")
                 tmp_aivoice = AIVoiceHuman.createAndUpdateALLCharaList(self.chara_mode_state, voiceroid_dict["AIVOICE"])
                 print(f"{self.char_name}のAIVOICE起動開始")
                 self.human_Voice = tmp_aivoice
