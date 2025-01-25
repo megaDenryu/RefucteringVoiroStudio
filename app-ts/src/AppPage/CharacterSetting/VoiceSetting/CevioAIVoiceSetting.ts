@@ -1,25 +1,25 @@
 import { z, ZodTypeAny } from "zod";
-import { generateDefaultObject } from "../../Extend/ZodExtend/ZodExtend";
-import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
-import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
+import { generateDefaultObject } from "../../../Extend/ZodExtend/ZodExtend";
+import { SquareBoardComponent } from "../../../UiComponent/Board/SquareComponent";
+import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
 import {
   IComponentManager,
   オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する,
   オブジェクトデータの特定の子要素の配列から特定番号を削除する,
-} from "../../UiComponent/TypeInput/TypeComponents/IComponentManager";
-import { ObjectInputComponentWithSaveButton } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
-import { AppSettingsModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingModel";
-import { CevioAIVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModel";
-import { RequestAPI } from "../../Web/RequestApi";
-import { AppSettingInitReq } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingInitReq";
-import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
-import { recusiveRegisterUpdateChildSegment } from "../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
-import { CevioAIVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingReq";
-import { CevioAIVoiceSettingModelReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelReq";
-import { ObjectInputComponent } from "../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
-import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
-import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
-import { CevioAIVoiceSettingModelFormat } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelFormat";
+} from "../../../UiComponent/TypeInput/TypeComponents/IComponentManager";
+import { ObjectInputComponentWithSaveButton } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponentWithSaveButton";
+import { AppSettingsModel } from "../../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingModel";
+import { CevioAIVoiceSettingModel } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModel";
+import { RequestAPI } from "../../../Web/RequestApi";
+import { AppSettingInitReq } from "../../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingInitReq";
+import { RecordPath } from "../../../UiComponent/TypeInput/RecordPath";
+import { recusiveRegisterUpdateChildSegment } from "../../../UiComponent/TypeInput/TypeComponents/ICollectionComponent";
+import { CevioAIVoiceSettingReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingReq";
+import { CevioAIVoiceSettingModelReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelReq";
+import { ObjectInputComponent } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
+import { IOpenCloseWindow } from "../../../UiComponent/Board/IOpenCloseWindow";
+import { TtsSoftWareVoiceSettingReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
+import { CevioAIVoiceSettingModelFormat } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelFormat";
 import { IVoiceSetting } from "./IVoiceSetting";
 
 export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting {

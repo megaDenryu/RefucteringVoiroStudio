@@ -14,12 +14,11 @@ import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
 import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Character";
-import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
 import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
 import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
 import { ICharacterModeState, ICharacterModeStateReq } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { GPTModeReq, GptMode } from "../../ZodObject/gptAI/GPTMode";
-import { IVoiceSetting } from "../CharacterSetting/IVoiceSetting";
+import { IVoiceSetting } from "../CharacterSetting/VoiceSetting/IVoiceSetting";
 
 // const { promises } = require("fs");
 
