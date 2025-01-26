@@ -4,6 +4,15 @@ from pathlib import Path
 from typing import Literal, NewType, TypeAlias, TypedDict
 from uuid import uuid4
 from pydantic import BaseModel, ValidationError
+from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollection, AIVoiceCharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import CevioAICharacterSettingCollection, CevioAICharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
+from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollection, CoeiroinkCharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
+from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollection, VoiceVoxCharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import VoiceVoxCharacterSettingSaveModel
+from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModel import CoeiroinkVoiceSettingModel
+from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel, Map
 from api.Extend.ExtendFunc import ExtendFunc
@@ -403,12 +412,28 @@ class HumanInformationList(BaseModel):
         charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
         super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
 
+class CharacterSettingSaveDatas(BaseModel):
+    characterSettingCevioAI: CevioAICharacterSettingCollection
+    characterSettingVoiceVox: VoiceVoxCharacterSettingCollection
+    characterSettingCoeiroink: CoeiroinkCharacterSettingCollection
+    characterSettingAIVoice: AIVoiceCharacterSettingCollection
+
+    def __init__(self):
+        characterSettingCevioAI = CevioAICharacterSettingCollectionOperator.singleton().collection
+        characterSettingVoiceVox = VoiceVoxCharacterSettingCollectionOperator.singleton().collection
+        characterSettingCoeiroink = CoeiroinkCharacterSettingCollectionOperator.singleton().collection
+        characterSettingAIVoice = AIVoiceCharacterSettingCollectionOperator.singleton().collection
+        super().__init__(characterSettingCevioAI=characterSettingCevioAI, characterSettingVoiceVox=characterSettingVoiceVox, characterSettingCoeiroink=characterSettingCoeiroink, characterSettingAIVoice=characterSettingAIVoice)
+
 class AllHumanInformationDict(BaseModel):
     data: dict[TTSSoftwareType,HumanInformationList]
+    characterSettingSaveDatas: CharacterSettingSaveDatas
 
     def __init__(self):
         data = {software.value:HumanInformationList(software) for software in TTSSoftware}
-        super().__init__(data=data)
+        characterSettingSaveDatas = CharacterSettingSaveDatas()
+        
+        super().__init__(data=data, characterSettingSaveDatas=characterSettingSaveDatas)
 
     def save(self):
         path = AllHumanInformationManager.singleton().api_dir / "CharSettingJson/AllHumanInformation.json"
@@ -428,6 +453,7 @@ CharacterSaveId: TypeAlias = str
 
 class ICharacterModeState(TypedDict):
     id: CharacterId
+    save_id: CharacterSaveId
     tts_software: TTSSoftwareType
     character_name: ICharacterName
     human_image: IHumanImage
@@ -438,6 +464,7 @@ class ICharacterModeState(TypedDict):
 # ゲームループ状に存在しているキャラクターの状態を管理するクラス
 class CharacterModeState(HashableBaseModel):
     id: CharacterId
+    save_id: CharacterSaveId
     tts_software: TTSSoftwareType
     character_name: CharacterName
     human_image: HumanImage
@@ -467,8 +494,9 @@ class CharacterModeState(HashableBaseModel):
             tts_software = manager.chara_names_manager.getTTSSoftware(chara_name)
             human_image = manager.human_images.getDefaultHumanImage(chara_name)
             voice_mode = manager.CharaNames2VoiceModeDict_manager.getVoiceMode(chara_name)
+            save_id = getSaveIdFromNickName(tts_software,front_name) # ニックネームでセーブデータを検索し、最初のほうのＩＤを取得
             try:
-                mode = CharacterModeState(id = uuid4().__str__(), tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode, voice_state=VoiceState.empty(), front_name=front_name)
+                mode = CharacterModeState(id = uuid4().__str__(), save_id= save_id, tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode, voice_state=VoiceState.empty(), front_name=front_name)
                 mode.front_name = front_name
                 ExtendFunc.ExtendPrintWithTitle("キャラクターモード", mode)
                 return mode
@@ -486,6 +514,7 @@ class CharacterModeState(HashableBaseModel):
     def fromDict(data: ICharacterModeState) -> "CharacterModeState":
         return CharacterModeState(
             id = data["id"], 
+            save_id=data["save_id"],
             tts_software=data["tts_software"], 
             character_name=CharacterName(**data["character_name"]), 
             human_image=HumanImage(**data["human_image"]), 

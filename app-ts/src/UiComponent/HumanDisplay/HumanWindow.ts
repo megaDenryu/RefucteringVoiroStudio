@@ -7,7 +7,7 @@ import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Cha
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
 import { DragMover } from "../Base/DragableComponent";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
-import { CharaSelectFunctionCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
+import { CharaSelectFeaureCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
 import { IAddHumanButton, IBackGroundImage, IBackGroundImages, IBodySettingButton, IDeleteHumanButton, IHumanName, IHumanSelectPanelStartButton, IHumanTab, IHumanWindow, IMicToggleButton } from "./IHumanWindow";
 
 export class HumanTab implements IHasComponent,IHumanTab {
@@ -133,7 +133,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
 
     charaSelectPanelStart() {
         let element = document.body;
-        CharaSelectFunctionCreater.init(element, this);
+        CharaSelectFeaureCreater.init(element, this);
     }
 
     createHuman(charaCreateData:CharaCreateData){

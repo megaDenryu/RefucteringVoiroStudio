@@ -1,0 +1,282 @@
+{
+    "$defs": {
+        "AISentenceConverter": {
+            "enum": [
+                "無効",
+                "ChatGPT"
+            ],
+            "title": "AISentenceConverter",
+            "type": "string"
+        },
+        "AIVoiceCharacterSettingSaveModel": {
+            "properties": {
+                "saveID": {
+                    "description": "保存IDを指定します。",
+                    "title": "保存ID",
+                    "type": "string"
+                },
+                "characterInfo": {
+                    "$ref": "#/$defs/CharacterInfo"
+                },
+                "voiceSetting": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/AIVoiceVoiceSettingModel"
+                        }
+                    ],
+                    "description": "音声設定を指定します。",
+                    "title": "音声設定"
+                }
+            },
+            "required": [
+                "saveID",
+                "characterInfo"
+            ],
+            "title": "AIVoiceCharacterSettingSaveModel",
+            "type": "object"
+        },
+        "AIVoiceVoiceSettingModel": {
+            "properties": {
+                "読み上げ間隔": {
+                    "default": 0.0,
+                    "maximum": 2.0,
+                    "minimum": 0.0,
+                    "title": "読み上げ間隔",
+                    "type": "number"
+                },
+                "AIによる文章変換": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/AISentenceConverter"
+                        }
+                    ],
+                    "default": "無効"
+                }
+            },
+            "title": "AIVoiceVoiceSettingModel",
+            "type": "object"
+        },
+        "ActionPattern": {
+            "properties": {
+                "感情": {
+                    "$ref": "#/$defs/Emotion"
+                },
+                "行動": {
+                    "title": "行動",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "感情",
+                "行動"
+            ],
+            "title": "ActionPattern",
+            "type": "object"
+        },
+        "CharacterAISetting": {
+            "properties": {
+                "名前": {
+                    "title": "名前",
+                    "type": "string"
+                },
+                "年齢": {
+                    "title": "年齢",
+                    "type": "integer"
+                },
+                "性別": {
+                    "title": "性別",
+                    "type": "string"
+                },
+                "背景情報": {
+                    "title": "背景情報",
+                    "type": "string"
+                },
+                "役割": {
+                    "title": "役割",
+                    "type": "string"
+                },
+                "動機": {
+                    "title": "動機",
+                    "type": "string"
+                },
+                "アリバイ": {
+                    "title": "アリバイ",
+                    "type": "string"
+                },
+                "性格特性": {
+                    "title": "性格特性",
+                    "type": "string"
+                },
+                "関係": {
+                    "items": {
+                        "$ref": "#/$defs/CharacterRelationships"
+                    },
+                    "title": "関係",
+                    "type": "array"
+                },
+                "秘密": {
+                    "title": "秘密",
+                    "type": "string"
+                },
+                "知っている情報": {
+                    "title": "知っている情報",
+                    "type": "string"
+                },
+                "外見の特徴": {
+                    "title": "外見の特徴",
+                    "type": "string"
+                },
+                "所持品": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "title": "所持品",
+                    "type": "array"
+                },
+                "行動パターン": {
+                    "items": {
+                        "$ref": "#/$defs/ActionPattern"
+                    },
+                    "title": "行動パターン",
+                    "type": "array"
+                }
+            },
+            "required": [
+                "名前",
+                "年齢",
+                "性別",
+                "背景情報",
+                "役割",
+                "動機",
+                "アリバイ",
+                "性格特性",
+                "関係",
+                "秘密",
+                "知っている情報",
+                "外見の特徴",
+                "所持品",
+                "行動パターン"
+            ],
+            "title": "CharacterAISetting",
+            "type": "object"
+        },
+        "CharacterInfo": {
+            "properties": {
+                "characterName": {
+                    "$ref": "#/$defs/CharacterName"
+                },
+                "nickName": {
+                    "$ref": "#/$defs/NickName"
+                },
+                "humanImage": {
+                    "$ref": "#/$defs/HumanImage"
+                },
+                "aiSetting": {
+                    "$ref": "#/$defs/CharacterAISetting"
+                }
+            },
+            "required": [
+                "characterName",
+                "nickName",
+                "humanImage",
+                "aiSetting"
+            ],
+            "title": "CharacterInfo",
+            "type": "object"
+        },
+        "CharacterName": {
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "title": "CharacterName",
+            "type": "object"
+        },
+        "CharacterRelationships": {
+            "properties": {
+                "他のキャラクター名": {
+                    "title": "他のキャラクター名",
+                    "type": "string"
+                },
+                "関係": {
+                    "title": "関係",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "他のキャラクター名",
+                "関係"
+            ],
+            "title": "CharacterRelationships",
+            "type": "object"
+        },
+        "Emotion": {
+            "enum": [
+                "怒り",
+                "喜び",
+                "悲しみ",
+                "不安",
+                "恐怖",
+                "驚き"
+            ],
+            "title": "Emotion",
+            "type": "string"
+        },
+        "HumanImage": {
+            "properties": {
+                "folder_name": {
+                    "title": "Folder Name",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "folder_name"
+            ],
+            "title": "HumanImage",
+            "type": "object"
+        },
+        "NickName": {
+            "properties": {
+                "name": {
+                    "title": "Name",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "title": "NickName",
+            "type": "object"
+        }
+    },
+    "properties": {
+        "page_mode": {
+            "title": "Page Mode",
+            "type": "string"
+        },
+        "client_id": {
+            "title": "Client Id",
+            "type": "string"
+        },
+        "character_id": {
+            "title": "Character Id",
+            "type": "string"
+        },
+        "aiVoiceCharacterSettingSaveModel": {
+            "$ref": "#/$defs/AIVoiceCharacterSettingSaveModel"
+        }
+    },
+    "required": [
+        "page_mode",
+        "client_id",
+        "character_id",
+        "aiVoiceCharacterSettingSaveModel"
+    ],
+    "title": "AIVoiceCharacterSettingSaveModelReq",
+    "type": "object"
+}

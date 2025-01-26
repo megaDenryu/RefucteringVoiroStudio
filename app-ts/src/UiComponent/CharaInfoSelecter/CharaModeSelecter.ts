@@ -143,6 +143,7 @@ export class CharaModeChangeFunction implements IHasComponent, IDragAble {
         //キャラクターが決定されたときの処理
         const selectState = new CharacterModeState(
             this.human_tab.characterId,
+            save_id,
             this.ttsSoftware,
             this.characterName,
             this.compositehumanImageSelecter.selectedHumanImage,

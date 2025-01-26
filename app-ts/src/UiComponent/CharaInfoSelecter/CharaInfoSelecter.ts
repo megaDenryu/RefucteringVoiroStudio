@@ -1,6 +1,6 @@
 import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { BaseComponent, ElementChildClass, ElementCreater, HtmlElementInput, IHasComponent } from "../Base/ui_component_base";
-import { CharacterName, HumanImage, CharacterModeState, TTSSoftware, TTSSoftwareEnum, VoiceMode, NickName } from "../../ValueObject/Character";
+import { CharacterName, HumanImage, CharacterModeState, TTSSoftware, TTSSoftwareEnum, VoiceMode, NickName, CharacterSettingSaveDatas, CharacterId, CevioAICharacterSettingCollection, AIVoiceCharacterSettingCollection, CharacterSaveId } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../HumanDisplay/HumanWindow";
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
@@ -8,6 +8,14 @@ import { ZIndexManager } from "../../AppPage/AppVoiroStudio/ZIndexManager";
 import { DragMover, IDragAble } from "../Base/DragableComponent";
 import { VoiceState } from "../../ValueObject/VoiceState";
 import { VoMap } from "../../Extend/extend_collections";
+import { CharacterInfo } from "../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfo";
+import { CevioAIVoiceSetting } from "../../AppPage/CharacterSetting/VoiceSetting/CevioAIVoiceSetting";
+import { AIVoiceVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/AIVoiceVoiceSetting/AIVoiceVoiceSettingModel";
+import { CevioAIVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModel";
+import { VoiceVoxVoiceSetting } from "../../AppPage/CharacterSetting/VoiceSetting/VoiceVoxVoiceSetting";
+import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModel";
+import { VoiceVoxVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
+import { ICoeiroinkCharacterSettingCollection, IVoiceVoxCharacterSettingCollection } from "./ICharacterInfo";
 
 
 
@@ -395,6 +403,179 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
     }
 }
 
+type VoiceSettingModel = CevioAIVoiceSettingModel|AIVoiceVoiceSettingModel|VoiceVoxVoiceSetting|CoeiroinkVoiceSettingModel;
+
+export interface ICharacterSettingSaveModel<T extends VoiceSettingModel> {
+    saveID: CharacterSaveId;
+    characterInfo: CharacterInfo;
+    voiceSetting?: T;
+}
+
+export class CharacterSettingSaveDataSelecter<T extends VoiceSettingModel> implements IHasComponent {
+    component: BaseComponent;
+    public readonly characterName: CharacterName;
+    public readonly ttsSoftware: TTSSoftware;
+    public readonly selectedSaveID: ReactiveProperty<CharacterSaveId>;
+    public readonly characterSettingSaveModelList: ICharacterSettingSaveModel<T>[];
+
+    constructor(characterName: CharacterName, ttsSoftware: TTSSoftware, characterSettingSaveModelList: ICharacterSettingSaveModel<T>[]) {
+        this.characterName = characterName;
+        this.ttsSoftware = ttsSoftware;
+        this.characterSettingSaveModelList = characterSettingSaveModelList;
+        this.selectedSaveID = new ReactiveProperty<CharacterSaveId>(characterSettingSaveModelList[0].saveID);
+
+        const HTMLElementInput = ElementCreater.createSelectElement(characterSettingSaveModelList.map(saveModel => saveModel.saveID), this.calcBoxSize(), characterSettingSaveModelList[0].saveID);
+        HTMLElementInput.addEventListener('change', (event) => {
+            const inputSaveID:CharacterSaveId = (event.target as HTMLSelectElement).value;
+            this.selectedSaveID.set(inputSaveID);
+        });
+        this.component = new BaseComponent(HTMLElementInput);
+        this.component.addCSSClass(["CharacterSettingSaveDataSelecter", "SelecterSize"]);
+
+    }
+    public show(): void {this.component.show();}
+    public hide(): void {this.component.hide();}
+    public delete(): void {this.component.delete();}
+
+    public addOnSaveIDChanged(method: (saveID: CharacterSaveId) => void): void {
+        this.selectedSaveID.addMethod(method);
+    }
+
+    private calcBoxSize(): number {
+        return 8;
+    }
+
+}
+
+export interface SelectCharacterInfo {
+    ttsSoftware: TTSSoftware;
+    characterName: CharacterName;
+}
+export class CompositeCharacterSettingSaveDataSelecter implements IHasComponent {
+    component: BaseComponent;
+    public readonly selectedCharacter: ReactiveProperty<SelectCharacterInfo>;
+    private _characterSettingSaveData: CharacterSettingSaveDatas;
+    private _cevioAISaveDataSelecterDict: VoMap<CharacterName, CharacterSettingSaveDataSelecter<CevioAIVoiceSettingModel>>;
+    private _aiVoiceSaveDataSelecterDict: VoMap<CharacterName, CharacterSettingSaveDataSelecter<AIVoiceVoiceSettingModel>>;
+    private _voiceVoxSaveDataSelecterDict: VoMap<CharacterName, CharacterSettingSaveDataSelecter<VoiceVoxVoiceSettingModel>>;
+    private _coeiroinkSaveDataSelecterDict: VoMap<CharacterName, CharacterSettingSaveDataSelecter<CoeiroinkVoiceSettingModel>>;
+
+    constructor(characterSettingSaveDatas: CharacterSettingSaveDatas, defaultCharacterName: CharacterName) {
+        this._characterSettingSaveData = characterSettingSaveDatas;
+        this.initialize();
+    }
+
+    public changeCharacter(newCharacter: SelectCharacterInfo, prevCharacter: SelectCharacterInfo): void {
+        this.getSelecter(prevCharacter)?.hide();
+        this.getSelecter(newCharacter)?.show();
+    }
+
+    public getSelecter(character: SelectCharacterInfo) {
+        switch (character.ttsSoftware) {
+            case TTSSoftwareEnum.AIVoice:
+                return this._aiVoiceSaveDataSelecterDict.get(character.characterName);
+            case TTSSoftwareEnum.CevioAI:
+                return this._cevioAISaveDataSelecterDict.get(character.characterName);
+            case TTSSoftwareEnum.VoiceVox:
+                return this._voiceVoxSaveDataSelecterDict.get(character.characterName);
+            case TTSSoftwareEnum.Coeiroink:
+                return this._coeiroinkSaveDataSelecterDict.get(character.characterName);
+            default:
+                throw new Error("TTSソフトウェアが見つかりませんでした");
+        }
+    }
+    public delete(): void {
+        this.component.delete();
+    }
+
+    private initialize(): void {
+        this.セレクターの作成とバインド();
+        this.component = BaseComponent.createElementByString(this.HTMLInput);
+        this.component.addCSSClass("CompositeCharacterSettingSaveDataSelecter");
+    }
+
+    private セレクターの作成とバインド()  {
+        for (const [characterName, saveData] of this.セーブデータの分類AIVoice(this._characterSettingSaveData.characterSettingAIVoice).entries()) {
+            const selecter = new CharacterSettingSaveDataSelecter(characterName, TTSSoftwareEnum.AIVoice, saveData);
+            this._aiVoiceSaveDataSelecterDict.set(characterName, selecter);
+            this.component.createArrowBetweenComponents(this, selecter);
+        }
+
+        for (const [characterName, saveData] of this.セーブデータの分類CevioAi(this._characterSettingSaveData.characterSettingCevioAI).entries()) {
+            const selecter = new CharacterSettingSaveDataSelecter(characterName, TTSSoftwareEnum.CevioAI, saveData);
+            this._cevioAISaveDataSelecterDict.set(characterName, selecter);
+            this.component.createArrowBetweenComponents(this, selecter);
+        }
+
+        for (const [characterName, saveData] of this.セーブデータの分類VoiceVox(this._characterSettingSaveData.characterSettingVoiceVox).entries()) {
+            const selecter = new CharacterSettingSaveDataSelecter(characterName, TTSSoftwareEnum.VoiceVox, saveData);
+            this._voiceVoxSaveDataSelecterDict.set(characterName, selecter);
+            this.component.createArrowBetweenComponents(this, selecter);
+        }
+
+        for (const [characterName, saveData] of this.セーブデータの分類Coeiroink(this._characterSettingSaveData.characterSettingCoeiroink).entries()) {
+            const selecter = new CharacterSettingSaveDataSelecter(characterName, TTSSoftwareEnum.Coeiroink, saveData);
+            this._coeiroinkSaveDataSelecterDict.set(characterName, selecter);
+            this.component.createArrowBetweenComponents(this, selecter);
+        }
+    }
+
+    private セーブデータの分類CevioAi(characterSettingCevioAI: CevioAICharacterSettingCollection): VoMap<CharacterName, ICharacterSettingSaveModel<CevioAIVoiceSettingModel>[]> {
+        const ceviAISaveData = new VoMap<CharacterName, ICharacterSettingSaveModel<CevioAIVoiceSettingModel>[]>();
+        for (const saveData of characterSettingCevioAI.collection) {
+            const charaName = CharacterName.fromDict(saveData.characterInfo.characterName);
+            if (ceviAISaveData.has(charaName)) {
+                ceviAISaveData.get(charaName)?.push(saveData);
+            } else {
+                ceviAISaveData.set(charaName, [saveData]);
+            }
+        }
+        return ceviAISaveData;
+    }
+
+    private セーブデータの分類AIVoice(characterSettingAIVoice: AIVoiceCharacterSettingCollection): VoMap<CharacterName, ICharacterSettingSaveModel<AIVoiceVoiceSettingModel>[]> {
+        const aiVoiceSaveData = new VoMap<CharacterName, ICharacterSettingSaveModel<AIVoiceVoiceSettingModel>[]>();
+        for (const saveData of characterSettingAIVoice.collection) {
+            const charaName = CharacterName.fromDict(saveData.characterInfo.characterName);
+            if (aiVoiceSaveData.has(charaName)) {
+                aiVoiceSaveData.get(charaName)?.push(saveData);
+            } else {
+                aiVoiceSaveData.set(charaName, [saveData]);
+            }
+        }
+        return aiVoiceSaveData;
+    }
+
+    private セーブデータの分類VoiceVox(characterSettingVoiceVox: IVoiceVoxCharacterSettingCollection): VoMap<CharacterName, ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>[]> {
+        const voiceVoxSaveData = new VoMap<CharacterName, ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>[]>();
+        for (const saveData of characterSettingVoiceVox.collection) {
+            const charaName = CharacterName.fromDict(saveData.characterInfo.characterName);
+            if (voiceVoxSaveData.has(charaName)) {
+                voiceVoxSaveData.get(charaName)?.push(saveData);
+            } else {
+                voiceVoxSaveData.set(charaName, [saveData]);
+            }
+        }
+        return voiceVoxSaveData;
+    }
+
+    private セーブデータの分類Coeiroink(characterSettingCoeiroink: ICoeiroinkCharacterSettingCollection): VoMap<CharacterName, ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>[]> {
+        const coeiroinkSaveData = new VoMap<CharacterName, ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>[]>();
+        for (const saveData of characterSettingCoeiroink.collection) {
+            const charaName = CharacterName.fromDict(saveData.characterInfo.characterName);
+            if (coeiroinkSaveData.has(charaName)) {
+                coeiroinkSaveData.get(charaName)?.push(saveData);
+            } else {
+                coeiroinkSaveData.set(charaName, [saveData]);
+            }
+        }
+        return coeiroinkSaveData;
+    }
+
+    
+
+}
+
 export class CharacterSelectDecisionButton implements IHasComponent {
     /**キャラクターを決定するために押すボタン
      * 押すとapiサーバーにリクエストを投げる
@@ -448,7 +629,7 @@ export class CharaSelecterDeleteButton implements IHasComponent {
 }
 
 
-export class CharaSelectFunction implements IHasComponent, IDragAble {
+export class CharaSelectFeature implements IHasComponent, IDragAble {
     private readonly Def = HtmlElementInput.new(
         `
             <div class="CharaSelectFunction">
@@ -469,11 +650,13 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
     private characterNamesDict: Record<TTSSoftware, CharacterName[]>
     private humanImagesDict: VoMap<CharacterName, HumanImage[]>;
     private voiceModesDict: VoMap<CharacterName, VoiceMode[]>;
+    private characterSettingSaveDatas: CharacterSettingSaveDatas;
     public readonly component: BaseComponent<typeof this.Def["classNames"]>;
     private ttsSoftwareSelecter: TTSSoftwareSelecter;
     private compositeCharacterNameSelecter: CompositeCharacterNameSelecter;
     private compositehumanImageSelecter: CompositeHumanImageSelecter;
     private compositeVoiceModeSelecter: CompositeVoiceModeSelecter;
+    private compositeCharacterSettingSaveDataSelecter: CompositeCharacterSettingSaveDataSelecter;
     private characterSelectDecisionButton: CharacterSelectDecisionButton;
     private characterSelecterDeleteButton: CharaSelecterDeleteButton;
     private _onReceiveDecideCharacterResponse = new ReactiveProperty<HumanData|null>(null);
@@ -534,17 +717,20 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
         characterNamesDict: Record<TTSSoftware, CharacterName[]>, 
         humanImagesDict: VoMap<CharacterName, HumanImage[]>,
         voiceModesDict: VoMap<CharacterName, VoiceMode[]>,
+        characterSettingSaveDatas: CharacterSettingSaveDatas,
         human_tab: HumanTab,
     ) {
         this.characterNamesDict = characterNamesDict;
         this.humanImagesDict = humanImagesDict;
         this.voiceModesDict = voiceModesDict;
+        this.characterSettingSaveDatas = characterSettingSaveDatas;
         this.human_tab = human_tab;
 
         this.ttsSoftwareSelecter = new TTSSoftwareSelecter(this.defaultTTSSoftWare);
         this.compositeCharacterNameSelecter = new CompositeCharacterNameSelecter(characterNamesDict, this.defaultTTSSoftWare, this.defaultCharacterName);
         this.compositehumanImageSelecter = new CompositeHumanImageSelecter(humanImagesDict, this.defaultCharacterName, this.defaultHumanImage);
         this.compositeVoiceModeSelecter = new CompositeVoiceModeSelecter(voiceModesDict, this.defaultCharacterName, this.defaultVoiceMode);
+        this.compositeCharacterSettingSaveDataSelecter = new CompositeCharacterSettingSaveDataSelecter(characterSettingSaveDatas, this.defaultCharacterName, );
         this.characterSelectDecisionButton = new CharacterSelectDecisionButton();
         this.characterSelecterDeleteButton = new CharaSelecterDeleteButton();
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
@@ -601,6 +787,7 @@ export class CharaSelectFunction implements IHasComponent, IDragAble {
         //キャラクターが決定されたときの処理
         const selectState = new CharacterModeState(
             this.human_tab.characterId,
+            save_id,
             this.ttsSoftwareSelecter.selectedSoftware, 
             this.compositeCharacterNameSelecter.selectedCharacterName, 
             this.compositehumanImageSelecter.selectedHumanImage,

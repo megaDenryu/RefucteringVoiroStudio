@@ -7,6 +7,7 @@ from api.DataStore.AppSetting.AppSettingModel.CommentReciver.CommentReceiveSetti
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.NiconicoLive.NiconicoLiveSettingModel import NiconicoLiveSettingModel
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.TwitchLive.TwitchSettingModel import TwitchSettingModel
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.YoutubeLiveSettingModel import YoutubeLiveSettingModel
+from api.DataStore.CharacterSetting.AIVoiceCharacterSettingSaveModelReq import AIVoiceCharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
 from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModelReq import CevioAICharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
@@ -42,9 +43,10 @@ if __name__ == "__main__":
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModelReq)
     # BaseModelConverterTest.Zodを出力する本番(GPTModeReq)
-    BaseModelConverterTest.再帰的にZodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
-    BaseModelConverterTest.再帰的にZodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
-    BaseModelConverterTest.再帰的にZodを出力する本番(CevioAICharacterSettingSaveModelReq)
+    # BaseModelConverterTest.再帰的にZodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
+    # BaseModelConverterTest.再帰的にZodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
+    # BaseModelConverterTest.再帰的にZodを出力する本番(CevioAICharacterSettingSaveModelReq)
+    BaseModelConverterTest.再帰的にZodを出力する本番(AIVoiceCharacterSettingSaveModelReq)
 
     
     # 型の変換と保存(AppSettingsModel)
