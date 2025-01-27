@@ -141,9 +141,10 @@ export class CharaModeChangeFunction implements IHasComponent, IDragAble {
 
     private async decideCharacter(): Promise<void> {
         //キャラクターが決定されたときの処理
+        if (this.human_tab.characterModeState == null) {throw new Error("human_tab.characterModeStateがnullです");}
         const selectState = new CharacterModeState(
             this.human_tab.characterId,
-            save_id,
+            this.human_tab.characterModeState.save_id,
             this.ttsSoftware,
             this.characterName,
             this.compositehumanImageSelecter.selectedHumanImage,

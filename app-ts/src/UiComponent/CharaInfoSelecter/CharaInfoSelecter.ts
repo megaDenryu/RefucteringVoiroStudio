@@ -433,7 +433,10 @@ export class CharacterSettingSaveDataSelecter<T extends VoiceSettingModel> imple
         this.component.addCSSClass(["CharacterSettingSaveDataSelecter", "SelecterSize"]);
 
     }
-    public show(): void {this.component.show();}
+    public show(): void {
+        this.component.show();
+        this.selectedSaveID.set(this.selectedSaveID.get());
+    }
     public hide(): void {this.component.hide();}
     public delete(): void {this.component.delete();}
 
@@ -460,9 +463,29 @@ export class CompositeCharacterSettingSaveDataSelecter implements IHasComponent 
     private _voiceVoxSaveDataSelecterDict: VoMap<CharacterName, CharacterSettingSaveDataSelecter<VoiceVoxVoiceSettingModel>>;
     private _coeiroinkSaveDataSelecterDict: VoMap<CharacterName, CharacterSettingSaveDataSelecter<CoeiroinkVoiceSettingModel>>;
 
-    constructor(characterSettingSaveDatas: CharacterSettingSaveDatas, defaultCharacterName: CharacterName) {
+    public get selectedSelecter(): CharacterSettingSaveDataSelecter<CevioAIVoiceSettingModel|AIVoiceVoiceSettingModel|VoiceVoxVoiceSettingModel|CoeiroinkVoiceSettingModel> {
+        return this.getSelecter(this.selectedCharacter.get()) ?? (() => {throw new Error("セーブデータが見つかりませんでした")})();
+    }
+
+    public get selectedSaveID(): CharacterSaveId {
+        return this.selectedSelecter.selectedSaveID.get();
+    }
+
+    private get HTMLInput(): string {
+        return `
+        <div class="CompositeCharacterSettingSaveDataSelecter"></div>
+        `;
+    }
+
+    constructor(characterSettingSaveDatas: CharacterSettingSaveDatas, ttsSoftware: TTSSoftware, defaultCharacterName: CharacterName) {
+        console.log("characterSettingSaveDatasを作成");
+        this.component = BaseComponent.createElementByString(this.HTMLInput);
         this._characterSettingSaveData = characterSettingSaveDatas;
-        this.initialize();
+        this.セレクターの作成とバインド();
+        //最初のキャラクターを表示し、他のキャラクターを非表示にし、選択されたキャラクターを変更する。また、選択されたセーブIDを変更する
+        this.selectedCharacter = new ReactiveProperty<SelectCharacterInfo>({"ttsSoftware": ttsSoftware, "characterName": defaultCharacterName});
+        this.component.addCSSClass("CompositeCharacterSettingSaveDataSelecter");
+        console.log("characterSettingSaveDatasを作成"); 
     }
 
     public changeCharacter(newCharacter: SelectCharacterInfo, prevCharacter: SelectCharacterInfo): void {
@@ -470,28 +493,22 @@ export class CompositeCharacterSettingSaveDataSelecter implements IHasComponent 
         this.getSelecter(newCharacter)?.show();
     }
 
-    public getSelecter(character: SelectCharacterInfo) {
-        switch (character.ttsSoftware) {
+    public getSelecter(characterInfo: SelectCharacterInfo) {
+        switch (characterInfo.ttsSoftware) {
             case TTSSoftwareEnum.AIVoice:
-                return this._aiVoiceSaveDataSelecterDict.get(character.characterName);
+                return this._aiVoiceSaveDataSelecterDict.get(characterInfo.characterName);
             case TTSSoftwareEnum.CevioAI:
-                return this._cevioAISaveDataSelecterDict.get(character.characterName);
+                return this._cevioAISaveDataSelecterDict.get(characterInfo.characterName);
             case TTSSoftwareEnum.VoiceVox:
-                return this._voiceVoxSaveDataSelecterDict.get(character.characterName);
+                return this._voiceVoxSaveDataSelecterDict.get(characterInfo.characterName);
             case TTSSoftwareEnum.Coeiroink:
-                return this._coeiroinkSaveDataSelecterDict.get(character.characterName);
+                return this._coeiroinkSaveDataSelecterDict.get(characterInfo.characterName);
             default:
                 throw new Error("TTSソフトウェアが見つかりませんでした");
         }
     }
     public delete(): void {
         this.component.delete();
-    }
-
-    private initialize(): void {
-        this.セレクターの作成とバインド();
-        this.component = BaseComponent.createElementByString(this.HTMLInput);
-        this.component.addCSSClass("CompositeCharacterSettingSaveDataSelecter");
     }
 
     private セレクターの作成とバインド()  {
@@ -730,7 +747,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         this.compositeCharacterNameSelecter = new CompositeCharacterNameSelecter(characterNamesDict, this.defaultTTSSoftWare, this.defaultCharacterName);
         this.compositehumanImageSelecter = new CompositeHumanImageSelecter(humanImagesDict, this.defaultCharacterName, this.defaultHumanImage);
         this.compositeVoiceModeSelecter = new CompositeVoiceModeSelecter(voiceModesDict, this.defaultCharacterName, this.defaultVoiceMode);
-        this.compositeCharacterSettingSaveDataSelecter = new CompositeCharacterSettingSaveDataSelecter(characterSettingSaveDatas, this.defaultCharacterName, );
+        this.compositeCharacterSettingSaveDataSelecter = new CompositeCharacterSettingSaveDataSelecter(characterSettingSaveDatas, this.defaultTTSSoftWare, this.defaultCharacterName, );
         this.characterSelectDecisionButton = new CharacterSelectDecisionButton();
         this.characterSelecterDeleteButton = new CharaSelecterDeleteButton();
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
@@ -749,6 +766,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         this.component.createArrowBetweenComponents(this, this.compositeCharacterNameSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);     //キャラクター名セレクター
         this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);        //人間の画像セレクター
         this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);         //ボイスモードセレクター
+        this.component.createArrowBetweenComponents(this, this.compositeCharacterSettingSaveDataSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters); //キャラクターセーブデータセレクター
         this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, this.Def.classNames.AriaButton);      //決定ボタン
         this.component.createArrowBetweenComponents(this, this.characterSelecterDeleteButton, this.Def.classNames.AriaDeleteButton);      //削除ボタン
         this.dragMover = new DragMover(this);
@@ -773,6 +791,11 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
             console.log("キャラクターが選択されました: " + characterName.name + ": compositeVoiceModeSelecter");
             this.compositeVoiceModeSelecter.selectedCharacterName.set(characterName);
         });
+        //キャラクターが選択されたとき、キャラクターセーブデータセレクターの今のキャラの値を変更する
+        this.compositeCharacterNameSelecter.addOnCharacterNameChanged( (characterName) => {
+            console.log("キャラクターが選択されました: " + characterName.name + ": compositeCharacterSettingSaveDataSelecter");
+            this.compositeCharacterSettingSaveDataSelecter.selectedCharacter.set({"ttsSoftware": this.ttsSoftwareSelecter.selectedSoftware, "characterName": characterName});
+        });
         //決定ボタンを押すと、キャラクターが決定される
         this.characterSelectDecisionButton.addOnPushButton(() => {
             this.decideCharacter();
@@ -787,7 +810,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         //キャラクターが決定されたときの処理
         const selectState = new CharacterModeState(
             this.human_tab.characterId,
-            save_id,
+            this.compositeCharacterSettingSaveDataSelecter.selectedSaveID,
             this.ttsSoftwareSelecter.selectedSoftware, 
             this.compositeCharacterNameSelecter.selectedCharacterName, 
             this.compositehumanImageSelecter.selectedHumanImage,
