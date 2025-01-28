@@ -318,7 +318,7 @@ export class AllHumanInformationDict {
             AIVoice: new HumanInformationList(allHumanInformationDict.data.AIVoice),
             Coeiroink: new HumanInformationList(allHumanInformationDict.data.Coeiroink)
         };
-        this.characterSettingSaveDatas = allHumanInformationDict.characterSettingSaveDatas;
+        this.characterSettingSaveDatas = new CharacterSettingSaveDatas(allHumanInformationDict.characterSettingSaveDatas);
     }
 
     public getCharacterNamesDict(): Record<TTSSoftware, CharacterName[]> {
