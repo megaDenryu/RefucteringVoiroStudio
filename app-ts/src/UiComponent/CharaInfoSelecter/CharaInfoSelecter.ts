@@ -17,6 +17,10 @@ import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterV
 import { VoiceVoxVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
 import { ICoeiroinkCharacterSettingCollection, IVoiceVoxCharacterSettingCollection } from "./ICharacterInfo";
 import { ExtendFunction } from "../../Extend/extend";
+import { createCharacterVoiceSetting } from "../../AppPage/CharacterSetting/CharacterSettingCreater";
+import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceSettingModel";
+import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
+import { GlobalState } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
 
 
 
@@ -404,8 +408,6 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
     }
 }
 
-type VoiceSettingModel = CevioAIVoiceSettingModel|AIVoiceVoiceSettingModel|VoiceVoxVoiceSetting|CoeiroinkVoiceSettingModel;
-
 export interface ICharacterSettingSaveModel<T extends VoiceSettingModel> {
     saveID: CharacterSaveId;
     characterInfo: CharacterInfo;
@@ -418,6 +420,16 @@ export class CharacterSettingSaveDataSelecter<T extends VoiceSettingModel> imple
     public readonly ttsSoftware: TTSSoftware;
     public readonly selectedSaveID: ReactiveProperty<CharacterSaveId>;
     public readonly characterSettingSaveModelList: ICharacterSettingSaveModel<T>[];
+
+    public get selectedCharacterSaveData(): ICharacterSettingSaveModel<T> {
+        for (const data of this.characterSettingSaveModelList) {
+            if (data.saveID === this.selectedSaveID.get()) {
+                return data;
+            }
+        }
+
+        throw new Error("セーブデータが見つかりませんでした");
+    }
 
     constructor(characterName: CharacterName, ttsSoftware: TTSSoftware, characterSettingSaveModelList: ICharacterSettingSaveModel<T>[]) {
         this.characterName = characterName;
@@ -470,6 +482,10 @@ export class CompositeCharacterSettingSaveDataSelecter implements IHasComponent 
 
     public get selectedSaveID(): CharacterSaveId {
         return this.selectedSelecter.selectedSaveID.get();
+    }
+
+    public get selectedCharacterSaveData(): ICharacterSettingSaveModel<CevioAIVoiceSettingModel|AIVoiceVoiceSettingModel|VoiceVoxVoiceSettingModel|CoeiroinkVoiceSettingModel> {
+        return this.selectedSelecter.selectedCharacterSaveData;
     }
 
     private get HTMLInput(): string {
@@ -988,6 +1004,18 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         // this._onReceiveDecideCharacterResponse.set(response_json);
         //サーバーから返ってきた情報を元に、キャラクターを生成する
         this.human_tab.createHuman(response_json);
+
+        //キャラクターのボイス設定を生成する
+        const charactersaveData = this.compositeCharacterSettingSaveDataSelecter.selectedCharacterSaveData;
+        const characterId = this.human_tab.characterId;
+        const tts_software = this.human_tab.characterModeState?.tts_software;
+        if (tts_software == null) {return;}
+        const req:TtsSoftWareVoiceSettingReq = {
+            page_mode: "App",
+            client_id: GlobalState.client_id,
+            character_id: characterId,
+        }
+        this.human_tab.characterSetting = createCharacterVoiceSetting(req, tts_software, charactersaveData);
 
         //ウィンドウを削除する
         this.deleteWiondow();

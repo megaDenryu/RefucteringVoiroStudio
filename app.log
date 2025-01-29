@@ -677,3 +677,5 @@
 2025-01-08 23:16:34,448 - main - ERROR - Unhandled exception: デフォルトが存在しない場合について検討（画像がないなど）
 2025-01-08 23:17:31,417 - main - ERROR - Unhandled exception: デフォルトが存在しない場合について検討（画像がないなど）
 2025-01-21 23:26:22,896 - main - ERROR - Unhandled exception: HTTPConnectionPool(host='localhost', port=50021): Max retries exceeded with url: /speakers (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0000020B6717B610>: Failed to establish a new connection: [WinError 10061] 対象のコンピューターによって拒否されたため、接続できませんでした。'))
+2025-01-29 21:07:01,614 - main - ERROR - Validation error: [{'type': 'missing', 'loc': ('body', 'saveID'), 'msg': 'Field required', 'input': {'page_mode': 'App', 'client_id': 'test', 'character_id': '016928b4-8e2b-402d-a0aa-9871ba0b07fa'}}]
+2025-01-29 22:46:17,670 - main - ERROR - Validation error: [{'type': 'missing', 'loc': ('body', 'saveID'), 'msg': 'Field required', 'input': {'page_mode': 'App', 'client_id': 'test', 'character_id': 'c2ab482d-9e6b-4398-a1e2-6eff99355110'}}]

@@ -21,6 +21,7 @@ import { IOpenCloseWindow } from "../../../UiComponent/Board/IOpenCloseWindow";
 import { TtsSoftWareVoiceSettingReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { CevioAIVoiceSettingModelFormat } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModelFormat";
 import { IVoiceSetting } from "./IVoiceSetting";
+import { ICharacterSettingSaveModel } from "../../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 
 export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting {
   private testMode: boolean = false;
@@ -202,9 +203,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow,
   }
 }
 
-export function createCevioAIVoiceSetting(
-  character_id: string
-): CevioAIVoiceSetting {
+export function createCevioAIVoiceSetting(character_id: string, characterSaveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>): CevioAIVoiceSetting {
   const cevioAIVoiceSettingReq: CevioAIVoiceSettingReq = {
     page_mode: "App",
     client_id: "test",

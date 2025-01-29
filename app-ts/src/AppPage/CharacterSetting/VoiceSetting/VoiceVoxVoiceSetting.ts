@@ -2,6 +2,7 @@ import { generateDefaultObject } from "../../../Extend/ZodExtend/ZodExtend";
 import { IOpenCloseWindow } from "../../../UiComponent/Board/IOpenCloseWindow";
 import { SquareBoardComponent } from "../../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
+import { ICharacterSettingSaveModel } from "../../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { RecordPath } from "../../../UiComponent/TypeInput/RecordPath";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { ObjectInputComponent } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
@@ -178,7 +179,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
 }
 
 export function createVoiceVoxVoiceSetting(
-  character_id: string
+  character_id: string, characterSaveData:ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>
 ): VoiceVoxVoiceSetting {
   const ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq = {
     page_mode: "App",

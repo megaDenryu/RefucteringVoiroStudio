@@ -1,10 +1,13 @@
 
 
 import { createHumanBox, DragDropFile, GlobalState, HumanBodyManager2, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
+import { ICharacterSetting } from "../../AppPage/CharacterSetting/ICharacterSetting";
+import { IVoiceSetting } from "../../AppPage/CharacterSetting/VoiceSetting/IVoiceSetting";
 import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { ExtendFunction } from "../../Extend/extend";
 import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Character";
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
+import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceSettingModel";
 import { DragMover } from "../Base/DragableComponent";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
 import { CharaSelectFeaureCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
@@ -21,6 +24,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
     micToggleButton: MicToggleButton;
     addHumanButton: AddHumanButton;
     backGroundImages: BackGroundImages;
+    characterSetting: ICharacterSetting<VoiceSettingModel>|null = null;
 
     characterId: CharacterId;
 

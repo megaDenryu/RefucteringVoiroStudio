@@ -1,19 +1,24 @@
-import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
+import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { TTSSoftware } from "../../ValueObject/Character";
+import { CevioAIVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModel";
+import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModel";
+import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
+import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceSettingModel";
+import { VoiceVoxVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
+import { createCoeiroinkCharacterSetting } from "./CoeiroinkCharacterSetting";
+import { ICharacterSetting } from "./ICharacterSetting";
 import { createCevioAIVoiceSetting } from "./VoiceSetting/CevioAIVoiceSetting";
-import { createCoeiroinkVoiceSetting } from "./VoiceSetting/CoeiroinkVoiceSetting";
-import { IVoiceSetting } from "./VoiceSetting/IVoiceSetting";
 import { createVoiceVoxVoiceSetting } from "./VoiceSetting/VoiceVoxVoiceSetting";
 
-export function createCharacterVoiceSetting(character_id: string, ttsSoftWare: TTSSoftware): IVoiceSetting|null {
+export function createCharacterVoiceSetting(req:TtsSoftWareVoiceSettingReq, ttsSoftWare: TTSSoftware, characterSaveData:ICharacterSettingSaveModel<VoiceSettingModel>): ICharacterSetting<VoiceSettingModel>|null {
     if (ttsSoftWare === "CevioAI") {
-        return createCevioAIVoiceSetting(character_id);
+        return createCevioAIVoiceSetting(req.character_id, characterSaveData as ICharacterSettingSaveModel<CevioAIVoiceSettingModel>);
     } 
     else if (ttsSoftWare === "VoiceVox") {
-        return createVoiceVoxVoiceSetting(character_id);
+        return createVoiceVoxVoiceSetting(req.character_id, characterSaveData as ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>);
     }
     else if (ttsSoftWare === "Coeiroink") {
-        return createCoeiroinkVoiceSetting(character_id);
+        return createCoeiroinkCharacterSetting(req, characterSaveData as ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>);
     }
     return null;
 }
