@@ -26,7 +26,7 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
     
     public constructor(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>) {
         this._squareBoardComponent = new SquareBoardComponent(
-            "設定画面",
+            this.title,
             null,
             null,
             [],
@@ -69,6 +69,7 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         console.log("open");
         this._squareBoardComponent.component.show();
         this.voiceSetting.open();
+        console.log(this.component.element)
     }
 
     public close(): void {
@@ -82,8 +83,23 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
     }
 
     private initialize() {
-        this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this.voiceSetting);
-        this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._closeButton);
+        this.voiceSetting.component.addCSSClass(["positionRelative"]);
+        this.voiceSetting.component.removeCSSClass(["positionAbsolute"]);
+        this._squareBoardComponent.addComponentToHeader(this._closeButton);
+        this._squareBoardComponent.component.addCSSClass(["positionAbsolute"]);
+        this.component.createArrowBetweenComponents(this, this.voiceSetting);
+
+        document.body.appendChild(this._squareBoardComponent.component.element);
+        this.onAddedToDom();
+        //初期位置をウインドウの真ん中の位置にする
+        this._squareBoardComponent.setInitialPosition(
+            window.innerWidth / 2,
+            window.innerHeight / 2
+        );
+    }
+
+    public onAddedToDom() {
+        this.voiceSetting.onAddedToDom();
     }
 }
 

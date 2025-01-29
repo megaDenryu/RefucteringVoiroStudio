@@ -78,13 +78,7 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
       this._manageDataSettingComponent
     );
     this.bindEvents();
-    document.body.appendChild(this._squareBoardComponent.component.element);
-    this.onAddedToDom();
-    //初期位置をウインドウの真ん中の位置にする
-    this._squareBoardComponent.setInitialPosition(
-      window.innerWidth / 2,
-      window.innerHeight / 2
-    );
+    
   }
 
   private async requestAppSettingModel(req: {}): Promise<CoeiroinkVoiceSettingModel> {

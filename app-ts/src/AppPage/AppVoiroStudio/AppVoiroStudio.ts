@@ -254,8 +254,10 @@ export class MessageBox {
             }
 
             if (this.human_tab.characterSetting.isOpen()) {
+                console.log("音声設定ウインドウを閉じます");
                 this.human_tab.characterSetting.close();
             } else {
+                console.log("音声設定ウインドウを開きます");
                 this.human_tab.characterSetting.open();
             }
         }
