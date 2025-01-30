@@ -1,4 +1,5 @@
 import { generateDefaultObject } from "../../../Extend/ZodExtend/ZodExtend";
+import { BaseComponent, IHasComponent } from "../../../UiComponent/Base/ui_component_base";
 import { IOpenCloseWindow } from "../../../UiComponent/Board/IOpenCloseWindow";
 import { SquareBoardComponent } from "../../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
@@ -11,14 +12,17 @@ import { TtsSoftWareVoiceSettingReq } from "../../../ZodObject/DataStore/Chatact
 import { VoiceVoxVoiceSettingModel } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
 import { VoiceVoxVoiceSettingModelFormat } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelFormat";
 import { VoiceVoxVoiceSettingModelReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelReq";
+import { ISaveSetting } from "../ISaveSetting";
 import { IVoiceSetting } from "./IVoiceSetting";
 
 
 
-export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting {
+export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting, IHasComponent {
+  public readonly component: BaseComponent;
   private testMode: boolean = false;
   public readonly title = "全体設定";
   public manageData: VoiceVoxVoiceSettingModel;
+  private settingSaver:ISaveSetting<VoiceVoxVoiceSettingModel>;
   private _squareBoardComponent: SquareBoardComponent;
   private _manageDataSettingComponent: ObjectInputComponent<VoiceVoxVoiceSettingModel>;
   private _closeButton: NormalButton;
@@ -33,7 +37,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  public constructor(req: TtsSoftWareVoiceSettingReq) {
+  public constructor(req: TtsSoftWareVoiceSettingReq, voiceSetting:VoiceVoxVoiceSettingModel|undefined, settingSaver:ISaveSetting<VoiceVoxVoiceSettingModel>) {
     this._squareBoardComponent = new SquareBoardComponent(
       "設定画面",
       null,
@@ -43,8 +47,10 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
       null,
       true
     );
+    this.component = this._squareBoardComponent.component;
     this._closeButton = new NormalButton("閉じる", "warning");
-    this._reqInfo = req;
+    this.manageData = voiceSetting ?? generateDefaultObject(VoiceVoxVoiceSettingModel);
+    this.settingSaver = settingSaver;
     this.initialize(req);
   }
 
@@ -53,13 +59,6 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
   private async initialize(req: {}) {
-    if (this.testMode) {
-      this.manageData = generateDefaultObject(VoiceVoxVoiceSettingModel); //AppSettingsModel.parse({});
-      console.log("test", this.manageData); // {}が返ってくる
-    } else {
-      this.manageData = await this.requestAppSettingModel(req);
-      console.log("real", this.manageData); // {}が返ってくる
-    }
     this._manageDataSettingComponent = new ObjectInputComponent(
       this.title,
       VoiceVoxVoiceSettingModel,
@@ -78,33 +77,6 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
       this._manageDataSettingComponent
     );
     this.bindEvents();
-    document.body.appendChild(this._squareBoardComponent.component.element);
-    this.onAddedToDom();
-    //初期位置をウインドウの真ん中の位置にする
-    this._squareBoardComponent.setInitialPosition(
-      window.innerWidth / 2,
-      window.innerHeight / 2
-    );
-  }
-
-  private async requestAppSettingModel(req: {}): Promise<VoiceVoxVoiceSettingModel> {
-    //1. jsonに変換する
-    const data = JSON.stringify(req);
-    //2. 非同期fetchする
-    const response = await fetch(
-      RequestAPI.rootURL + "TtsSoftWareSettingInit",
-      {
-        //"DecideChara", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: data,
-      }
-    );
-
-    const appSettingsModel: VoiceVoxVoiceSettingModel = await response.json();
-    return appSettingsModel;
   }
 
   public onAddedToDom() {
@@ -140,12 +112,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
       voiceVoxVoiceSettingModel: settings,
     };
     // セーブデータを送信するロジックをここに記述
-    RequestAPI.postRequest<VoiceVoxVoiceSettingModelReq>(url, settingsReq)
-    .then((data) => {
-      console.log("Success:", data);
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    this.settingSaver.saveVoiceSetting(settings);
   }
 
   public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(recordPath: RecordPath, value: any): void {
@@ -176,10 +143,14 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
   public close(): void {
     this._squareBoardComponent.component.hide();
   }
+
+  public delete(): void {
+    this._squareBoardComponent.component.delete();
+  }
 }
 
 export function createVoiceVoxVoiceSetting(
-  character_id: string, characterSaveData:ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>
+  character_id: string, characterSaveData:ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>, settingSaver:ISaveSetting<VoiceVoxVoiceSettingModel>
 ): VoiceVoxVoiceSetting {
   const ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq = {
     page_mode: "App",
@@ -187,6 +158,6 @@ export function createVoiceVoxVoiceSetting(
     character_id: character_id,   
   };
 
-  const voiceVoxVoiceSetting = new VoiceVoxVoiceSetting(ttsSoftWareVoiceSettingReq);
+  const voiceVoxVoiceSetting = new VoiceVoxVoiceSetting(ttsSoftWareVoiceSettingReq, characterSaveData.voiceSetting, settingSaver);  
   return voiceVoxVoiceSetting;
 }

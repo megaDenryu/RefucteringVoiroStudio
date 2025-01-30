@@ -10,10 +10,12 @@ from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.Youtube
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingSaveModelReq import AIVoiceCharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
 from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModelReq import CevioAICharacterSettingSaveModelReq
+from api.DataStore.CharacterSetting.CharacterInfo.CharacterInfo import CharacterInfo
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import CoeiroinkCharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import VoiceVoxCharacterSettingSaveModel
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
+from api.DataStore.ChatacterVoiceSetting.AIVoiceVoiceSetting.AIVoiceVoiceSettingModel import AIVoiceVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModel import CoeiroinkVoiceSettingModel
@@ -22,8 +24,6 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSetti
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModelReq import VoiceVoxVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
 from api.Extend.BaseModel.BaseModel2UIFormatConverter import 型の変換と保存
-from api.Extend.BaseModel.BaseModelConverter import BaseModelConverterTest
-from api.gptAI.GPTMode import GPTModeReq
 
 
 
@@ -46,13 +46,15 @@ if __name__ == "__main__":
     # BaseModelConverterTest.再帰的にZodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
     # BaseModelConverterTest.再帰的にZodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
     # BaseModelConverterTest.再帰的にZodを出力する本番(CevioAICharacterSettingSaveModelReq)
-    BaseModelConverterTest.再帰的にZodを出力する本番(AIVoiceCharacterSettingSaveModelReq)
+    # BaseModelConverterTest.再帰的にZodを出力する本番(AIVoiceCharacterSettingSaveModelReq)
 
     
     # 型の変換と保存(AppSettingsModel)
     # 型の変換と保存(CevioAIVoiceSettingModel)
     # 型の変換と保存(VoiceVoxVoiceSettingModel)
     # 型の変換と保存(CoeiroinkVoiceSettingModel)
+    # 型の変換と保存(AIVoiceVoiceSettingModel)
+    型の変換と保存(CharacterInfo)
 
     
 

@@ -6,4 +6,5 @@ import { IVoiceSetting } from "./VoiceSetting/IVoiceSetting";
 
 export interface ICharacterSetting<T extends VoiceSettingModel> extends IOpenCloseWindow, IHasComponent, ISaveSetting<T>{
     voiceSetting: IVoiceSetting;
+    characterInfoSetting: ICharacterInfoSetting;
 }

@@ -3,25 +3,23 @@ import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { RequestAPI } from "../../Web/RequestApi";
+import { AIVoiceCharacterSettingSaveModelReq } from "../../ZodObject/DataStore/CharacterSetting/AIVoiceCharacterSettingSaveModelReq";
 import { CharacterInfo } from "../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfo";
-import { CoeiroinkCharacterSettingSaveModelReq } from "../../ZodObject/DataStore/CharacterSetting/CoeiroinkCharacterSettingSaveModelReq";
-import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModel";
+import { AIVoiceVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/AIVoiceVoiceSetting/AIVoiceVoiceSettingModel";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { ICharacterSetting } from "./ICharacterSetting";
-import { CoeiroinkVoiceSetting, createCoeiroinkVoiceSetting } from "./VoiceSetting/CoeiroinkVoiceSetting";
+import { AIVoiceVoiceSetting, createAIVoiceVoiceSetting } from "./VoiceSetting/AIVoiceVoiceSetting";
 
-
-
-export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoiceSettingModel> {
+export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSettingModel> {
     public readonly component: BaseComponent;
     public readonly title = "キャラクター設定";
     private _squareBoardComponent: SquareBoardComponent;
     private _closeButton: NormalButton;
-    public voiceSetting: CoeiroinkVoiceSetting;
+    public voiceSetting: AIVoiceVoiceSetting;
     private readonly req:TtsSoftWareVoiceSettingReq;
-    private _characterSaveData: ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>;
+    private _characterSaveData: ICharacterSettingSaveModel<AIVoiceVoiceSettingModel>;
     
-    public constructor(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>) {
+    public constructor(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<AIVoiceVoiceSettingModel>) {
         this._squareBoardComponent = new SquareBoardComponent(
             this.title,
             null,
@@ -35,11 +33,11 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         this._characterSaveData = characterSaveData;
         this.component = this._squareBoardComponent.component;
         this._closeButton = new NormalButton("閉じる", "warning");
-        this.voiceSetting = createCoeiroinkVoiceSetting(req.character_id, characterSaveData.voiceSetting, this);
+        this.voiceSetting = createAIVoiceVoiceSetting(req.character_id, characterSaveData.voiceSetting, this);
         this.initialize();
     }
 
-    public saveVoiceSetting(voiceSetting:CoeiroinkVoiceSettingModel): void {
+    public saveVoiceSetting(voiceSetting:AIVoiceVoiceSettingModel): void {
         this._characterSaveData.voiceSetting = voiceSetting;
         this.sendSaveData(this._characterSaveData);
     }
@@ -48,14 +46,14 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         this._characterSaveData.characterInfo = characterInfo;
         this.sendSaveData(this._characterSaveData);
     }
-    private sendSaveData(saveData:ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>): void {
-        const saveDataReq:CoeiroinkCharacterSettingSaveModelReq = {
+    private sendSaveData(saveData:ICharacterSettingSaveModel<AIVoiceVoiceSettingModel>): void {
+        const saveDataReq:AIVoiceCharacterSettingSaveModelReq = {
             page_mode: this.req.page_mode,
             client_id: this.req.client_id,
             character_id: this.req.character_id,
-            coeiroinkCharacterSettingModel: saveData
+            aiVoiceCharacterSettingSaveModel: saveData
         }
-        RequestAPI.postRequest("CoeiroinkCharacterSetting", saveDataReq);
+        RequestAPI.postRequest("AIVoiceCharacterSetting", saveDataReq);
     }
 
     public isOpen(): boolean {
@@ -100,6 +98,8 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
     }
 }
 
-export function createCoeiroinkCharacterSetting(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>): CoeiroinkCharacterSetting {
-    return new CoeiroinkCharacterSetting(req, characterSaveData);
+export function createAIVoiceCharacterSetting(
+    req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<AIVoiceVoiceSettingModel>
+): AIVoiceCharacterSetting {
+    return new AIVoiceCharacterSetting(req, characterSaveData);
 }

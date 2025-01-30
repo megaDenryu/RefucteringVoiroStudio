@@ -6,20 +6,21 @@ import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalBut
 import { RecordPath } from "../../../UiComponent/TypeInput/RecordPath";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { ObjectInputComponent } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
-import { CoeiroinkVoiceSettingModel } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModel";
-import { CoeiroinkVoiceSettingModelFormat } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModelFormat";
+import { AIVoiceVoiceSettingModel } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/AIVoiceVoiceSetting/AIVoiceVoiceSettingModel";
+import { AIVoiceVoiceSettingModelFormat } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/AIVoiceVoiceSetting/AIVoiceVoiceSettingModelFormat";
 import { TtsSoftWareVoiceSettingReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { ISaveSetting } from "../ISaveSetting";
 import { IVoiceSetting } from "./IVoiceSetting";
 
-export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting, IHasComponent {
+
+export class AIVoiceVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting, IHasComponent {
   public readonly component: BaseComponent;
   private testMode: boolean = false;
   public readonly title = "ボイス設定";
-  public manageData: CoeiroinkVoiceSettingModel;
-  private settingSaver:ISaveSetting<CoeiroinkVoiceSettingModel>;
+  public manageData: AIVoiceVoiceSettingModel;
+  private settingSaver:ISaveSetting<AIVoiceVoiceSettingModel>;
   private _squareBoardComponent: SquareBoardComponent;
-  private _manageDataSettingComponent: ObjectInputComponent<CoeiroinkVoiceSettingModel>;
+  private _manageDataSettingComponent: ObjectInputComponent<AIVoiceVoiceSettingModel>;
   private _closeButton: NormalButton;
 
   public get 読み上げ間隔() {
@@ -31,7 +32,7 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  public constructor(req: TtsSoftWareVoiceSettingReq, voiceSetting:CoeiroinkVoiceSettingModel|undefined, settingSaver:ISaveSetting<CoeiroinkVoiceSettingModel>) {
+  public constructor(req: TtsSoftWareVoiceSettingReq, voiceSetting:AIVoiceVoiceSettingModel|undefined, settingSaver:ISaveSetting<AIVoiceVoiceSettingModel>) {
     this._squareBoardComponent = new SquareBoardComponent(
       "設定画面",
       null,
@@ -43,18 +44,21 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
     );
     this.component = this._squareBoardComponent.component;
     this._closeButton = new NormalButton("閉じる", "warning");
-    this.manageData = voiceSetting ?? generateDefaultObject(CoeiroinkVoiceSettingModel);
+    this.manageData = voiceSetting ?? generateDefaultObject(AIVoiceVoiceSettingModel);
     this.settingSaver = settingSaver;
     this.initialize();
   }
 
-  private initialize() {
+  /**
+   * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
+   */
+  private async initialize() {
     this._manageDataSettingComponent = new ObjectInputComponent(
       this.title,
-      CoeiroinkVoiceSettingModel,
+      AIVoiceVoiceSettingModel,
       this.manageData,
       null,
-      this, CoeiroinkVoiceSettingModelFormat
+      this, AIVoiceVoiceSettingModelFormat
     );
     this._manageDataSettingComponent.component.addCSSClass("positionRelative");
     this._manageDataSettingComponent.component.removeCSSClass(
@@ -95,7 +99,7 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
     this.sendSettings(updatedSettings);
   }
 
-  private sendSettings(settings: CoeiroinkVoiceSettingModel) {
+  private sendSettings(settings: AIVoiceVoiceSettingModel) {
     this.settingSaver.saveVoiceSetting(settings);
   }
 
@@ -138,15 +142,15 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
   }
 }
 
-export function createCoeiroinkVoiceSetting(
-  character_id: string, voiceSetting:CoeiroinkVoiceSettingModel|undefined, settingSaver:ISaveSetting<CoeiroinkVoiceSettingModel>
-): CoeiroinkVoiceSetting {
+export function createAIVoiceVoiceSetting(
+  character_id: string, voiceSetting:AIVoiceVoiceSettingModel|undefined, settingSaver:ISaveSetting<AIVoiceVoiceSettingModel>
+): AIVoiceVoiceSetting {
   const ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq = {
     page_mode: "App",
     client_id: "test",
     character_id: character_id,   
   };
 
-  const coeiroinkVoiceSetting = new CoeiroinkVoiceSetting(ttsSoftWareVoiceSettingReq, voiceSetting, settingSaver);
+  const coeiroinkVoiceSetting = new AIVoiceVoiceSetting(ttsSoftWareVoiceSettingReq, voiceSetting, settingSaver);
   return coeiroinkVoiceSetting;
 }

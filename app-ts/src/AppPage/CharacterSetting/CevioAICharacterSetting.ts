@@ -1,35 +1,105 @@
+import { BaseComponent } from "../../UiComponent/Base/ui_component_base";
 import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
+import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { RequestAPI } from "../../Web/RequestApi";
-import { CevioAICharacterSettingSaveModel } from "../../ZodObject/DataStore/CharacterSetting/CevioAICharacterSettingSaveModel";
-import { CevioAIVoiceSetting } from "./VoiceSetting/CevioAIVoiceSetting";
+import { CevioAICharacterSettingSaveModelReq } from "../../ZodObject/DataStore/CharacterSetting/CevioAICharacterSettingSaveModelReq";
+import { CharacterInfo } from "../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfo";
+import { CevioAIVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModel";
+import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
+import { ICharacterSetting } from "./ICharacterSetting";
+import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "./VoiceSetting/CevioAIVoiceSetting";
 
 
-export class CevioAICharacterSetting {
-    private testMode: boolean = false;
-    public readonly title = "キャラクター設定";
-    public manageData: CevioAICharacterSettingSaveModel;
 
-    private _squareBoardComponent: SquareBoardComponent;
-    private _closeButton: NormalButton;
-    private voiceSetting: CevioAIVoiceSetting
-
-    constructor(saveID: string) {
-        // saveIDを元にCevioAICharacterSettingSaveModelのデータを取得
-        const req = {
-            saveID: saveID
-        }
-        this.initialize(req);
+export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSettingModel> {
+    public readonly component: BaseComponent;
+        public readonly title = "キャラクター設定";
+        private _squareBoardComponent: SquareBoardComponent;
+        private _closeButton: NormalButton;
+        public voiceSetting: CevioAIVoiceSetting;
+        private readonly req:TtsSoftWareVoiceSettingReq;
+        private _characterSaveData: ICharacterSettingSaveModel<CevioAIVoiceSettingModel>;
         
+        public constructor(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>) {
+            this._squareBoardComponent = new SquareBoardComponent(
+                this.title,
+                null,
+                null,
+                [],
+                {},
+                null,
+                true
+            );
+            this.req = req;
+            this._characterSaveData = characterSaveData;
+            this.component = this._squareBoardComponent.component;
+            this._closeButton = new NormalButton("閉じる", "warning");
+            this.voiceSetting = createCevioAIVoiceSetting(req.character_id, characterSaveData, this);
+            this.initialize();
+        }
+    
+        public saveVoiceSetting(voiceSetting:CevioAIVoiceSettingModel): void {
+            this._characterSaveData.voiceSetting = voiceSetting;
+            this.sendSaveData(this._characterSaveData);
+        }
+    
+        public saveCharacterInfo(characterInfo: CharacterInfo): void {
+            this._characterSaveData.characterInfo = characterInfo;
+            this.sendSaveData(this._characterSaveData);
+        }
+        private sendSaveData(saveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>): void {
+            const saveDataReq:CevioAICharacterSettingSaveModelReq = {
+                page_mode: this.req.page_mode,
+                client_id: this.req.client_id,
+                character_id: this.req.character_id,
+                cevioAICharacterSettingModel: saveData
+            }
+            RequestAPI.postRequest("CevioAICharacterSetting", saveDataReq);
+        }
+    
+        public isOpen(): boolean {
+            return this._squareBoardComponent.component.isShow;
+        }
+    
+        public open(): void {
+            console.log("open");
+            this._squareBoardComponent.component.show();
+            this.voiceSetting.open();
+            console.log(this.component.element)
+        }
+    
+        public close(): void {
+            this._squareBoardComponent.component.hide();
+            this.voiceSetting.close();
+        }
+    
+        public delete(): void {
+            this._squareBoardComponent.component.delete();
+            this.voiceSetting.component.delete();
+        }
+    
+        private initialize() {
+            this.voiceSetting.component.addCSSClass(["positionRelative"]);
+            this.voiceSetting.component.removeCSSClass(["positionAbsolute"]);
+            this._squareBoardComponent.addComponentToHeader(this._closeButton);
+            this._squareBoardComponent.component.addCSSClass(["positionAbsolute"]);
+            this.component.createArrowBetweenComponents(this, this.voiceSetting);
+    
+            document.body.appendChild(this._squareBoardComponent.component.element);
+            this.onAddedToDom();
+            //初期位置をウインドウの真ん中の位置にする
+            this._squareBoardComponent.setInitialPosition(
+                window.innerWidth / 2,
+                window.innerHeight / 2
+            );
+        }
+    
+        public onAddedToDom() {
+            this.voiceSetting.onAddedToDom();
+        }
     }
-
-    private async initialize(req: { saveID: string }) {
-        this.manageData = await RequestAPI.postRequest<CevioAICharacterSettingSaveModel>("CevioAICharacterSetting", req);
+    
+    export function createCevioAICharacterSetting(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>): CevioAICharacterSetting {
+        return new CevioAICharacterSetting(req, characterSaveData);
     }
-}
-
-
-
-export function createCevioAICharacterSetting(saveID: string): CevioAICharacterSetting {
-    return new CevioAICharacterSetting(saveID);
-}
