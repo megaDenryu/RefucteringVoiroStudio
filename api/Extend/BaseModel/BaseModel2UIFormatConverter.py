@@ -142,10 +142,15 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
 
     def _generate_array_format(self, prop_type: Any) -> str:
         element_type = get_args(prop_type)[0]
+        if isinstance(element_type, type) and issubclass(element_type, BaseModel):
+            collection_type = element_type.__name__
+        else:
+            collection_type = "null"
+
         return f"""            type: "array",
             collectionType: {{
                 type: "{self._get_raw_type_name(element_type)}",
-                collectionType: null,
+                collectionType: {collection_type},
                 format: {{ visualType: "{self._get_raw_type_name(element_type)}", visualTitle: null }}
             }},
             format: {{ visualType: "array", visualTitle: null }}
@@ -153,10 +158,14 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
 
     def _generate_record_format(self, prop_type: Any) -> str:
         value_type = get_args(prop_type)[1]
+        if isinstance(value_type, type) and issubclass(value_type, BaseModel):
+            collection_type = value_type.__name__
+        else:
+            collection_type = "null"
         return f"""            type: "record",
             collectionType: {{
                 type: "{self._get_raw_type_name(value_type)}",
-                collectionType: null,
+                collectionType: {collection_type},
                 format: {{ visualType: "{self._get_raw_type_name(value_type)}", visualTitle: null, step: 1 }}
             }},
             format: {{ visualType: "record", visualTitle: null }}
@@ -175,6 +184,8 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             return "InputTypeArray"
         elif get_origin(prop_type) == dict:
             return "InputTypeRecord"
+        elif isinstance(prop_type, type) and issubclass(prop_type, BaseModel):
+            return "InputTypeObject"
         else:
             raise TypeError(f"Unsupported property type: {prop_type}")
 
@@ -232,7 +243,14 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         """
         basePathから見たtargetPathの相対パスを計算する
         """
-        relativePath = targetPath.relative_to(basePath.parent)
+        try:
+            relativePath = targetPath.relative_to(basePath.parent)
+        except ValueError:
+            # targetPath が basePath のサブパスでない場合の処理
+            basePath = basePath.resolve()
+            targetPath = targetPath.resolve()
+            relativePath = targetPath.relative_to(basePath.anchor)
+        
         relativePathStr = str(relativePath).replace("\\", "/")
         if not relativePathStr.startswith("../"):
             relativePathStr = "./" + relativePathStr
