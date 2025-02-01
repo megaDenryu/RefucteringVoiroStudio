@@ -34,6 +34,9 @@ class TypeScriptFormatGenerator:
         # ここで出力先のtsのパスを計算する。zodのtsファイルと同じフォルダに出力する。zodのtsファイルがxxx.tsなら、こちらはxxxFormat.tsとする
         path = base_model.__module__ # api.DataStore.AppSetting.AppSettingModel.AppSettingModel のようになる
         api_parent_path = ExtendFunc.getTargetDirFromParents(__file__, "api").parent
+        #もしモデル名とファイル名が一致してない場合は、ファイル名にモデル名を加える
+        if path.split(".")[-1] != base_model.__name__:
+            path = path + "_" + base_model.__name__
         uiformat_path = api_parent_path / (path.replace("api", "app-ts/src/ZodObject").replace(".", "/") + "Format.ts")
         return uiformat_path
 
@@ -148,16 +151,19 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
     def _generate_array_format(self, prop_type: Any) -> str:
         element_type = get_args(prop_type)[0]
         if isinstance(element_type, type) and issubclass(element_type, BaseModel):
-            collection_type = element_type.__name__
+            collection_type = element_type.__name__ + "Format"
+            #ネストされたBaseModelを別のファイルに保存する
+            self._processNestedModel(element_type)
         else:
-            collection_type = "null"
+            collection_type = f"""{{
+                type: "{self._get_raw_type_name(element_type)}",
+                collectionType: null,
+                format: {{ visualType: "{self._get_raw_type_name(element_type)}", visualTitle: null }}
+            }}
+"""
 
         return f"""            type: "array",
-            collectionType: {{
-                type: "{self._get_raw_type_name(element_type)}",
-                collectionType: {collection_type},
-                format: {{ visualType: "{self._get_raw_type_name(element_type)}", visualTitle: null }}
-            }},
+            collectionType: {collection_type},
             format: {{ visualType: "array", visualTitle: null }}
 """
 
@@ -214,10 +220,9 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             型の変換と保存(prop_type)
 
     @staticmethod
-    def calcTsRelativeDir(filePath: Path, targetDir:str)->str:
+    def calculateAncestorDistance(filePath: Path, ancentDir:str)->int:
         """
-        filePathからtargetDirまでの相対パスを計算する
-        "../.."のような文字列を計算する。最後の/は含まない
+        filePathからancentDirまで親に何回行けばいいか計算する
         """
         # filePathがfileかdirかで処理を分ける
         if filePath.is_file():
@@ -228,22 +233,29 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         n = 0
         path = nowDirPath
         while True:
-            if path.stem == targetDir:
+            if path.stem == ancentDir:
                 break
             path = path.parent
             n += 1
-        # 回数分の../を返す
-        ret =  "../" * n
         ExtendFunc.ExtendPrint([{
             "filePath": filePath,
-            "targetDir": targetDir,
+            "targetDir": ancentDir,
         },{
             "nowDirPath": nowDirPath,
             "回数": n,
-            "ret": ret
         }])
+        return n
+
+    @staticmethod
+    def calcTsRelativeDir(filePath: Path, targetDir:str)->str:
+        """
+        filePathからtargetDirまでの相対パスを計算する
+        "../.."のような文字列を計算する。最後の/は含まない
+        """
+        n = TypeScriptFormatGenerator.calculateAncestorDistance(filePath, targetDir)
+        ret =  "../" * n
         return ret[:-1]
-    
+
     @staticmethod
     def createRelativePath(basePath: Path, targetPath: Path) -> str:
         """
@@ -251,7 +263,7 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         """
         state = "正常"
         try:
-            relativePath = targetPath.relative_to(basePath.parent)
+            relativePath = targetPath.relative_to(basePath)
         except ValueError:
             # targetPath が basePath のサブパスでない場合の処理
             state = "targetPath が basePath のサブパスでない"
@@ -259,16 +271,14 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             targetPath = targetPath.resolve()
             
             # 共通の親ディレクトリを見つける
-            common_parts = [part for part, target_part in zip(basePath.parts, targetPath.parts) if part == target_part]
-            common_path = Path(*common_parts)
-            
-            # basePathから共通の親ディレクトリまでの相対パスを計算
-            base_to_common = basePath.relative_to(common_path)
-            # targetPathから共通の親ディレクトリまでの相対パスを計算
-            target_to_common = targetPath.relative_to(common_path)
-            
-            # basePathからtargetPathへの相対パスを計算
-            relativePath = Path(*(['..'] * len(base_to_common.parts)) + list(target_to_common.parts))
+            commonPath =  ExtendFunc.getCommnonAncestorPath(str(basePath), str(targetPath))
+            # 共通の親ディレクトリからのtargetPathの相対パスを計算
+            relativePath = targetPath.relative_to(commonPath)
+            # basePathから共通の親ディレクトリまで何回戻ればいいか計算
+            n = TypeScriptFormatGenerator.calculateAncestorDistance(basePath, commonPath.stem)
+            relativePath = Path("../" * n) / relativePath
+            ExtendFunc.ExtendPrint(relativePath)
+
 
         relativePathStr = str(relativePath).replace("\\", "/")
         if not relativePathStr.startswith("../") and not relativePathStr.startswith("./"):

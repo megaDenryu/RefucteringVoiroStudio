@@ -24,6 +24,7 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSetti
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModelReq import VoiceVoxVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
 from api.Extend.BaseModel.BaseModel2UIFormatConverter import 型の変換と保存
+from api.Extend.ExtendFunc import ExtendFunc
 
 
 
@@ -54,7 +55,8 @@ if __name__ == "__main__":
     # 型の変換と保存(VoiceVoxVoiceSettingModel)
     # 型の変換と保存(CoeiroinkVoiceSettingModel)
     # 型の変換と保存(AIVoiceVoiceSettingModel)
-    型の変換と保存(CharacterInfo)
+    型の変換と保存(CharacterInfo) # api/DataStore/CharacterSetting/CharacterInfo/CharacterInfo.py
 
-    
+    # a:str = "12345"
+    # ExtendFunc.ExtendPrint([a, a * 2, a * 3])
 
