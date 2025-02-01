@@ -55,8 +55,6 @@ if __name__ == "__main__":
     # 型の変換と保存(VoiceVoxVoiceSettingModel)
     # 型の変換と保存(CoeiroinkVoiceSettingModel)
     # 型の変換と保存(AIVoiceVoiceSettingModel)
-    型の変換と保存(CharacterInfo) # api/DataStore/CharacterSetting/CharacterInfo/CharacterInfo.py
+    型の変換と保存(CharacterInfo)
 
-    # a:str = "12345"
-    # ExtendFunc.ExtendPrint([a, a * 2, a * 3])
 
