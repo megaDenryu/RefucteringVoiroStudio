@@ -11,6 +11,11 @@ class importInfo(TypedDict):
     model: Type[BaseModel]
     path: Path
 
+"""
+今のTypeScriptFormatGeneratorのバグはリスト内にオブジェクトを入れるとき、そのオブジェクトの型が別のファイルにある場合、importを生成しないこと
+またはオブジェクトがフォルダ構造上全く関係ないところのBaseModelを参照している場合、importを生成しないこと
+"""
+
 class TypeScriptFormatGenerator:
     model: Type[BaseModel]
     properties: dict[str, Any]
@@ -68,7 +73,7 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
     def saveThisModel(self):
         self.targetTsPath = self.calcSavePath(self.model)
         targetTsDir = self.targetTsPath.parent
-        ExtendFunc.ExtendPrint({
+        ExtendFunc.ExtendPrintWithTitle("モデルをセーブします",{
             "targetTsPath": self.targetTsPath,
             "targetTsDir": targetTsDir
         })
@@ -215,17 +220,10 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         "../.."のような文字列を計算する。最後の/は含まない
         """
         # filePathがfileかdirかで処理を分ける
-        ExtendFunc.ExtendPrint({
-            "filePath": filePath,
-            "targetDir": targetDir
-        })
         if filePath.is_file():
             nowDirPath = filePath.parent
         else:
             nowDirPath = filePath
-        ExtendFunc.ExtendPrint({
-            "nowDirPath": nowDirPath
-        })
         # まず何回親に行けばいいか計算
         n = 0
         path = nowDirPath
@@ -236,6 +234,14 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             n += 1
         # 回数分の../を返す
         ret =  "../" * n
+        ExtendFunc.ExtendPrint([{
+            "filePath": filePath,
+            "targetDir": targetDir,
+        },{
+            "nowDirPath": nowDirPath,
+            "回数": n,
+            "ret": ret
+        }])
         return ret[:-1]
     
     @staticmethod
@@ -243,17 +249,37 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
         """
         basePathから見たtargetPathの相対パスを計算する
         """
+        state = "正常"
         try:
             relativePath = targetPath.relative_to(basePath.parent)
         except ValueError:
             # targetPath が basePath のサブパスでない場合の処理
+            state = "targetPath が basePath のサブパスでない"
             basePath = basePath.resolve()
             targetPath = targetPath.resolve()
-            relativePath = targetPath.relative_to(basePath.anchor)
-        
+            
+            # 共通の親ディレクトリを見つける
+            common_parts = [part for part, target_part in zip(basePath.parts, targetPath.parts) if part == target_part]
+            common_path = Path(*common_parts)
+            
+            # basePathから共通の親ディレクトリまでの相対パスを計算
+            base_to_common = basePath.relative_to(common_path)
+            # targetPathから共通の親ディレクトリまでの相対パスを計算
+            target_to_common = targetPath.relative_to(common_path)
+            
+            # basePathからtargetPathへの相対パスを計算
+            relativePath = Path(*(['..'] * len(base_to_common.parts)) + list(target_to_common.parts))
+
         relativePathStr = str(relativePath).replace("\\", "/")
-        if not relativePathStr.startswith("../"):
+        if not relativePathStr.startswith("../") and not relativePathStr.startswith("./"):
             relativePathStr = "./" + relativePathStr
+
+        ExtendFunc.ExtendPrint([{
+            "basePath": str(basePath),
+            "targetPath": str(targetPath),
+        },{
+            "relativePath": relativePathStr
+        }], state)
         return relativePathStr
     
 
