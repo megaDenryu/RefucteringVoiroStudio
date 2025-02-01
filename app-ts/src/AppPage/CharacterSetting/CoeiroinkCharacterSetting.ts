@@ -7,6 +7,8 @@ import { CharacterInfo } from "../../ZodObject/DataStore/CharacterSetting/Charac
 import { CoeiroinkCharacterSettingSaveModelReq } from "../../ZodObject/DataStore/CharacterSetting/CoeiroinkCharacterSettingSaveModelReq";
 import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModel";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
+import { CharacterInfoSetting } from "./CharacterInfoSetting/CharacterInfoSetting";
+import { ICharacterInfoSetting } from "./CharacterInfoSetting/ICharacterInfoSetting";
 import { ICharacterSetting } from "./ICharacterSetting";
 import { CoeiroinkVoiceSetting, createCoeiroinkVoiceSetting } from "./VoiceSetting/CoeiroinkVoiceSetting";
 
@@ -15,9 +17,10 @@ import { CoeiroinkVoiceSetting, createCoeiroinkVoiceSetting } from "./VoiceSetti
 export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoiceSettingModel> {
     public readonly component: BaseComponent;
     public readonly title = "キャラクター設定";
+    public voiceSetting: CoeiroinkVoiceSetting;
+    public characterInfoSetting: ICharacterInfoSetting;
     private _squareBoardComponent: SquareBoardComponent;
     private _closeButton: NormalButton;
-    public voiceSetting: CoeiroinkVoiceSetting;
     private readonly req:TtsSoftWareVoiceSettingReq;
     private _characterSaveData: ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>;
     
@@ -36,6 +39,7 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         this.component = this._squareBoardComponent.component;
         this._closeButton = new NormalButton("閉じる", "warning");
         this.voiceSetting = createCoeiroinkVoiceSetting(req.character_id, characterSaveData.voiceSetting, this);
+        this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
         this.initialize();
     }
 
@@ -66,25 +70,29 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         console.log("open");
         this._squareBoardComponent.component.show();
         this.voiceSetting.open();
+        this.characterInfoSetting.open();
         console.log(this.component.element)
     }
 
     public close(): void {
         this._squareBoardComponent.component.hide();
         this.voiceSetting.close();
+        this.characterInfoSetting.close();
     }
 
     public delete(): void {
         this._squareBoardComponent.component.delete();
-        this.voiceSetting.component.delete();
+        this.voiceSetting.delete();
+        this.characterInfoSetting.delete();
     }
 
     private initialize() {
-        this.voiceSetting.component.addCSSClass(["positionRelative"]);
-        this.voiceSetting.component.removeCSSClass(["positionAbsolute"]);
+        this.voiceSetting.component.setAsChildComponent();
+        this.characterInfoSetting.component.setAsChildComponent();
         this._squareBoardComponent.addComponentToHeader(this._closeButton);
         this._squareBoardComponent.component.addCSSClass(["positionAbsolute"]);
         this.component.createArrowBetweenComponents(this, this.voiceSetting);
+        this.component.createArrowBetweenComponents(this, this.characterInfoSetting);
 
         document.body.appendChild(this._squareBoardComponent.component.element);
         this.onAddedToDom();
@@ -97,6 +105,7 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
 
     public onAddedToDom() {
         this.voiceSetting.onAddedToDom();
+        this.characterInfoSetting.onAddedToDom();
     }
 }
 

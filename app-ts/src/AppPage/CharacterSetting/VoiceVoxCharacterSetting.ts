@@ -7,6 +7,8 @@ import { CharacterInfo } from "../../ZodObject/DataStore/CharacterSetting/Charac
 import { VoiceVoxCharacterSettingSaveModelReq } from "../../ZodObject/DataStore/CharacterSetting/VoiceVoxCharacterSettingSaveModelReq";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { VoiceVoxVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
+import { CharacterInfoSetting } from "./CharacterInfoSetting/CharacterInfoSetting";
+import { ICharacterInfoSetting } from "./CharacterInfoSetting/ICharacterInfoSetting";
 import { ICharacterSetting } from "./ICharacterSetting";
 import { VoiceVoxVoiceSetting, createVoiceVoxVoiceSetting } from "./VoiceSetting/VoiceVoxVoiceSetting";
 
@@ -17,6 +19,7 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
     private _squareBoardComponent: SquareBoardComponent;
     private _closeButton: NormalButton;
     public voiceSetting: VoiceVoxVoiceSetting;
+    public characterInfoSetting: ICharacterInfoSetting;
     private readonly req:TtsSoftWareVoiceSettingReq;
     private _characterSaveData: ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>;
     
@@ -35,6 +38,7 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
         this.component = this._squareBoardComponent.component;
         this._closeButton = new NormalButton("閉じる", "warning");
         this.voiceSetting = createVoiceVoxVoiceSetting(req.character_id, characterSaveData, this);
+        this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
         this.initialize();
     }
 
@@ -65,25 +69,29 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
         console.log("open");
         this._squareBoardComponent.component.show();
         this.voiceSetting.open();
+        this.characterInfoSetting.open();
         console.log(this.component.element)
     }
 
     public close(): void {
         this._squareBoardComponent.component.hide();
         this.voiceSetting.close();
+        this.characterInfoSetting.close();
     }
 
     public delete(): void {
         this._squareBoardComponent.component.delete();
         this.voiceSetting.component.delete();
+        this.characterInfoSetting.delete();
     }
 
     private initialize() {
-        this.voiceSetting.component.addCSSClass(["positionRelative"]);
-        this.voiceSetting.component.removeCSSClass(["positionAbsolute"]);
+        this.voiceSetting.component.setAsChildComponent();
+        this.characterInfoSetting.component.setAsChildComponent();
         this._squareBoardComponent.addComponentToHeader(this._closeButton);
-        this._squareBoardComponent.component.addCSSClass(["positionAbsolute"]);
+        this.component.setAsParentComponent();
         this.component.createArrowBetweenComponents(this, this.voiceSetting);
+        this.component.createArrowBetweenComponents(this, this.characterInfoSetting);
 
         document.body.appendChild(this._squareBoardComponent.component.element);
         this.onAddedToDom();
@@ -96,6 +104,7 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
 
     public onAddedToDom() {
         this.voiceSetting.onAddedToDom();
+        this.characterInfoSetting.onAddedToDom();
     }
 }
 

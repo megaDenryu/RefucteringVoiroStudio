@@ -7,11 +7,12 @@ import { RecordPath } from "../../../UiComponent/TypeInput/RecordPath";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { ObjectInputComponent } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import { CharacterInfo } from "../../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfo";
+import { CharacterInfoFormat } from "../../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfoFormat";
 import { ISaveCharacterInfo, ISaveSetting } from "../ISaveSetting";
 import { ICharacterInfoSetting } from "./ICharacterInfoSetting";
 
 
-export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow, ICharacterInfoSetting, IHasComponent {
+export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow, ICharacterInfoSetting, IHasComponent, ICharacterInfoSetting {
   public readonly component: BaseComponent;
   private testMode: boolean = false;
   public readonly title = "キャラクター情報設定";
@@ -21,8 +22,8 @@ export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow
   private _manageDataSettingComponent: ObjectInputComponent<CharacterInfo>;
   private _closeButton: NormalButton;
 
-  constructor(voiceSetting:CharacterInfo|undefined, settingSaver:ISaveCharacterInfo) {
-    this.manageData = voiceSetting ?? generateDefaultObject(CharacterInfo);
+  constructor(characterInfo:CharacterInfo|undefined, settingSaver:ISaveCharacterInfo) {
+    this.manageData = characterInfo ?? generateDefaultObject(CharacterInfo);
     this.settingSaver = settingSaver;
     this._squareBoardComponent = new SquareBoardComponent(
       "設定画面",

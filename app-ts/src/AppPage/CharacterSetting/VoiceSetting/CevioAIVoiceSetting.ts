@@ -67,12 +67,9 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow,
       null,
       this, CevioAIVoiceSettingModelFormat
     );
-    this._manageDataSettingComponent.component.addCSSClass("positionRelative");
-    this._manageDataSettingComponent.component.removeCSSClass(
-      "positionAbsolute"
-    );
+    this._manageDataSettingComponent.component.setAsChildComponent();
+    this.component.setAsParentComponent();
     this._squareBoardComponent.addComponentToHeader(this._closeButton);
-    this._squareBoardComponent.component.addCSSClass(["positionAbsolute"]);
     this._squareBoardComponent.component.createArrowBetweenComponents(
       this._squareBoardComponent,
       this._manageDataSettingComponent
