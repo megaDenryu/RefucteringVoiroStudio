@@ -65,17 +65,12 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
     }
 
     public open(): void {
-        console.log("open");
         this._squareBoardComponent.component.show();
-        this.voiceSetting.open();
-        this.characterInfoSetting.open();
         console.log(this.component.element)
     }
 
     public close(): void {
         this._squareBoardComponent.component.hide();
-        this.voiceSetting.close();
-        this.characterInfoSetting.close();
     }
 
     public delete(): void {

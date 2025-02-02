@@ -60,7 +60,6 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
             coeiroinkCharacterSettingModel: saveData
         }
         const res = RequestAPI.postRequest("CoeiroinkCharacterSetting", saveDataReq);
-        console.log(res);
     }
 
     public isOpen(): boolean {
@@ -68,17 +67,12 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
     }
 
     public open(): void {
-        console.log("open");
         this._squareBoardComponent.component.show();
-        this.voiceSetting.open();
-        this.characterInfoSetting.open();
         console.log(this.component.element)
     }
 
     public close(): void {
         this._squareBoardComponent.component.hide();
-        this.voiceSetting.close();
-        this.characterInfoSetting.close();
     }
 
     public delete(): void {

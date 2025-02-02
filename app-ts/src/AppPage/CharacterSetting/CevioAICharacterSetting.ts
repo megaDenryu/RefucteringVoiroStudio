@@ -67,17 +67,12 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
         }
     
         public open(): void {
-            console.log("open");
             this._squareBoardComponent.component.show();
-            this.voiceSetting.open();
-            this.characterInfoSetting.open();
             console.log(this.component.element)
         }
     
         public close(): void {
             this._squareBoardComponent.component.hide();
-            this.voiceSetting.close();
-            this.characterInfoSetting.close();
         }
     
         public delete(): void {
@@ -90,9 +85,11 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
             this.voiceSetting.component.setAsChildComponent();
             this.characterInfoSetting.component.setAsChildComponent();
             this._squareBoardComponent.addComponentToHeader(this._closeButton);
+            this._closeButton.addOnClickEvent(() => {this.close()});
             this.component.setAsParentComponent();
             this.component.createArrowBetweenComponents(this, this.voiceSetting);
             this.component.createArrowBetweenComponents(this, this.characterInfoSetting);
+
     
             document.body.appendChild(this._squareBoardComponent.component.element);
             this.onAddedToDom();

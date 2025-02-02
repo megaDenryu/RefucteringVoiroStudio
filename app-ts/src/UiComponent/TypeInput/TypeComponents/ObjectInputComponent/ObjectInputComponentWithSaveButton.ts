@@ -191,8 +191,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
     public setAllchildRelative() {
         for (let key in this._inputComponentDict) {
             let inputComponent = this._inputComponentDict[key];
-            inputComponent.component.addCSSClass("positionRelative");
-            inputComponent.component.removeCSSClass("positionAbsolute");
+            inputComponent.component.setAsChildComponent();
         }
     }
 

@@ -3,6 +3,7 @@ import { IHasComponent, BaseComponent } from "../../../UiComponent/Base/ui_compo
 import { IOpenCloseWindow } from "../../../UiComponent/Board/IOpenCloseWindow";
 import { SquareBoardComponent } from "../../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
+import { ToggleButton, OpenCloseState, createOpenCloseButton } from "../../../UiComponent/Button/ToggleButton.ts/ToggleButton";
 import { ICharacterSettingSaveModel } from "../../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { RecordPath } from "../../../UiComponent/TypeInput/RecordPath";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../../UiComponent/TypeInput/TypeComponents/IComponentManager";
@@ -17,7 +18,7 @@ import { IVoiceSetting } from "./IVoiceSetting";
 
 
 
-export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow, IVoiceSetting, IHasComponent {
+export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IHasComponent {
   public readonly component: BaseComponent;
   private testMode: boolean = false;
   public readonly title = "音声設定";
@@ -26,7 +27,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow,
   private _squareBoardComponent: SquareBoardComponent;
   // private _manageDataSettingComponent:ObjectInputComponentWithSaveButton<CevioAIVoiceSettingModel>
   private _manageDataSettingComponent: ObjectInputComponent<CevioAIVoiceSettingModel>;
-  private _closeButton: NormalButton;
+  private _開閉Button: ToggleButton<OpenCloseState>;
   private _reqInfo: TtsSoftWareVoiceSettingReq;
 
   public get 読み上げ間隔() {
@@ -49,7 +50,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow,
       true
     );
     this.component = this._squareBoardComponent.component;
-    this._closeButton = new NormalButton("閉じる", "warning");
+    this._開閉Button = createOpenCloseButton({"title":"開閉ボタン","openAction":()=>{this.open()}, "closeAction":()=>{this.close()}, "defaultState":"goClose"});
     this._reqInfo = req;
     this.manageData = voiceSetting ?? generateDefaultObject(CevioAIVoiceSettingModel);
     this.settingSaver = settingSaver;
@@ -69,7 +70,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow,
     );
     this._manageDataSettingComponent.component.setAsChildComponent();
     this.component.setAsParentComponent();
-    this._squareBoardComponent.addComponentToHeader(this._closeButton);
+    this._squareBoardComponent.addComponentToHeader(this._開閉Button);
     this._squareBoardComponent.component.createArrowBetweenComponents(
       this._squareBoardComponent,
       this._manageDataSettingComponent
@@ -82,9 +83,6 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow,
   }
 
   private bindEvents() {
-    this._closeButton.addOnClickEvent(() => {
-      this.close();
-    });
     //セーブをオブジェクトインプットコンポーネントに,dartyになったときにセーブを実行するように登録
     this._manageDataSettingComponent.addOnDartyEvent(() => {
       this._manageDataSettingComponent.save();
@@ -126,16 +124,14 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow,
     this.sendSettings(this.manageData);
   }
 
-  public isOpen(): boolean {
-    return this._squareBoardComponent.component.isShow;
+  private open(): void {
+    // this._squareBoardComponent.component.show();
+    this._manageDataSettingComponent.component.show();
   }
 
-  public open(): void {
-    this._squareBoardComponent.component.show();
-  }
-
-  public close(): void {
-    this._squareBoardComponent.component.hide();
+  private close(): void {
+    // this._squareBoardComponent.component.hide();
+    this._manageDataSettingComponent.component.hide();
   }
 
   public delete(): void {

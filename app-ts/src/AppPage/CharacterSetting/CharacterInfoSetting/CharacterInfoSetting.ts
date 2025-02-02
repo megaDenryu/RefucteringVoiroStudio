@@ -3,6 +3,7 @@ import { IHasComponent, BaseComponent } from "../../../UiComponent/Base/ui_compo
 import { IOpenCloseWindow } from "../../../UiComponent/Board/IOpenCloseWindow";
 import { SquareBoardComponent } from "../../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
+import { createOpenCloseButton, OpenCloseState, ToggleButton } from "../../../UiComponent/Button/ToggleButton.ts/ToggleButton";
 import { RecordPath } from "../../../UiComponent/TypeInput/RecordPath";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { ObjectInputComponent } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
@@ -12,7 +13,7 @@ import { ISaveCharacterInfo, ISaveSetting } from "../ISaveSetting";
 import { ICharacterInfoSetting } from "./ICharacterInfoSetting";
 
 
-export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow, ICharacterInfoSetting, IHasComponent, ICharacterInfoSetting {
+export class CharacterInfoSetting implements IComponentManager, ICharacterInfoSetting, IHasComponent, ICharacterInfoSetting {
   public readonly component: BaseComponent;
   private testMode: boolean = false;
   public readonly title = "キャラクター情報設定";
@@ -20,7 +21,7 @@ export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow
   private settingSaver:ISaveCharacterInfo;
   private _squareBoardComponent: SquareBoardComponent;
   private _manageDataSettingComponent: ObjectInputComponent<CharacterInfo>;
-  private _closeButton: NormalButton;
+  private _開閉Button: ToggleButton<OpenCloseState>;
 
   constructor(characterInfo:CharacterInfo|undefined, settingSaver:ISaveCharacterInfo) {
     this.manageData = characterInfo ?? generateDefaultObject(CharacterInfo);
@@ -42,7 +43,7 @@ export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow
         this, CharacterInfoFormat
     );
     this.component = this._squareBoardComponent.component;
-    this._closeButton = new NormalButton("閉じる", "warning");
+    this._開閉Button = createOpenCloseButton({"title":"開閉ボタン","openAction":()=>{this.open()}, "closeAction":()=>{this.close()}, "defaultState":"goClose"});
     this.initialize();
   }
 
@@ -51,7 +52,7 @@ export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow
     this._manageDataSettingComponent.component.removeCSSClass(
       "positionAbsolute"
     );
-    this._squareBoardComponent.addComponentToHeader(this._closeButton);
+    this._squareBoardComponent.addComponentToHeader(this._開閉Button);
     this._squareBoardComponent.component.addCSSClass(["positionAbsolute"]);
     this._squareBoardComponent.component.createArrowBetweenComponents(
       this._squareBoardComponent,
@@ -65,9 +66,6 @@ export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow
   }
 
   private bindEvents() {
-    this._closeButton.addOnClickEvent(() => {
-      this.close();
-    });
     //セーブをオブジェクトインプットコンポーネントに,dartyになったときにセーブを実行するように登録
     this._manageDataSettingComponent.addOnDartyEvent(() => {
       this._manageDataSettingComponent.save();
@@ -116,12 +114,12 @@ export class CharacterInfoSetting implements IComponentManager, IOpenCloseWindow
       return this._squareBoardComponent.component.isShow;
     }
   
-    public open(): void {
-      this._squareBoardComponent.component.show();
+    private open(): void {
+      this._manageDataSettingComponent.component.show();
     }
   
-    public close(): void {
-      this._squareBoardComponent.component.hide();
+    private close(): void {
+      this._manageDataSettingComponent.component.hide();
     }
   
     public delete(): void {
