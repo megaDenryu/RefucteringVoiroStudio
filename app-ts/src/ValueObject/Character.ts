@@ -1,9 +1,14 @@
 import { BaseValueObject, IValueObject } from "../BaseClasses/base_value_object";
 import { VoMap } from "../Extend/extend_collections";
-import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ICharacterModeState, IVoiceMode, ICharacterModeStateReq } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { IAllHumanInformationDict, ICharacterName, IHumanImage, IHumanInformation, IHumanInformationList, INickName, ICharacterModeState, IVoiceMode, ICharacterModeStateReq, ICharacterSettingSaveDatas, ICevioAICharacterSettingCollection, IAIVoiceCharacterSettingCollection, ICoeiroinkCharacterSettingCollection, IVoiceVoxCharacterSettingCollection } from "../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { AIVoiceCharacterSettingSaveModel } from "../ZodObject/DataStore/CharacterSetting/AIVoiceCharacterSettingSaveModel";
+import { CevioAICharacterSettingSaveModel } from "../ZodObject/DataStore/CharacterSetting/CevioAICharacterSettingSaveModel";
+import { CoeiroinkCharacterSettingSaveModel } from "../ZodObject/DataStore/CharacterSetting/CoeiroinkCharacterSettingSaveModel";
+import { VoiceVoxCharacterSettingSaveModel } from "../ZodObject/DataStore/CharacterSetting/VoiceVoxCharacterSettingSaveModel";
 import { VoiceState } from "./VoiceState";
 
 export type CharacterId = string&{ readonly brand: unique symbol };    
+export type CharacterSaveId = string//&{ readonly brand: unique symbol };
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 
 export class TTSSoftwareEnum {
@@ -114,6 +119,7 @@ export class HumanImage extends BaseValueObject {
 
 export class CharacterModeState implements IValueObject<CharacterModeState> {
     public readonly id: CharacterId;
+    public readonly save_id: CharacterSaveId
     public readonly tts_software: TTSSoftware;
     public readonly character_name: CharacterName;
     public readonly human_image: HumanImage;
@@ -123,6 +129,7 @@ export class CharacterModeState implements IValueObject<CharacterModeState> {
 
     constructor(
         id: CharacterId,
+        save_id: CharacterSaveId,
         tts_software: TTSSoftware,
         character_name: CharacterName, 
         human_image: HumanImage,
@@ -131,6 +138,7 @@ export class CharacterModeState implements IValueObject<CharacterModeState> {
         front_name: string
     ) {
         this.id = id;
+        this.save_id = save_id;
         this.character_name = character_name;
         this.voice_mode = voice_mode;
         this.human_image = human_image;
@@ -142,6 +150,7 @@ export class CharacterModeState implements IValueObject<CharacterModeState> {
     toDict(): ICharacterModeState {
         return {
             id: this.id,
+            save_id: this.save_id,
             tts_software: this.tts_software,
             character_name: this.character_name.toDict(),
             human_image: this.human_image.toDict(),
@@ -154,6 +163,7 @@ export class CharacterModeState implements IValueObject<CharacterModeState> {
     static fromDict(characterModeState: ICharacterModeState): CharacterModeState {
         return new CharacterModeState(
             characterModeState.id,
+            characterModeState.save_id,
             TTSSoftwareEnum.check(characterModeState.tts_software),
             CharacterName.fromDict(characterModeState.character_name),
             HumanImage.fromDict(characterModeState.human_image),
@@ -251,8 +261,55 @@ export class HumanInformationList {
     }
 }
 
+export class CevioAICharacterSettingCollection {
+    collection: CevioAICharacterSettingSaveModel[]
+
+    constructor(collection: ICevioAICharacterSettingCollection) {
+        this.collection = collection.collection;
+    }
+}
+
+export class VoiceVoxCharacterSettingCollection {
+    collection: VoiceVoxCharacterSettingSaveModel[]
+
+    constructor(collection: IVoiceVoxCharacterSettingCollection) {
+        this.collection = collection.collection;
+    }
+}
+
+export class CoeiroinkCharacterSettingCollection {
+    collection: CoeiroinkCharacterSettingSaveModel[]
+
+    constructor(collection: ICoeiroinkCharacterSettingCollection) {
+        this.collection = collection.collection;
+    }
+}
+
+export class AIVoiceCharacterSettingCollection {
+    collection: AIVoiceCharacterSettingSaveModel[]
+
+    constructor(collection: IAIVoiceCharacterSettingCollection) {
+        this.collection = collection.collection;
+    }
+}
+
+export class CharacterSettingSaveDatas{
+    characterSettingCevioAI: CevioAICharacterSettingCollection;
+    characterSettingVoiceVox: VoiceVoxCharacterSettingCollection;
+    characterSettingCoeiroink: CoeiroinkCharacterSettingCollection;
+    characterSettingAIVoice: AIVoiceCharacterSettingCollection;
+
+    constructor(characterSettingSaveDatas: ICharacterSettingSaveDatas) {
+        this.characterSettingCevioAI = new CevioAICharacterSettingCollection(characterSettingSaveDatas.characterSettingCevioAI);
+        this.characterSettingVoiceVox = new VoiceVoxCharacterSettingCollection(characterSettingSaveDatas.characterSettingVoiceVox);
+        this.characterSettingCoeiroink = new CoeiroinkCharacterSettingCollection(characterSettingSaveDatas.characterSettingCoeiroink);
+        this.characterSettingAIVoice = new AIVoiceCharacterSettingCollection(characterSettingSaveDatas.characterSettingAIVoice);
+    }
+}
+
 export class AllHumanInformationDict {
     data: Record<TTSSoftware, HumanInformationList>;
+    characterSettingSaveDatas: CharacterSettingSaveDatas
 
     constructor(allHumanInformationDict: IAllHumanInformationDict) {
         this.data = {
@@ -261,6 +318,7 @@ export class AllHumanInformationDict {
             AIVoice: new HumanInformationList(allHumanInformationDict.data.AIVoice),
             Coeiroink: new HumanInformationList(allHumanInformationDict.data.Coeiroink)
         };
+        this.characterSettingSaveDatas = new CharacterSettingSaveDatas(allHumanInformationDict.characterSettingSaveDatas);
     }
 
     public getCharacterNamesDict(): Record<TTSSoftware, CharacterName[]> {

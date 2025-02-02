@@ -280,6 +280,16 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         }
     }
 
+    setAsChildComponent() {
+        this.addCSSClass(["positionRelative"]);
+        this.removeCSSClass(["positionAbsolute"]);
+    }
+
+    setAsParentComponent() {
+        this.addCSSClass(["positionAbsolute"]);
+        this.removeCSSClass(["positionRelative"]);
+    }
+
     get isShow():boolean {
         return this.element.style.display === 'block';
     }

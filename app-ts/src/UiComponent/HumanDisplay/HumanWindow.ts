@@ -1,13 +1,16 @@
 
 
 import { createHumanBox, DragDropFile, GlobalState, HumanBodyManager2, sendHumanName, VoiceRecognitioManager, VoiroAISetting } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
+import { ICharacterSetting } from "../../AppPage/CharacterSetting/ICharacterSetting";
+import { IVoiceSetting } from "../../AppPage/CharacterSetting/VoiceSetting/IVoiceSetting";
 import { ReactiveProperty } from "../../BaseClasses/EventDrivenCode/observer";
 import { ExtendFunction } from "../../Extend/extend";
 import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Character";
 import { CharaCreateData, HumanData } from "../../ValueObject/IHumanPart";
+import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceSettingModel";
 import { DragMover } from "../Base/DragableComponent";
 import { BaseComponent, IHasComponent } from "../Base/ui_component_base";
-import { CharaSelectFunctionCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
+import { CharaSelectFeaureCreater } from "../CharaInfoSelecter/CharaSelectFunctionCreater";
 import { IAddHumanButton, IBackGroundImage, IBackGroundImages, IBodySettingButton, IDeleteHumanButton, IHumanName, IHumanSelectPanelStartButton, IHumanTab, IHumanWindow, IMicToggleButton } from "./IHumanWindow";
 
 export class HumanTab implements IHasComponent,IHumanTab {
@@ -21,6 +24,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
     micToggleButton: MicToggleButton;
     addHumanButton: AddHumanButton;
     backGroundImages: BackGroundImages;
+    characterSetting: ICharacterSetting<VoiceSettingModel>|null = null;
 
     characterId: CharacterId;
 
@@ -133,7 +137,7 @@ export class HumanTab implements IHasComponent,IHumanTab {
 
     charaSelectPanelStart() {
         let element = document.body;
-        CharaSelectFunctionCreater.init(element, this);
+        CharaSelectFeaureCreater.init(element, this);
     }
 
     createHuman(charaCreateData:CharaCreateData){

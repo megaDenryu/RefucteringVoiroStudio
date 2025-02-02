@@ -398,25 +398,9 @@ class voicevox_human:
         if voiceSetting is None:
             voiceSetting = VoiceVoxVoiceSettingModel(**{})
         return voiceSetting
-    
-    async def saveVoiceSetting(self):
-        """
-        ボイス設定を保存する。非同期で３秒待機して保存する。待機中に呼び出した場合はスキップされる。
-        """
-        
-        self.isSaveWaiting = True
-        #非同期で３秒待機して保存する
-        path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "VoiceVoxVoiceSetting.json"
-        # await ExtendFunc.saveBaseModelToJsonAsync(path,self.voiceSetting,0.5)
-        ExtendFunc.saveBaseModelToJson(path,self.voiceSetting)
-        ExtendFunc.ExtendPrintWithTitle("ボイス設定を保存しました",self.voiceSetting)
-        self.isSaveWaiting = False
 
-    async def setVoiceSetting(self, voiceSetting: VoiceVoxVoiceSettingModel):
+    def setVoiceSetting(self, voiceSetting: VoiceVoxVoiceSettingModel):
         self.voiceSetting = voiceSetting
-        if self.isSaveWaiting == True:
-            return
-        await self.saveVoiceSetting()
 
     def 設定を反映する(self,query_dict:QueryDict):
         """
@@ -1227,7 +1211,6 @@ class Coeiroink:
     onTTSSoftware:bool = False #vCoeiroinkが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #Coeiroinkがインストールされているかどうか
     voiceSetting:CoeiroinkVoiceSettingModel
-    isSaveWaiting:bool = False
 
     def __init__(self, chara_mode_state:CharacterModeState|None, started_coeiro_num:int) -> None:
         if chara_mode_state is None:
@@ -1251,25 +1234,9 @@ class Coeiroink:
         if voiceSetting is None:
             voiceSetting = CoeiroinkVoiceSettingModel(**{})
         return voiceSetting
-    
-    async def saveVoiceSetting(self):
-        """
-        ボイス設定を保存する。非同期で３秒待機して保存する。待機中に呼び出した場合はスキップされる。
-        """
-        
-        self.isSaveWaiting = True
-        #非同期で３秒待機して保存する
-        path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "CoeiroinkVoiceSetting.json"
-        # await ExtendFunc.saveBaseModelToJsonAsync(path,self.voiceSetting,0.5)
-        ExtendFunc.saveBaseModelToJson(path,self.voiceSetting)
-        ExtendFunc.ExtendPrintWithTitle("ボイス設定を保存しました",self.voiceSetting)
-        self.isSaveWaiting = False
 
-    async def setVoiceSetting(self, voiceSetting: CoeiroinkVoiceSettingModel):
+    def setVoiceSetting(self, voiceSetting: CoeiroinkVoiceSettingModel):
         self.voiceSetting = voiceSetting
-        if self.isSaveWaiting == True:
-            return
-        await self.saveVoiceSetting()
 
     def speak(self,text:str):
         """

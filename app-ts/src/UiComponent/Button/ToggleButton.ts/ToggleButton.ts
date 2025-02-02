@@ -3,71 +3,71 @@ import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_comp
 import { ReactiveProperty } from "../../../BaseClasses/EventDrivenCode/observer";
 import { IButton } from "../IButton";
 
-// 見た目のモードを定義するEnum
-export enum ToggleButtonMode {
-    Primary = "primary",
-    Secondary = "secondary",
-    Success = "success",
-    Danger = "danger"
+export type Action = () => void;
+
+export interface ToggleModeInfo<State extends string> {
+    state: State;
+    stateViewString: string; // ボタンの文字列表示など
+    CSSClass: string;
+    action: Action; // 例：stateViewString = "閉じる" の時は、func = () => { this.close(); }
 }
 
 // トグルボタンのクラス定義
-export class ToggleButton<T extends ZodEnum<any>> implements IHasComponent, IButton {
+export class ToggleButton<State extends string> implements IHasComponent {
     component: BaseComponent;
     private _title: string;
-    private _state: ReactiveProperty<z.infer<T>>;
-    private _onClick: (() => void)[] = [];
-    private _mode: ToggleButtonMode;
-    
-    // コンストラクタ
-    constructor(title: string, defaultState: z.infer<T>, private states: T, mode: ToggleButtonMode = ToggleButtonMode.Primary) {
+    private _toggleModes: ToggleModeInfo<State>[];
+    private _toggleModeLength: number;
+    private _stateIndex: number;
+    private get currentStateViewString(): string {
+        return this._toggleModes[this._stateIndex].stateViewString;
+    }
+
+    constructor(title: string, toggleModes: ToggleModeInfo<State>[], defaultState: State) {
         this._title = title;
-        this._state = new ReactiveProperty(defaultState);
-        let html = ElementCreater.createButtonElement(this._title, this.onClick.bind(this));
-        this._mode = mode;
-        html.classList.add('toggle-button', this._mode); // CSSクラスを追加
+        this._toggleModes = toggleModes;
+        this._toggleModeLength = toggleModes.length;
+        this._stateIndex = toggleModes.findIndex(mode => mode.state === defaultState);
+        let html = ElementCreater.createButtonElement(this.currentStateViewString, () => {this.onClick()});
         this.component = new BaseComponent(html);
-        this.initialize();
     }
 
-    // クリックイベントの処理
-    public onClick(): void {
-        this._onClick.forEach(f => {
-            f();
-        });
-        this.toggleState();
+    public invokeEventByState(state: State): void {
+        const index = this._toggleModes.findIndex(mode => mode.state === state);
+        this.invokeEvent(index);
     }
 
-    // 初期化処理
-    private initialize() {
-        this._state.addMethod((newState) => {
-            const element = this.component.element;
-            element.textContent = `${this._title}: ${newState}`;
-        });
+    private invokeEvent(index: number): void {
+        const prevIndex = index;
+        const nextIndex = (prevIndex + 1) % this._toggleModeLength;
+        this._stateIndex = nextIndex;
+        this.component.element.textContent = this._toggleModes[nextIndex].stateViewString;
+        this.component.addCSSClass(this._toggleModes[nextIndex].CSSClass);
+        this.component.removeCSSClass(this._toggleModes[prevIndex].CSSClass);
+        console.log(this._toggleModes[prevIndex].action);
+        this._toggleModes[prevIndex].action();
     }
-
-    // 状態をトグルする処理
-    private toggleState() {
-        const currentIndex = this.states.options.indexOf(this._state.get());
-        const nextIndex = (currentIndex + 1) % this.states.options.length;
-        this._state.set(this.states.options[nextIndex]);
-    }
-
-    // クリックイベントを追加するメソッド
-    public addOnClickEvent(f: (() => void)): void {
-        this._onClick.push(f);
-    }
-
-    // モードを切り替えるメソッド
-    public setMode(mode: ToggleButtonMode): void {
-        const element = this.component.element;
-        element.classList.remove(this._mode);
-        this._mode = mode;
-        element.classList.add(this._mode);
+    
+    private onClick(): void {
+        this.invokeEvent(this._stateIndex);
     }
 
     // コンポーネントを削除するメソッド
     public delete(): void {
         this.component.delete();
     }
+}
+
+export type OpenCloseState = "goOpen" | "goClose";
+export interface OpenCloseButtonInput {
+    title: string;
+    openAction: Action;
+    closeAction: Action;
+    defaultState: OpenCloseState;
+} 
+export function createOpenCloseButton(openCloseButtonInput: OpenCloseButtonInput): ToggleButton<OpenCloseState> {
+    return new ToggleButton(openCloseButtonInput.title, [
+        { state: "goClose", stateViewString: "閉じる", CSSClass: "goClose", action: () => { openCloseButtonInput.closeAction() } },
+        { state: "goOpen", stateViewString: "開く", CSSClass: "goOpen", action: () => { openCloseButtonInput.openAction() } }
+    ], openCloseButtonInput.defaultState);
 }

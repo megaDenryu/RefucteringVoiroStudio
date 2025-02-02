@@ -14,12 +14,8 @@ import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
 import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Character";
-import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "../CharacterSetting/CevioAIVoiceSetting";
-import { IOpenCloseWindow } from "../../UiComponent/Board/IOpenCloseWindow";
-import { createCharacterVoiceSetting } from "../CharacterSetting/CharacterSettingCreater";
 import { ICharacterModeState, ICharacterModeStateReq } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { GPTModeReq, GptMode } from "../../ZodObject/gptAI/GPTMode";
-import { IVoiceSetting } from "../CharacterSetting/IVoiceSetting";
 
 // const { promises } = require("fs");
 
@@ -218,12 +214,11 @@ export class MessageBox {
     public ws_nikonama_comment_reciver: WebSocket;
     public ws_youtube_comment_reciver: ExtendedWebSocket;
     public ws_twitch_comment_reciver: ExtendedWebSocket;
-    private _characterVoiceSetting: IVoiceSetting|null = null;
     gpt_setting_button_manager_model: GPTSettingButtonManagerModel;
     human_tab: HumanTab;
 
     get 読み上げ間隔():number {
-        return this._characterVoiceSetting?.読み上げ間隔 ?? 0;
+        return this.human_tab.characterSetting?.voiceSetting.読み上げ間隔 ?? 0;
     }
 
     get front_name(): string|null {
@@ -253,20 +248,17 @@ export class MessageBox {
         this.message_box_elm.addEventListener('mouseup', this.endObsereve.bind(this));
         this.ELM_voice_setting_button.onclick = (event) => {
             // todo ここに音声設定ウインドウを表示する処理を書く
-            if (this._characterVoiceSetting == null) {
-                // this._characterVoiceSetting = createCevioAIVoiceSetting(this.human_tab.characterId);
-                const characterId = this.human_tab.characterId;
-                const tts_software = this.human_tab.characterModeState?.tts_software;
-                if (tts_software == null) {return;}
-                this._characterVoiceSetting = createCharacterVoiceSetting(characterId, tts_software);
+            if (this.human_tab.characterSetting == null) {
+                console.error("characterVoiceSettingがnullです。");
+                return;
             }
 
-            if (this._characterVoiceSetting == null) {return;}
-
-            if (this._characterVoiceSetting.isOpen()) {
-                this._characterVoiceSetting.close();
+            if (this.human_tab.characterSetting.isOpen()) {
+                console.log("音声設定ウインドウを閉じます");
+                this.human_tab.characterSetting.close();
             } else {
-                this._characterVoiceSetting.open();
+                console.log("音声設定ウインドウを開きます");
+                this.human_tab.characterSetting.open();
             }
         }
         

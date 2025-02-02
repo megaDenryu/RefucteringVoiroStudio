@@ -1,8 +1,8 @@
 {
-    "speedScale": 1.0,
-    "pitchScale": -0.06,
-    "intonationScale": 2.0,
-    "volumeScale": 1.8,
+    "speedScale": 1.5,
+    "pitchScale": 0.0,
+    "intonationScale": 1.0,
+    "volumeScale": 1.0,
     "読み上げ間隔": 0.0,
     "AIによる文章変換": "無効"
 }

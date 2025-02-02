@@ -1,0 +1,46 @@
+{
+    "properties": {
+        "Cast": {
+            "default": "",
+            "title": "Cast",
+            "type": "string"
+        },
+        "Volume": {
+            "default": 50,
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Volume",
+            "type": "integer"
+        },
+        "Speed": {
+            "default": 50,
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Speed",
+            "type": "integer"
+        },
+        "Tone": {
+            "default": 50,
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Tone",
+            "type": "integer"
+        },
+        "Alpha": {
+            "default": 50,
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Alpha",
+            "type": "integer"
+        },
+        "ToneScale": {
+            "default": 50,
+            "maximum": 100,
+            "minimum": 0,
+            "title": "Tonescale",
+            "type": "integer"
+        }
+    },
+    "title": "Talker2V40",
+    "type": "object"
+}

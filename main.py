@@ -8,6 +8,17 @@ from fastapi.concurrency import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
+from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.AIVoiceCharacterSettingSaveModelReq import AIVoiceCharacterSettingSaveModelReq
+from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import CevioAICharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
+from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModelReq import CevioAICharacterSettingSaveModelReq
+from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
+from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import CoeiroinkCharacterSettingSaveModelReq
+from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import VoiceVoxCharacterSettingSaveModel
+from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModelReq import CoeiroinkVoiceSettingModelReq
@@ -21,7 +32,7 @@ from api.gptAI.GPTMode import GPTModeReq, GptMode
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
 from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
 from api.gptAI.gpt import ChatGPT
-from api.gptAI.voiceroid_api import Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
+from api.gptAI.voiceroid_api import AIVoiceHuman, Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
@@ -884,70 +895,60 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
         ExtendFunc.ExtendPrint(setting_module)
         setting_module.removeWs(setting_mode, page_mode, client_id)
         ExtendFunc.ExtendPrint(setting_module)
-    
-@app.post("/TtsSoftWareSettingInit")
-async def cevioAIVoiceSettingInit(ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq):
-    # todo :cevioにアクセスして、ボイスの設定を取得
-    human:Human|None = inastanceManager.humanInstances.tryGetHuman(ttsSoftWareVoiceSettingReq.character_id)
-    if human == None:
-        return
-    tts = human.human_Voice
-    #cevio_human かどうかの判定
-    if isinstance(tts, cevio_human):
-        cevioAIVoiceSetting = CevioAIVoiceSettingModel(
-            talker2V40=tts.talker2V40,
-            talkerComponentArray2=tts.Components,
-            読み上げ間隔=1,
-            AIによる文章変換=AISentenceConverter.無効,
-        )
-        return cevioAIVoiceSetting 
-    elif isinstance(tts, voicevox_human):
-        voiceVoxVoiceSetting = tts.voiceSetting
-        return voiceVoxVoiceSetting
-    elif isinstance(tts, Coeiroink):
-        return tts.voiceSetting
-    
-@app.post("/CevioAIVoiceSetting")
-async def cevioAIVoiceSetting(req: CevioAIVoiceSettingModelReq):
+
+@app.post("/CevioAICharacterSetting")
+async def cevioAICharacterSetting(req: CevioAICharacterSettingSaveModelReq):
     ExtendFunc.ExtendPrint(req)
-    # todo :cevioにアクセスして、ボイスの設定を保存
+    # todo :cevioにアクセスして、キャラクターの設定を保存
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
     cevio = human.human_Voice
     #cevio_human かどうかの判定
     if isinstance(cevio, cevio_human):
-        cevio.setTalker2V40(req.cevio_ai_voice_setting.talker2V40)
-        cevio.setComponents(req.cevio_ai_voice_setting.talkerComponentArray2)
-        return {"message": "CevioAIVoiceSettingを保存しました"}
+        cevio.setTalker2V40(req.cevioAICharacterSettingModel.voiceSetting.talker2V40)
+        cevio.setComponents(req.cevioAICharacterSettingModel.voiceSetting.talkerComponentArray2)
+        CevioAICharacterSettingCollectionOperator.singleton().save(req.cevioAICharacterSettingModel)
+        return json.dumps({"message": "CevioAICharacterSettingを保存しました"})
     
-    
-@app.post("/VoiceVoxVoiceSetting")
-async def voiceVoxVoiceSetting(req: VoiceVoxVoiceSettingModelReq):
+@app.post("/AIVoiceCharacterSetting")
+async def aiVoiceCharacterSetting(req: AIVoiceCharacterSettingSaveModelReq):
     ExtendFunc.ExtendPrint(req)
-    # todo :VoiceVoxにアクセスして、ボイスの設定を保存
+    # todo :AIVoiceにアクセスして、キャラクターの設定を保存
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
-        ExtendFunc.ExtendPrint("humanが存在しません")
+        return
+    aiVoice = human.human_Voice
+    if isinstance(aiVoice, AIVoiceHuman):
+        # aiVoice.setVoiceSetting(req.aiVoiceCharacterSettingModel.voiceSetting)
+        AIVoiceCharacterSettingCollectionOperator.singleton().save(req.aiVoiceCharacterSettingSaveModel)
+        return json.dumps({"message": "AIVoiceCharacterSettingを保存しました"})
+    
+@app.post("/VoiceVoxCharacterSetting")
+async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
+    ExtendFunc.ExtendPrint(req)
+    # todo :VoiceVoxにアクセスして、キャラクターの設定を保存
+    human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
+    if human == None:
         return
     voiceVox = human.human_Voice
     if isinstance(voiceVox, voicevox_human):
-        await voiceVox.setVoiceSetting(req.voiceVoxVoiceSettingModel)
-        ExtendFunc.ExtendPrintWithTitle("VoiceVoxVoiceSettingModel",voiceVox.voiceSetting)
-        return {"message": "VoiceVoxVoiceSettingを保存しました"}
+        voiceVox.setVoiceSetting(req.voiceVoxCharacterSettingModel.voiceSetting)
+        VoiceVoxCharacterSettingCollectionOperator.singleton().save(req.voiceVoxCharacterSettingModel)
+        return json.dumps({"message": "VoiceVoxCharacterSettingを保存しました"})
     
-@app.post("/CoeiroinkVoiceSetting")
-async def coeiroinkVoiceSetting(req: CoeiroinkVoiceSettingModelReq):
+@app.post("/CoeiroinkCharacterSetting")
+async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
     ExtendFunc.ExtendPrint(req)
-    # todo :Coeiroinkにアクセスして、ボイスの設定を保存
+    # todo :Coeiroinkにアクセスして、キャラクターの設定を保存
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
-        ExtendFunc.ExtendPrint("humanが存在しません")
         return
     coeiroink = human.human_Voice
     if isinstance(coeiroink, Coeiroink):
-        await coeiroink.setVoiceSetting(req.coeiroinkVoiceSettingModel)
-        return {"message": "CoeiroinkVoiceSettingを保存しました"}
+        coeiroink.setVoiceSetting(req.coeiroinkCharacterSettingModel.voiceSetting)
+        CoeiroinkCharacterSettingCollectionOperator.singleton().save(req.coeiroinkCharacterSettingModel)
+        return json.dumps({"message": "CoeiroinkCharacterSettingを保存しました"})
 
 
 

@@ -7,27 +7,27 @@ export const CoeiroinkVoiceSettingModelFormat:InputTypeObject = {
         speedScale: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 1 }
+            format: { visualType: "number", visualTitle: null, step: 0.01 }
         } as InputTypeNumber,
         pitchScale: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 1 }
+            format: { visualType: "number", visualTitle: null, step: 0.01 }
         } as InputTypeNumber,
         intonationScale: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 1 }
+            format: { visualType: "number", visualTitle: null, step: 0.01 }
         } as InputTypeNumber,
         volumeScale: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 1 }
+            format: { visualType: "number", visualTitle: null, step: 0.01 }
         } as InputTypeNumber,
         読み上げ間隔: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 1 }
+            format: { visualType: "number", visualTitle: null, step: 0.01 }
         } as InputTypeNumber,
         AIによる文章変換: {
             type: "enum",

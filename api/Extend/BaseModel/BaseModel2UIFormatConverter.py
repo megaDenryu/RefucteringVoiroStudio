@@ -11,6 +11,11 @@ class importInfo(TypedDict):
     model: Type[BaseModel]
     path: Path
 
+"""
+今のTypeScriptFormatGeneratorのバグはリスト内にオブジェクトを入れるとき、そのオブジェクトの型が別のファイルにある場合、importを生成しないこと
+またはオブジェクトがフォルダ構造上全く関係ないところのBaseModelを参照している場合、importを生成しないこと
+"""
+
 class TypeScriptFormatGenerator:
     model: Type[BaseModel]
     properties: dict[str, Any]
@@ -29,6 +34,9 @@ class TypeScriptFormatGenerator:
         # ここで出力先のtsのパスを計算する。zodのtsファイルと同じフォルダに出力する。zodのtsファイルがxxx.tsなら、こちらはxxxFormat.tsとする
         path = base_model.__module__ # api.DataStore.AppSetting.AppSettingModel.AppSettingModel のようになる
         api_parent_path = ExtendFunc.getTargetDirFromParents(__file__, "api").parent
+        #もしモデル名とファイル名が一致してない場合は、ファイル名にモデル名を加える
+        if path.split(".")[-1] != base_model.__name__:
+            path = path + "_" + base_model.__name__
         uiformat_path = api_parent_path / (path.replace("api", "app-ts/src/ZodObject").replace(".", "/") + "Format.ts")
         return uiformat_path
 
@@ -68,7 +76,7 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
     def saveThisModel(self):
         self.targetTsPath = self.calcSavePath(self.model)
         targetTsDir = self.targetTsPath.parent
-        ExtendFunc.ExtendPrint({
+        ExtendFunc.ExtendPrintWithTitle("モデルをセーブします",{
             "targetTsPath": self.targetTsPath,
             "targetTsDir": targetTsDir
         })
@@ -142,21 +150,33 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
 
     def _generate_array_format(self, prop_type: Any) -> str:
         element_type = get_args(prop_type)[0]
-        return f"""            type: "array",
-            collectionType: {{
+        if isinstance(element_type, type) and issubclass(element_type, BaseModel):
+            collection_type = element_type.__name__ + "Format"
+            #ネストされたBaseModelを別のファイルに保存する
+            self._processNestedModel(element_type)
+        else:
+            collection_type = f"""{{
                 type: "{self._get_raw_type_name(element_type)}",
                 collectionType: null,
                 format: {{ visualType: "{self._get_raw_type_name(element_type)}", visualTitle: null }}
-            }},
+            }}
+"""
+
+        return f"""            type: "array",
+            collectionType: {collection_type},
             format: {{ visualType: "array", visualTitle: null }}
 """
 
     def _generate_record_format(self, prop_type: Any) -> str:
         value_type = get_args(prop_type)[1]
+        if isinstance(value_type, type) and issubclass(value_type, BaseModel):
+            collection_type = value_type.__name__
+        else:
+            collection_type = "null"
         return f"""            type: "record",
             collectionType: {{
                 type: "{self._get_raw_type_name(value_type)}",
-                collectionType: null,
+                collectionType: {collection_type},
                 format: {{ visualType: "{self._get_raw_type_name(value_type)}", visualTitle: null, step: 1 }}
             }},
             format: {{ visualType: "record", visualTitle: null }}
@@ -175,6 +195,8 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             return "InputTypeArray"
         elif get_origin(prop_type) == dict:
             return "InputTypeRecord"
+        elif isinstance(prop_type, type) and issubclass(prop_type, BaseModel):
+            return "InputTypeObject"
         else:
             raise TypeError(f"Unsupported property type: {prop_type}")
 
@@ -198,44 +220,76 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
             型の変換と保存(prop_type)
 
     @staticmethod
+    def calculateAncestorDistance(filePath: Path, ancentDir:str)->int:
+        """
+        filePathからancentDirまで親に何回行けばいいか計算する
+        """
+        # filePathがfileかdirかで処理を分ける
+        if filePath.is_file():
+            nowDirPath = filePath.parent
+        else:
+            nowDirPath = filePath
+        # まず何回親に行けばいいか計算
+        n = 0
+        path = nowDirPath
+        while True:
+            if path.stem == ancentDir:
+                break
+            path = path.parent
+            n += 1
+        ExtendFunc.ExtendPrint([{
+            "filePath": filePath,
+            "targetDir": ancentDir,
+        },{
+            "nowDirPath": nowDirPath,
+            "回数": n,
+        }])
+        return n
+
+    @staticmethod
     def calcTsRelativeDir(filePath: Path, targetDir:str)->str:
         """
         filePathからtargetDirまでの相対パスを計算する
         "../.."のような文字列を計算する。最後の/は含まない
         """
-        # filePathがfileかdirかで処理を分ける
-        ExtendFunc.ExtendPrint({
-            "filePath": filePath,
-            "targetDir": targetDir
-        })
-        if filePath.is_file():
-            nowDirPath = filePath.parent
-        else:
-            nowDirPath = filePath
-        ExtendFunc.ExtendPrint({
-            "nowDirPath": nowDirPath
-        })
-        # まず何回親に行けばいいか計算
-        n = 0
-        path = nowDirPath
-        while True:
-            if path.stem == targetDir:
-                break
-            path = path.parent
-            n += 1
-        # 回数分の../を返す
+        n = TypeScriptFormatGenerator.calculateAncestorDistance(filePath, targetDir)
         ret =  "../" * n
         return ret[:-1]
-    
+
     @staticmethod
     def createRelativePath(basePath: Path, targetPath: Path) -> str:
         """
         basePathから見たtargetPathの相対パスを計算する
         """
-        relativePath = targetPath.relative_to(basePath.parent)
+        state = "正常"
+        try:
+            relativePath = targetPath.relative_to(basePath)
+        except ValueError:
+            # targetPath が basePath のサブパスでない場合の処理
+            state = "targetPath が basePath のサブパスでない"
+            basePath = basePath.resolve()
+            targetPath = targetPath.resolve()
+            
+            # 共通の親ディレクトリを見つける
+            commonPath =  ExtendFunc.getCommnonAncestorPath(str(basePath), str(targetPath))
+            # 共通の親ディレクトリからのtargetPathの相対パスを計算
+            relativePath = targetPath.relative_to(commonPath)
+            # basePathから共通の親ディレクトリまで何回戻ればいいか計算
+            n = TypeScriptFormatGenerator.calculateAncestorDistance(basePath, commonPath.stem)
+            relativePath = Path("../" * n) / relativePath
+            ExtendFunc.ExtendPrint(relativePath)
+
+
         relativePathStr = str(relativePath).replace("\\", "/")
-        if not relativePathStr.startswith("../"):
+        if not relativePathStr.startswith("../") and not relativePathStr.startswith("./"):
             relativePathStr = "./" + relativePathStr
+
+        ExtendFunc.ExtendPrint([{
+            "basePath": str(basePath),
+            "targetPath": str(targetPath),
+        },{
+            "relativePath": relativePathStr
+        }], state)
         return relativePathStr
     
 

@@ -1,7 +1,4 @@
 {
     "eslint.workingDirectories": ["./app-ts"],
-    "python.analysis.extraPaths": [
-        "./api/comment_reciver"
-    ],
     "typescript.tsserver.experimental.enableProjectDiagnostics": true
 }

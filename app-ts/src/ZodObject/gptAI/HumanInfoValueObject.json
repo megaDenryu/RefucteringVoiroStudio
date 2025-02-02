@@ -1,0 +1,13 @@
+{
+    "properties": {
+        "folder_name": {
+            "title": "Folder Name",
+            "type": "string"
+        }
+    },
+    "required": [
+        "folder_name"
+    ],
+    "title": "HumanImage",
+    "type": "object"
+}

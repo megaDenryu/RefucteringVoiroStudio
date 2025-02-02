@@ -1,6 +1,6 @@
-import { TTSSoftware, CharacterName, HumanImage, VoiceMode, AllHumanInformationDict } from "../../ValueObject/Character";
-import { CharaSelectFunction } from "./CharaInfoSelecter";
-import { IAllHumanInformationDict } from "./ICharacterInfo";
+import { TTSSoftware, CharacterName, HumanImage, VoiceMode, AllHumanInformationDict, CharacterSettingSaveDatas } from "../../ValueObject/Character";
+import { CharaSelectFeature } from "./CharaInfoSelecter";
+import { IAllHumanInformationDict, ICharacterSettingSaveDatas } from "./ICharacterInfo";
 
 import "./CharaInfoSelecter.css";
 import { HumanTab } from "../HumanDisplay/HumanWindow";
@@ -14,7 +14,7 @@ interface CharaInfoResponse {
 }
 
 
-export class CharaSelectFunctionCreater {
+export class CharaSelectFeaureCreater {
     /**
      * キャラクター選択関数を作成する
      * 手順
@@ -34,6 +34,7 @@ export class CharaSelectFunctionCreater {
     characterNamesDict: Record<TTSSoftware, CharacterName[]>;
     humanImagesDict: VoMap<CharacterName, HumanImage[]>;
     voiceModesDict: VoMap<CharacterName, VoiceMode[]>;
+    characterSettingSaveDatas: CharacterSettingSaveDatas
     humanTab: HumanTab;
 
     get apiURLTest() {
@@ -88,13 +89,15 @@ export class CharaSelectFunctionCreater {
         this.characterNamesDict = this.allHumanInformationDict.getCharacterNamesDict();
         this.humanImagesDict = this.allHumanInformationDict.getHumanImagesDict();
         this.voiceModesDict = this.allHumanInformationDict.getVoiceModesDict();
+        this.characterSettingSaveDatas = this.allHumanInformationDict.characterSettingSaveDatas
     }
 
-    createCharaSelectFunction(): CharaSelectFunction {
-        const charaSelectFunction = new CharaSelectFunction(
+    createCharaSelectFunction(): CharaSelectFeature {
+        const charaSelectFunction = new CharaSelectFeature(
             this.characterNamesDict,
             this.humanImagesDict,
             this.voiceModesDict,
+            this.characterSettingSaveDatas,
             this.humanTab
         );
         return charaSelectFunction;
@@ -113,7 +116,7 @@ export class CharaSelectFunctionCreater {
     }
 
     static async init(element: HTMLElement, humanTab: HumanTab) {
-        const charaSelectFunctionCreater = new CharaSelectFunctionCreater(humanTab);
+        const charaSelectFunctionCreater = new CharaSelectFeaureCreater(humanTab);
         await charaSelectFunctionCreater.requestAllCharaInfo();
         if (charaSelectFunctionCreater.humanTab.characterModeState) {
             const charaSelectFunction = charaSelectFunctionCreater.createCharaModeChangeFunction(
