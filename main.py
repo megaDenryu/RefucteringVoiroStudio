@@ -909,7 +909,7 @@ async def cevioAICharacterSetting(req: CevioAICharacterSettingSaveModelReq):
         cevio.setTalker2V40(req.cevioAICharacterSettingModel.voiceSetting.talker2V40)
         cevio.setComponents(req.cevioAICharacterSettingModel.voiceSetting.talkerComponentArray2)
         CevioAICharacterSettingCollectionOperator.singleton().save(req.cevioAICharacterSettingModel)
-        return {"message": "CevioAICharacterSettingを保存しました"}
+        return json.dumps({"message": "CevioAICharacterSettingを保存しました"})
     
 @app.post("/AIVoiceCharacterSetting")
 async def aiVoiceCharacterSetting(req: AIVoiceCharacterSettingSaveModelReq):
@@ -922,7 +922,7 @@ async def aiVoiceCharacterSetting(req: AIVoiceCharacterSettingSaveModelReq):
     if isinstance(aiVoice, AIVoiceHuman):
         # aiVoice.setVoiceSetting(req.aiVoiceCharacterSettingModel.voiceSetting)
         AIVoiceCharacterSettingCollectionOperator.singleton().save(req.aiVoiceCharacterSettingSaveModel)
-        return {"message": "AIVoiceCharacterSettingを保存しました"}
+        return json.dumps({"message": "AIVoiceCharacterSettingを保存しました"})
     
 @app.post("/VoiceVoxCharacterSetting")
 async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
@@ -935,7 +935,7 @@ async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
     if isinstance(voiceVox, voicevox_human):
         voiceVox.setVoiceSetting(req.voiceVoxCharacterSettingModel.voiceSetting)
         VoiceVoxCharacterSettingCollectionOperator.singleton().save(req.voiceVoxCharacterSettingModel)
-        return {"message": "VoiceVoxVoiceSettingを保存しました"}
+        return json.dumps({"message": "VoiceVoxCharacterSettingを保存しました"})
     
 @app.post("/CoeiroinkCharacterSetting")
 async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
@@ -948,7 +948,7 @@ async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
     if isinstance(coeiroink, Coeiroink):
         coeiroink.setVoiceSetting(req.coeiroinkCharacterSettingModel.voiceSetting)
         CoeiroinkCharacterSettingCollectionOperator.singleton().save(req.coeiroinkCharacterSettingModel)
-        return {"message": "CoeiroinkCharacterSettingを保存しました"}
+        return json.dumps({"message": "CoeiroinkCharacterSettingを保存しました"})
 
 
 

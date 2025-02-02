@@ -1,13 +1,13 @@
 {
     "collection": [
         {
-            "saveID": "b694776c-8ad2-462c-b09e-e5aad0253b5a",
+            "saveID": "359cfd2d-4203-458f-8a3c-e1c1fbd52d1b",
             "characterInfo": {
                 "characterName": {
-                    "name": "幌呂めぐる"
+                    "name": "ずんだもん"
                 },
                 "nickName": {
-                    "name": "ノーマル"
+                    "name": "ずんだもんだ"
                 },
                 "humanImage": {
                     "folder_name": "新規作成"
@@ -30,12 +30,12 @@
                 }
             },
             "voiceSetting": {
-                "speedScale": 1.14,
-                "pitchScale": 0.01,
-                "intonationScale": 1.77,
-                "volumeScale": 2.0,
-                "読み上げ間隔": 0.98,
-                "AIによる文章変換": "無効"
+                "speedScale": 1.83,
+                "pitchScale": -0.1,
+                "intonationScale": 1.07,
+                "volumeScale": 0.63,
+                "読み上げ間隔": 0.0,
+                "AIによる文章変換": "ChatGPT"
             }
         }
     ]

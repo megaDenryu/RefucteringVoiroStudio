@@ -88,9 +88,7 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IOpenCloseWindo
   private saveAllSettings() {
     // セーブデータの状態を更新する
     const updatedSettings = this._manageDataSettingComponent.getValue();
-    console.log(updatedSettings);
     this.manageData = updatedSettings;
-
     // セーブデータを送信する
     this.sendSettings(updatedSettings);
   }

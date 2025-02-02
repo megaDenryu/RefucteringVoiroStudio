@@ -90,28 +90,19 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
     //セーブをオブジェクトインプットコンポーネントに,dartyになったときにセーブを実行するように登録
     this._manageDataSettingComponent.addOnDartyEvent(() => {
       this._manageDataSettingComponent.save();
-      this.saveAllSettings("VoiceVoxVoiceSetting");
-      console.log("セーブした");
+      this.saveAllSettings();
     });
   }
 
-  private saveAllSettings(url: string) {
+  private saveAllSettings() {
     // セーブデータの状態を更新する
     const updatedSettings = this._manageDataSettingComponent.getValue();
-    console.log(updatedSettings);
     this.manageData = updatedSettings;
     // セーブデータを送信する
-    this.sendSettings(updatedSettings, url);
+    this.sendSettings(updatedSettings);
   }
 
-  private sendSettings(settings: VoiceVoxVoiceSettingModel, url: string) {
-    const settingsReq: VoiceVoxVoiceSettingModelReq = {
-      page_mode: this._reqInfo.page_mode,
-      client_id: this._reqInfo.client_id,
-      character_id: this._reqInfo.character_id,
-      voiceVoxVoiceSettingModel: settings,
-    };
-    // セーブデータを送信するロジックをここに記述
+  private sendSettings(settings: VoiceVoxVoiceSettingModel) {
     this.settingSaver.saveVoiceSetting(settings);
   }
 
@@ -121,7 +112,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
       recordPath,
       value
     );
-    this.sendSettings(this.manageData, "VoiceVoxVoiceSetting");
+    this.sendSettings(this.manageData);
   }
 
   public オブジェクトデータの特定の子要素の配列から特定番号を削除する(recordPath: RecordPath): void {
@@ -129,7 +120,7 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IOpenCloseWindow
       this,
       recordPath
     );
-    this.sendSettings(this.manageData, "VoiceVoxVoiceSetting");
+    this.sendSettings(this.manageData);
   }
 
   public isOpen(): boolean {

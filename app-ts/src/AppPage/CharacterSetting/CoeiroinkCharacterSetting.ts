@@ -59,7 +59,8 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
             character_id: this.req.character_id,
             coeiroinkCharacterSettingModel: saveData
         }
-        RequestAPI.postRequest("CoeiroinkCharacterSetting", saveDataReq);
+        const res = RequestAPI.postRequest("CoeiroinkCharacterSetting", saveDataReq);
+        console.log(res);
     }
 
     public isOpen(): boolean {

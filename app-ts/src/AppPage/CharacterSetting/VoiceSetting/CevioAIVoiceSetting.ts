@@ -96,7 +96,6 @@ export class CevioAIVoiceSetting implements IComponentManager, IOpenCloseWindow,
     // セーブデータの状態を更新する
     const updatedSettings = this._manageDataSettingComponent.getValue();
     this.manageData = updatedSettings;
-
     // セーブデータを送信する
     this.sendSettings(updatedSettings);
   }
