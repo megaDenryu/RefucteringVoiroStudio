@@ -1,11 +1,6 @@
-
-
-
 from pydantic import BaseModel, Field
 
 from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISentenceConverter
-
-
 
 class CoeiroinkVoiceSettingModel(BaseModel):
     speedScale: float = Field(ge=0.5, le=2.0, default=1.0)

@@ -1,0 +1,42 @@
+{
+    "collection": [
+        {
+            "saveID": "b694776c-8ad2-462c-b09e-e5aad0253b5a",
+            "characterInfo": {
+                "characterName": {
+                    "name": "幌呂めぐる"
+                },
+                "nickName": {
+                    "name": "ノーマル"
+                },
+                "humanImage": {
+                    "folder_name": "新規作成"
+                },
+                "aiSetting": {
+                    "名前": "",
+                    "年齢": 0,
+                    "性別": "",
+                    "背景情報": "",
+                    "役割": "",
+                    "動機": "",
+                    "アリバイ": "",
+                    "性格特性": "",
+                    "関係": [],
+                    "秘密": "",
+                    "知っている情報": "",
+                    "外見の特徴": "",
+                    "所持品": [],
+                    "行動パターン": []
+                }
+            },
+            "voiceSetting": {
+                "speedScale": 1.86,
+                "pitchScale": 0.01,
+                "intonationScale": 1.77,
+                "volumeScale": 2.0,
+                "読み上げ間隔": 0.98,
+                "AIによる文章変換": "無効"
+            }
+        }
+    ]
+}
