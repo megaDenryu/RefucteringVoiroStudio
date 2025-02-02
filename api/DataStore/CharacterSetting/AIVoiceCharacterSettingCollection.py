@@ -38,14 +38,23 @@ class AIVoiceCharacterSettingCollectionOperator():
     
     def add(self, setting: AIVoiceCharacterSettingSaveModel):
         self.collection.collection.append(setting)
-        self.saveAll(self.collection)
     
     def remove(self, saveID: str):
         self.collection.collection = [x for x in self.collection.collection if x.saveID != saveID]
-        self.saveAll(self.collection)
 
     def getByNickName(self, nickName:NickName)->list[AIVoiceCharacterSettingSaveModel]:
         return [x for x in self.collection.collection if x.characterInfo.nickName == nickName]
     
     def getBySaveID(self, saveID: str)->list[AIVoiceCharacterSettingSaveModel]:
         return [x for x in self.collection.collection if x.saveID == saveID]
+    
+    def save(self, data:AIVoiceCharacterSettingSaveModel):
+        """
+        dataが既に存在する場合は更新、存在しない場合は追加して保存します。
+        """
+        if len(self.getBySaveID(data.saveID)) == 0:
+            self.add(data)
+        else:
+            self.remove(data.saveID)
+            self.add(data)
+        self.saveAll(self.collection)
