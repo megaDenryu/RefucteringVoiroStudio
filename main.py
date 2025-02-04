@@ -869,7 +869,7 @@ async def saveSetting(saveSettingReq: AppSettingsModel):
         ExtendFunc.ExtendPrint(saveSettingReq)
         JsonAccessor.saveAppSettingTest(saveSettingReq)
         # 処理ロジック
-        return {"message": "設定を保存しました"}
+        return json.dumps({"message": "設定を保存しました"})
     except Exception as e:
         logger.error(f"Error in /SaveSetting: {e}")
         return JSONResponse(status_code=500, content={"message": "Internal Server Error"})

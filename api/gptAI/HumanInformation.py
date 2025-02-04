@@ -7,6 +7,7 @@ from pydantic import BaseModel, ValidationError
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollection, AIVoiceCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import CevioAICharacterSettingCollection, CevioAICharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
+from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollection, CoeiroinkCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollection, VoiceVoxCharacterSettingCollectionOperator
@@ -16,7 +17,7 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSetti
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel, Map
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NickName, TTSSoftware, VoiceMode, TTSSoftwareType
+from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NickName, TTSSoftware, VoiceMode, TTSSoftwareType, CharacterId, CharacterSaveId
 from api.gptAI.VoiceController import IVoiceState, VoiceState
 from api.images.image_manager.HumanPart import HumanPart
 
@@ -446,9 +447,7 @@ class AllHumanInformationDict(BaseModel):
         data = ExtendFunc.loadJsonToDict(path)
         return AllHumanInformationDict(**data)
 
-CharacterId: TypeAlias = str
-# CharacterId = NewType('CharacterId', str)
-CharacterSaveId: TypeAlias = str
+
 
 
 class ICharacterModeState(TypedDict):
@@ -494,7 +493,7 @@ class CharacterModeState(HashableBaseModel):
             tts_software = manager.chara_names_manager.getTTSSoftware(chara_name)
             human_image = manager.human_images.getDefaultHumanImage(chara_name)
             voice_mode = manager.CharaNames2VoiceModeDict_manager.getVoiceMode(chara_name)
-            save_id = getSaveIdFromNickName(tts_software,front_name) # ニックネームでセーブデータを検索し、最初のほうのＩＤを取得
+            save_id = CharacterSettingCollectionOperatorManager.getSaveIdFromNickName(tts_software,front_name) # ニックネームでセーブデータを検索し、最初のほうのＩＤを取得。ただしセーブデータが存在しない場合は
             try:
                 mode = CharacterModeState(id = uuid4().__str__(), save_id= save_id, tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode, voice_state=VoiceState.empty(), front_name=front_name)
                 mode.front_name = front_name

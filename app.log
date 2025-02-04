@@ -711,3 +711,4 @@
 2025-02-02 19:52:57,317 - main - ERROR - Unhandled exception: Error serializing to JSON: TypeError: 'mappingproxy' object cannot be converted to 'PyDict'
 2025-02-02 19:52:57,454 - main - ERROR - Unhandled exception: Error serializing to JSON: TypeError: 'mappingproxy' object cannot be converted to 'PyDict'
 2025-02-02 19:52:57,462 - main - ERROR - Unhandled exception: Error serializing to JSON: TypeError: 'mappingproxy' object cannot be converted to 'PyDict'
+2025-02-05 02:27:34,868 - main - ERROR - Unhandled exception: デフォルトが存在しない場合について検討（画像がないなど）
