@@ -16,6 +16,7 @@ import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
 import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Character";
 import { ICharacterModeState, ICharacterModeStateReq } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { GPTModeReq, GptMode } from "../../ZodObject/gptAI/GPTMode";
+import { json } from "stream/consumers";
 
 // const { promises } = require("fs");
 
@@ -455,7 +456,7 @@ function receiveMessage(event) {
     console.log("human_listに追加:"+body_parts["char_name"])
         
     try{
-        GlobalState.humans_list[characterModeState.id] = new HumanBodyManager2(body_parts,characterModeState);
+        GlobalState.humans_list[characterModeState.id] = new HumanBodyManager2(body_parts, characterModeState);
     } catch (e) {
         console.log(e)
         console.log("human_listに追加失敗:"+body_parts["char_name"])
@@ -709,16 +710,23 @@ async function processMessages() {
 }            
 
 
+export interface InputNickNameSendData {
+    nick_name: NickName;
+    characterId: CharacterId;
+}
 
-
-export function sendHumanName(nick_name:NickName) {
+export function sendHumanName(nick_name:NickName, characterId: CharacterId) {
     if (GlobalState.human_ws.readyState !== WebSocket.OPEN) {
         humanWsOpen();
         GlobalState.human_ws.onopen = function(e) {
             GlobalState.human_ws.send(nick_name.name);
         };
     }
-    GlobalState.human_ws.send(nick_name.name);
+    const data:InputNickNameSendData = {
+        "nick_name": nick_name,
+        "characterId": characterId
+    }
+    GlobalState.human_ws.send(JSON.stringify(data));
 }
 
 function changeMargin(){
@@ -1183,7 +1191,8 @@ export class HumanBodyManager2 {
             resolve();
         })
         promise_setBodyParts2Elm.then(() => {
-            this.human_window = document.getElementsByClassName(`${this.characterId}`)[0];
+            // this.human_window = document.getElementsByClassName(`${this.characterId}`)[0];
+            console.log("human_windowを取得しました",this.human_window)
             this.human_images = this.human_window.getElementsByClassName("human_images")[0];
             //画像をドラッグで動かせるようにする
             addMoveImageEvent(this.human_images,this);
@@ -3226,6 +3235,7 @@ export class DragDropFile{
                     formData.append('filename', file.name);
                     formData.append("response_mode", response_mode)
                     formData.append("front_name", this.target_voiceroid_front_name)
+                    formData.append("characterId", this.humanTab.characterId)
 
                     console.log(`response_mode: ${response_mode}`)
 
@@ -3239,7 +3249,6 @@ export class DragDropFile{
                         .then(json => {
                             const charaCreateData:CharaCreateData = json;
                             this.humanTab.createHuman(charaCreateData);
-
                         })
                         .catch(error => console.error(error));
                     } else if (response_mode == "FrontName_noNeedBodyParts") {
@@ -3264,8 +3273,8 @@ export class DragDropFile{
                         .then(response => response.json())
                         .then(json => {
                             const charaCreateData:CharaCreateData = json;
+                            this.humanTab.registerHumanInfo(new NickName(charaCreateData.characterModeState.front_name));
                             this.humanTab.createHuman(charaCreateData);
-
                         })
                         .catch(error => console.error(error));
                     }

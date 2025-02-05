@@ -480,7 +480,7 @@ class CharacterModeState(HashableBaseModel):
         return self.id == o.id
     
     @staticmethod
-    def newFromFrontName(front_name: str) -> "CharacterModeState":
+    def newFromFrontName(front_name: str, characterId: CharacterId) -> "CharacterModeState":
         #ニックネームからキャラクターを生成する
         manager = AllHumanInformationManager.singleton()
         try:
@@ -495,7 +495,7 @@ class CharacterModeState(HashableBaseModel):
             voice_mode = manager.CharaNames2VoiceModeDict_manager.getVoiceMode(chara_name)
             save_id = CharacterSettingCollectionOperatorManager.getSaveIdFromNickName(tts_software,front_name) # ニックネームでセーブデータを検索し、最初のほうのＩＤを取得。ただしセーブデータが存在しない場合は
             try:
-                mode = CharacterModeState(id = uuid4().__str__(), save_id= save_id, tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode, voice_state=VoiceState.empty(), front_name=front_name)
+                mode = CharacterModeState(id =characterId, save_id= save_id, tts_software=tts_software, character_name=chara_name, human_image=human_image, voice_mode=voice_mode, voice_state=VoiceState.empty(), front_name=front_name)
                 mode.front_name = front_name
                 ExtendFunc.ExtendPrintWithTitle("キャラクターモード", mode)
                 return mode

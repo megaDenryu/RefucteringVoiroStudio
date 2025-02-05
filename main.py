@@ -29,6 +29,7 @@ from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSo
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.GPTMode import GPTModeReq, GptMode
+from api.gptAI.HumanInfoValueObject import NickName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
 from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
 from api.gptAI.gpt import ChatGPT
@@ -501,7 +502,9 @@ async def inputPokemon(websocket: WebSocket):
         # 切れたセッションの削除
         notifier.remove(websocket)
 
-
+class InputNickNameSendData(BaseModel):
+    nick_name: NickName
+    characterId: CharacterId
 
 @app.websocket("/human/{client_id}")
 async def human_pict(websocket: WebSocket, client_id: str):
@@ -516,14 +519,14 @@ async def human_pict(websocket: WebSocket, client_id: str):
         while True:
             print("データ受け取り開始！")
             # クライアントからキャラクター名のメッセージの受け取り
-            name_data = await websocket.receive_text()
-            ExtendFunc.ExtendPrint("human:" + name_data)
-            
-            if Human.setCharName(name_data) == "":
+            data = json.loads(await websocket.receive_text())
+            ExtendFunc.ExtendPrint(data)
+            inputNickNameSendData:InputNickNameSendData = InputNickNameSendData(**data)
+            if Human.setCharName(inputNickNameSendData.nick_name.name) == "":
                 print("キャラ名が無効です")
                 await websocket.send_json(json.dumps("キャラ名が無効です"))
                 continue
-            chara_mode_state = CharacterModeState.newFromFrontName(name_data)
+            chara_mode_state = CharacterModeState.newFromFrontName(inputNickNameSendData.nick_name.name,inputNickNameSendData.characterId)
             #キャラ立ち絵のパーツを全部送信する。エラーがあったらエラーを返す
             try:
                 tmp_human = inastanceManager.humanInstances.createHuman(chara_mode_state)
@@ -577,7 +580,8 @@ async def parserPsdFile(
     file: UploadFile = File(...), 
     filename: str = Form(...), 
     response_mode: ResponseMode = Form(...), 
-    front_name: str = Form(...)
+    front_name: str = Form(...),
+    characterId: CharacterId = Form(...)
 ):
     
     file_contents = await file.read()
@@ -615,16 +619,15 @@ async def parserPsdFile(
             image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, chara_name.name ,folder)
             charaCreateData:CharaCreateData = {
                 "humanData":image_data_for_client,
-                "characterModeState":CharacterModeState.newFromFrontName(chara_name.name).toDict()
+                "characterModeState":CharacterModeState.newFromFrontName(chara_name.name,characterId).toDict()
             }
         else:
             ExtendFunc.ExtendPrint(f"{front_name=}")
             image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, front_name ,folder)
             charaCreateData:CharaCreateData = {
                 "humanData":image_data_for_client,
-                "characterModeState":CharacterModeState.newFromFrontName(front_name).toDict()
+                "characterModeState":CharacterModeState.newFromFrontName(front_name,characterId).toDict()
             }
-        
         return charaCreateData
         
     
