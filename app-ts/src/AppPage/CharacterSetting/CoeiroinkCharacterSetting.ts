@@ -37,7 +37,7 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         this.req = req;
         this._characterSaveData = characterSaveData;
         this.component = this._squareBoardComponent.component;
-        this._closeButton = new NormalButton("閉じる", "warning");
+        this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(this.close.bind(this));
         this.voiceSetting = createCoeiroinkVoiceSetting(req.character_id, characterSaveData.voiceSetting, this);
         this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
         this.initialize();

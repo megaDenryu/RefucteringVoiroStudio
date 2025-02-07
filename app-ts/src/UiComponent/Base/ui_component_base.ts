@@ -86,6 +86,42 @@ export class ElementCreater {
         return selectElement;
     }
 
+    /**
+     * リストを受け取ってHTMLSelectElementを返す関数。
+     * @param {Array<{ text: string, dataset: Record<string, string> }>} options - セレクトボックスのオプションとして使用するオブジェクトの配列。
+     * @param {number | null} [size = null] - セレクトボックスのサイズ。nullの場合は指定しない。
+     * @param {string | null} [selectedValue = null] - 初期値として選択するオプションの値。nullの場合は指定しない。
+     * @return {HTMLSelectElement} - 生成されたHTMLSelectElement。
+     */
+    static createSelectElementWithDataset(
+        options: { text: string, dataset: Record<string, string> }[],
+        size: number | null = null,
+        selectedValue: string | null = null
+    ): HTMLSelectElement {
+        let selectElement = document.createElement('select');
+
+        options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.text;
+            optionElement.textContent = option.text;
+
+            // datasetを設定
+            Object.keys(option.dataset).forEach(key => {
+                optionElement.dataset[key] = option.dataset[key];
+            });
+
+            if (selectedValue !== null && option.text === selectedValue) {
+                optionElement.selected = true;
+            }
+            selectElement.appendChild(optionElement);
+        });
+
+        if (size != null) {
+            selectElement.size = size;
+        }
+        return selectElement;
+    }
+
     static createButtonElement(text: string, onClick: () => void): HTMLButtonElement {
         const buttonElement = document.createElement('button');
         buttonElement.textContent = text;
@@ -290,16 +326,26 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         this.removeCSSClass(["positionRelative"]);
     }
 
-    get isShow():boolean {
-        return this.element.style.display === 'block';
+    get isShow(): boolean {
+        const style = window.getComputedStyle(this.element);
+        return (
+            style.display !== 'none' &&
+            style.visibility !== 'hidden' &&
+            style.opacity !== '0' &&
+            document.body.contains(this.element)
+        );
     }
-
+    
     show(): void {
         this.element.style.display = 'block';
+        this.element.style.visibility = 'visible';
+        this.element.style.opacity = '1';
     }
-
+    
     hide(): void {
         this.element.style.display = 'none';
+        this.element.style.visibility = 'hidden';
+        this.element.style.opacity = '0';
     }
 
     setZIndex(zIndex: number): void {

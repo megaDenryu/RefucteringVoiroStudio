@@ -35,7 +35,7 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
         this.req = req;
         this._characterSaveData = characterSaveData;
         this.component = this._squareBoardComponent.component;
-        this._closeButton = new NormalButton("閉じる", "warning");
+        this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(() => {this.close()});
         this.voiceSetting = createAIVoiceVoiceSetting(req.character_id, characterSaveData.voiceSetting, this);
         this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
         this.initialize();

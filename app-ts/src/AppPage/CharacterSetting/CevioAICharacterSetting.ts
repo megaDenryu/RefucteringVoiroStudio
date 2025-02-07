@@ -37,7 +37,7 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
             this.req = req;
             this._characterSaveData = characterSaveData;
             this.component = this._squareBoardComponent.component;
-            this._closeButton = new NormalButton("閉じる", "warning");
+            this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(() => {this.close()});
             this.voiceSetting = createCevioAIVoiceSetting(req.character_id, characterSaveData, this);
             this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
             this.initialize();
@@ -68,7 +68,6 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
     
         public open(): void {
             this._squareBoardComponent.component.show();
-            console.log(this.component.element)
         }
     
         public close(): void {
@@ -85,7 +84,6 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
             this.voiceSetting.component.setAsChildComponent();
             this.characterInfoSetting.component.setAsChildComponent();
             this._squareBoardComponent.addComponentToHeader(this._closeButton);
-            this._closeButton.addOnClickEvent(() => {this.close()});
             this.component.setAsParentComponent();
             this.component.createArrowBetweenComponents(this, this.voiceSetting);
             this.component.createArrowBetweenComponents(this, this.characterInfoSetting);

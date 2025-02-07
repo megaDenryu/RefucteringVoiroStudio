@@ -36,7 +36,7 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
         this.req = req;
         this._characterSaveData = characterSaveData;
         this.component = this._squareBoardComponent.component;
-        this._closeButton = new NormalButton("閉じる", "warning");
+        this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(this.close.bind(this));
         this.voiceSetting = createVoiceVoxVoiceSetting(req.character_id, characterSaveData, this);
         this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
         this.initialize();
@@ -70,6 +70,7 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
     }
 
     public close(): void {
+        console.log("close");
         this._squareBoardComponent.component.hide();
     }
 

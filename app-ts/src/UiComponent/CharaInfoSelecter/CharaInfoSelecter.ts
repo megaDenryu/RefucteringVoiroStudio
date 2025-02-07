@@ -414,6 +414,15 @@ export interface ICharacterSettingSaveModel<T extends VoiceSettingModel> {
     voiceSetting?: T;
 }
 
+export type SaveDataSelecterOptionDataset = {
+    saveID: CharacterSaveId;
+}
+
+export type SaveDataSelecterOption = {
+    text: string;
+    dataset: SaveDataSelecterOptionDataset;
+}
+
 export class CharacterSettingSaveDataSelecter<T extends VoiceSettingModel> implements IHasComponent {
     component: BaseComponent;
     public readonly characterName: CharacterName;
@@ -436,10 +445,19 @@ export class CharacterSettingSaveDataSelecter<T extends VoiceSettingModel> imple
         this.ttsSoftware = ttsSoftware;
         this.characterSettingSaveModelList = characterSettingSaveModelList;
         this.selectedSaveID = new ReactiveProperty<CharacterSaveId>(characterSettingSaveModelList[0].saveID);
+        const selecterOptions: SaveDataSelecterOption[] = characterSettingSaveModelList.map(
+            saveModel => ({"text":saveModel.characterInfo.nickName.name, "dataset":{"saveID":saveModel.saveID}})
+        );
+        const HTMLElementInput = ElementCreater.createSelectElementWithDataset(
+            selecterOptions, 
+            this.calcBoxSize(), 
+            characterSettingSaveModelList[0].saveID
+        );
 
-        const HTMLElementInput = ElementCreater.createSelectElement(characterSettingSaveModelList.map(saveModel => saveModel.characterInfo.nickName.name), this.calcBoxSize(), characterSettingSaveModelList[0].saveID);
+
         HTMLElementInput.addEventListener('change', (event) => {
-            const inputSaveID:CharacterSaveId = (event.target as HTMLSelectElement).value;
+            const selectedOptionDataset:SaveDataSelecterOptionDataset = (event.target as HTMLSelectElement).selectedOptions[0].dataset as SaveDataSelecterOptionDataset;
+            const inputSaveID: CharacterSaveId = selectedOptionDataset.saveID as CharacterSaveId;
             this.selectedSaveID.set(inputSaveID);
         });
         this.component = new BaseComponent(HTMLElementInput);
