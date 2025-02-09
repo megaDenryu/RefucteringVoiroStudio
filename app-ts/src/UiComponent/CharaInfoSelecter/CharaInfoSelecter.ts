@@ -21,13 +21,14 @@ import { createCharacterVoiceSetting } from "../../AppPage/CharacterSetting/Char
 import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceSettingModel";
 import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { GlobalState } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
+import { simulateSelectValueChange } from "../../Extend/ExtendElement/ExtendHTMLSelectElement";
+import { clickSimulate, ISelecterComponent, ISelecterComponentProxy } from "../Base/SelecterComponent/ISelecterComponent";
 
-
-
-export class TTSSoftwareSelecter implements IHasComponent {
+export class TTSSoftwareSelecter implements ISelecterComponent {
     public readonly component: BaseComponent;
     private readonly _selectedSoftware:ReactiveProperty<TTSSoftware>;
     public get selectedSoftware(): TTSSoftware { return this._selectedSoftware.get(); }
+    public get selectElement(): HTMLSelectElement { return this.component.element as HTMLSelectElement; }
 
     constructor(defaultTTSSoftware: TTSSoftware) {
         this._selectedSoftware = new ReactiveProperty<TTSSoftware>(defaultTTSSoftware);
@@ -57,7 +58,6 @@ export class TTSSoftwareSelecter implements IHasComponent {
 
     defineBehavior(ttsSoftware: TTSSoftware): void {
         this.changeTTSSoftwareCssClas(ttsSoftware); //cevioが選択されたらcevioのcssクラスを追加して他のTTSソフトのcssクラスを削除する
-
     }
 
     changeTTSSoftwareCssClas(ttsSoftware: TTSSoftware): void {
@@ -66,19 +66,23 @@ export class TTSSoftwareSelecter implements IHasComponent {
         for (const software of remove_list) {
             this.component.removeCSSClass(software);
         }
-
     }
 
     delete(): void {
         this.component.delete();
     }
+
+    clickSimulate(tts_software: TTSSoftware): void {
+        clickSimulate(this, tts_software);
+    }
 }
 
-export class CharacterNameSelecter implements IHasComponent {
+export class CharacterNameSelecter implements ISelecterComponent {
     public readonly component: BaseComponent;
     public readonly ttsSoftware: TTSSoftware;
     private readonly characterNames: CharacterName[];
     private readonly selectedCharacterName:ReactiveProperty<CharacterName>;
+    public get selectElement(): HTMLSelectElement { return this.component.element as HTMLSelectElement; }
 
     constructor(ttsSoftware: TTSSoftware, characterNames: CharacterName[]) {
         this.ttsSoftware = ttsSoftware;
@@ -113,9 +117,13 @@ export class CharacterNameSelecter implements IHasComponent {
     delete(): void {
         this.component.delete();
     }
+
+    public clickSimulate(character_name: CharacterName): void {
+        clickSimulate(this, character_name.name);
+    }
 }
 
-export class CompositeCharacterNameSelecter implements IHasComponent {
+export class CompositeCharacterNameSelecter implements ISelecterComponentProxy {
     public readonly component: BaseComponent;
     private readonly characterNamesDict: Record<TTSSoftware, CharacterName[]>;
     private readonly characterNameSelecterDict: Record<TTSSoftware, CharacterNameSelecter>;
@@ -186,14 +194,20 @@ export class CompositeCharacterNameSelecter implements IHasComponent {
     delete(): void {
         this.component.delete();
     }
+
+    public clickSimulate(value:{tts_software: TTSSoftware, chara_name: CharacterName}): void {
+        const selecter = this.characterNameSelecterDict[value.tts_software];
+        selecter.clickSimulate(value.chara_name);
+    }
 }
 
-export class HumanImageSelecter implements IHasComponent {
+export class HumanImageSelecter implements ISelecterComponent {
     //人間の画像が選択されたときは何を実行するんだ？決定ボタンを表示する？そもそもダブルクリックでもいいのでは？特にイベントは今のところ考えていない
 
     public readonly component: BaseComponent;
     private readonly _humanImages: HumanImage[];
     private readonly _selectedHumanImage: ReactiveProperty<HumanImage>;
+    public get selectElement(): HTMLSelectElement { return this.component.element as HTMLSelectElement; }
 
     constructor(humanImages: HumanImage[], defaultHumanImage: HumanImage = humanImages[0]??null) {
         this._humanImages = humanImages;
@@ -227,9 +241,12 @@ export class HumanImageSelecter implements IHasComponent {
         this.component.delete();
     }
 
+    public clickSimulate(human_image: HumanImage): void {
+        clickSimulate(this, human_image.folder_name);
+    }
 }
 
-export class CompositeHumanImageSelecter implements IHasComponent {
+export class CompositeHumanImageSelecter implements ISelecterComponentProxy {
     public readonly component: BaseComponent;
     private readonly humanImagesDict: VoMap<CharacterName, HumanImage[]>;
     private readonly humanImageSelecterDict: VoMap<CharacterName, HumanImageSelecter>;
@@ -293,9 +310,14 @@ export class CompositeHumanImageSelecter implements IHasComponent {
     delete(): void {
         this.component.delete();
     }
+
+    public clickSimulate(value:{characterName:CharacterName, human_image:HumanImage}): void {
+        const selecter = this.humanImageSelecterDict.get(value.characterName) ?? (() => {throw new Error("HumanImageSelecterが見つかりませんでした")})();
+        selecter.clickSimulate(value.human_image);
+    }
 }
 
-export class VoicemodeSelecter implements IHasComponent {
+export class VoicemodeSelecter implements ISelecterComponent {
     /**
      * 音声モードを選択するセレクター
      * アクション１：一つのキャラクターの音声モードを選択するとコンポジットボイスモードセレクターに送られて、音声モードが変更される
@@ -309,6 +331,7 @@ export class VoicemodeSelecter implements IHasComponent {
     private readonly _VoiceModes: VoiceMode[];
     private readonly _selectedVoiceMode: ReactiveProperty<VoiceMode>;
     public get selectedVoiceMode(): VoiceMode { return this._selectedVoiceMode.get(); }
+    public get selectElement(): HTMLSelectElement { return this.component.element as HTMLSelectElement; }
 
     constructor(characterName: CharacterName, VoiceModes: VoiceMode[], defaultVoiceMode: VoiceMode = VoiceModes[0]??null) {
         this.characterName = characterName;
@@ -343,9 +366,13 @@ export class VoicemodeSelecter implements IHasComponent {
     delete(): void {
         this.component.delete();
     }
+
+    public clickSimulate(voice_mode: VoiceMode): void {
+        clickSimulate(this, voice_mode.mode);
+    }
 }
 
-export class CompositeVoiceModeSelecter implements IHasComponent {
+export class CompositeVoiceModeSelecter implements ISelecterComponentProxy {
     component: BaseComponent;
     public readonly selectedCharacterName: ReactiveProperty<CharacterName>;
     private _selectedVoiceMode: VoiceMode;
@@ -406,6 +433,11 @@ export class CompositeVoiceModeSelecter implements IHasComponent {
     delete(): void {
         this.component.delete();
     }
+
+    public clickSimulate(value:{character_name: CharacterName, voice_mode: VoiceMode}): void {
+        const selecter = this.voiceModeSelecterDict.get(value.character_name) ?? (() => {throw new Error("VoiceModeSelecterが見つかりませんでした")})();
+        selecter.clickSimulate(value.voice_mode);
+    }
 }
 
 export interface ICharacterSettingSaveModel<T extends VoiceSettingModel> {
@@ -423,12 +455,13 @@ export type SaveDataSelecterOption = {
     dataset: SaveDataSelecterOptionDataset;
 }
 
-export class CharacterSettingSaveDataSelecter<T extends VoiceSettingModel> implements IHasComponent {
+export class CharacterSettingSaveDataSelecter<T extends VoiceSettingModel> implements ISelecterComponent {
     component: BaseComponent;
     public readonly characterName: CharacterName;
     public readonly ttsSoftware: TTSSoftware;
     public readonly selectedSaveID: ReactiveProperty<CharacterSaveId>;
     public readonly characterSettingSaveModelList: ICharacterSettingSaveModel<T>[];
+    public get selectElement(): HTMLSelectElement { return this.component.element as HTMLSelectElement; }
 
     public get selectedCharacterSaveData(): ICharacterSettingSaveModel<T> {
         for (const data of this.characterSettingSaveModelList) {
@@ -478,13 +511,34 @@ export class CharacterSettingSaveDataSelecter<T extends VoiceSettingModel> imple
     private calcBoxSize(): number {
         return 8;
     }
+
+    public clickSimulate(saveID: CharacterSaveId): void {
+        //この関数は未検証
+        const selectElement = this.selectElement;
+        let found = false;
+        for (let i = 0; i < selectElement.options.length; i++) {
+            const option = selectElement.options[i];
+            // datasetに設定しているプロパティ名は大文字小文字がそのままになるため、 
+            // オプション作成時に {"saveID": value} としているなら dataset.saveID で取得可能です。
+            if (option.dataset.saveID === saveID) {
+                selectElement.selectedIndex = i;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            console.warn(`Option with dataset.saveID "${saveID}" not found.`);
+        }
+        const event = new Event('change', { bubbles: true });
+        selectElement.dispatchEvent(event);
+    }
 }
 
 export interface SelectCharacterInfo {
     ttsSoftware: TTSSoftware;
     characterName: CharacterName;
 }
-export class CompositeCharacterSettingSaveDataSelecter implements IHasComponent {
+export class CompositeCharacterSettingSaveDataSelecter implements ISelecterComponentProxy {
     component: BaseComponent;
     public readonly selectedCharacter: ReactiveProperty<SelectCharacterInfo>;
     private _characterSettingSaveData: CharacterSettingSaveDatas;
@@ -553,6 +607,12 @@ export class CompositeCharacterSettingSaveDataSelecter implements IHasComponent 
 
     public delete(): void {
         this.component.delete();
+    }
+
+    public clickSimulate(value:{tts_software: TTSSoftware, chara_name: CharacterName, save_id: CharacterSaveId}): void {
+        //この関数は未検証
+        const selecter = this.getSelecter({"ttsSoftware": value.tts_software, "characterName": value.chara_name}) ?? (() => {throw new Error("セーブデータが見つかりませんでした")})();
+        selecter.clickSimulate(value.save_id);
     }
 
     private セレクターの作成とバインド()  {
@@ -953,6 +1013,12 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         this.initSetChildElement();
         this.definitionBehavior();
         this.component.addCSSClass("CharaSelectFunction");
+
+        this.ttsSoftwareSelecter.clickSimulate(this.defaultTTSSoftWare);
+        this.compositeCharacterNameSelecter.clickSimulate({tts_software: this.defaultTTSSoftWare, chara_name: this.defaultCharacterName});
+        this.compositehumanImageSelecter.clickSimulate({characterName: this.defaultCharacterName, human_image: this.defaultHumanImage});
+        this.compositeVoiceModeSelecter.clickSimulate({character_name: this.defaultCharacterName, voice_mode: this.defaultVoiceMode});
+        //this.compositeCharacterSettingSaveDataSelecter は初期化時に選択されているので、ここではclickSimulateを呼び出さない
     }
 
     private initSetChildElement(): void {
