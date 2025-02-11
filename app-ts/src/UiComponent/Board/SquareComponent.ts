@@ -25,7 +25,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         additionalClassNames: string[] = [],
         customStyles: Partial<CSSStyleDeclaration> = {},
         id: string|null = null,
-        enableDrag: boolean = true
+        enableDrag: boolean = false
     ) {
         this._title = title;
         this.id = id ?? ExtendFunction.uuid();
