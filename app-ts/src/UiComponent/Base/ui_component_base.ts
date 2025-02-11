@@ -19,7 +19,7 @@ export class ElementCreater {
      * 良い例:
      * <div class="output_text">
      *      <p>おはよう</p>
-     * </div>'。
+     * </div>'
      * この場合output_textのdiv要素全体が返される。
      * 
      * ダメな例:
@@ -258,8 +258,7 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
             if (parentElement == null) {
                 // 親クラスが見つからなかった場合はコンソールにthis.elementを表示してエラーを出す
                 console.error(this.element);
-                throw new Error('Parent class not found.');
-                
+                throw new Error('Parent class not found.');   
             }
             if (index !== null && 0 <=index && index < parentElement.children.length) {
                 parentElement.insertBefore(childComponent.element, parentElement.children[index]);
@@ -267,7 +266,6 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
                 parentElement.appendChild(childComponent.element);
             }
         }
-        
     }
 
  
@@ -282,6 +280,7 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
      * @param parentClass : 親要素のクラス名。nullの場合は親要素はthis.elementとなる。
      * @param index : 親要素の子要素の中でのインデックス。nullの場合は末尾に追加する。
      */
+        
     createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent, parentClass: string|null = null, index:number|null = null): void {
         const parentComponent = parent.component
         const childComponent = child.component

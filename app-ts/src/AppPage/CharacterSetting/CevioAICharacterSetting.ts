@@ -1,4 +1,5 @@
 import { BaseComponent } from "../../UiComponent/Base/ui_component_base";
+import { ScrollableSquareBoardComponent } from "../../UiComponent/Board/ScrollableSquareComponent";
 import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
@@ -17,7 +18,7 @@ import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "./VoiceSetting/C
 export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSettingModel> {
     public readonly component: BaseComponent;
         public readonly title = "キャラクター設定";
-        private _squareBoardComponent: SquareBoardComponent;
+        private _squareBoardComponent: ScrollableSquareBoardComponent;
         private _closeButton: NormalButton;
         public voiceSetting: CevioAIVoiceSetting;
         public characterInfoSetting: ICharacterInfoSetting;
@@ -25,10 +26,9 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
         private _characterSaveData: ICharacterSettingSaveModel<CevioAIVoiceSettingModel>;
         
         public constructor(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>) {
-            this._squareBoardComponent = new SquareBoardComponent(
+            this._squareBoardComponent = new ScrollableSquareBoardComponent(
                 this.title,
-                null,
-                null,
+                null,"50vh",
                 [],
                 {},
                 null,
@@ -85,8 +85,8 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
             this.characterInfoSetting.component.setAsChildComponent();
             this._squareBoardComponent.addComponentToHeader(this._closeButton);
             this.component.setAsParentComponent();
-            this.component.createArrowBetweenComponents(this, this.voiceSetting);
-            this.component.createArrowBetweenComponents(this, this.characterInfoSetting);
+            this._squareBoardComponent.addComponentToContent(this.voiceSetting);
+            this._squareBoardComponent.addComponentToContent(this.characterInfoSetting);
 
     
             document.body.appendChild(this._squareBoardComponent.component.element);
