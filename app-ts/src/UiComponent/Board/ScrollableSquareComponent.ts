@@ -6,7 +6,7 @@ import "./SquareComponent.css";
 /**
  * 四角形のボードのコンポーネント
  */
-export class SquareBoardComponent implements IHasComponent, IDragAble {
+export class ScrollableSquareBoardComponent implements IHasComponent, IDragAble {
     private _title: string;
     public get title(): string { return this._title; }
     public readonly component: BaseComponent;
@@ -21,27 +21,29 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      */
     constructor(
         title: string,
-        width: number|null, height: number|null,
+        width: string|null, height: string|null,
         additionalClassNames: string[] = [],
         customStyles: Partial<CSSStyleDeclaration> = {},
         id: string|null = null,
-        enableDrag: boolean = false
+        enableDrag: boolean = true
     ) {
         this._title = title;
         this.id = id ?? ExtendFunction.uuid();
+        // ヘッダーと内容領域を分離する
         const htmlString = `
         <div class="square-board-${this.id}">
             <div class="SquareBoardHeader">
-                <div class="boardTitle"> ${title} </div>
+                <div class="boardTitle">${title}</div>
+            </div>
+            <div class="SquareBoardContent">
             </div>
         </div>`;
         this.component = BaseComponent.createElementByString(htmlString);
-        this.component.addCSSClass(["margin"])
-        this.setStyle(); // サイズを設定
+        this.component.addCSSClass(["margin"]);
+        this.setStyle(); // サイズやスタイルを設定
         this.changeSize(width, height);
-        // this.setInitialPosition(0, 0); // 初期位置を設定
-        this.addAdditionalClasses(additionalClassNames); // 追加クラスを適用
-        this.applyCustomStyles(customStyles); // 追加スタイルを適用
+        this.addAdditionalClasses(additionalClassNames);
+        this.applyCustomStyles(customStyles);
         this.dragMover = new DragMover(this);
         this.dragMover.setEnableDrag(enableDrag);
     }
@@ -54,24 +56,36 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      * ボードのスタイルを設定する
      */
     public setStyle(): void {
+        // ユニークなクラス名を利用してスタイルを適用
         const baseStyle = `
             .square-board-${this.id} {
                 background-color: #f0f0f0;
                 border: 2px solid #ccc;
                 box-sizing: border-box;
                 border-radius: 15px;
+                overflow: hidden; /* 全体ははみ出さない */
+            }
+            /* ヘッダーは固定高さ */
+            .square-board-${this.id} .SquareBoardHeader {
+                background: #ddd;
+            }
+            /* 内容領域は残りの高さでスクロール可能にする */
+            .square-board-${this.id} .SquareBoardContent {
+                height: calc(100% - 50px);
+                overflow-y: auto;
+                overflow-x: hidden; /* 横スクロールを禁止 */
             }
         `;
         this.addDynamicStyles(baseStyle);
     }
 
-    public changeSize(width: number|null, height: number|null): void {
+    public changeSize(width: string|null, height: string|null): void {
         if (width !== null) {
-            this.component.element.style.width = `${width}px`;
+            this.component.element.style.width = width;
         }
 
         if (height !== null) {
-            this.component.element.style.height = `${height}px`;
+            this.component.element.style.height = height;
         }
     }
 
@@ -125,6 +139,10 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
 
     public addComponentToHeader(component: IHasComponent): void {
         this.component.createArrowBetweenComponents(this, component, "SquareBoardHeader");
+    }
+
+    public addComponentToContent(component: IHasComponent): void {
+        this.component.createArrowBetweenComponents(this, component, "SquareBoardContent");
     }
 
     public delete(): void {

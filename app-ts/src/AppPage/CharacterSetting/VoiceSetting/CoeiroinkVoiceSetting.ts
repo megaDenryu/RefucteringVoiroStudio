@@ -40,7 +40,7 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IVoiceSetting, 
       [],
       {},
       null,
-      true
+      false
     );
     this.component = this._squareBoardComponent.component;
     this._開閉Button = createOpenCloseButton({"title":"開閉ボタン","openAction":()=>{this.open()}, "closeAction":()=>{this.close()}, "defaultState":"goClose"});

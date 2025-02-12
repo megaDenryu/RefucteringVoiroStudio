@@ -73,7 +73,6 @@ export interface ICharacterModeState {
     voice_mode: IVoiceMode,
     voice_state: IVoiceState,
     front_name: string
-
 }
 
 export interface ICharacterModeStateReq {

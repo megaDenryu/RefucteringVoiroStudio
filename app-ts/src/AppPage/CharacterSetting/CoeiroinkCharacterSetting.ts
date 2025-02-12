@@ -1,4 +1,5 @@
 import { BaseComponent } from "../../UiComponent/Base/ui_component_base";
+import { ScrollableSquareBoardComponent } from "../../UiComponent/Board/ScrollableSquareComponent";
 import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
@@ -19,16 +20,15 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
     public readonly title = "キャラクター設定";
     public voiceSetting: CoeiroinkVoiceSetting;
     public characterInfoSetting: ICharacterInfoSetting;
-    private _squareBoardComponent: SquareBoardComponent;
+    private _squareBoardComponent: ScrollableSquareBoardComponent;
     private _closeButton: NormalButton;
     private readonly req:TtsSoftWareVoiceSettingReq;
     private _characterSaveData: ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>;
     
     public constructor(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>) {
-        this._squareBoardComponent = new SquareBoardComponent(
+        this._squareBoardComponent = new ScrollableSquareBoardComponent(
             this.title,
-            null,
-            null,
+            null,"50vh",
             [],
             {},
             null,
@@ -37,7 +37,7 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         this.req = req;
         this._characterSaveData = characterSaveData;
         this.component = this._squareBoardComponent.component;
-        this._closeButton = new NormalButton("閉じる", "warning");
+        this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(this.close.bind(this));
         this.voiceSetting = createCoeiroinkVoiceSetting(req.character_id, characterSaveData.voiceSetting, this);
         this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
         this.initialize();
@@ -86,8 +86,8 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         this.characterInfoSetting.component.setAsChildComponent();
         this._squareBoardComponent.addComponentToHeader(this._closeButton);
         this._squareBoardComponent.component.addCSSClass(["positionAbsolute"]);
-        this.component.createArrowBetweenComponents(this, this.voiceSetting);
-        this.component.createArrowBetweenComponents(this, this.characterInfoSetting);
+        this._squareBoardComponent.addComponentToContent(this.voiceSetting);
+        this._squareBoardComponent.addComponentToContent(this.characterInfoSetting);
 
         document.body.appendChild(this._squareBoardComponent.component.element);
         this.onAddedToDom();

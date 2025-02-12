@@ -1,4 +1,5 @@
 import { BaseComponent } from "../../UiComponent/Base/ui_component_base";
+import { ScrollableSquareBoardComponent } from "../../UiComponent/Board/ScrollableSquareComponent";
 import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
@@ -16,7 +17,7 @@ import { VoiceVoxVoiceSetting, createVoiceVoxVoiceSetting } from "./VoiceSetting
 export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoiceSettingModel> {
     public readonly component: BaseComponent;
     public readonly title = "キャラクター設定";
-    private _squareBoardComponent: SquareBoardComponent;
+    private _squareBoardComponent: ScrollableSquareBoardComponent;
     private _closeButton: NormalButton;
     public voiceSetting: VoiceVoxVoiceSetting;
     public characterInfoSetting: ICharacterInfoSetting;
@@ -24,10 +25,9 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
     private _characterSaveData: ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>;
     
     public constructor(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>) {
-        this._squareBoardComponent = new SquareBoardComponent(
+        this._squareBoardComponent = new ScrollableSquareBoardComponent(
             this.title,
-            null,
-            null,
+            null,"50vh",
             [],
             {},
             null,
@@ -36,7 +36,7 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
         this.req = req;
         this._characterSaveData = characterSaveData;
         this.component = this._squareBoardComponent.component;
-        this._closeButton = new NormalButton("閉じる", "warning");
+        this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(this.close.bind(this));
         this.voiceSetting = createVoiceVoxVoiceSetting(req.character_id, characterSaveData, this);
         this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
         this.initialize();
@@ -70,6 +70,7 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
     }
 
     public close(): void {
+        console.log("close");
         this._squareBoardComponent.component.hide();
     }
 
@@ -84,8 +85,8 @@ export class VoiceVoxCharacterSetting implements ICharacterSetting<VoiceVoxVoice
         this.characterInfoSetting.component.setAsChildComponent();
         this._squareBoardComponent.addComponentToHeader(this._closeButton);
         this.component.setAsParentComponent();
-        this.component.createArrowBetweenComponents(this, this.voiceSetting);
-        this.component.createArrowBetweenComponents(this, this.characterInfoSetting);
+        this._squareBoardComponent.addComponentToContent(this.voiceSetting);
+        this._squareBoardComponent.addComponentToContent(this.characterInfoSetting);
 
         document.body.appendChild(this._squareBoardComponent.component.element);
         this.onAddedToDom();

@@ -19,7 +19,7 @@ export class ElementCreater {
      * 良い例:
      * <div class="output_text">
      *      <p>おはよう</p>
-     * </div>'。
+     * </div>'
      * この場合output_textのdiv要素全体が返される。
      * 
      * ダメな例:
@@ -80,6 +80,42 @@ export class ElementCreater {
             selectElement.appendChild(optionElement);
         });
     
+        if (size != null) {
+            selectElement.size = size;
+        }
+        return selectElement;
+    }
+
+    /**
+     * リストを受け取ってHTMLSelectElementを返す関数。
+     * @param {Array<{ text: string, dataset: Record<string, string> }>} options - セレクトボックスのオプションとして使用するオブジェクトの配列。
+     * @param {number | null} [size = null] - セレクトボックスのサイズ。nullの場合は指定しない。
+     * @param {string | null} [selectedValue = null] - 初期値として選択するオプションの値。nullの場合は指定しない。
+     * @return {HTMLSelectElement} - 生成されたHTMLSelectElement。
+     */
+    static createSelectElementWithDataset(
+        options: { text: string, dataset: Record<string, string> }[],
+        size: number | null = null,
+        selectedValue: string | null = null
+    ): HTMLSelectElement {
+        let selectElement = document.createElement('select');
+
+        options.forEach(option => {
+            const optionElement = document.createElement('option');
+            optionElement.value = option.text;
+            optionElement.textContent = option.text;
+
+            // datasetを設定
+            Object.keys(option.dataset).forEach(key => {
+                optionElement.dataset[key] = option.dataset[key];
+            });
+
+            if (selectedValue !== null && option.text === selectedValue) {
+                optionElement.selected = true;
+            }
+            selectElement.appendChild(optionElement);
+        });
+
         if (size != null) {
             selectElement.size = size;
         }
@@ -222,8 +258,7 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
             if (parentElement == null) {
                 // 親クラスが見つからなかった場合はコンソールにthis.elementを表示してエラーを出す
                 console.error(this.element);
-                throw new Error('Parent class not found.');
-                
+                throw new Error('Parent class not found.');   
             }
             if (index !== null && 0 <=index && index < parentElement.children.length) {
                 parentElement.insertBefore(childComponent.element, parentElement.children[index]);
@@ -231,7 +266,6 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
                 parentElement.appendChild(childComponent.element);
             }
         }
-        
     }
 
  
@@ -246,6 +280,7 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
      * @param parentClass : 親要素のクラス名。nullの場合は親要素はthis.elementとなる。
      * @param index : 親要素の子要素の中でのインデックス。nullの場合は末尾に追加する。
      */
+        
     createArrowBetweenComponents(parent: IHasComponent, child: IHasComponent, parentClass: string|null = null, index:number|null = null): void {
         const parentComponent = parent.component
         const childComponent = child.component
@@ -290,16 +325,26 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         this.removeCSSClass(["positionRelative"]);
     }
 
-    get isShow():boolean {
-        return this.element.style.display === 'block';
+    get isShow(): boolean {
+        const style = window.getComputedStyle(this.element);
+        return (
+            style.display !== 'none' &&
+            style.visibility !== 'hidden' &&
+            style.opacity !== '0' &&
+            document.body.contains(this.element)
+        );
     }
-
+    
     show(): void {
         this.element.style.display = 'block';
+        this.element.style.visibility = 'visible';
+        this.element.style.opacity = '1';
     }
-
+    
     hide(): void {
         this.element.style.display = 'none';
+        this.element.style.visibility = 'hidden';
+        this.element.style.opacity = '0';
     }
 
     setZIndex(zIndex: number): void {

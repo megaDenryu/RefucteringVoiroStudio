@@ -5,6 +5,9 @@ from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 
 
 TTSSoftwareType: TypeAlias = Literal["CevioAI", "VoiceVox", "AIVoice", "Coeiroink"]
+CharacterId: TypeAlias = str
+# CharacterId = NewType('CharacterId', str)
+CharacterSaveId: TypeAlias = str
 
 class TTSSoftware(Enum):
     CevioAI = "CevioAI"

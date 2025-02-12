@@ -33,7 +33,7 @@ export class CharacterInfoSetting implements IComponentManager, ICharacterInfoSe
       [],
       {},
       null,
-      true
+      false
     );
     this._manageDataSettingComponent = new ObjectInputComponent(
         this.title,

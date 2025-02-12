@@ -19,6 +19,7 @@ export class NormalButton implements IHasComponent, IButton {
         let html = ElementCreater.createButtonElement(this._title, this.onClick.bind(this));
         this.component = new BaseComponent(html);
         this.initialize();
+        return this;
     }
 
     public onClick():void {
@@ -35,8 +36,9 @@ export class NormalButton implements IHasComponent, IButton {
         });
     }
 
-    public addOnClickEvent(f: (() => void)): void {
+    public addOnClickEvent(f: (() => void)): NormalButton {
         this._onClick.push(f);
+        return this;
     }
 
     public delete(): void {
