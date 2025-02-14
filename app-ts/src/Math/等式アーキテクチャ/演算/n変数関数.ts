@@ -1,3 +1,4 @@
+import { I値 } from "../値/I値";
 
 
 export type 一変数関数<T1 extends I値, O extends I値> = (x: T1) => O;

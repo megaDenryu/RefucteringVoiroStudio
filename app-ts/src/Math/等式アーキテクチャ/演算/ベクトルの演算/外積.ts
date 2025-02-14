@@ -1,3 +1,6 @@
+import { ベクトル } from "../../値/ベクトル";
+import { I二項演算子 } from "../I二項演算子";
+
 export const 外積: I二項演算子<ベクトル, ベクトル, ベクトル> = {
     二項演算: function(x: ベクトル, y: ベクトル): ベクトル {
         if (x.次元 != 3 || y.次元 != 3) {throw new Error("次元が違う");}
