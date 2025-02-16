@@ -1,44 +1,6 @@
 {
     "collection": [
         {
-            "saveID": "c0b01b93-af59-4702-8496-87f740b83b3c",
-            "characterInfo": {
-                "characterName": {
-                    "name": "ずんだもん"
-                },
-                "nickName": {
-                    "name": "へろへろずんだもん"
-                },
-                "humanImage": {
-                    "folder_name": "新規作成"
-                },
-                "aiSetting": {
-                    "名前": "",
-                    "年齢": 0,
-                    "性別": "",
-                    "背景情報": "",
-                    "役割": "",
-                    "動機": "",
-                    "アリバイ": "",
-                    "性格特性": "",
-                    "関係": [],
-                    "秘密": "",
-                    "知っている情報": "",
-                    "外見の特徴": "",
-                    "所持品": [],
-                    "行動パターン": []
-                }
-            },
-            "voiceSetting": {
-                "speedScale": 1.51,
-                "pitchScale": 0.11,
-                "intonationScale": 1.0,
-                "volumeScale": 1.0,
-                "読み上げ間隔": 0.0,
-                "AIによる文章変換": "無効"
-            }
-        },
-        {
             "saveID": "359cfd2d-4203-458f-8a3c-e1c1fbd52d1b",
             "characterInfo": {
                 "characterName": {
@@ -69,11 +31,49 @@
             },
             "voiceSetting": {
                 "speedScale": 1.29,
-                "pitchScale": -0.1,
+                "pitchScale": 0.03,
                 "intonationScale": 1.07,
-                "volumeScale": 0.63,
+                "volumeScale": 1.38,
                 "読み上げ間隔": 0.0,
-                "AIによる文章変換": "ChatGPT"
+                "AIによる文章変換": "無効"
+            }
+        },
+        {
+            "saveID": "c0b01b93-af59-4702-8496-87f740b83b3c",
+            "characterInfo": {
+                "characterName": {
+                    "name": "ずんだもん"
+                },
+                "nickName": {
+                    "name": "へろへろずんだもん"
+                },
+                "humanImage": {
+                    "folder_name": "新規作成"
+                },
+                "aiSetting": {
+                    "名前": "",
+                    "年齢": 0,
+                    "性別": "",
+                    "背景情報": "",
+                    "役割": "",
+                    "動機": "",
+                    "アリバイ": "",
+                    "性格特性": "",
+                    "関係": [],
+                    "秘密": "",
+                    "知っている情報": "",
+                    "外見の特徴": "",
+                    "所持品": [],
+                    "行動パターン": []
+                }
+            },
+            "voiceSetting": {
+                "speedScale": 0.72,
+                "pitchScale": 0.11,
+                "intonationScale": 1.0,
+                "volumeScale": 1.0,
+                "読み上げ間隔": 0.0,
+                "AIによる文章変換": "無効"
             }
         }
     ]

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISentenceConverter
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ChatGptApiUnit import ChatGptApiUnit
 from api.Extend.ExtendFunc import ExtendFunc
@@ -11,7 +12,7 @@ class AIRubiConverter:
     _gptUnit: ChatGptApiUnit
     _systemMessageQuery: list[ChatGptApiUnit.MessageQuery]
     _messageQueryHistory: list[ChatGptApiUnit.MessageQuery]
-    on_off: bool = False
+    on_off: AISentenceConverter = AISentenceConverter.無効
     def __init__(self):
         self._gptUnit = ChatGptApiUnit(False)
         self._systemMessageQuery = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel2"]
@@ -19,7 +20,7 @@ class AIRubiConverter:
         """
         フリガナ化文章を取得します
         """
-        if self.on_off == False:
+        if self.on_off == AISentenceConverter.無効:
             return text
         messageQuery = self.createMessageQuery(text)
         response = self._gptUnit.generateResponseStructured(messageQuery, KanaText)
@@ -46,7 +47,7 @@ class AIRubiConverter:
             return None
         return text
     
-    def setOnOff(self,on_off:bool):
+    def setOnOff(self,on_off:AISentenceConverter):
         self.on_off = on_off
     
 class AIRubiConverterTest:

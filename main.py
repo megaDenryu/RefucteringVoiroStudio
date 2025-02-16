@@ -202,6 +202,8 @@ async def read_app_ts(path_param: str):
         target = app_ts_dir / "test1012.html"
     elif path_param == "AppVoiroStudio":
         target = app_ts_dir / "AppVoiroStudio.html"
+    elif path_param == "AppSetting":
+        target = app_ts_dir / "AppSetting.html"
     print(f"{target=}")
 
     # ファイルが存在しない場合は404エラーを返す
@@ -312,7 +314,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 print(f"{human_ai.char_name=}")
                 if "" != input_dict[character_id]:
                     print(f"{input_dict[character_id]=}")
-                    rubi_sentence = inastanceManager.aiRubiConverter.convertAsync(input_dict[character_id])
+                    rubi_sentence = human_ai.aiRubiConverter.convertAsync(input_dict[character_id])
                     if rubi_sentence == None:
                         return
                     for sentence in Human.parseSentenseList(rubi_sentence):
@@ -908,11 +910,11 @@ async def cevioAICharacterSetting(req: CevioAICharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
+    human.aiRubiConverter.setOnOff(req.cevioAICharacterSettingModel.voiceSetting.AIによる文章変換)
     cevio = human.human_Voice
     #cevio_human かどうかの判定
     if isinstance(cevio, cevio_human):
-        cevio.setTalker2V40(req.cevioAICharacterSettingModel.voiceSetting.talker2V40)
-        cevio.setComponents(req.cevioAICharacterSettingModel.voiceSetting.talkerComponentArray2)
+        cevio.setVoiceSetting(req.cevioAICharacterSettingModel.voiceSetting)
         CevioAICharacterSettingCollectionOperator.singleton().save(req.cevioAICharacterSettingModel)
         return json.dumps({"message": "CevioAICharacterSettingを保存しました"})
     
@@ -923,6 +925,7 @@ async def aiVoiceCharacterSetting(req: AIVoiceCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
+    human.aiRubiConverter.setOnOff(req.aiVoiceCharacterSettingSaveModel.voiceSetting.AIによる文章変換)
     aiVoice = human.human_Voice
     if isinstance(aiVoice, AIVoiceHuman):
         # aiVoice.setVoiceSetting(req.aiVoiceCharacterSettingModel.voiceSetting)
@@ -936,6 +939,7 @@ async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
+    human.aiRubiConverter.setOnOff(req.voiceVoxCharacterSettingModel.voiceSetting.AIによる文章変換)
     voiceVox = human.human_Voice
     if isinstance(voiceVox, voicevox_human):
         voiceVox.setVoiceSetting(req.voiceVoxCharacterSettingModel.voiceSetting)
@@ -949,6 +953,7 @@ async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
+    human.aiRubiConverter.setOnOff(req.coeiroinkCharacterSettingModel.voiceSetting.AIによる文章変換)
     coeiroink = human.human_Voice
     if isinstance(coeiroink, Coeiroink):
         coeiroink.setVoiceSetting(req.coeiroinkCharacterSettingModel.voiceSetting)

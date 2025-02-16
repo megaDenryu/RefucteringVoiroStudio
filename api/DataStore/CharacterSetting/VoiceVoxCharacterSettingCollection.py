@@ -2,7 +2,7 @@
 from pydantic import BaseModel
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import VoiceVoxCharacterSettingSaveModel
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInfoValueObject import NickName
+from api.gptAI.HumanInfoValueObject import CharacterSaveId, NickName
 
 
 class VoiceVoxCharacterSettingCollection(BaseModel):
@@ -43,7 +43,7 @@ class VoiceVoxCharacterSettingCollectionOperator():
     def getByNickName(self, nickName:NickName)->list[VoiceVoxCharacterSettingSaveModel]:
         return [x for x in self.collection.collection if x.characterInfo.nickName == nickName]
     
-    def getBySaveID(self, saveID: str)->list[VoiceVoxCharacterSettingSaveModel]:
+    def getBySaveID(self, saveID: CharacterSaveId)->list[VoiceVoxCharacterSettingSaveModel]:
         return [x for x in self.collection.collection if x.saveID == saveID]
     
     def save(self, data:VoiceVoxCharacterSettingSaveModel):
