@@ -20,7 +20,8 @@ export const NiconicoLiveSettingModelFormat:InputTypeObject = {
                 type: "string",
                 collectionType: null,
                 format: { visualType: "string", visualTitle: null }
-            },
+            }
+,
             format: { visualType: "array", visualTitle: null }
         } as InputTypeArray<InputTypeString>,
     },
