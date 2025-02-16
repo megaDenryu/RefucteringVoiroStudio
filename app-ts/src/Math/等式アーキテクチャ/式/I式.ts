@@ -11,12 +11,3 @@ export interface I式old {
 export interface I式 {
     変形: (変形規則: I式変形コマンド) => I式;
 }
-
-class 値式 implements I式 , I値{
-    値: any;
-    
-    
-    変形(変形規則: I式変形コマンド): I式 {
-        throw new Error("Method not implemented.");
-    }
-}
