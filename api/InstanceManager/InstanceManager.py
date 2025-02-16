@@ -54,8 +54,8 @@ class InastanceManager(InstanceManagerInterface):
         return self._agentPipeManager
     
     @property
-    def aiRubiConverterList(self):
-        retList = []
+    def aiRubiConverterList(self)->list[AIRubiConverter]:
+        retList:list[AIRubiConverter] = []
         for human in self._humanInstances.Humans:
             retList.append(human.aiRubiConverter)
         return retList

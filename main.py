@@ -893,7 +893,11 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
             # クライアントからメッセージの受け取り
             data = await websocket.receive_json()
             saveSettingReq = AppSettingsModel(**data)
-            new_setting = setting_module.setSetting(setting_mode, page_mode, client_id, saveSettingReq)
+            new_setting:AppSettingsModel = setting_module.setSetting(setting_mode, page_mode, client_id, saveSettingReq)
+            # 設定の変更を適用
+            for human in inastanceManager.humanInstances.Humans:
+                human.aiRubiConverter.setOnOff(new_setting.セリフ設定.AIによる文章変換の一括設定)
+                ttsSoftware = human.human_Voice #TTSソフトウェアのインスタンス.まだ使うことはないが将来使うかもしれないので取得しておく
             await setting_module.notify(new_setting, setting_mode, page_mode, client_id)
 
     # セッションが切れた場合
