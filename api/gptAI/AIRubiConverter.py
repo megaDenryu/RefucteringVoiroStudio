@@ -20,6 +20,7 @@ class AIRubiConverter:
         """
         フリガナ化文章を取得します
         """
+        ExtendFunc.ExtendPrintWithTitle("ルビ振り",self.on_off.value)
         if self.on_off == AISentenceConverter.無効:
             return text
         messageQuery = self.createMessageQuery(text)

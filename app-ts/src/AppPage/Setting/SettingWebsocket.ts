@@ -25,6 +25,7 @@ export function createWebSocket(
     };
 
     websocket.onmessage = (event) => {
+        console.log("WebSocket message received:", event.data);
         handleWebSocketMessage(event);
     };
 

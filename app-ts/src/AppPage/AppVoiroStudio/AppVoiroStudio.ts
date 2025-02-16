@@ -17,6 +17,11 @@ import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Cha
 import { ICharacterModeState, ICharacterModeStateReq } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { GPTModeReq, GptMode } from "../../ZodObject/gptAI/GPTMode";
 import { json } from "stream/consumers";
+import { ChatSideSettingReciever } from "../Setting/ChatSideSettingReciever";
+import { HandleWebSocketMessage } from "../Setting/SettingWebsocket";
+import { AppSettingsModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingModel";
+import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceSettingModel";
+import { ICharacterSetting } from "../CharacterSetting/ICharacterSetting";
 
 // const { promises } = require("fs");
 
@@ -3468,6 +3473,7 @@ export class GlobalState {
     static ws: WebSocket;
     static human_ws: WebSocket;
     static test = 0;
+    static chatSideSettingReciever: ChatSideSettingReciever;
 
     static getMessageBoxByCharacterId(character_id: CharacterId): MessageBox {
         const messageBox =  GlobalState.message_box_manager.message_box_dict.get(character_id)
@@ -3497,6 +3503,33 @@ export class GlobalState {
         }
     }
 
+    static handleWebSocketMessage:HandleWebSocketMessage = (event: MessageEvent) => {
+        //データを表示する
+        try {
+            const data: AppSettingsModel = JSON.parse(event.data);
+            console.log("Received data:", data);
+            
+            //AIによる文章変換の一括設定をする。クライアント側はUIの見た目だけが問題なのでUIを変更する
+            let セリフ設定 = data.セリフ設定;
+            if (セリフ設定 == undefined) { return; }
+            let AIによる文章変換の一括設定 = セリフ設定.AIによる文章変換の一括設定;
+            let 読み上げ間隔の一括設定 = セリフ設定.読み上げ間隔の一括設定;
+            let humanTabList = GlobalState.message_box_manager.humanTabList
+            for (let i = 0; i < humanTabList.length; i++) {
+                let humanTab:HumanTab = humanTabList[i];
+                let settingPanel:ICharacterSetting<VoiceSettingModel> = humanTab.characterSetting ?? (() => {throw new Error("characterSettingが見つかりません")})();
+                let voiceSettingModel = settingPanel.voiceSetting; // 読み上げ間隔はgetterはあるが、変更アクセス権がないので作成する
+
+
+            }
+            //読み上げ間隔の一括設定をする。クライアント側のキャラの声設定UIにアクセスし変更する
+
+            // 受信したデータを処理する
+        } catch (error) {
+            console.error("Error parsing WebSocket message:", error);
+        }
+    }
+
     static async initialize() {
         GlobalState.message_box_manager = new MessageBoxManager();
         GlobalState.init_human_tab = document.getElementsByClassName("tab human_tab")[0] as HTMLLIElement;
@@ -3518,6 +3551,7 @@ export class GlobalState {
             console.log("messageQueue=", GlobalState.messageQueue, "イベントを一つとりだした後のmessageQueueです");
         };
         GlobalState.ws.onclose = closeEventProcces_ws;
+        GlobalState.chatSideSettingReciever = new ChatSideSettingReciever(RequestAPI.client_id, GlobalState.handleWebSocketMessage);
 
         humanWsOpen();
     }

@@ -534,6 +534,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             #キャラ立ち絵のパーツを全部送信する。エラーがあったらエラーを返す
             try:
                 tmp_human = inastanceManager.humanInstances.createHuman(chara_mode_state)
+                tmp_human.aiRubiConverter.setOnOff(inastanceManager.appSettingModule.setting.セリフ設定.AIによる文章変換の一括設定)
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
                 human_part_folder:HumanData = tmp_human.image_data_for_client
                 charaCreateData:CharaCreateData = {
@@ -898,7 +899,8 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
             for human in inastanceManager.humanInstances.Humans:
                 human.aiRubiConverter.setOnOff(new_setting.セリフ設定.AIによる文章変換の一括設定)
                 ttsSoftware = human.human_Voice #TTSソフトウェアのインスタンス.まだ使うことはないが将来使うかもしれないので取得しておく
-            await setting_module.notify(new_setting, setting_mode, page_mode, client_id)
+            await setting_module.notify(new_setting, setting_mode, "Chat", client_id)
+            await setting_module.notify(new_setting, setting_mode, "Setting", client_id)
 
     # セッションが切れた場合
     except WebSocketDisconnect:
@@ -944,6 +946,7 @@ async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
     if human == None:
         return
     human.aiRubiConverter.setOnOff(req.voiceVoxCharacterSettingModel.voiceSetting.AIによる文章変換)
+    ExtendFunc.ExtendPrint(human.aiRubiConverter.on_off)
     voiceVox = human.human_Voice
     if isinstance(voiceVox, voicevox_human):
         voiceVox.setVoiceSetting(req.voiceVoxCharacterSettingModel.voiceSetting)
