@@ -10,8 +10,8 @@ import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
-import { IRecordPathInput } from "../../RecordPath";
-import { IInputComponentCollection } from "../ICollectionComponent";
+import { IRecordPathInput, RecordPath } from "../../RecordPath";
+import { IInputComponentCollection, recusiveGetRecordPathChild } from "../ICollectionComponent";
 import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IComponentManager } from "../IComponentManager";
 import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
@@ -203,6 +203,11 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         for (let key in this._inputComponentDict) {
             this._inputComponentDict[key].delete();
         }
+    }
+
+    public inputSimulate(recordPath:RecordPath, value: any): void {
+        let inputComponent = recusiveGetRecordPathChild(this, recordPath);
+        inputComponent.inputSimulate(recordPath, value);
     }
 
 }

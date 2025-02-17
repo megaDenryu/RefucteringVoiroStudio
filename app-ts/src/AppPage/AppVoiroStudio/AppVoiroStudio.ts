@@ -3519,7 +3519,7 @@ export class GlobalState {
                 let humanTab:HumanTab = humanTabList[i];
                 let settingPanel:ICharacterSetting<VoiceSettingModel> = humanTab.characterSetting ?? (() => {throw new Error("characterSettingが見つかりません")})();
                 let voiceSettingModel = settingPanel.voiceSetting; // 読み上げ間隔はgetterはあるが、変更アクセス権がないので作成する
-
+                
 
             }
             //読み上げ間隔の一括設定をする。クライアント側のキャラの声設定UIにアクセスし変更する

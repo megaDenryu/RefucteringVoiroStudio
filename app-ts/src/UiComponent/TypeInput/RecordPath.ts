@@ -18,6 +18,17 @@ export class RecordPath {
     }
 
     /**
+     * 最初のパスセグメントを削除し、新しいRecordPathを返します
+     * @returns 最初のセグメントを除いた新しいRecordPath
+     */
+    public shift(): RecordPath {
+        if (this.path.length === 0) {
+            throw new Error("Path is empty");
+        }
+        return new RecordPath(this.path.slice(1));
+    }
+
+    /**
      * パスを文字列に変換します。
      * @param delimiter: 区切り文字。例えば "." や"/"など。
      * @returns 
