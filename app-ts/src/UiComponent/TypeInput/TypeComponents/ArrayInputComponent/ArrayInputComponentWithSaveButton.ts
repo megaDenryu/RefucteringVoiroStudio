@@ -12,7 +12,7 @@ import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentLis
 import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
 import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
-import { IInputComponentCollection } from "../ICollectionComponent";
+import { IInputComponentCollection, recusiveGetRecordPathChild } from "../ICollectionComponent";
 import { checknInterfaceType, ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IComponentManager } from "../IComponentManager";
 import { IValueComponent } from "../IValueComponent";
@@ -20,6 +20,7 @@ import { get } from "http";
 import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 import { InputTypeArray, InputTypeComponentFormat } from "../../TypeComponentFormat/TypeComponentFormat";
+import { IResultBase } from "../../../../BaseClasses/ResultBase";
 
 export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -150,7 +151,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         let newComponent = this.createDefaultInputComponent(i.toString(), this._schema.element, lastElementValue, inputFormat);
         //newComponentをdaratyにする
         if (checknInterfaceType(newComponent.inputComponent, "IValueComponent")) {
-            const valueComponent = newComponent.inputComponent as IValueComponent;
+            const valueComponent = newComponent.inputComponent as IValueComponent<any>;
             valueComponent.darty.set(true);
         }
     
@@ -280,6 +281,11 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
             inputComponent.delete();
         });
         this.component.delete();
+    }
+
+    public inputSimulate<T>(recordPath:RecordPath, value: T): IResultBase {
+        let inputComponent:IValueComponent<T> = recusiveGetRecordPathChild(this, recordPath);
+        return inputComponent.inputSimulate(value);
     }
 
 }

@@ -58,15 +58,20 @@ export const AppSettingsModel = z.object({
     .optional(),
   セリフ設定: z
     .object({
-      AI補正: z
-        .boolean()
-        .describe("AI補正を有効にするか選択してください")
-        .default(true),
-      発言間隔の秒数: z
+      AIによる文章変換の一括設定: z
+        .enum(["無効", "ChatGPT"])
+        .describe(
+          "全てのキャラに対してAIによる文章変換を有効にするかどうかを一括設定できます。キャラ個別に設定したい場合はキャラクターのキャラ設定で行えます。",
+        )
+        .default("無効"),
+      読み上げ間隔の一括設定: z
         .number()
-        .int()
-        .describe("発言間隔の秒数を入力してください")
-        .default(4),
+        .gte(0)
+        .lte(2)
+        .describe(
+          "全てのキャラに対して読み上げ間隔の秒数を一括設定できます。キャラ個別に設定したい場合はキャラクターのキャラ設定で行えます。",
+        )
+        .default(0),
     })
     .optional(),
 });

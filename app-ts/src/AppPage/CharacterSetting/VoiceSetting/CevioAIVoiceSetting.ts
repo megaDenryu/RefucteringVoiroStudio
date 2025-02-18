@@ -137,6 +137,10 @@ export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IH
   public delete(): void {
     this._squareBoardComponent.component.delete();
   }
+
+  public inputSimulate(recordPath:RecordPath, value: any): void {
+    this._manageDataSettingComponent.inputSimulate(recordPath, value);
+  }
 }
 
 export function createCevioAIVoiceSetting(

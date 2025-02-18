@@ -1,4 +1,5 @@
 import { EventDelegator } from "../../../BaseClasses/EventDrivenCode/Delegator"
+import { IResultBase } from "../../../BaseClasses/ResultBase"
 import { IHasComponent } from "../../Base/ui_component_base"
 import { IHasSquareBoard } from "../../Board/IHasSquareBoard"
 import { ITypeComponent } from "../ComponentType"

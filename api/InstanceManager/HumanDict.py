@@ -36,7 +36,6 @@ class HumanInstanceContainer:
         human = self.tryGetHuman(characterId) or self.createHuman(mode_state)
         human.chara_mode_state = mode_state
         return human
-        
     
     def createHuman(self,chara_mode_state:CharacterModeState)->Human:
         human = Human(chara_mode_state,self._voiceroid_dict)

@@ -719,3 +719,29 @@
 2025-02-07 16:22:37,757 - main - ERROR - Validation error: [{'type': 'missing', 'loc': ('body', 'characterModeState', 'save_id'), 'msg': 'Field required', 'input': {'id': '0ba0a3c2-c8b6-4314-b17e-a81ef84deea0', 'tts_software': 'VoiceVox', 'character_name': {'name': 'ずんだもん'}, 'human_image': {'folder_name': 'しろまる式メスガキずんだもん_4'}, 'voice_mode': {'mode': 'ヘロヘロ', 'id': 75, 'id_str': None}, 'voice_state': {'scale': 1}, 'front_name': 'ずんだもん'}}]
 2025-02-07 21:29:35,282 - main - ERROR - Unhandled exception: File at path C:\Users\pokr301qup\python_dev\VoiroStudio\RefucteringVoiroStudio\app\test is not a file.
 2025-02-07 21:29:37,527 - main - ERROR - Unhandled exception: File at path C:\Users\pokr301qup\python_dev\VoiroStudio\RefucteringVoiroStudio\app\test is not a file.
+2025-02-17 02:54:11,495 - main - ERROR - Unhandled exception: 2 validation errors for AppSettingsModel
+セリフ設定.AIによる文章変換の一括設定
+  Input should be '無効' or 'ChatGPT' [type=enum, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.8/v/enum
+セリフ設定.読み上げ間隔の一括設定
+  Input should be less than or equal to 2 [type=less_than_equal, input_value=45, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.8/v/less_than_equal
+2025-02-17 02:54:16,071 - main - ERROR - Unhandled exception: 2 validation errors for AppSettingsModel
+セリフ設定.AIによる文章変換の一括設定
+  Input should be '無効' or 'ChatGPT' [type=enum, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.8/v/enum
+セリフ設定.読み上げ間隔の一括設定
+  Input should be less than or equal to 2 [type=less_than_equal, input_value=45, input_type=int]
+    For further information visit https://errors.pydantic.dev/2.8/v/less_than_equal
+2025-02-17 02:55:03,341 - main - ERROR - Unhandled exception: 1 validation error for AppSettingsModel
+セリフ設定.AIによる文章変換の一括設定
+  Input should be '無効' or 'ChatGPT' [type=enum, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.8/v/enum
+2025-02-17 02:55:13,919 - main - ERROR - Unhandled exception: 1 validation error for AppSettingsModel
+セリフ設定.AIによる文章変換の一括設定
+  Input should be '無効' or 'ChatGPT' [type=enum, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.8/v/enum
+2025-02-17 02:55:27,110 - main - ERROR - Unhandled exception: 1 validation error for AppSettingsModel
+セリフ設定.AIによる文章変換の一括設定
+  Input should be '無効' or 'ChatGPT' [type=enum, input_value=True, input_type=bool]
+    For further information visit https://errors.pydantic.dev/2.8/v/enum

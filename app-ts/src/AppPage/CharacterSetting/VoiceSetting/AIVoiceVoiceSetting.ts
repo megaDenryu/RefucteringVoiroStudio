@@ -136,6 +136,10 @@ export class AIVoiceVoiceSetting implements IComponentManager, IVoiceSetting, IH
   public delete(): void {
     this._squareBoardComponent.component.element.remove();
   }
+
+  public inputSimulate(recordPath:RecordPath, value: any): void {
+    this._manageDataSettingComponent.inputSimulate(recordPath, value);
+  }
 }
 
 export function createAIVoiceVoiceSetting(

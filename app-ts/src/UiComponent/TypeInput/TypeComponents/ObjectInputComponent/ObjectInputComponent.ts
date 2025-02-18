@@ -10,8 +10,8 @@ import { TypeComponentFactory } from "../../TypeComponentFactory";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
-import { IRecordPathInput } from "../../RecordPath";
-import { IInputComponentCollection } from "../ICollectionComponent";
+import { IRecordPathInput, RecordPath } from "../../RecordPath";
+import { IInputComponentCollection, recusiveGetRecordPathChild } from "../ICollectionComponent";
 import { TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IComponentManager } from "../IComponentManager";
 import { RecordInputComponent } from "../RecordInputComponent/RecordInputComponent";
@@ -19,6 +19,8 @@ import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayI
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 import { ObjectInputComponentWithSaveButton } from "./ObjectInputComponentWithSaveButton";
 import { InputTypeComponentFormat, InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
+import { IResultBase } from "../../../../BaseClasses/ResultBase";
+import { IValueComponent } from "../IValueComponent";
 
 export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "object";
@@ -203,6 +205,11 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         for (let key in this._inputComponentDict) {
             this._inputComponentDict[key].delete();
         }
+    }
+
+    public inputSimulate<T>(recordPath:RecordPath, value: T): IResultBase {
+        let inputComponent:IValueComponent<T> = recusiveGetRecordPathChild(this, recordPath);
+        return inputComponent.inputSimulate(value);
     }
 
 }

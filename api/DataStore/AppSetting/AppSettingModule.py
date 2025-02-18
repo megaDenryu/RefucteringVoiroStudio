@@ -37,6 +37,7 @@ class SettingClientWs(TypedDict):
 
 
 class AppSettingModule:
+    setting: AppSettingsModel
     def __init__(self):
         self.setting_client_ws:SettingClientWs = {
             "AppSettings":{
@@ -44,7 +45,8 @@ class AppSettingModule:
                 "Chat":[]
             }
         }
-        self.setting = self.loadSetting()
+        self.setting = AppSettingsModel(**self.loadSetting()) #型が違うのになんか動いてるので調べる
+        ExtendFunc.ExtendPrint(self.setting)
 
     def addWs(self, setting_mode: SettingMode, page_mode:PageMode , client_id:str, ws:WebSocket):
         connction = ConnectionStatus(client_id=client_id, ws=ws, page_mode=page_mode, setting_mode=setting_mode)
@@ -78,6 +80,7 @@ class AppSettingModule:
         newAppSettingsModel_json = newAppSettingsModel.model_dump_json()
 
         for connectionStatus in connections[page_mode]:
+            ExtendFunc.ExtendPrint(f"client_id:{connectionStatus.client_id} page_mode: {page_mode}に送信します。")
             if connectionStatus.client_id == client_id:
                 ExtendFunc.ExtendPrint(f"client_id:{client_id} は送信元なのでスキップします。")
                 continue
@@ -87,7 +90,10 @@ class AppSettingModule:
         """
         setting_dictをsetting_modeのjsonに保存し、対応するオブジェクトに反映します。
         """
+        ExtendFunc.ExtendPrint(self.setting)
         self.setting = appSettingsModel
+        ExtendFunc.ExtendPrint(self.setting)
+
         JsonAccessor.saveAppSettingTest(appSettingsModel)
         return appSettingsModel
 
@@ -106,9 +112,4 @@ class AppSettingModule:
                 Twitch =TwitchSettingModel(配信URL="")
             )
         )
-
-
-
-
-    
 

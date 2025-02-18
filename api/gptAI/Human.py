@@ -2,6 +2,7 @@ import re
 from typing import Literal
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
+from api.gptAI.AIRubiConverter import AIRubiConverter
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
@@ -31,6 +32,7 @@ class Human:
     body_parts_pathes_for_gpt:AllBodyFileInfo
     human_part:HumanPart
     voice_system:VoiceSystem
+    aiRubiConverter:AIRubiConverter
     @property
     def front_name(self): #フロントで入力してウインドウに表示されてる名前
         return self.chara_mode_state.front_name
@@ -50,6 +52,7 @@ class Human:
         self.human_part = HumanPart(self.char_name)
         self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name, self.front_name)
         self.voice_system:VoiceSystem = self.start(voiceroid_dict)
+        self.aiRubiConverter = AIRubiConverter()
     
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:

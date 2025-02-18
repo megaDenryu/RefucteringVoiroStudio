@@ -20,6 +20,9 @@ from pydantic import BaseModel
 from typing import Optional
 
 import sys
+from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import CevioAICharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollectionOperator
+from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.Talker2V40.Talker2V40 import Talker2V40
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponent2.TalkerComponent2 import TalkerComponent2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponentArray2 import TalkerComponentArray2
@@ -30,6 +33,7 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSetti
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendSound import ExtendSound
+from api.gptAI.HumanInfoValueObject import CharacterSaveId
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
 
 import subprocess
@@ -66,7 +70,10 @@ class cevio_human:
         
         self.cevioStart(started_cevio_num)
         self.output_wav_info_list = []
-
+        if chara_mode_state is not None:
+            setting = self.loadVoiceSetting(chara_mode_state.save_id)
+            if setting is not None:
+                self.setVoiceSetting(setting)
     @staticmethod
     def createAndUpdateALLCharaList(chara_mode_state:CharacterModeState, started_cevio_num:int)->"cevio_human":
         human = cevio_human(chara_mode_state,started_cevio_num)
@@ -300,6 +307,20 @@ class cevio_human:
             Alpha=self.talker.Alpha
         )
     
+    def loadVoiceSetting(self,saveID:CharacterSaveId)->CevioAIVoiceSettingModel|None:
+        """
+        ボイス設定を取得する
+        """
+        charaSettingList = CevioAICharacterSettingCollectionOperator.singleton().getBySaveID(saveID)
+        if len(charaSettingList) == 0:
+            return None
+        voiceSetting = charaSettingList[0].voiceSetting
+        return voiceSetting
+    
+    def setVoiceSetting(self, voiceSetting: CevioAIVoiceSettingModel):
+        self.setTalker2V40(voiceSetting.talker2V40)
+        self.setComponents(voiceSetting.talkerComponentArray2)
+
     def setTalker2V40(self,talker2V40:Talker2V40):
         self.talker.Cast = talker2V40.Cast
         self.talker.Volume = talker2V40.Volume
@@ -360,7 +381,7 @@ class voicevox_human:
     chara_mode_state:CharacterModeState|None
     onTTSSoftware:bool = False #voicevoxが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
-    voiceSetting: VoiceVoxVoiceSettingModel
+    voiceSetting: VoiceVoxVoiceSettingModel|None
     query_url = f"http://127.0.0.1:50021/audio_query" #f"http://localhost:50021/audio_query"だとlocalhostの名前解決に時間がかかるらしい
     synthesis_url = f"http://127.0.0.1:50021/synthesis" #f"http://localhost:50021/synthesis"だとlocalhostの名前解決に時間がかかるらしい
     isSaveWaiting = False
@@ -382,21 +403,16 @@ class voicevox_human:
         self.chara_mode_state = chara_mode_state
         if started_voicevox_num == 0:
             self.start()
-        self.voiceSetting = self.loadVoiceSetting()
+        self.voiceSetting = self.loadVoiceSetting(chara_mode_state.save_id)
 
-    def loadVoiceSetting(self)->VoiceVoxVoiceSettingModel:
+    def loadVoiceSetting(self,saveID:CharacterSaveId)->VoiceVoxVoiceSettingModel|None:
         """
         ボイス設定を取得する
         """
-        path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "VoiceVoxVoiceSetting.json"
-        try:
-            voiceSetting = ExtendFunc.loadJsonToBaseModel(path,VoiceVoxVoiceSettingModel)
-        except Exception as e:
-            # ファイルがない場合はデフォルト値を保存して返す
-            voiceSetting = VoiceVoxVoiceSettingModel(**{})
-            ExtendFunc.saveBaseModelToJson(path,voiceSetting)
-        if voiceSetting is None:
-            voiceSetting = VoiceVoxVoiceSettingModel(**{})
+        charaSettingList = VoiceVoxCharacterSettingCollectionOperator.singleton().getBySaveID(saveID)
+        if len(charaSettingList) == 0:
+            return None
+        voiceSetting = charaSettingList[0].voiceSetting
         return voiceSetting
 
     def setVoiceSetting(self, voiceSetting: VoiceVoxVoiceSettingModel):
@@ -406,6 +422,8 @@ class voicevox_human:
         """
         VoiceVoxVoiceSettingModelの設定をquery_dictに反映する
         """
+        if self.voiceSetting is None:
+            return query_dict
         query_dict["speedScale"] = self.voiceSetting.speedScale
         query_dict["pitchScale"] = self.voiceSetting.pitchScale
         query_dict["intonationScale"] = self.voiceSetting.intonationScale
@@ -1218,22 +1236,19 @@ class Coeiroink:
         self.chara_mode_state = chara_mode_state
         self.updateAllCharaList()
         self.speaker = Coeiroink.get_speaker_info(self.styleId)
-        self.voiceSetting = self.loadVoiceSetting()
+        self.voiceSetting = self.loadVoiceSetting(chara_mode_state.save_id)
 
-    def loadVoiceSetting(self)->CoeiroinkVoiceSettingModel:
+    def loadVoiceSetting(self,saveId:CharacterSaveId)->CoeiroinkVoiceSettingModel:
         """
         ボイス設定を取得する
         """
-        path = ExtendFunc.api_dir / "CharSettingJson" / "VoiceSettings" / "CoeiroinkVoiceSetting.json"
-        try:
-            voiceSetting = ExtendFunc.loadJsonToBaseModel(path,CoeiroinkVoiceSettingModel)
-        except Exception as e:
-            # ファイルがない場合はデフォルト値を保存して返す
-            voiceSetting = CoeiroinkVoiceSettingModel(**{})
-            ExtendFunc.saveBaseModelToJson(path,voiceSetting)
-        if voiceSetting is None:
-            voiceSetting = CoeiroinkVoiceSettingModel(**{})
-        return voiceSetting
+        setting_list = CoeiroinkCharacterSettingCollectionOperator.singleton().getBySaveID(saveId)
+        if setting_list is None:
+            return CoeiroinkVoiceSettingModel()
+        if len(setting_list) == 0:
+            return CoeiroinkVoiceSettingModel()
+        return setting_list[0].voiceSetting
+        
 
     def setVoiceSetting(self, voiceSetting: CoeiroinkVoiceSettingModel):
         self.voiceSetting = voiceSetting

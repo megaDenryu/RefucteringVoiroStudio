@@ -19,7 +19,6 @@ class InastanceManager(InstanceManagerInterface):
     _gptAgentInstanceManager: GPTAgentInstanceManager
     _inputReciever: InputReciever
     _agentPipeManager: AgentPipeManager
-    _aiRubiConverter: AIRubiConverter
     _appSettingModule :AppSettingModule
 
     @property
@@ -55,8 +54,11 @@ class InastanceManager(InstanceManagerInterface):
         return self._agentPipeManager
     
     @property
-    def aiRubiConverter(self):
-        return self._aiRubiConverter
+    def aiRubiConverterList(self)->list[AIRubiConverter]:
+        retList:list[AIRubiConverter] = []
+        for human in self._humanInstances.Humans:
+            retList.append(human.aiRubiConverter)
+        return retList
     
     @property
     def appSettingModule(self):
@@ -72,7 +74,6 @@ class InastanceManager(InstanceManagerInterface):
         self._gptAgentInstanceManager = GPTAgentInstanceManager(self._gptModeManager, self._epic, self._humanInstances)
         self._inputReciever = InputReciever(self._epic, self._gptAgentInstanceManager)
         self._agentPipeManager = AgentPipeManager(self._inputReciever)
-        self._aiRubiConverter = AIRubiConverter()
         self._appSettingModule = AppSettingModule()
         self.registerEvent()
 

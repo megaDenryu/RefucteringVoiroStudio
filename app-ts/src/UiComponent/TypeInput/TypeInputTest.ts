@@ -15,5 +15,5 @@ import { NumberInputComponent } from "./TypeComponents/NumberInputComponent/Numb
 let launcher = new Launcher();
 document.body.appendChild(launcher.component.element);
 
-let sentenceDisplay = new SentenceDisplay("テスト");
+let sentenceDisplay = new SentenceDisplay("テスト","ここに表示したい文書を入力");
 document.body.appendChild(sentenceDisplay.component.element);

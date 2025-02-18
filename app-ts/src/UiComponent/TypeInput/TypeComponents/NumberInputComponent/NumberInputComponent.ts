@@ -4,13 +4,15 @@ import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observ
 import { BaseComponent, ElementCreater, IHasComponent } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
-import { IRecordPathInput } from "../../RecordPath";
+import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { InputTypeNumber } from "../../TypeComponentFormat/TypeComponentFormat";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
 import { IValueComponent } from "../IValueComponent";
 import "./NumberInputComponent.css";
+import { simulateSliderValueChange } from "../../../../Extend/ExtendElement/ExtendHTMLInputElement";
+import { IResultBase } from "../../../../BaseClasses/ResultBase";
 
 
 /// <summary>
@@ -21,7 +23,7 @@ import "./NumberInputComponent.css";
 /// - 数値が変更されたときのイベントを登録する
 /// - 数値が変更されたときのイベントを削除する
 /// </summary>
-export class NumberInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent {
+export class NumberInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent<number> {
     public readonly componentType: TypeComponentType = "number";    
     public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
@@ -179,5 +181,10 @@ export class NumberInputComponent implements IHasComponent, IInputComponet, IHas
             console.log("桁：", decimalLength);
             return Math.pow(10, -decimalLength);
         }
+    }
+
+    public inputSimulate(value: number): IResultBase {
+        if (typeof value !== "number") {console.error("value is not string"); return {success: false};}
+        simulateSliderValueChange(this._htmlNumberInputElement, value); return {success: true};
     }
 }

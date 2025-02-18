@@ -11,8 +11,10 @@ import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
 import { IValueComponent } from "../IValueComponent";
 import "./StringInputComponent.css";
+import { simulateInputValueChange } from "../../../../Extend/ExtendElement/ExtendHTMLInputElement";
+import { IResultBase } from "../../../../BaseClasses/ResultBase";
 
-export class StringInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent {
+export class StringInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent<string> {
     public readonly componentType: TypeComponentType = "string";
     public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
@@ -154,6 +156,11 @@ export class StringInputComponent implements IHasComponent, IInputComponet, IHas
         this.value.clearMethods();
         this.darty.clearMethods();
         this._save.clearMethods();
+    }
+
+    public inputSimulate(value: string): IResultBase {
+        if (typeof value != "string") {console.error("value is not string"); return {success: false};}
+        simulateInputValueChange(this._htmlInputElement, value); return {success: true};
     }
 
 }

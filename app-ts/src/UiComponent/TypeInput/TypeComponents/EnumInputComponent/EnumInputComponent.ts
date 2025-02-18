@@ -8,13 +8,15 @@ import "./EnumInputComponent.css";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
-import { IRecordPathInput } from "../../RecordPath";
+import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { TypeComponentType, TypeComponentInterfaceType } from "../../ComponentType";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IValueComponent } from "../IValueComponent";
 import { InputTypeEnum } from "../../TypeComponentFormat/TypeComponentFormat";
+import { simulateSelectValueChange } from "../../../../Extend/ExtendElement/ExtendHTMLSelectElement";
+import { IResultBase } from "../../../../BaseClasses/ResultBase";
 
-export class EnumInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent {
+export class EnumInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, IValueComponent<string> {
     public readonly componentType: TypeComponentType = "enum";
     public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
@@ -126,6 +128,11 @@ export class EnumInputComponent implements IHasComponent, IInputComponet, IHasIn
         this.value.clearMethods();
         this.darty.clearMethods();
         this._save.clearMethods();
+    }
+
+    public inputSimulate(value: string): IResultBase {
+        if (typeof value !== "string") {console.error("value is not string"); return {success: false};}
+        simulateSelectValueChange(this._htmlSelectElement, value); return {success: true};
     }
 }
 

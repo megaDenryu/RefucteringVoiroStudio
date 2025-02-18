@@ -1,5 +1,13 @@
 {
     "$defs": {
+        "AISentenceConverter": {
+            "enum": [
+                "無効",
+                "ChatGPT"
+            ],
+            "title": "AISentenceConverter",
+            "type": "string"
+        },
         "COEIROINKv2SettingModel": {
             "properties": {
                 "path": {
@@ -94,17 +102,23 @@
         },
         "SerifSettingModel": {
             "properties": {
-                "AI補正": {
-                    "default": true,
-                    "description": "AI補正を有効にするか選択してください",
-                    "title": "AI補正",
-                    "type": "boolean"
+                "AIによる文章変換の一括設定": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/AISentenceConverter"
+                        }
+                    ],
+                    "default": "無効",
+                    "description": "全てのキャラに対してAIによる文章変換を有効にするかどうかを一括設定できます。キャラ個別に設定したい場合はキャラクターのキャラ設定で行えます。",
+                    "title": "AIによる文章変換の一括設定"
                 },
-                "発言間隔の秒数": {
-                    "default": 4,
-                    "description": "発言間隔の秒数を入力してください",
-                    "title": "発言間隔",
-                    "type": "integer"
+                "読み上げ間隔の一括設定": {
+                    "default": 0.0,
+                    "description": "全てのキャラに対して読み上げ間隔の秒数を一括設定できます。キャラ個別に設定したい場合はキャラクターのキャラ設定で行えます。",
+                    "maximum": 2.0,
+                    "minimum": 0.0,
+                    "title": "読み上げ間隔の一括設定",
+                    "type": "number"
                 }
             },
             "title": "SerifSettingModel",
