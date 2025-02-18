@@ -19,6 +19,8 @@ import { ArrayInputComponentWithSaveButton } from "../ArrayInputComponent/ArrayI
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 import { ObjectInputComponentWithSaveButton } from "./ObjectInputComponentWithSaveButton";
 import { InputTypeComponentFormat, InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
+import { IResultBase } from "../../../../BaseClasses/ResultBase";
+import { IValueComponent } from "../IValueComponent";
 
 export class ObjectInputComponent<T extends object> implements IHasComponent, IInputComponentCollection, IHasInputComponent {
     public readonly componentType: TypeComponentType = "object";
@@ -205,9 +207,9 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         }
     }
 
-    public inputSimulate(recordPath:RecordPath, value: any): void {
-        let inputComponent = recusiveGetRecordPathChild(this, recordPath);
-        inputComponent.inputSimulate(recordPath, value);
+    public inputSimulate<T>(recordPath:RecordPath, value: T): IResultBase {
+        let inputComponent:IValueComponent<T> = recusiveGetRecordPathChild(this, recordPath);
+        return inputComponent.inputSimulate(value);
     }
 
 }

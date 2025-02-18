@@ -4,16 +4,18 @@ import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observ
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
-import { IRecordPathInput } from "../../RecordPath";
+import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { InputTypeBoolean } from "../../TypeComponentFormat/TypeComponentFormat";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
 import { IInputComponentCollection } from "../ICollectionComponent";
 import { IInputComponet } from "../IInputComponet";
 import { IValueComponent } from "../IValueComponent";
 import "./BooleanInputComponent.css";
+import { simulateCheckboxChange } from "../../../../Extend/ExtendElement/ExtendHTMLInputElement";
+import { IResultBase } from "../../../../BaseClasses/ResultBase";
 
 
-export class BooleanInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, ITypeComponent, IValueComponent {
+export class BooleanInputComponent implements IHasComponent, IInputComponet, IHasInputComponent, ITypeComponent, IValueComponent<boolean> {
     public readonly componentType: TypeComponentType = "boolean";
     public readonly interfaceType: TypeComponentInterfaceType[] = ["IHasComponent", "IInputComponet", "IHasInputComponent", "IValueComponent"];
     public readonly component: BaseComponent;
@@ -133,6 +135,11 @@ export class BooleanInputComponent implements IHasComponent, IInputComponet, IHa
         this.value.clearMethods();
         this.darty.clearMethods();
         this._save.clearMethods();
+    }
+
+    public inputSimulate(value: boolean): IResultBase {
+        if (typeof value !== "boolean") {console.error("value is not boolean"); return {success: false};}
+        return simulateCheckboxChange(this._htmlCheckInputElement, value);
     }
 
     

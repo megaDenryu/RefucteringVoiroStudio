@@ -1,12 +1,14 @@
+import { IResultBase } from "../../../BaseClasses/ResultBase";
 import { IHasSquareBoard } from "../../Board/IHasSquareBoard";
 import { RecordPath } from "../RecordPath";
 import { IComponentManager } from "./IComponentManager";
 import { IInputComponet } from "./IInputComponet";
+import { IValueComponent } from "./IValueComponent";
 
 export interface IInputComponentCollection extends IInputComponet, IHasSquareBoard {
     get inputComponentList(): IInputComponet[];
     readonly componentManager: IComponentManager|null;
-    inputSimulate(recordPath:RecordPath, value: any): void;
+    inputSimulate(recordPath:RecordPath, value: any): IResultBase
 }
 
 export function isIInputComponentCollection(inputComponent: IInputComponet): boolean {
@@ -88,12 +90,12 @@ export function recusiveRegisterUpdateChildSegmentToNewChild(
  * @param inputComponentCollection 
  * @param recordPath
  */
-export function recusiveGetRecordPathChild(
+export function recusiveGetRecordPathChild<T>(
     inputComponentCollection: IInputComponentCollection,
     recordPath: RecordPath
-): IInputComponet {
+): IValueComponent<T> {
     if (recordPath.path.length == 0) {
-        return inputComponentCollection;
+        throw new Error("recordPath is empty");
     }
     let child = inputComponentCollection.inputComponentList.find((inputComponent) => {
         return inputComponent.title == recordPath.path[0];
@@ -102,7 +104,7 @@ export function recusiveGetRecordPathChild(
         throw new Error("Not found child");
     }
     if (recordPath.path.length == 1) {
-        return child;
+        return child as IValueComponent<T>;
     }
     if (isIInputComponentCollection2(child)) {
         return recusiveGetRecordPathChild(child, recordPath.shift());

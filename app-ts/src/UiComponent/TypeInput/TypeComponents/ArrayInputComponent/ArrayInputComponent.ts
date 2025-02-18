@@ -4,10 +4,10 @@ import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "
 import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { TypeComponentType, TypeComponentInterfaceType, ITypeComponent } from "../../ComponentType";
-import { IRecordPathInput } from "../../RecordPath";
+import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { ArrayUnitComponent, IArrayUnitComponent } from "../CompositeComponent/CompositeBase/ArrayUnitComponent";
 import { IHasInputComponent } from "../CompositeComponent/ICompositeComponentList";
-import { IInputComponentCollection } from "../ICollectionComponent";
+import { IInputComponentCollection, recusiveGetRecordPathChild } from "../ICollectionComponent";
 import { IComponentManager } from "../IComponentManager";
 import { getComponentManager, getPath, getRootParent, IInputComponet, rootParentExecuteOptimizedBoardSize } from "../IInputComponet";
 import { ObjectInputComponent } from "../ObjectInputComponent/ObjectInputComponent";
@@ -17,6 +17,8 @@ import { ArrayInputComponentWithSaveButton } from "./ArrayInputComponentWithSave
 import { ObjectInputComponentWithSaveButton } from "../ObjectInputComponent/ObjectInputComponentWithSaveButton";
 import { RecordInputComponentWithSaveButton } from "../RecordInputComponent/RecordInputComponentWithSaveButton";
 import { InputTypeArray, InputTypeComponentFormat, InputTypeObject } from "../../TypeComponentFormat/TypeComponentFormat";
+import { IResultBase } from "../../../../BaseClasses/ResultBase";
+import { IValueComponent } from "../IValueComponent";
 
 export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasComponent, IInputComponentCollection, IHasInputComponent, ITypeComponent {
     public readonly componentType: TypeComponentType = "array";
@@ -255,6 +257,11 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             inputComponent.delete();
         });
         this.component.delete();
+    }
+
+    public inputSimulate<T>(recordPath:RecordPath, value: T): IResultBase {
+        let inputComponent:IValueComponent<T> = recusiveGetRecordPathChild(this, recordPath);
+        return inputComponent.inputSimulate(value);
     }
 
 }

@@ -132,6 +132,10 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IVoiceSetting, 
   public delete(): void {
     this._squareBoardComponent.component.element.remove();
   }
+
+  public inputSimulate(recordPath:RecordPath, value: any): void {
+    this._manageDataSettingComponent.inputSimulate(recordPath, value);
+  }
 }
 
 export function createCoeiroinkVoiceSetting(
