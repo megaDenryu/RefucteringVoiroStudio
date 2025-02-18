@@ -966,6 +966,20 @@ async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
         coeiroink.setVoiceSetting(req.coeiroinkCharacterSettingModel.voiceSetting)
         CoeiroinkCharacterSettingCollectionOperator.singleton().save(req.coeiroinkCharacterSettingModel)
         return json.dumps({"message": "CoeiroinkCharacterSettingを保存しました"})
+    
+class LaunchTTSSoftwareReq(BaseModel):
+    tts: TTSSoftware
+class LaunchTTSSoftwareRes(BaseModel):
+    message: str
+
+@app.post("/LaunchTTSSoftware")
+async def launchTTSSoftware(req: LaunchTTSSoftwareReq):
+    ExtendFunc.ExtendPrint(req)
+    # todo :TTSSoftwareを起動する
+    tts = req.tts
+    ExtendFunc.ExtendPrint(f"{tts}を起動します")
+    res = LaunchTTSSoftwareRes(message=f"{tts}を起動しました")
+    return res.model_dump_json()
 
 
 

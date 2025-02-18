@@ -62,6 +62,12 @@ export class SentenceDisplay implements IHasComponent,IHasSquareBoard {
         return this;
     }
 
+    public changeSentence(sentence: string): SentenceDisplay {
+        this._sentence = sentence;
+        this._sentenceDisplay.changeText(sentence);
+        return this;
+    }
+
 
 
     

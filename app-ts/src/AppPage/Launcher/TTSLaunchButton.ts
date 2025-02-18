@@ -5,8 +5,12 @@ import { TTSSoftware } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
 
 
-export type TTSLaunchReq = {
+export type LaunchTTSSoftwareReq = {
+    tts: TTSSoftware;
+}
 
+export type LaunchTTSSoftwareRes = {
+    message: string;
 }
 
 export class TTSLaunchButton implements IHasComponent {
@@ -34,7 +38,10 @@ export class TTSLaunchButton implements IHasComponent {
         else {
             this._notifyBoard.open();
         }
-        // RequestAPI.postRequest("LaunchTTSSoftware", {tts: this.tts});
+        let result = RequestAPI.postRequest<LaunchTTSSoftwareRes>("LaunchTTSSoftware", {tts: this.tts});
+        result.then((res) => {
+            this._notifyBoard.changeSentence(res.message);
+        });
         
     }
     
