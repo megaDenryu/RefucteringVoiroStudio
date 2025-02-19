@@ -22,6 +22,7 @@ import { HandleWebSocketMessage } from "../Setting/SettingWebsocket";
 import { AppSettingsModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/AppSettingModel";
 import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceSettingModel";
 import { ICharacterSetting } from "../CharacterSetting/ICharacterSetting";
+import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
 
 // const { promises } = require("fs");
 
@@ -3519,7 +3520,8 @@ export class GlobalState {
                 let humanTab:HumanTab = humanTabList[i];
                 let settingPanel:ICharacterSetting<VoiceSettingModel> = humanTab.characterSetting ?? (() => {throw new Error("characterSettingが見つかりません")})();
                 let voiceSettingModel = settingPanel.voiceSetting; // 読み上げ間隔はgetterはあるが、変更アクセス権がないので作成する
-                
+                voiceSettingModel.inputSimulate(new RecordPath(["読み上げ間隔"]),読み上げ間隔の一括設定)
+                voiceSettingModel.inputSimulate(new RecordPath(["AIによる文章変換"]),AIによる文章変換の一括設定)
 
             }
             //読み上げ間隔の一括設定をする。クライアント側のキャラの声設定UIにアクセスし変更する
