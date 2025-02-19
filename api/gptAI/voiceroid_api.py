@@ -1826,19 +1826,30 @@ class TTSSoftwareManager:
             state = TTSSoftwareManager.HasTTSStateDict[ttss]
             if state is not None:
                 TTSSoftwareManager.updateCharaList(ttss,state)
+    
+    @staticmethod
+    def tryUpdateCharaList(ttss:TTSSoftware):
+        """
+        ボイロの起動コマンド直後にやると、声色インクとかが、非同期ではなく別プロセスで実行されてるせいで失敗することがあるのでアプデボタンを押したときに実行するようにする。また、通信に失敗した場合はエラーを投げる。
+        """
+        state = TTSSoftwareManager.HasTTSStateDict[ttss]
+        if state is not None:
+            TTSSoftwareManager.updateCharaList(ttss,state)
 
     @staticmethod
-    def updateCharaList(ttss:TTSSoftware, tmp_human:HasTTSState):
+    def updateCharaList(ttss:TTSSoftware, human_state:HasTTSState)->bool:
         """
         各種ボイスロイドのキャラクターリストを更新する
         """
-        if tmp_human.hasTTSSoftware == TTSSoftwareInstallState.Installed and tmp_human.onTTSSoftware:
+        if human_state.hasTTSSoftware == TTSSoftwareInstallState.Installed and human_state.onTTSSoftware:
             ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストを更新します。")
-            tmp_human.updateAllCharaList()
+            human_state.updateAllCharaList()
+            return True
         else:
             onTTSSoftwareDict = TTSSoftwareManager._instance.onTTSSoftwareDict[ttss]
             ExtendFunc.ExtendPrintWithTitle(f"{ttss}の起動状況",onTTSSoftwareDict)
-            ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストの更新に失敗しました。",tmp_human)
+            ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストの更新に失敗しました。",human_state)
+            return False
         
      
 
