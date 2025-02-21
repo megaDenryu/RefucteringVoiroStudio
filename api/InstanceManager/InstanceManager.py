@@ -11,6 +11,9 @@ from api.gptAI.InputReciever import InputReciever
 
 
 class InastanceManager(InstanceManagerInterface):
+    _instance: "InastanceManager|None" = None
+    _initialized: bool = False
+
     _clientIds: ClientIds
     _clientWs: ClientWebSocket
     _humanInstances: HumanInstanceContainer
@@ -65,7 +68,18 @@ class InastanceManager(InstanceManagerInterface):
         return self._appSettingModule
     
 
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            instance = super().__new__(cls)
+            cls._instance = instance
+        return cls._instance
+
     def __init__(self):
+        # __init__ は new されたたびに呼ばれるので、一度だけ初期化する
+        if hasattr(self, "_initialized") and self._initialized:
+            return
+        self._initialized = True
+        self._instance = self
         self._clientIds = ClientIds()
         self._clientWs = ClientWebSocket()
         self._humanInstances = HumanInstanceContainer()
@@ -76,6 +90,10 @@ class InastanceManager(InstanceManagerInterface):
         self._agentPipeManager = AgentPipeManager(self._inputReciever)
         self._appSettingModule = AppSettingModule()
         self.registerEvent()
+
+    @staticmethod
+    def singleton():
+        return InastanceManager()
 
     def registerEvent(self):
         self._gptAgentInstanceManager.addClearMessageStackEvent(self._inputReciever.clearMessageStack)

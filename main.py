@@ -106,6 +106,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+
+
 # カスタムフォーマッタの定義
 class CustomFormatter(logging.Formatter):
     def format(self, record):
@@ -158,7 +160,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 # プッシュ通知各種設定が定義されているインスタンス
 notifier = Notifier()
-inastanceManager = InastanceManager()
+inastanceManager = InastanceManager.singleton()
 #Humanクラスの生成されたインスタンスを登録する辞書を作成
 # human_dict:dict[CharacterId,Human] = {}
 # gpt_mode_dict = {}
@@ -967,20 +969,8 @@ async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
         CoeiroinkCharacterSettingCollectionOperator.singleton().save(req.coeiroinkCharacterSettingModel)
         return json.dumps({"message": "CoeiroinkCharacterSettingを保存しました"})
     
-class LaunchTTSSoftwareReq(BaseModel):
-    tts: TTSSoftware
-class LaunchTTSSoftwareRes(BaseModel):
-    message: str
-
-@app.post("/LaunchTTSSoftware")
-async def launchTTSSoftware(req: LaunchTTSSoftwareReq):
-    ExtendFunc.ExtendPrint(req)
-    # todo :TTSSoftwareを起動する
-    tts = req.tts
-    ExtendFunc.ExtendPrint(f"{tts}を起動します")
-    res = LaunchTTSSoftwareRes(message=f"{tts}を起動しました")
-    return res.model_dump_json()
-
+from api.Routers import LaunchTTSSoftware
+app.include_router(LaunchTTSSoftware.router)
 
 
 if __name__ == "__main__":

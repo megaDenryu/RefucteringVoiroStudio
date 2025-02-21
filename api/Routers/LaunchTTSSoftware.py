@@ -1,0 +1,30 @@
+from fastapi import APIRouter
+from pydantic import BaseModel
+
+from api.Extend.ExtendFunc import ExtendFunc
+from api.gptAI.HumanInfoValueObject import TTSSoftware
+from api.gptAI.HumanInformation import AllHumanInformationManager
+from api.gptAI.voiceroid_api import TTSSoftwareManager
+
+router = APIRouter()
+
+class LaunchTTSSoftwareReq(BaseModel):
+    tts: TTSSoftware
+class LaunchTTSSoftwareRes(BaseModel):
+    message: str
+
+@router.post("/LaunchTTSSoftware")
+async def launchTTSSoftware(req: LaunchTTSSoftwareReq):
+    # todo :TTSSoftwareを起動する
+    tts = req.tts
+    ExtendFunc.ExtendPrint("ボイスロイドの起動")
+    state = TTSSoftwareManager.tryStartTTSSoftware(tts)
+    result = TTSSoftwareManager.updateCharaList(tts,state)
+    ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
+
+    if result == True:
+        res = LaunchTTSSoftwareRes(message=f"{tts}を起動しました")
+        return res.model_dump_json()
+    else:
+        res = LaunchTTSSoftwareRes(message=f"{tts}の起動に失敗しました")
+        return res.model_dump_json()
