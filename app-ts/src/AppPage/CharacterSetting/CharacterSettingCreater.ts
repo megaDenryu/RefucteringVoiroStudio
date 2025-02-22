@@ -12,9 +12,9 @@ import { createCoeiroinkCharacterSetting } from "./CoeiroinkCharacterSetting";
 import { ICharacterSetting } from "./ICharacterSetting";
 import { createVoiceVoxCharacterSetting } from "./VoiceVoxCharacterSetting";
 
-export function createCharacterVoiceSetting(req:TtsSoftWareVoiceSettingReq, ttsSoftWare: TTSSoftware, characterSaveData:ICharacterSettingSaveModel<VoiceSettingModel>): ICharacterSetting<VoiceSettingModel>|null {
+export async function createCharacterVoiceSetting(req:TtsSoftWareVoiceSettingReq, ttsSoftWare: TTSSoftware, characterSaveData:ICharacterSettingSaveModel<VoiceSettingModel>): Promise<ICharacterSetting<VoiceSettingModel>|null> {
     if (ttsSoftWare === "CevioAI") {
-        return createCevioAICharacterSetting(req, characterSaveData as ICharacterSettingSaveModel<CevioAIVoiceSettingModel>);
+        return await createCevioAICharacterSetting(req, characterSaveData as ICharacterSettingSaveModel<CevioAIVoiceSettingModel>);
     } 
     else if (ttsSoftWare === "VoiceVox") {
         return createVoiceVoxCharacterSetting(req, characterSaveData as ICharacterSettingSaveModel<VoiceVoxVoiceSettingModel>);

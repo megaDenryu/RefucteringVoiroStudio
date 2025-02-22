@@ -46,13 +46,13 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
             ) {
         this._title = title;
         this._schema = schema;
+        this._values = defaultValues;
         this.parent = parent;
         this.componentManager = rootParent;
         this.inputFormat = inputFormat;
         this._squareBoardComponent = new SquareBoardComponent(title,400,600);
         this.component = this._squareBoardComponent.component;
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
-        this._values = defaultValues;
         this.initialize();
     }
 
@@ -61,7 +61,6 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         for (let key in schema.shape) {
             const inputFormat = (this.inputFormat?.collectionType[key])??null;
             let inputComponent = this.createDefaultInputComponent(key, schema.shape[key], defaultValues[key], inputFormat, this);
-            
             inputComponent.component.addCSSClass(["Indent","padding"]);
             _inputComponentDict[key] = inputComponent;
         }

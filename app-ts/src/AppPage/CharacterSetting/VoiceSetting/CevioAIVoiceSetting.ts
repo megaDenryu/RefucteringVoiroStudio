@@ -1,3 +1,4 @@
+import { Console } from "console";
 import { generateDefaultObject } from "../../../Extend/ZodExtend/ZodExtend";
 import { IHasComponent, BaseComponent } from "../../../UiComponent/Base/ui_component_base";
 import { IOpenCloseWindow } from "../../../UiComponent/Board/IOpenCloseWindow";
@@ -15,9 +16,6 @@ import { CevioAIVoiceSettingReq } from "../../../ZodObject/DataStore/ChatacterVo
 import { TtsSoftWareVoiceSettingReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { ISaveSetting } from "../ISaveSetting";
 import { IVoiceSetting } from "./IVoiceSetting";
-
-
-
 export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IHasComponent {
   public readonly component: BaseComponent;
   private testMode: boolean = false;
@@ -27,6 +25,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IH
   private _squareBoardComponent: SquareBoardComponent;
   // private _manageDataSettingComponent:ObjectInputComponentWithSaveButton<CevioAIVoiceSettingModel>
   private _manageDataSettingComponent: ObjectInputComponent<CevioAIVoiceSettingModel>;
+  private characterSetting:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>
   private _開閉Button: ToggleButton<OpenCloseState>;
   private _reqInfo: TtsSoftWareVoiceSettingReq;
 
@@ -39,7 +38,7 @@ export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IH
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  public constructor(req: CevioAIVoiceSettingReq, voiceSetting:CevioAIVoiceSettingModel|undefined, settingSaver:ISaveSetting<CevioAIVoiceSettingModel>) {
+  public constructor(req: CevioAIVoiceSettingReq, voiceSetting: CevioAIVoiceSettingModel, settingSaver:ISaveSetting<CevioAIVoiceSettingModel>) {
     this._squareBoardComponent = new SquareBoardComponent(
       "設定画面",
       null,
@@ -52,8 +51,8 @@ export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IH
     this.component = this._squareBoardComponent.component;
     this._開閉Button = createOpenCloseButton({"title":"開閉ボタン","openAction":()=>{this.open()}, "closeAction":()=>{this.close()}, "defaultState":"goClose"});
     this._reqInfo = req;
-    this.manageData = voiceSetting ?? generateDefaultObject(CevioAIVoiceSettingModel);
     this.settingSaver = settingSaver;
+    this.manageData = voiceSetting
     this.initialize();
   }
 
@@ -152,6 +151,6 @@ export function createCevioAIVoiceSetting(
     character_id: character_id,   
   };
 
-  const cevioAIVoiceSetting = new CevioAIVoiceSetting(cevioAIVoiceSettingReq, characterSaveData.voiceSetting, settingSaver);
+  const cevioAIVoiceSetting = new CevioAIVoiceSetting(cevioAIVoiceSettingReq, characterSaveData.voiceSetting as CevioAIVoiceSettingModel, settingSaver);
   return cevioAIVoiceSetting;
 }

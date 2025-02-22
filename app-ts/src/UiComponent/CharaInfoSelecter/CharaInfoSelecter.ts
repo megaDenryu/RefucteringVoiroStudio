@@ -1099,7 +1099,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
             client_id: GlobalState.client_id,
             character_id: characterId,
         }
-        this.human_tab.characterSetting = createCharacterVoiceSetting(req, tts_software, charactersaveData);
+        this.human_tab.characterSetting = await createCharacterVoiceSetting(req, tts_software, charactersaveData);
 
         //ウィンドウを削除する
         this.deleteWiondow();

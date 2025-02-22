@@ -21,6 +21,7 @@ from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import Voi
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
+from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponentArray2 import TalkerComponentArray2
 from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModelReq import CoeiroinkVoiceSettingModelReq
 from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISentenceConverter
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
@@ -968,6 +969,23 @@ async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
         coeiroink.setVoiceSetting(req.coeiroinkCharacterSettingModel.voiceSetting)
         CoeiroinkCharacterSettingCollectionOperator.singleton().save(req.coeiroinkCharacterSettingModel)
         return json.dumps({"message": "CoeiroinkCharacterSettingを保存しました"})
+
+class CevioAIDefaultVoiceSettingReq(BaseModel):
+    page_mode: PageMode
+    client_id: str
+    character_id: CharacterId
+
+@app.post("/CevioAIDefaultVoiceSetting")
+async def cevioAIDefaultVoiceSetting(req: CevioAIDefaultVoiceSettingReq):
+    ExtendFunc.ExtendPrint(req)
+    human = inastanceManager.humanInstances.tryGetHuman(req.character_id)
+    if human == None:
+        raise HTTPException(status_code=404, detail="Humanが存在しません")
+    cevio = human.human_Voice
+    if isinstance(cevio, cevio_human):
+        # talkerComponentArray2を取得する
+        voiceSetting = cevio.Components
+        return voiceSetting.model_dump_json()
     
 from api.Routers import LaunchTTSSoftware
 app.include_router(LaunchTTSSoftware.router)
