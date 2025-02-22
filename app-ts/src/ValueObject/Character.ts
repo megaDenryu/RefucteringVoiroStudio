@@ -7,7 +7,7 @@ import { CoeiroinkCharacterSettingSaveModel } from "../ZodObject/DataStore/Chara
 import { VoiceVoxCharacterSettingSaveModel } from "../ZodObject/DataStore/CharacterSetting/VoiceVoxCharacterSettingSaveModel";
 import { VoiceState } from "./VoiceState";
 
-export type CharacterId = string&{ readonly brand: unique symbol };    
+export type CharacterId = string//&{ readonly brand: unique symbol };    
 export type CharacterSaveId = string//&{ readonly brand: unique symbol };
 export type TTSSoftware = "CevioAI" | "VoiceVox" | "AIVoice" | "Coeiroink";
 

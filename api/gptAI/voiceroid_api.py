@@ -61,7 +61,11 @@ class cevio_human:
         if self.chara_mode_state is None:
             return None
             # raise Exception("chara_mode_stateがNoneです")
-        return self.chara_mode_state.voice_mode.mode
+        name = self.chara_mode_state.voice_mode.mode
+        if name == "":
+            ExtendFunc.ExtendPrint("キャスト名が空です")
+            return None
+        return name
     
     onTTSSoftware:bool = False #CevioAIが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #CevioAiがインストールされているかどうか
@@ -132,6 +136,7 @@ class cevio_human:
                 #output_wavフォルダがなければ作成
                 os.makedirs("output_wav", exist_ok=True)
                 wav_path = f"output_wav/cevio_audio_{self.cevio_name}_{index}.wav"
+                ExtendFunc.ExtendPrint(wav_path)
                 state:bool = self.talker.OutputWaveToFile(text,wav_path)
                 phoneme = self.talker.GetPhonemes(text) #音素
                 phoneme_str = [[phoneme.at(x).Phoneme,phoneme.at(x).StartTime,phoneme.at(x).EndTime] for x in range(0,phoneme.Length)]
@@ -213,6 +218,9 @@ class cevio_human:
     
     def setCast(self,cast_name:str|None):
         if cast_name is not None:
+            if cast_name == "":
+                ExtendFunc.ExtendPrint("キャスト名が空です")
+                return
             self.talker.Cast = cast_name
 
     def kill_cevio(self):
@@ -322,7 +330,7 @@ class cevio_human:
         self.setComponents(voiceSetting.talkerComponentArray2)
 
     def setTalker2V40(self,talker2V40:Talker2V40):
-        self.talker.Cast = talker2V40.Cast
+        self.setCast(talker2V40.Cast)
         self.talker.Volume = talker2V40.Volume
         self.talker.Speed = talker2V40.Speed
         self.talker.Tone = talker2V40.Tone
