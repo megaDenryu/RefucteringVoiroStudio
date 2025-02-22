@@ -117,6 +117,9 @@ export interface CevioAIDefaultVoiceSettingReq {
 export async function createCevioAICharacterSetting(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>) {
     if (characterSaveData.voiceSetting === undefined) {
         let firstStep:CevioAIVoiceSettingModel = generateDefaultObject(CevioAIVoiceSettingModel);
+        if (firstStep.talker2V40 != undefined && firstStep.talker2V40.Cast == "") {
+            firstStep.talker2V40.Cast = characterSaveData.characterInfo.characterName.name;
+        }
         const cevioAIDefaultVoiceSettingReq:CevioAIDefaultVoiceSettingReq = {
             page_mode: "Chat",
             client_id: GlobalState.client_id,
