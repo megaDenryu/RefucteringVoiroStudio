@@ -42,13 +42,13 @@ class HumanPart:
         return file_path
     
     @staticmethod
-    def writeCharFilePathToNewPSDFileName(chara_name:CharacterName,folder_name):
+    def writeCharFilePathToNewPSDFileName(chara_name:CharacterName,human_image:HumanImage):
         CharFilePath_path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__, "api/CharSettingJson/CharFilePath.json")
         CharFilePathDict:dict[str,list[str]] = ExtendFunc.loadJsonToDict(CharFilePath_path)
         if chara_name.name in CharFilePathDict:
-            CharFilePathDict[chara_name.name].insert(0,folder_name)
+            CharFilePathDict[chara_name.name].insert(0,human_image.folder_name)
         else:
-            CharFilePathDict[chara_name.name] = [folder_name]
+            CharFilePathDict[chara_name.name] = [human_image.folder_name]
         ExtendFunc.saveDictToJson(CharFilePath_path,CharFilePathDict)
 
     def getHumanAllParts(self, human_char_name:CharacterName, front_name:str, human_image:HumanImage, psd_num:int|None = None) -> tuple[HumanData, AllBodyFileInfo]:

@@ -614,15 +614,16 @@ async def parserPsdFile(
     with open(psd_file, 'wb') as f:
         f.write(file_contents)
     
+    human_image = HumanImage(folder_name=folder_name)
     # psdファイルをパースして保存
     parser = PsdParserMain(folder,psd_file)
     # CharFilePath.jsonにファイル名を追加
-    HumanPart.writeCharFilePathToNewPSDFileName(chara_name,folder_name)
+    HumanPart.writeCharFilePathToNewPSDFileName(chara_name,human_image)
     AllHumanInformationManager.singleton().load()
     
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得
-        human_part = HumanPart(chara_name,HumanImage(folder_name=folder_name))
+        human_part = HumanPart(chara_name,human_image)
         if front_name == "????":
             image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, chara_name.name ,folder)
             charaCreateData:CharaCreateData = {
