@@ -1093,9 +1093,6 @@ class AIVoiceHuman:
     
     def updateAllCharaList(self):
         """
-        AIVoiceのキャラクター名を取得して、AIVOICEKnownNames.jsonを更新する
-        1.いきなり完成版のボイスモード辞書を作成
-
         1. AIVoiceのキャラクター名を取得
         2. キャラクター名リストを更新
         3. キャラクター名からボイスモード名リストを返す辞書    を更新
@@ -1123,6 +1120,8 @@ class AIVoiceHuman:
         1.何らかのAIVOICEのボイロを起動したときに呼び出して新しいキャラが要れば更新する
         todo この関数を呼び出すタイミングを考える
         2.KnownNames.jsonに自分が持っているキャラがいない人はいつ呼び出すか決まっていない。
+
+        2025/02/24 AIVOICEKnownNames.json自体必要ないので削除して良さそう
         """
         # 同じapi_dirにアクセスするので効率化のために先に取得しておく
         api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
