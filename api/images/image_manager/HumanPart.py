@@ -9,7 +9,7 @@ from pprint import pprint
 import re
 from collections import OrderedDict
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInfoValueObject import CharacterName
+from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage
 from api.images.image_manager.IHumanPart import BodyPartsImages, AllBodyFileInfo, HumanData, InitImageInfo
 
 if TYPE_CHECKING:
@@ -17,32 +17,27 @@ if TYPE_CHECKING:
 
 class HumanPart:
     chara_name:CharacterName
+    human_image:HumanImage
     @property
     def name(self)->str:
         return self.chara_name.name
-    def __init__(self,chara_name:CharacterName) -> None:
+    def __init__(self,chara_name:CharacterName, humanImage:HumanImage) -> None:
         self.chara_name = chara_name
-         #キャラの名前。フロントネームからキャラネームに変換済みの物を入れる。
-        self.emotion_list = [
-            "普通",
-            "嬉しい",
-            "がびーん",
-            "涙目",
-            "怖い",
-            "怒り",
-            "悲しい",
-            "恥ずかしい",
-            "楽しい"
-        ]
+        self.human_image = humanImage
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__,"api")
     
-    def setCharFilePath(self,name,psd_num):
+    def getCharFilePath(self,characterName:CharacterName,human_image:HumanImage,psd_num:int|None = None):
         
         char_file_path = self.api_dir / "CharSettingJson" / "CharFilePath.json"
         print("char_file_path",char_file_path)
         with open(char_file_path, 'r', encoding='utf-8') as f:
-            name_list = json.load(f)
-        file_path = f"{name}/{name_list[name][psd_num]}"
+            name_list:dict[str,list[str]] = json.load(f)
+        ExtendFunc.ExtendPrintWithTitle("name_list",name_list)
+        if psd_num != None:
+            file_path = f"{characterName.name}/{name_list[characterName.name][psd_num]}"
+        else:
+            image_name = human_image.folder_name
+            file_path = f"{characterName.name}/{image_name}"
         print("file_path",file_path)
         return file_path
     
@@ -56,14 +51,14 @@ class HumanPart:
             CharFilePathDict[chara_name.name] = [folder_name]
         ExtendFunc.saveDictToJson(CharFilePath_path,CharFilePathDict)
 
-    def getHumanAllParts(self, human_char_name:str, front_name:str, psd_num = 0) -> tuple[HumanData, AllBodyFileInfo]:
+    def getHumanAllParts(self, human_char_name:CharacterName, front_name:str, human_image:HumanImage, psd_num:int|None = None) -> tuple[HumanData, AllBodyFileInfo]:
         #入力名からキャラの正式名を取得
-        char_file_path = self.setCharFilePath(human_char_name,psd_num)
+        char_file_path = self.getCharFilePath(human_char_name,human_image,psd_num)
         #キャラの正式名からキャラの体パーツフォルダの画像のpathを取得
         path_str = str(HumanPart.getVoiroCharaImageFolderPath() / char_file_path)
         return self.getHumanAllPartsFromPath(human_char_name,front_name, path_str)
     
-    def getHumanAllPartsFromPath(self, human_char_name:str, front_name:str, path_str:str)->tuple[HumanData, AllBodyFileInfo]:
+    def getHumanAllPartsFromPath(self, human_char_name:CharacterName, front_name:str, path_str:str)->tuple[HumanData, AllBodyFileInfo]:
         #キャラの体パーツフォルダの画像を全て辞書形式で取得
         body_parts_iamges:BodyPartsImages
         body_parts_pathes_for_gpt:AllBodyFileInfo
@@ -74,7 +69,7 @@ class HumanPart:
             "body_parts_iamges":body_parts_iamges,
             "init_image_info":init_image_info,
             "front_name":front_name,
-            "char_name":human_char_name
+            "char_name":human_char_name.name
         }
         return data_for_client,body_parts_pathes_for_gpt
 
@@ -158,7 +153,7 @@ class HumanPart:
         except Exception as e:
             print(e)
             print(f"init_image_info.jsonが見つかりませんでした。path:{path}")
-            return init_image_info
+            raise e
         
     def saveImageInfo(self,info_dict:dict, path_str:str, body_parts_iamges:dict):
         save_switch = False
@@ -210,7 +205,7 @@ class HumanPart:
         """
         init_image_info.jsonの中にcombination_nameのキーでcombination_dataを保存する
         """
-        char_file_path = self.setCharFilePath(self.name,psd_num)
+        char_file_path = self.getCharFilePath(self.chara_name,self.human_image ,psd_num)
         path_str = str(HumanPart.getVoiroCharaImageFolderPath() / char_file_path)
         init_image_info = self.getInitImageInfo(path_str)
         init_image_info[combination_name] = combination_data
@@ -300,7 +295,7 @@ class HumanPart:
 
         is_cevio_acticve = False
         if is_cevio_acticve:
-            pass
+            chara_names = []
         else:
             #CevioNameForVoiceroidAPI.jsonから名前を取得
             path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/CevioNameForVoiceroidAPI.json")
@@ -311,7 +306,7 @@ class HumanPart:
     def getAIVoiceAllNames():
         is_aivoice_active = False
         if is_aivoice_active:
-            pass
+            chara_names = []
         else:
             path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/AIVOICENameForVoiceroidAPI.json")
             chara_names = ExtendFunc.loadJsonToList(path)
@@ -321,7 +316,7 @@ class HumanPart:
     def getVoiceVoxAllNames():
         is_voicevox_active = False
         if is_voicevox_active:
-            pass
+            chara_names = []
         else:
             path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/VoiceVoxNameForVoiceroidAPI.json")
             chara_names = ExtendFunc.loadJsonToList(path)
@@ -332,7 +327,7 @@ class HumanPart:
     def getCoeiroinkAllNames():
         is_coeiroink_active = False
         if is_coeiroink_active:
-            pass
+            chara_names = []
         else:
             path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/CoeiroinkNameForVoiceroidAPI.json")
             chara_names = ExtendFunc.loadJsonToList(path)
