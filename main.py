@@ -622,16 +622,16 @@ async def parserPsdFile(
     
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得
-        human_part = HumanPart(chara_name)
+        human_part = HumanPart(chara_name,HumanImage(folder_name=folder_name))
         if front_name == "????":
-            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, chara_name.name ,folder)
+            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, chara_name.name ,folder)
             charaCreateData:CharaCreateData = {
                 "humanData":image_data_for_client,
                 "characterModeState":CharacterModeState.newFromFrontName(chara_name.name,characterId).toDict()
             }
         else:
             ExtendFunc.ExtendPrint(f"{front_name=}")
-            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, front_name ,folder)
+            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, front_name ,folder)
             charaCreateData:CharaCreateData = {
                 "humanData":image_data_for_client,
                 "characterModeState":CharacterModeState.newFromFrontName(front_name,characterId).toDict()
