@@ -50,7 +50,7 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         this.parent = parent;
         this.componentManager = rootParent;
         this.inputFormat = inputFormat;
-        this._squareBoardComponent = new SquareBoardComponent(title, "400px", "600px");
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.component = this._squareBoardComponent.component;
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.initialize();

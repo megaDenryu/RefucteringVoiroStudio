@@ -54,7 +54,7 @@ export class RecordInputComponentWithSaveButton implements IHasComponent, IInput
         this._schema = schema;
         this._values = defaultValues;
         this.inputFormat = inputFormat;
-        this._squareBoardComponent = new SquareBoardComponent(title, "400px", "600px");
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("全体保存", "normal");
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);

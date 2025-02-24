@@ -50,7 +50,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
             ) {
         this._title = title;
         this._schema = schema;
-        this._squareBoardComponent = new SquareBoardComponent(title,"600px","600px");
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("リスト全体保存", "normal");
         this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues);

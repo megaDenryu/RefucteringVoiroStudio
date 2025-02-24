@@ -42,7 +42,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             ) {
         this._title = title;
         this._schema = schema;
-        this._squareBoardComponent = new SquareBoardComponent(title,"600px","600px");
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.component = this._squareBoardComponent.component;
         this._arrayUnitList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.parent = parent;

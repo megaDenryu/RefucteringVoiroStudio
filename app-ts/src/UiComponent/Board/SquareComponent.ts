@@ -21,7 +21,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      */
     constructor(
         title: string,
-        width: string|null, height: string|null,
+        width: string|null = null, height: string|null = null,
         additionalClassNames: string[] = [],
         customStyles: Partial<CSSStyleDeclaration> = {},
         id: string|null = null,

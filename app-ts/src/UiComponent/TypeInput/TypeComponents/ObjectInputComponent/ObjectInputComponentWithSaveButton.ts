@@ -53,7 +53,7 @@ export class ObjectInputComponentWithSaveButton<T extends object> implements IHa
         this._title = title;
         this._schema = schema;
         this._values = defaultValues;
-        this._squareBoardComponent = new SquareBoardComponent(title, "400px", "600px");
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.inputFormat = inputFormat;
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("全体保存", "normal");
