@@ -1,0 +1,13 @@
+.SetenceDiplayWindow {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: calc(100% - 50px);
+    padding: 20px;
+}
+
+.SentenceText {
+    max-width: 90%;
+    margin: auto;
+    word-wrap: break-word;
+}

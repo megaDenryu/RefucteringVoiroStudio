@@ -1,4 +1,5 @@
 import { IHasComponent, BaseComponent, ElementCreater } from "../../Base/ui_component_base";
+import "./NormalText.css";
 
 
 export class NormalText implements IHasComponent {
@@ -8,7 +9,7 @@ export class NormalText implements IHasComponent {
 
     public constructor(text: string) {
         this._text = text;
-        const html = `<div>${text}</div>`;
+        const html = `<div class="NormalText">${text}</div>`;
         this.component = new BaseComponent(ElementCreater.createElementFromHTMLString(html));
         this.component.element.innerText = text;
     }

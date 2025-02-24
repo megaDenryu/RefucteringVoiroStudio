@@ -3,6 +3,7 @@ import { IHasSquareBoard } from "../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../Board/SquareComponent";
 import { NormalButton } from "../../Button/NormalButton/NormalButton";
 import { NormalText } from "../Text/NormalText";
+import "./SentenceDisplay.css";
 
 export interface ISentenceDisplayInput {
     title: string;
@@ -39,7 +40,9 @@ export class SentenceDisplay implements IHasComponent,IHasSquareBoard {
     }
 
     private initialize() {
-        // this.component.setAsParentComponent()
+        // cssを適用
+        // this.squareBoardComponent.component.element.classList.add("SetenceDiplayWindow");
+        // this._sentenceDisplay.component.element.classList.add("SentenceText");
     }
 
     public onAddedToDom(): void {
@@ -77,9 +80,5 @@ export class SentenceDisplay implements IHasComponent,IHasSquareBoard {
         // 場所を中央にする。style="transform: translate(76px, -557px);"に設定
         this.component.element.style.transform = "translate(76px, -557px)";
         return this;
-    }
-
-
-
-    
+    }  
 }

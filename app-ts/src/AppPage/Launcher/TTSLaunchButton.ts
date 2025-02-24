@@ -54,5 +54,10 @@ export class TTSLaunchButton implements IHasComponent {
         this.component.delete();
     }
 
+    public setAsChildComponent(): TTSLaunchButton {
+        this.component.setAsChildComponent();
+        return this;
+    }
+
 
 }

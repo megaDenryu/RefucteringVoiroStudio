@@ -318,11 +318,13 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
     setAsChildComponent() {
         this.addCSSClass(["positionRelative"]);
         this.removeCSSClass(["positionAbsolute"]);
+        return this;
     }
 
     setAsParentComponent() {
         this.addCSSClass(["positionAbsolute"]);
         this.removeCSSClass(["positionRelative"]);
+        return this;
     }
 
     get isShow(): boolean {

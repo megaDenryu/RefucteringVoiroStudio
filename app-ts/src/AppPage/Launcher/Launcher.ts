@@ -18,18 +18,17 @@ export class Launcher implements IHasSquareBoard, IHasComponent {
     constructor() {
         this.squareBoardComponent = new SquareBoardComponent(
             this.title,
-            null,
-            null,
+            null,null,
             [],
             {},
             null,
             true
         );
-        this.component = this.squareBoardComponent.component;
-        this._aivoiceLaunchButton = new TTSLaunchButton("AIVoice",this);
-        this._voiceVoxLaunchButton = new TTSLaunchButton("VoiceVox",this);
-        this._coeiroinkLaunchButton = new TTSLaunchButton("Coeiroink",this);
-        this._cevioAIVoiceLaunchButton = new TTSLaunchButton("CevioAI",this);
+        this.component = this.squareBoardComponent.component.setAsParentComponent();
+        this._aivoiceLaunchButton = new TTSLaunchButton("AIVoice",this).setAsChildComponent();
+        this._voiceVoxLaunchButton = new TTSLaunchButton("VoiceVox",this).setAsChildComponent();
+        this._coeiroinkLaunchButton = new TTSLaunchButton("Coeiroink",this).setAsChildComponent();
+        this._cevioAIVoiceLaunchButton = new TTSLaunchButton("CevioAI",this).setAsChildComponent();
         this.initialize();
     }
 

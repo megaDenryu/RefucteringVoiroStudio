@@ -26,7 +26,6 @@ export const GameState = z.object({
     voiceRoidState: VoiceRoidState,
     emotion: z.record(z.number()),
     キャラへの感情: z.record(z.enum(["悲しい", "嬉しい", "怒り"])),
-
 });
 export type GameState = z.infer<typeof GameState>;
 
