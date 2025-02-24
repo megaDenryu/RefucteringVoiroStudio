@@ -27,7 +27,7 @@ export class SettingPage2 implements IComponentManager {
     private _websocket: WebSocket;
     
     constructor() {
-        this._squareBoardComponent = new SquareBoardComponent("設定画面", "400px", "600px")
+        this._squareBoardComponent = new SquareBoardComponent("設定画面",null,null,[],{},null,true)
         this._saveButton = new NormalButton("保存", "normal")
         this._squareBoardComponent.addComponentToHeader(this._saveButton)
         this.initialize()
@@ -50,10 +50,12 @@ export class SettingPage2 implements IComponentManager {
             console.log("real",this.manageData) // {}が返ってくる
         }
         this._appSettingComponent = new ObjectInputComponentWithSaveButton(this.title, AppSettingsModel, this.manageData, null, this, AppSettingsModelFormat)
+        this._squareBoardComponent.component.setAsParentComponent();
+        this._appSettingComponent.component.setAsChildComponent();
         this._squareBoardComponent.component.createArrowBetweenComponents(this._squareBoardComponent, this._appSettingComponent)
         this.bindEvents()
         document.body.appendChild(this._squareBoardComponent.component.element)
-        this.onAddedToDom()
+        // this.onAddedToDom()
     }
 
     private async requestAppSettingModel(): Promise<AppSettingsModel> {
