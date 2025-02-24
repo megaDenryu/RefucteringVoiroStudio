@@ -2,7 +2,6 @@ import { z } from "zod";
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { ReactiveProperty } from "../../../../BaseClasses/EventDrivenCode/observer";
 import { IHasComponent, BaseComponent, ElementCreater } from "../../../Base/ui_component_base";
-import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { ITypeComponent, TypeComponentInterfaceType, TypeComponentType } from "../../ComponentType";
 import { IRecordPathInput, RecordPath } from "../../RecordPath";
 import { InputTypeBoolean } from "../../TypeComponentFormat/TypeComponentFormat";

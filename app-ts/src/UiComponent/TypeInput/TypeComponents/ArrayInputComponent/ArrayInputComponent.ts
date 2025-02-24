@@ -1,7 +1,6 @@
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
 import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "../../../Base/ui_component_base";
-import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { TypeComponentType, TypeComponentInterfaceType, ITypeComponent } from "../../ComponentType";
 import { IRecordPathInput, RecordPath } from "../../RecordPath";
