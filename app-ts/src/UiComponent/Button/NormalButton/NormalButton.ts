@@ -1,23 +1,20 @@
-import { z } from "zod";
 import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_component_base";
 import { ReactiveProperty } from "../../../BaseClasses/EventDrivenCode/observer";
-import { inherits } from "util";
 import { IButton } from "../IButton";
-import "./NormalButton.css";
+import { VanillaExtractClassName } from "../../../Extend/VanilaExtractExtend.ts/VanillaExtractClassName";
+import { clsx } from "clsx";
 
 
-export const NormaButtonViewEnum = z.enum([
-    "normal", "warning", "danger",
-    "closeButton"
-]);
+
+
 
 export class NormalButton implements IHasComponent, IButton {
     component: BaseComponent;
     private _title: string;
-    private _view: ReactiveProperty<z.infer<typeof NormaButtonViewEnum>>;
+    private _view: ReactiveProperty<VanillaExtractClassName>;
     private _onClick: (() => void)[] = [];
     
-    constructor(title: string, defaultView: z.infer<typeof NormaButtonViewEnum>) {
+    constructor(title: string, defaultView: VanillaExtractClassName) {
         this._title = title;
         this._view = new ReactiveProperty(defaultView);
         let html = ElementCreater.createButtonElement(this._title, this.onClick.bind(this));
@@ -34,13 +31,13 @@ export class NormalButton implements IHasComponent, IButton {
 
     private initialize() {
         this._view.addMethod((newView) => {
-            const element = this.component.element;
-            element.classList.remove("normal", "warning", "danger");
-            element.classList.add(newView);
+            this.component.removeCSSClass(["normal", "warning", "danger"]);
+            this.component.addCSSClass(newView);
         });
+        this._view.set(this._view.get());
     }
 
-    public setView(view: z.infer<typeof NormaButtonViewEnum>): NormalButton {
+    public setView(view: VanillaExtractClassName): NormalButton {
         this._view.set(view);
         return this;
     }

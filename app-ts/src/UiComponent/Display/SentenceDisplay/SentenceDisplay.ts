@@ -2,8 +2,8 @@ import { IHasComponent, BaseComponent } from "../../Base/ui_component_base";
 import { IHasSquareBoard } from "../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../Board/SquareComponent";
 import { NormalButton } from "../../Button/NormalButton/NormalButton";
+import { closeButton } from "../../Button/NormalButton/style.css";
 import { NormalText } from "../Text/NormalText";
-import "./SentenceDisplay.css";
 
 export interface ISentenceDisplayInput {
     title: string;
@@ -31,7 +31,7 @@ export class SentenceDisplay implements IHasComponent,IHasSquareBoard {
             true
         );
         this.component = this.squareBoardComponent.component;
-        this.closeButton = new NormalButton("閉じる","closeButton").addOnClickEvent(() => {this.close()}).setView("closeButton");
+        this.closeButton = new NormalButton("閉じる",closeButton).addOnClickEvent(() => {this.close()});
         this._sentenceDisplay = new NormalText(input.sentence);
         this.component.createArrowBetweenComponents(this,this._sentenceDisplay);
         this.squareBoardComponent.addComponentToHeader(this.closeButton);
