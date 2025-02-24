@@ -6,7 +6,7 @@ import "../../../src/OldJs/css/voiro_AI_setting.css"
 import { SpeechRecognition, SpeechRecognitionEvent, webkitSpeechRecognition } from "../../../src/Extend/webkitSpeechRecognition"; 
 import { ExtendedWebSocket } from "../../Extend/extend";
 import { ExtendedMap } from "../../Extend/extend_collections";
-import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, CharaCreateData, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
+import { BodyUnitKey, BodyUnitValue, BodyUnitVariationImageInfo, BodyUnitVariationImages, BodyUnitVariationImagesMap, BodyUnitVariationKey, CharaCreateData, CharaCreateDataResponse, convertBodyUnitVariationImagesToMap, HumanBodyCanvasCssStylePosAndSize, HumanData, InitImageInfo, PoseInfo, PoseInfoKey, PoseInfoMap } from "../../ValueObject/IHumanPart";
 import { ElementCreater } from "../../UiComponent/Base/ui_component_base";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
@@ -23,6 +23,7 @@ import { AppSettingsModel } from "../../ZodObject/DataStore/AppSetting/AppSettin
 import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceSettingModel";
 import { ICharacterSetting } from "../CharacterSetting/ICharacterSetting";
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
+import { SentenceDisplay } from "../../UiComponent/Display/SentenceDisplay/SentenceDisplay";
 
 // const { promises } = require("fs");
 
@@ -3244,19 +3245,28 @@ export class DragDropFile{
                     formData.append("characterId", this.humanTab.characterId)
 
                     console.log(`response_mode: ${response_mode}`)
+                    let notifyDisplay = new SentenceDisplay({title:"psdファイルインプット",sentence:"psdファイルを保存しています",width:"25vh",height:"25vh"}).transform();
+                    document.body.appendChild(notifyDisplay.component.element);
 
                     if (response_mode == "FrontName_needBodyParts") {
                         console.log("front_nameがあり、かつ、画像が表示されてないなら、サーバーはBodyPartsを返す")
-                        fetch(`http://localhost:${GlobalState.port}/parserPsdFile}`, {
-                            method: 'POST',
-                            body: formData
+                        let response = RequestAPI.postFormData<CharaCreateDataResponse>("parserPsdFile", formData)
+                        response.then((json) => {
+                            const response:CharaCreateDataResponse = json;
+                            if (response.succese_mode == "成功" && response.charaCreateData != null) {
+                                notifyDisplay.changeSentence("psdファイルの保存に成功しました")
+                                this.humanTab.createHuman(response.charaCreateData);
+                            } 
+                            else if (response.succese_mode == "名前を指定してください"){
+                                notifyDisplay.changeSentence("名前を指定してください")
+                            }
+                            else if (response.succese_mode == "名前が無効"){
+                                notifyDisplay.changeSentence(response.message)
+                            } else {
+                                notifyDisplay.changeSentence("予期せぬエラーが発生しました")
+                            }
                         })
-                        .then(response => response.json())
-                        .then(json => {
-                            const charaCreateData:CharaCreateData = json;
-                            this.humanTab.createHuman(charaCreateData);
-                        })
-                        .catch(error => console.error(error));
+
                     } else if (response_mode == "FrontName_noNeedBodyParts") {
                         console.log("front_nameがあり、かつ、画像が表示されているなら、サーバーは何も返さない")
                         fetch(`http://localhost:${GlobalState.port}/parserPsdFile`, {
@@ -3272,17 +3282,24 @@ export class DragDropFile{
                         .catch(error => console.error(error));
                     } else if (response_mode == "noFrontName_needBodyParts") {
                         console.log("front_nameが空文字列なら、サーバーはファイル名からchar_nameを推測してBodyPartsを返す")
-                        fetch(`http://localhost:${GlobalState.port}/parserPsdFile`, {
-                            method: 'POST',
-                            body: formData
+                        let response = RequestAPI.postFormData<CharaCreateDataResponse>("parserPsdFile", formData)
+                        response.then((json) => {
+                            const response:CharaCreateDataResponse = json;
+                            if (response.succese_mode == "成功" && response.charaCreateData != null) {
+                                notifyDisplay.changeSentence("psdファイルの保存に成功しました")
+                                const charaCreateData:CharaCreateData = response.charaCreateData;
+                                this.humanTab.registerHumanInfo(new NickName(charaCreateData.characterModeState.front_name));
+                                this.humanTab.createHuman(charaCreateData);
+                            } 
+                            else if (response.succese_mode == "名前を指定してください"){
+                                notifyDisplay.changeSentence("名前を指定してください")
+                            }
+                            else if (response.succese_mode == "名前が無効"){
+                                notifyDisplay.changeSentence(response.message)
+                            } else {
+                                notifyDisplay.changeSentence("予期せぬエラーが発生しました")
+                            }
                         })
-                        .then(response => response.json())
-                        .then(json => {
-                            const charaCreateData:CharaCreateData = json;
-                            this.humanTab.registerHumanInfo(new NickName(charaCreateData.characterModeState.front_name));
-                            this.humanTab.createHuman(charaCreateData);
-                        })
-                        .catch(error => console.error(error));
                     }
                 } else if (file.type == "image/png" || file.type == "image/jpeg" || file.type == "image/gif") {
                     console.log("画像ファイルです。")

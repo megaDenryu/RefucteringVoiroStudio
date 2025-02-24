@@ -21,7 +21,7 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
      */
     constructor(
         title: string,
-        width: number|null, height: number|null,
+        width: string|null, height: string|null,
         additionalClassNames: string[] = [],
         customStyles: Partial<CSSStyleDeclaration> = {},
         id: string|null = null,
@@ -65,13 +65,13 @@ export class SquareBoardComponent implements IHasComponent, IDragAble {
         this.addDynamicStyles(baseStyle);
     }
 
-    public changeSize(width: number|null, height: number|null): void {
+    public changeSize(width: string|null, height: string|null): void {
         if (width !== null) {
-            this.component.element.style.width = `${width}px`;
+            this.component.element.style.width = width;
         }
 
         if (height !== null) {
-            this.component.element.style.height = `${height}px`;
+            this.component.element.style.height = height;
         }
     }
 

@@ -3,9 +3,13 @@ import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_comp
 import { ReactiveProperty } from "../../../BaseClasses/EventDrivenCode/observer";
 import { inherits } from "util";
 import { IButton } from "../IButton";
+import "./NormalButton.css";
 
 
-export const NormaButtonViewEnum = z.enum(["normal", "warning", "danger"]);
+export const NormaButtonViewEnum = z.enum([
+    "normal", "warning", "danger",
+    "closeButton"
+]);
 
 export class NormalButton implements IHasComponent, IButton {
     component: BaseComponent;
@@ -34,6 +38,11 @@ export class NormalButton implements IHasComponent, IButton {
             element.classList.remove("normal", "warning", "danger");
             element.classList.add(newView);
         });
+    }
+
+    public setView(view: z.infer<typeof NormaButtonViewEnum>): NormalButton {
+        this._view.set(view);
+        return this;
     }
 
     public addOnClickEvent(f: (() => void)): NormalButton {

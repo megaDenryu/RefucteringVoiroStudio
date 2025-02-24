@@ -50,7 +50,7 @@ export class InputObjectBoard implements IHasComponent, IDragAble, IComponentMan
     private _boolean
 
     constructor() {
-        this._squareBoardComponent = new SquareBoardComponent("テストボード",1000, 1000);
+        this._squareBoardComponent = new SquareBoardComponent("テストボード","1000px", "1000px");
         this.manageData = {
             humanNumber: 1, 
             humanList: ["結月ゆかり","初音ミク"], 

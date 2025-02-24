@@ -94,6 +94,12 @@ export interface CharaCreateData{
     characterModeState: ICharacterModeState;
 }
 
+export interface CharaCreateDataResponse {
+    succese_mode: "成功" | "名前が無効" | "名前を指定してください";
+    message: string;
+    charaCreateData: CharaCreateData|null;
+}
+
 export interface HumanBodyCanvasCssStylePosAndSize {
     height: string; 
     top: string; 

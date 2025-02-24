@@ -32,7 +32,7 @@ export class TTSLaunchButton implements IHasComponent {
 
     public launch(): void {
         if (this._notifyBoard == null) {
-            this._notifyBoard = new SentenceDisplay("お知らせ", this.tts + "を起動中...").open();
+            this._notifyBoard = new SentenceDisplay({title:"お知らせ", sentence:this.tts + "を起動中...", width:"300px", height:"300px"}).open();
             this._parent.component.createArrowBetweenComponents(this._parent,this._notifyBoard);
         }
         else {

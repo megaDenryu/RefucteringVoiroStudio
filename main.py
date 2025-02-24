@@ -582,6 +582,11 @@ class ImageData(BaseModel):
     front_name: str
     char_name: str
 
+class CharaCreateDataResponse(TypedDict):
+    succese_mode: Literal["成功","名前が無効","名前を指定してください"]
+    message: str
+    charaCreateData: CharaCreateData|None
+
 
 @app.post("/parserPsdFile")
 async def parserPsdFile(
@@ -597,7 +602,8 @@ async def parserPsdFile(
     # psdファイルが送られてくるので取得
     chara_name = Human.pickFrontName(filename)
     if chara_name == "名前が無効です":
-        return {"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください"}
+        respose:CharaCreateDataResponse = {"succese_mode":"名前が無効" ,"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください", "charaCreateData": None}
+        return respose
     # ファイルの保存先を指定
     folder_name = f"{filename.split('.')[0]}"
     folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name.name / folder_name)
@@ -637,11 +643,18 @@ async def parserPsdFile(
                 "humanData":image_data_for_client,
                 "characterModeState":CharacterModeState.newFromFrontName(front_name,characterId).toDict()
             }
-        return charaCreateData
+        response:CharaCreateDataResponse = {
+            "succese_mode": "成功",
+            "message": "psdファイルを保存しました。",
+            "charaCreateData": charaCreateData
+        }
+        ExtendFunc.ExtendPrint(response)
+        return response
         
     
     elif response_mode == ResponseMode.FrontName_noNeedBodyParts:
-        return {"message": "psdファイルを保存しました。"}
+        respose:CharaCreateDataResponse = {"succese_mode":"名前を指定してください" ,"message": "psdファイルを保存しました。", "charaCreateData": None}
+        return respose
     
 
 

@@ -4,6 +4,12 @@ import { SquareBoardComponent } from "../../Board/SquareComponent";
 import { NormalButton } from "../../Button/NormalButton/NormalButton";
 import { NormalText } from "../Text/NormalText";
 
+export interface ISentenceDisplayInput {
+    title: string;
+    sentence: string;
+    width: string|null;
+    height: string|null;
+}
 export class SentenceDisplay implements IHasComponent,IHasSquareBoard {
     public readonly title: string;
     public component: BaseComponent;
@@ -12,21 +18,20 @@ export class SentenceDisplay implements IHasComponent,IHasSquareBoard {
     private _sentence: string;
     private _sentenceDisplay: NormalText;
 
-    public constructor(title: string, sentence: string) {
-        this.title = title;
-        this._sentence = sentence;
+    public constructor(input: ISentenceDisplayInput) {
+        this.title = input.title;
+        this._sentence = input.sentence;
         this.squareBoardComponent = new SquareBoardComponent(
             this.title,
-            null,
-            null,
+            input.width,input.height,
             [],
             {},
             null,
             true
         );
         this.component = this.squareBoardComponent.component;
-        this.closeButton = new NormalButton("閉じる","normal").addOnClickEvent(() => {this.close()});
-        this._sentenceDisplay = new NormalText(sentence);
+        this.closeButton = new NormalButton("閉じる","closeButton").addOnClickEvent(() => {this.close()}).setView("closeButton");
+        this._sentenceDisplay = new NormalText(input.sentence);
         this.component.createArrowBetweenComponents(this,this._sentenceDisplay);
         this.squareBoardComponent.addComponentToHeader(this.closeButton);
         this.initialize();
@@ -65,6 +70,12 @@ export class SentenceDisplay implements IHasComponent,IHasSquareBoard {
     public changeSentence(sentence: string): SentenceDisplay {
         this._sentence = sentence;
         this._sentenceDisplay.changeText(sentence);
+        return this;
+    }
+
+    public transform(): SentenceDisplay {
+        // 場所を中央にする。style="transform: translate(76px, -557px);"に設定
+        this.component.element.style.transform = "translate(76px, -557px)";
         return this;
     }
 
