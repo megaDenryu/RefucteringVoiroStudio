@@ -133,7 +133,9 @@ export class CompositeCharacterNameSelecter implements ISelecterComponentProxy {
 
     private get HTMLInput(): string {
         return `
-        <div class="CompositeCharacterNameSelecter"></div>
+        <div class="CompositeCharacterNameSelecter CompositeSelecterSize">
+            <div class="SelecterTitle">キャラクター</div>
+        </div>
         `;
     }
 
@@ -275,7 +277,9 @@ export class CompositeHumanImageSelecter implements ISelecterComponentProxy {
 
     private get HTMLInput(): string {
         return `
-        <div class="CompositeHumanImageSelecter"></div>
+        <div class="CompositeHumanImageSelecter CompositeSelecterSize">
+            <div class="SelecterTitle">立ち絵</div>
+        </div>
         `;
     }
 
@@ -382,7 +386,9 @@ export class CompositeVoiceModeSelecter implements ISelecterComponentProxy {
     get selectedVoiceMode(): VoiceMode { return this._selectedVoiceMode; }
     get HTMLInput(): string {
         return `
-        <div class="CompositeVoiceModeSelecter"></div>
+        <div class="CompositeVoiceModeSelecter CompositeSelecterSize">
+            <div class="SelecterTitle">ボイスモード</div>
+        </div>
         `;
     }
 
@@ -562,7 +568,9 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
 
     private get HTMLInput(): string {
         return `
-        <div class="CompositeCharacterSettingSaveDataSelecter"></div>
+        <div class="CompositeCharacterSettingSaveDataSelecter CompositeSelecterSize">
+            <div class="SelecterTitle">セーブデータ</div>
+        </div>
         `;
     }
 
@@ -574,7 +582,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
         this.セレクターの作成とバインド();
         //最初のキャラクターを表示し、他のキャラクターを非表示にし、選択されたキャラクターを変更する。また、選択されたセーブIDを変更する
         this.selectedCharacter = new ReactiveProperty<SelectCharacterInfo>({"ttsSoftware": ttsSoftware, "characterName": defaultCharacterName});
-        this.component.addCSSClass("CompositeCharacterSettingSaveDataSelecter");
+        this.component.addCSSClass(["CompositeCharacterSettingSaveDataSelecter","CompositeSelecterSize"]);
         console.log("characterSettingSaveDatasを作成"); 
         this.selectedSelecter.show();
         this.selectedCharacter.addMethod((newCharacter) => {
