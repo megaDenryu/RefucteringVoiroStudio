@@ -298,31 +298,39 @@ export class BaseComponent<ClassNames extends Readonly<Record<string,string>> = 
         
     }
 
+    /**
+     * @param classNames : Vanill extractの空白で区切られたクラス名にも対応した
+     */
     addCSSClass(classNames: string[] | string): void {
-        if (typeof classNames === 'string') {
-            this.element.classList.add(classNames);
-        } else {
-            this.element.classList.add(...classNames)
-        }
+        const classes = Array.isArray(classNames) 
+            ? classNames 
+            : classNames.split(' ').filter(Boolean);
+        
+        this.element.classList.add(...classes);
     }
 
 
+    /**
+     * @param classNames  : Vanill extractの空文字が入ってるクラス名にも対応した
+     */
     removeCSSClass(classNames: string[] | string): void {
-        if (typeof classNames === 'string') {
-            this.element.classList.remove(classNames);
-        } else {
-            this.element.classList.remove(...classNames);
-        }
+        const classes = Array.isArray(classNames)
+            ? classNames
+            : classNames.split(' ').filter(Boolean);
+        
+        this.element.classList.remove(...classes);
     }
 
     setAsChildComponent() {
         this.addCSSClass(["positionRelative"]);
         this.removeCSSClass(["positionAbsolute"]);
+        return this;
     }
 
     setAsParentComponent() {
         this.addCSSClass(["positionAbsolute"]);
         this.removeCSSClass(["positionRelative"]);
+        return this;
     }
 
     get isShow(): boolean {

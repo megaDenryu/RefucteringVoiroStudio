@@ -54,7 +54,7 @@ export class RecordInputComponentWithSaveButton implements IHasComponent, IInput
         this._schema = schema;
         this._values = defaultValues;
         this.inputFormat = inputFormat;
-        this._squareBoardComponent = new SquareBoardComponent(title,400,600);
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("全体保存", "normal");
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
@@ -176,7 +176,7 @@ export class RecordInputComponentWithSaveButton implements IHasComponent, IInput
         }
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
-        this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
+        this._squareBoardComponent.changeSize("700px", optimizeHeight + paddingNum + marginNum + "px");
         console.log("RecordInputComponentWithSaveButton optimizeBoardSize : " + (optimizeHeight));
     }
 

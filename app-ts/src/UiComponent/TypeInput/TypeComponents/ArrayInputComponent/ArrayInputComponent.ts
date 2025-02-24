@@ -1,7 +1,6 @@
 import { EventDelegator } from "../../../../BaseClasses/EventDrivenCode/Delegator";
 import { CSSProxy } from "../../../../Extend/ExtendCss";
 import { IHasComponent, BaseComponent, HtmlElementInput, ElementCreater } from "../../../Base/ui_component_base";
-import { IHasSquareBoard } from "../../../Board/IHasSquareBoard";
 import { SquareBoardComponent } from "../../../Board/SquareComponent";
 import { TypeComponentType, TypeComponentInterfaceType, ITypeComponent } from "../../ComponentType";
 import { IRecordPathInput, RecordPath } from "../../RecordPath";
@@ -43,7 +42,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
             ) {
         this._title = title;
         this._schema = schema;
-        this._squareBoardComponent = new SquareBoardComponent(title,600,600);
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.component = this._squareBoardComponent.component;
         this._arrayUnitList = this.createDefaultInputComponentList(title, schema, defaultValues);
         this.parent = parent;
@@ -223,7 +222,7 @@ export class ArrayInputComponent<UnitType extends z.ZodTypeAny> implements IHasC
         });
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
-        this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
+        this._squareBoardComponent.changeSize("700px", optimizeHeight + paddingNum + marginNum + "px");
 
     }
 

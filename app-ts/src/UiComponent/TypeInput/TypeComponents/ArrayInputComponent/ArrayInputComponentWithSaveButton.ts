@@ -50,7 +50,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
             ) {
         this._title = title;
         this._schema = schema;
-        this._squareBoardComponent = new SquareBoardComponent(title,600,600);
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.component = this._squareBoardComponent.component;
         this._NormalButton = new NormalButton("リスト全体保存", "normal");
         this._inputComponentCompositeList = this.createDefaultInputComponentList(title, schema, defaultValues);
@@ -246,7 +246,7 @@ export class ArrayInputComponentWithSaveButton<UnitType extends z.ZodTypeAny> im
         });
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
-        this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
+        this._squareBoardComponent.changeSize("700px", optimizeHeight + paddingNum + marginNum + "px");
 
         
     }

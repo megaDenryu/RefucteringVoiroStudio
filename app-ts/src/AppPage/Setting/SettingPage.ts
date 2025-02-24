@@ -20,7 +20,7 @@ export class SettingPage  {
     private _appSettingComponent: ObjectInputComponent<AppSettingsModel>
     
     constructor() {
-        this._squareBoardComponent = new SquareBoardComponent("設定画面", 400, 600)
+        this._squareBoardComponent = new SquareBoardComponent("設定画面", "400px", "600px")
         this._saveButton = new NormalButton("保存", "normal")
         this._squareBoardComponent.addComponentToHeader(this._saveButton)
         this.initialize()

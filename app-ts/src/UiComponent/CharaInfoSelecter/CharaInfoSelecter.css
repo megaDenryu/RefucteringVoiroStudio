@@ -66,6 +66,7 @@
 
 .CompositeSelecterSize {
     display: flex;
+    flex-direction: column;    /* 追加: 子要素を縦方向に配置 */
     justify-content: center;
     align-items: center;
     width: 180px;
@@ -83,6 +84,13 @@
     background-color: #fcfce4; /* フォーカス時の背景色を変更 */
 }
 
+.SelecterTitle {
+    font-size: 16px; /* フォントサイズを調整 */
+    font-weight: bold; /* フォントを太字に */
+    color: #00df89; /* テキストの色を黒に */
+    margin: 10px 0; /* 上下のマージンを追加 */
+}
+
 .SelecterSize {
     width: 130px;
     height: 300px;
@@ -93,6 +101,7 @@
     box-sizing: border-box; /* パディングとボーダーを含めてサイズを計算 */
     scrollbar-width: none;
     transition: background-color 0.3s ease; /* 背景色のトランジションを追加 */
+    margin-bottom: 5%;
 }
 
 .SelecterSize:focus-within {

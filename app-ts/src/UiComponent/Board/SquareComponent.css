@@ -7,9 +7,9 @@
 }
 
 .boardTitle {
-    flex: 0.2;
+    flex: 0.6;
 }
 
 .SquareBoardHeader button {
-    flex: 0.8;
+    flex: 0.3;
 }

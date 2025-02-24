@@ -50,7 +50,7 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         this.parent = parent;
         this.componentManager = rootParent;
         this.inputFormat = inputFormat;
-        this._squareBoardComponent = new SquareBoardComponent(title,400,600);
+        this._squareBoardComponent = new SquareBoardComponent(title);
         this.component = this._squareBoardComponent.component;
         this._inputComponentDict = this.createDefaultInputObject(title, schema, defaultValues);
         this.initialize();
@@ -167,7 +167,7 @@ export class ObjectInputComponent<T extends object> implements IHasComponent, II
         const paddingNum = CSSProxy.getClassStyleProperty("padding", "padding")?.toNum("px")??0;
         const marginNum = CSSProxy.getClassStyleProperty("margin", "margin")?.toNum("px")??0;
         console.log(paddingNum);
-        this._squareBoardComponent.changeSize(700, optimizeHeight + paddingNum + marginNum);
+        this._squareBoardComponent.changeSize("700px", optimizeHeight + paddingNum + marginNum + "px");
        
     }
 

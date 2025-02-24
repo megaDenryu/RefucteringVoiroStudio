@@ -49,8 +49,9 @@ class Human:
         # 以下コンストラクタのメイン処理
         self.chara_mode_state = chara_mode_state
         # 体画像周りを準備する
-        self.human_part = HumanPart(self.char_name)
-        self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name.name, self.front_name)
+        self.human_part = HumanPart(self.chara_mode_state.character_name, self.chara_mode_state.human_image)
+        human_image = chara_mode_state.human_image
+        self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name, self.front_name, human_image)
         self.voice_system:VoiceSystem = self.start(voiceroid_dict)
         self.aiRubiConverter = AIRubiConverter()
     

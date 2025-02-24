@@ -51,6 +51,37 @@ export class RequestAPI {
         return retrunObject;
     }
 
+    public static async postRequest2<T extends Record<string, any>>(endPoint:string, object:object):Promise<T> {
+        const response = await RequestAPI.post(RequestAPI.rootURL + endPoint, object);
+        const retrunObject:T = await response.json();
+        return retrunObject;
+    }
+
+    public static async postRequest3<T extends Record<string, any>>(endPoint:string, object:object):Promise<T> {
+        const response = await RequestAPI.post(RequestAPI.rootURL + endPoint, object);
+        try {
+            const data = await response.json();
+            if (typeof data === 'string') {
+                return JSON.parse(data) as T;
+            }
+            return data as T;
+        } catch (error) {
+            console.error('Response parsing error:', error);
+            throw error;
+        }
+    }
+
+    public static async postFormData<T>(endPoint:string, data: FormData): Promise<T> {
+        const response = await fetch(RequestAPI.rootURL + endPoint, {
+          method: 'POST',
+          body: data
+        });
+      
+        // レスポンスが既にJSONオブジェクトとして返される場合
+        const result = await response.json();
+        return result as T;
+    }
+
     static async fetchOnDecideCharaInfo(humanNameState: CharacterModeState):Promise<CharaCreateData> {
         //キャラインフォが決まったときに呼びdして、サーバーにキャラインフォを送り、ボイスロイドを起動して、画像データを取得する。
         let req = new CharacterModeStateReq(humanNameState, this.client_id);

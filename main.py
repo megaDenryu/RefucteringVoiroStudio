@@ -582,6 +582,11 @@ class ImageData(BaseModel):
     front_name: str
     char_name: str
 
+class CharaCreateDataResponse(TypedDict):
+    succese_mode: Literal["成功","名前が無効","名前を指定してください"]
+    message: str
+    charaCreateData: CharaCreateData|None
+
 
 @app.post("/parserPsdFile")
 async def parserPsdFile(
@@ -597,7 +602,8 @@ async def parserPsdFile(
     # psdファイルが送られてくるので取得
     chara_name = Human.pickFrontName(filename)
     if chara_name == "名前が無効です":
-        return {"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください"}
+        respose:CharaCreateDataResponse = {"succese_mode":"名前が無効" ,"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください", "charaCreateData": None}
+        return respose
     # ファイルの保存先を指定
     folder_name = f"{filename.split('.')[0]}"
     folder = str(HumanPart.getVoiroCharaImageFolderPath() / chara_name.name / folder_name)
@@ -614,33 +620,41 @@ async def parserPsdFile(
     with open(psd_file, 'wb') as f:
         f.write(file_contents)
     
+    human_image = HumanImage(folder_name=folder_name)
     # psdファイルをパースして保存
     parser = PsdParserMain(folder,psd_file)
     # CharFilePath.jsonにファイル名を追加
-    HumanPart.writeCharFilePathToNewPSDFileName(chara_name,folder_name)
+    HumanPart.writeCharFilePathToNewPSDFileName(chara_name,human_image)
     AllHumanInformationManager.singleton().load()
     
     if response_mode == ResponseMode.noFrontName_needBodyParts or response_mode == ResponseMode.FrontName_needBodyParts:
         # パーツを取得
-        human_part = HumanPart(chara_name)
+        human_part = HumanPart(chara_name,human_image)
         if front_name == "????":
-            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, chara_name.name ,folder)
+            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, chara_name.name ,folder)
             charaCreateData:CharaCreateData = {
                 "humanData":image_data_for_client,
                 "characterModeState":CharacterModeState.newFromFrontName(chara_name.name,characterId).toDict()
             }
         else:
             ExtendFunc.ExtendPrint(f"{front_name=}")
-            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name.name, front_name ,folder)
+            image_data_for_client, body_parts_pathes_for_gpt = human_part.getHumanAllPartsFromPath(chara_name, front_name ,folder)
             charaCreateData:CharaCreateData = {
                 "humanData":image_data_for_client,
                 "characterModeState":CharacterModeState.newFromFrontName(front_name,characterId).toDict()
             }
-        return charaCreateData
+        response:CharaCreateDataResponse = {
+            "succese_mode": "成功",
+            "message": "psdファイルを保存しました。",
+            "charaCreateData": charaCreateData
+        }
+        ExtendFunc.ExtendPrint(response)
+        return response
         
     
     elif response_mode == ResponseMode.FrontName_noNeedBodyParts:
-        return {"message": "psdファイルを保存しました。"}
+        respose:CharaCreateDataResponse = {"succese_mode":"名前を指定してください" ,"message": "psdファイルを保存しました。", "charaCreateData": None}
+        return respose
     
 
 

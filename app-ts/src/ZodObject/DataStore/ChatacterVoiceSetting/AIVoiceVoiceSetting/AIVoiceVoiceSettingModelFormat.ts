@@ -7,7 +7,7 @@ export const AIVoiceVoiceSettingModelFormat:InputTypeObject = {
         読み上げ間隔: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 1 }
+            format: { visualType: "number", visualTitle: null, step: 0.01 }
         } as InputTypeNumber,
         AIによる文章変換: {
             type: "enum",
