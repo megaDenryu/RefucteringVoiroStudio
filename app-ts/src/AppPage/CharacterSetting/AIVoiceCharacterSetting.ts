@@ -88,7 +88,7 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
         this._squareBoardComponent.addComponentToContent(this.characterInfoSetting);
 
         document.body.appendChild(this._squareBoardComponent.component.element);
-        this.onAddedToDom();
+        // this.onAddedToDom();
         //初期位置をウインドウの真ん中の位置にする
         this._squareBoardComponent.setInitialPosition(
             window.innerWidth / 2,

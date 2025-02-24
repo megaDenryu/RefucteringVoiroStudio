@@ -94,7 +94,7 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
 
 
         document.body.appendChild(this._squareBoardComponent.component.element);
-        this.onAddedToDom();
+        // this.onAddedToDom();
         //初期位置をウインドウの真ん中の位置にする
         this._squareBoardComponent.setInitialPosition(
             window.innerWidth / 2,
