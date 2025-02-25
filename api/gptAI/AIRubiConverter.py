@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISentenceConverter
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.Extend.ChatGptApiUnit import ChatGptApiUnit
+from api.LLM.LLMAPIBase.OpenAI.ChatGptApiUnit import ChatGptApiUnit
 from api.Extend.ExtendFunc import ExtendFunc
 
 class KanaText(BaseModel):
