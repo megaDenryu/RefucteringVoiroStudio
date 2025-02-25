@@ -120,26 +120,55 @@ class JsonAccessor:
         ExtendFunc.saveDictToJson(path, user_data)
 
     @staticmethod
-    def loadOpenAIAPIKey():
+    def ApiKeyFileGenerate():
         path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             with open(path, mode='w') as f:
-                json.dump({"openai_api_key":""}, f, indent=4)
-        openai_api_key = ExtendFunc.loadJsonToDict(path)["openai_api_key"]
-        # print("openai_api_key:",openai_api_key)
-        return openai_api_key
+                json.dump({
+                    "openai_api_key":"",
+                    "twitch_access_token":"",
+                    "gemini_api_key":""
+                }, f, indent=4)
+
+    @staticmethod
+    def loadOpenAIAPIKey()->str|None:
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
+        #もしファイルが存在しない場合はファイルを作成
+        if not path.exists():
+            JsonAccessor.ApiKeyFileGenerate()
+            return None
+        try:
+            openai_api_key = ExtendFunc.loadJsonToDict(path)["openai_api_key"]
+            return openai_api_key
+        except KeyError:
+            return None
     
     @staticmethod
-    def loadTwitchAccessToken():
+    def loadTwitchAccessToken()->str|None:
         path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
-            with open(path, mode='w') as f:
-                json.dump({"twitch_access_token":""}, f, indent=4)
-        twitch_access_token = ExtendFunc.loadJsonToDict(path)["twitch_access_token"]
-        # print("twitch_access_token:",twitch_access_token)
-        return twitch_access_token
+            JsonAccessor.ApiKeyFileGenerate()
+            return None
+        try:
+            twitch_access_token = ExtendFunc.loadJsonToDict(path)["twitch_access_token"]
+            return twitch_access_token
+        except KeyError:
+            return None
+    
+    @staticmethod
+    def loadGeminiAPIKey()->str|None:
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
+        #もしファイルが存在しない場合はファイルを作成
+        if not path.exists():
+            JsonAccessor.ApiKeyFileGenerate()
+            return None
+        try:
+            gemini_api_key = ExtendFunc.loadJsonToDict(path)["gemini_api_key"]
+            return gemini_api_key
+        except KeyError:
+            return None
     
     BaseModelList = TypeVar("BaseModelList", bound=BaseModelList)
     @staticmethod
