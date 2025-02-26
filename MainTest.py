@@ -177,8 +177,7 @@ if __name__ == "__main__":
     # print(duration)
 
     unit = GeminiAPIUnit()
-    list = unit.modelList()
-    pprint(list)
+    unit.test()
 
 
 
