@@ -24,6 +24,7 @@ from api.Extend.ExtendFunc import ExtendFunc, ExtendFuncTest
 from api.Extend.ExtendSet import ExtendDict, Interval, ExtendSet, ExtendSetTest
 from api.Extend.ExtendSound import ExtendSound
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
 from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.ObjectConverter.ObjectConverterTest import generate_zod_schema, write_to_ts_file
 from api.gptAI.AIRubiConverter import AIRubiConverterTest
@@ -172,9 +173,12 @@ if __name__ == "__main__":
     # print(saveSettingReq.model_dump_json())
     # JsonAccessor.saveAppSettingTest(saveSettingReq)
     
-    duration = ExtendSound.get_wav_duration("./output_wav/cevio_audio_フィーちゃん_0.wav")
-    print(duration)
+    # duration = ExtendSound.get_wav_duration("./output_wav/cevio_audio_フィーちゃん_0.wav")
+    # print(duration)
 
+    unit = GeminiAPIUnit()
+    list = unit.modelList()
+    pprint(list)
 
 
 

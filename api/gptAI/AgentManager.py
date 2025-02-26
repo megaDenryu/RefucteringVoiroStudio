@@ -11,7 +11,7 @@ from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory
 from api.DataStore.PickleAccessor import PickleAccessor
 from api.InstanceManager.HumanDict import HumanInstanceContainer
 from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection
-from api.Extend.ChatGptApiUnit import ChatGptApiUnit
+from api.LLM.LLMAPIBase.OpenAI.ChatGptApiUnit import ChatGptApiUnit
 from api.gptAI.ThirdPersonEvaluation import ThirdPersonEvaluation
 from api.gptAI.GPTMode import GptModeManager
 from api.gptAI.HumanBaseModel import DestinationAndProfitVector, ProfitVector, 目標と利益ベクトル
