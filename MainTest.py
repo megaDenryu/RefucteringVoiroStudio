@@ -3,6 +3,8 @@ import contextlib
 from pathlib import Path
 from pprint import pprint
 import wave
+
+from pydantic import BaseModel
 from api.AppSettingJson.CharacterDestination.CharacterDestinationCollection import CharacterDestinationCollectionTest
 from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollectionTest
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
@@ -177,7 +179,14 @@ if __name__ == "__main__":
     # print(duration)
 
     unit = GeminiAPIUnit()
-    unit.test()
+    # unit.test()
+
+    class YesOrNO(BaseModel):
+        answer: bool
+
+    ans = unit.generate("私はメガデンリュウです。わかりますか？", YesOrNO)
+
+    ExtendFunc.ExtendPrint(ans.answer)
 
 
 
