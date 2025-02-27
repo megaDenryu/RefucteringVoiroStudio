@@ -29,7 +29,7 @@ from api.InstanceManager.InstanceManager import InastanceManager
 from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
 from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.ObjectConverter.ObjectConverterTest import generate_zod_schema, write_to_ts_file
-from api.gptAI.AIRubiConverter import AIRubiConverterTest
+from api.LLM.RubiConverter.ConverterUnits.ChatGPTRubiConverterUnit import AIRubiConverterTest
 from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
 from api.gptAI.HumanInfoValueObject import ICharacterName
@@ -184,7 +184,7 @@ if __name__ == "__main__":
     class YesOrNO(BaseModel):
         answer: bool
 
-    ans = unit.generate("私はメガデンリュウです。わかりますか？", YesOrNO)
+    ans = unit.generateB("私はメガデンリュウです。わかりますか？", YesOrNO,)
 
     ExtendFunc.ExtendPrint(ans.answer)
 
