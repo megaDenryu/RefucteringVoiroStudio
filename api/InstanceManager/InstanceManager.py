@@ -4,7 +4,7 @@ from api.InstanceManager.GptAgentInstanceManager import GPTAgentInstanceManager
 from api.InstanceManager.HumanDict import HumanInstanceContainer
 from api.InstanceManager.ClientIds import ClientIds, ClientWebSocket
 from api.InstanceManager.InsatanceManagerInterface import InstanceManagerInterface
-from api.gptAI.AIRubiConverter import AIRubiConverter
+from api.LLM.RubiConverter.ConverterUnits.ChatGPTRubiConverterUnit import ChatGPTRubiConverterUnit
 from api.gptAI.AgentPipeManager import AgentPipeManager
 from api.gptAI.GPTMode import GptModeManager
 from api.gptAI.InputReciever import InputReciever
@@ -57,8 +57,8 @@ class InastanceManager(InstanceManagerInterface):
         return self._agentPipeManager
     
     @property
-    def aiRubiConverterList(self)->list[AIRubiConverter]:
-        retList:list[AIRubiConverter] = []
+    def aiRubiConverterList(self)->list[ChatGPTRubiConverterUnit]:
+        retList:list[ChatGPTRubiConverterUnit] = []
         for human in self._humanInstances.Humans:
             retList.append(human.aiRubiConverter)
         return retList

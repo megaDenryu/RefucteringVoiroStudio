@@ -4,15 +4,13 @@ from pydantic import BaseModel
 from typing_extensions import Literal, TypedDict
 
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQuery
 
 
 class ChatGptApiUnit:
     """
     責務:APIにリクエストを送り、結果を受け取るだけ。クエリの調整は行わない。
     """
-    class MessageQuery(TypedDict):
-        role: Literal['system', 'user', 'assistant']
-        content: str
 
     def __init__(self,test_mode:bool = True):
         try:
