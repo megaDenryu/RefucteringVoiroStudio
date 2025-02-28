@@ -1,8 +1,8 @@
 from typing import Literal
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
-from api.LLM.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
-from api.LLM.RubiConverter.KanaText import KanaText
+from api.LLM.エージェント.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
+from api.LLM.エージェント.RubiConverter.KanaText import KanaText
 
 
 class GeminiRubiConverterUnit(IRubiConverterUnit):

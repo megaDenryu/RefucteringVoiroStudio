@@ -16,6 +16,7 @@ class ChatGptApiUnit(ILLMApiUnit):
     _client: OpenAI
     _async_client: AsyncOpenAI
     model: str
+    system_message: MessageQueryDict|None = None
 
     def __init__(self,test_mode:bool = True, model:str = "gpt-4o-mini"):
         try:
@@ -150,14 +151,25 @@ class ChatGptApiUnit(ILLMApiUnit):
         return completion.choices[0].message.parsed
     
 
-    def generateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT]) -> ResponseBaseModelT|Literal["テストモードです"]|None:
+    def generateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT], system_message:IMessageQuery|None = None) -> ResponseBaseModelT|Literal["テストモードです"]|None:
         messages = QueryConverter.toMessageQueryDictList(message_query)
+        if system_message is not None:
+            QueryConverter.systemMessageUpdate(messages, QueryConverter.toMessageQueryDict(system_message))
+        elif self.system_message is not None:
+            QueryConverter.systemMessageUpdate(messages, self.system_message)
         return self.generateResponseStructured(messages, model)
     
-    async def asyncGenerateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT]) -> ResponseBaseModelT|Literal["テストモードです"]|None:
+    async def asyncGenerateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT], system_message:IMessageQuery|None = None) -> ResponseBaseModelT|Literal["テストモードです"]|None:
         messages = QueryConverter.toMessageQueryDictList(message_query)
+        if system_message is not None:
+            QueryConverter.systemMessageUpdate(messages, QueryConverter.toMessageQueryDict(system_message))
+        elif self.system_message is not None:
+            QueryConverter.systemMessageUpdate(messages, self.system_message)
         return await self.asyncGenerateResponseStructured(messages, model)
     
     def setModel(self,model_name:str):
         self.model = model_name
+
+    def setSystemMessage(self, system_message: IMessageQuery):
+        self.system_message = QueryConverter.toMessageQueryDict(system_message)
         

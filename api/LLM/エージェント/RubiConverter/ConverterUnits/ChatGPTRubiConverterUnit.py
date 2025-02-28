@@ -4,8 +4,8 @@ from api.DataStore.JsonAccessor import JsonAccessor
 from api.LLM.LLMAPIBase.OpenAI.ChatGptApiUnit import ChatGptApiUnit
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
-from api.LLM.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
-from api.LLM.RubiConverter.KanaText import KanaText
+from api.LLM.エージェント.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
+from api.LLM.エージェント.RubiConverter.KanaText import KanaText
 
 
 

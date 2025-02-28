@@ -2,8 +2,8 @@ import re
 from typing import Literal
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
-from api.LLM.RubiConverter.AIRubiConverter import AIRubiConverter
-from api.LLM.RubiConverter.RubiConverterUnitDictFactory import factory
+from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
+from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import factory
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo

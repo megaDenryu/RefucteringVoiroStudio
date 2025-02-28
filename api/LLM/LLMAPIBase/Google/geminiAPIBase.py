@@ -21,11 +21,18 @@ from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit, IMessageQuery, 
 
 # https://googleapis.github.io/python-genai/#json-response-schema
 class GeminiAPIUnit(ILLMApiUnit):
-    def __init__(self,test_mode:bool = True):
+    api_key:str|None
+    client:genai.Client
+    モデル名:str
+    test_mode:bool
+    system_message:Optional[ContentUnion]
+
+    def __init__(self,test_mode:bool = True, system_message:Optional[ContentUnion] = None):
         self.api_key = JsonAccessor.loadGeminiAPIKey()
         self.client = genai.Client(api_key = self.api_key)
         self.モデル名 = "gemini-2.0-flash"
         self.test_mode = test_mode
+        self.system_message = system_message
 
     def modelList(self):
         models = []
@@ -107,13 +114,28 @@ class GeminiAPIUnit(ILLMApiUnit):
             print(e)
             return None
         
-    def generateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT]) -> ResponseBaseModelT|Literal["テストモードです"]|None:
+    def generateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT], system_message:IMessageQuery|None = None) -> ResponseBaseModelT|Literal["テストモードです"]|None:
         コンテンツ = ContentsConverter.toContentList(message_query)
-        return self.generateB(コンテンツ, model)
+        if system_message is not None:
+            システムメッセージ = system_message.content  
+        elif self.system_message is not None:
+            システムメッセージ = self.system_message
+        else:
+            システムメッセージ = None
+        return self.generateB(コンテンツ, model, システムメッセージ)
 
-    async def asyncGenerateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT]) -> ResponseBaseModelT|Literal["テストモードです"]|None:
+    async def asyncGenerateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT], system_message:IMessageQuery|None = None) -> ResponseBaseModelT|Literal["テストモードです"]|None:
         コンテンツ = ContentsConverter.toContentList(message_query)
-        return await self.asyncGenerateB(コンテンツ, model)
+        if system_message is not None:
+            システムメッセージ = system_message.content  
+        elif self.system_message is not None:
+            システムメッセージ = self.system_message
+        else:
+            システムメッセージ = None
+        return await self.asyncGenerateB(コンテンツ, model, システムメッセージ)
 
     def setModel(self,model_name:str):
         self.モデル名 = model_name
+
+    def setSystemMessage(self, system_message: IMessageQuery):
+        self.system_message = system_message.content

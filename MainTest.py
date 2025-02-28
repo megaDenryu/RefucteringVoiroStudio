@@ -27,9 +27,11 @@ from api.Extend.ExtendSet import ExtendDict, Interval, ExtendSet, ExtendSetTest
 from api.Extend.ExtendSound import ExtendSound
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
+from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import IMessageQuery
+from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict, QueryConverter
+from api.LLM.エージェント.RubiConverter.KanaText import KanaText
 from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.ObjectConverter.ObjectConverterTest import generate_zod_schema, write_to_ts_file
-from api.LLM.RubiConverter.ConverterUnits.ChatGPTRubiConverterUnit import AIRubiConverterTest
 from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
 from api.gptAI.HumanInfoValueObject import ICharacterName
@@ -184,9 +186,22 @@ if __name__ == "__main__":
     class YesOrNO(BaseModel):
         answer: bool
 
-    ans = unit.generateB("私はメガデンリュウです。わかりますか？", YesOrNO,)
+    unit = GeminiAPIUnit(False, )
+    # unit.generateResponse([],YesOrNO)
+    system_message_query:MessageQueryDict = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel"][0]
+    print(type(system_message_query))
+    system_message:str = system_message_query["content"] 
 
-    ExtendFunc.ExtendPrint(ans.answer)
+    while True:
+        text = input("テキストを入力してください。")
+        response = unit.generateResponse(
+            [IMessageQuery(id = "1", role = "user", content = text)],
+            KanaText,
+            QueryConverter.toMessageQuery(system_message_query, "2")
+        )
+            
+        ExtendFunc.ExtendPrint(response)
+        
 
 
 

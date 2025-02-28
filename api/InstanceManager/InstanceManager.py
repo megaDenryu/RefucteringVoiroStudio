@@ -4,7 +4,7 @@ from api.InstanceManager.GptAgentInstanceManager import GPTAgentInstanceManager
 from api.InstanceManager.HumanDict import HumanInstanceContainer
 from api.InstanceManager.ClientIds import ClientIds, ClientWebSocket
 from api.InstanceManager.InsatanceManagerInterface import InstanceManagerInterface
-from api.LLM.RubiConverter.ConverterUnits.ChatGPTRubiConverterUnit import ChatGptRubiConverter
+from api.LLM.エージェント.RubiConverter.ConverterUnits.ChatGPTRubiConverterUnit import ChatGptRubiConverter
 from api.gptAI.AgentPipeManager import AgentPipeManager
 from api.gptAI.GPTMode import GptModeManager
 from api.gptAI.InputReciever import InputReciever

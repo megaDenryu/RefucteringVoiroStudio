@@ -4,7 +4,8 @@ from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISe
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
-from api.LLM.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
+from api.LLM.エージェント.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
+
 
 
 class AIRubiConverter:

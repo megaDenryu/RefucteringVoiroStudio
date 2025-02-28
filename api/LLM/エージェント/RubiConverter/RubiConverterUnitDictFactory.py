@@ -3,9 +3,9 @@
 from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISentenceConverter
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
-from api.LLM.RubiConverter.ConverterUnits.GeminiRubiConverterUnit import GeminiRubiConverterUnit
-from api.LLM.RubiConverter.ConverterUnits.ChatGPTRubiConverterUnit import ChatGptRubiConverter
-from api.LLM.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
+from api.LLM.エージェント.RubiConverter.ConverterUnits.ChatGPTRubiConverterUnit import ChatGptRubiConverter
+from api.LLM.エージェント.RubiConverter.ConverterUnits.GeminiRubiConverterUnit import GeminiRubiConverterUnit
+from api.LLM.エージェント.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
 
 
 def factory():
