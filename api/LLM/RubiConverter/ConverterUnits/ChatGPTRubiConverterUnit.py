@@ -9,7 +9,7 @@ from api.LLM.RubiConverter.KanaText import KanaText
 
 
 
-class AIRubiConverter(IRubiConverterUnit):
+class ChatGptRubiConverter(IRubiConverterUnit):
     _gptUnit: ChatGptApiUnit
     _systemMessageQuery: MessageQuery
     _messageQueryHistory: list[MessageQuery]
@@ -42,7 +42,7 @@ class AIRubiConverter(IRubiConverterUnit):
 class AIRubiConverterTest:
     @staticmethod
     def test(mojiretu:str = "楕円関数のグラフを書くプログラムを書きたいな"):
-        converter = AIRubiConverter("")
+        converter = ChatGptRubiConverter("")
         while True:
             moji = input("入力:")
             response = converter.convertAsync(moji)
