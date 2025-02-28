@@ -3,7 +3,7 @@
 from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISentenceConverter
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
-from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQuery
+from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
 from api.LLM.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
 
 

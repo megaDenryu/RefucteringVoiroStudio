@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import Type, Literal, Union
 
-from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQuery
+from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
 from api.LLM.LLMAPIBase.OpenAI.ChatGptApiUnit import ChatGptApiUnit
 from api.LLM.エージェント.会話用エージェント.返答判定機.AnalysisResponse import AnalysisResponse
 from api.LLM.エージェント.会話用エージェント.返答判定機.I返答判定機 import I返答判定機

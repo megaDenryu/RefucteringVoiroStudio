@@ -3,7 +3,7 @@ from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISe
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.LLM.LLMAPIBase.OpenAI.ChatGptApiUnit import ChatGptApiUnit
 from api.Extend.ExtendFunc import ExtendFunc
-from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQuery
+from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
 from api.LLM.RubiConverter.ConverterUnits.IRubiConverterUnit import IRubiConverterUnit
 from api.LLM.RubiConverter.KanaText import KanaText
 
@@ -11,8 +11,8 @@ from api.LLM.RubiConverter.KanaText import KanaText
 
 class ChatGptRubiConverter(IRubiConverterUnit):
     _gptUnit: ChatGptApiUnit
-    _systemMessageQuery: MessageQuery
-    _messageQueryHistory: list[MessageQuery]
+    _systemMessageQuery: MessageQueryDict
+    _messageQueryHistory: list[MessageQueryDict]
     
     def __init__(self, systemMessage:str):
         self._gptUnit = ChatGptApiUnit(False)
@@ -28,7 +28,7 @@ class ChatGptRubiConverter(IRubiConverterUnit):
         response = self._gptUnit.generateResponseStructured(messageQuery, KanaText)
         return response
     
-    def _createMessageQuery(self, text:str) -> list[MessageQuery]:
+    def _createMessageQuery(self, text:str) -> list[MessageQueryDict]:
         return [
             self._systemMessageQuery,
             {

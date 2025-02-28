@@ -1,7 +1,8 @@
 
 import enum
-from typing import Literal, Optional, TypeVar
+from typing import Literal, Optional, Type, TypeVar, Union
 from google import genai
+from google.genai import types
 from google.genai.types import GenerateContentResponse
 from google.genai.types import ContentUnion
 from google.genai.types import ContentUnionDict
@@ -12,13 +13,14 @@ from google.genai.types import GenerateContentConfigOrDict
 from google.generativeai.models import list_models
 from pydantic import BaseModel
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.LLM.LLMAPIBase.Google.ContentsConverter import ContentsConverter
+from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit, IMessageQuery, ResponseBaseModelT, ResponseEnumT
 
 
-ResponseBaseModelT = TypeVar("ResponseBaseModelT", bound=BaseModel)
-ResponseEnumT = TypeVar("ResponseEnumT", bound=enum.Enum)
+
 
 # https://googleapis.github.io/python-genai/#json-response-schema
-class GeminiAPIUnit:
+class GeminiAPIUnit(ILLMApiUnit):
     def __init__(self,test_mode:bool = True):
         self.api_key = JsonAccessor.loadGeminiAPIKey()
         self.client = genai.Client(api_key = self.api_key)
@@ -51,7 +53,7 @@ class GeminiAPIUnit:
         return response.text
     
     # https://ai.google.dev/gemini-api/docs/structured-output?hl=ja&lang=python でBaseModelやEnumを使う方法が定義されている。
-    def generateB(self, コンテンツ:str, ベースモデルタイプ:type[ResponseBaseModelT],システムメッセージ:Optional[ContentUnion] = None)->ResponseBaseModelT|Literal['テストモードです']|None:
+    def generateB(self, コンテンツ:Union[types.ContentListUnion, types.ContentListUnionDict], ベースモデルタイプ:type[ResponseBaseModelT],システムメッセージ:Optional[ContentUnion] = None)->ResponseBaseModelT|Literal['テストモードです']|None:
         if self.test_mode == True:
             return "テストモードです"
         try:
@@ -68,8 +70,26 @@ class GeminiAPIUnit:
         except Exception as e:
             print(e)
             return None
+        
+    async def asyncGenerateB(self, コンテンツ:Union[types.ContentListUnion, types.ContentListUnionDict], ベースモデルタイプ:type[ResponseBaseModelT],システムメッセージ:Optional[ContentUnion] = None)->ResponseBaseModelT|Literal['テストモードです']|None:
+        if self.test_mode == True:
+            return "テストモードです"
+        try:
+            response:GenerateContentResponse = await self.client.aio.models.generate_content(
+                model=self.モデル名, 
+                contents=コンテンツ, 
+                config=GenerateContentConfig(
+                    response_mime_type="application/json", 
+                    response_schema=ベースモデルタイプ,
+                    system_instruction=システムメッセージ
+                )
+            )
+            return response.parsed # type: ignore
+        except Exception as e:
+            print(e)
+            return None
 
-    def generateEnum(self, contents:str, enumType:type[ResponseEnumT], システムメッセージ:Optional[ContentUnion] = None)->ResponseEnumT|Literal['テストモードです']|None:
+    def generateEnum(self, contents:Union[types.ContentListUnion, types.ContentListUnionDict], enumType:type[ResponseEnumT], システムメッセージ:Optional[ContentUnion] = None)->ResponseEnumT|Literal['テストモードです']|None:
         if self.test_mode == True:
             return "テストモードです"
         try:
@@ -86,3 +106,14 @@ class GeminiAPIUnit:
         except Exception as e:
             print(e)
             return None
+        
+    def generateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT]) -> ResponseBaseModelT|Literal["テストモードです"]|None:
+        コンテンツ = ContentsConverter.toContentList(message_query)
+        return self.generateB(コンテンツ, model)
+
+    async def asyncGenerateResponse(self,message_query:list[IMessageQuery], model:Type[ResponseBaseModelT]) -> ResponseBaseModelT|Literal["テストモードです"]|None:
+        コンテンツ = ContentsConverter.toContentList(message_query)
+        return await self.asyncGenerateB(コンテンツ, model)
+
+    def setModel(self,model_name:str):
+        self.モデル名 = model_name

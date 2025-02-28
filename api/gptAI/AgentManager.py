@@ -12,7 +12,7 @@ from api.DataStore.PickleAccessor import PickleAccessor
 from api.InstanceManager.HumanDict import HumanInstanceContainer
 from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection
 from api.LLM.LLMAPIBase.OpenAI.ChatGptApiUnit import ChatGptApiUnit
-from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQuery
+from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
 from api.gptAI.ThirdPersonEvaluation import ThirdPersonEvaluation
 from api.gptAI.GPTMode import GptModeManager
 from api.gptAI.HumanBaseModel import DestinationAndProfitVector, ProfitVector, 目標と利益ベクトル
@@ -412,11 +412,11 @@ class Agent:
         await asyncio.gather(*task)
     
     @abstractmethod
-    def prepareQuery(self,input: TransportedItem)->list[MessageQuery]:
+    def prepareQuery(self,input: TransportedItem)->list[MessageQueryDict]:
         pass
 
     @abstractmethod
-    async def request(self,query:list[MessageQuery])->str:
+    async def request(self,query:list[MessageQueryDict])->str:
         """
         ここはjsonになっていようといまいとstrで返し、correctResultで型を矯正する
         """
@@ -780,11 +780,11 @@ class MicInputJudgeAgent(Agent):
             return
         await self.notify(output)            
 
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    def prepareQuery(self, input:TransportedItem)->list[MessageQuery]:
+    def prepareQuery(self, input:TransportedItem)->list[MessageQueryDict]:
         # 最新のメッセージを埋め込むのでここで新たにreplace_dictを作成
         self.replace_dict = {"{{input}}":input.recieve_messages}
         # プロンプトサンプルymlを好きなタイミングで修正したいので毎回読み込むようにしておく。todo 将来的にここは消す。
@@ -794,7 +794,7 @@ class MicInputJudgeAgent(Agent):
         query = self.agent_setting + replaced_template
         return query
     
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
         if result is None:
@@ -883,18 +883,18 @@ class SpeakerDistributeAgent(Agent):
     #     # 次に喋るべきキャラクターを通知
     #     await self.event_queue.put(data)
 
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    def prepareQuery(self, input:TransportedItem)->list[MessageQuery]:
+    def prepareQuery(self, input:TransportedItem)->list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(input.recieve_messages)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         replaced_template = ExtendFunc.replaceBulkStringRecursiveCollection(self.agent_setting_template, self.replace_dict)
         query = self.agent_setting + replaced_template
         return query
     
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
         if result is None:
@@ -968,16 +968,16 @@ class ListeningAgent(Agent):
     #     # 読み上げるための文章を通知
     #     await self.event_queue.put(data)
     
-    def loadAgentSetting(self)->list[MessageQuery]:
+    def loadAgentSetting(self)->list[MessageQueryDict]:
         return JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",self.replace_dict)[self.name]
     
-    def prepareQuery(self, input:str)->list[MessageQuery]:
+    def prepareQuery(self, input:str)->list[MessageQueryDict]:
         replace_dict = {"{{input}}":input}
         self.agent_setting = self.loadAgentSetting()
         query = ExtendFunc.replaceBulkStringRecursiveCollection(self.agent_setting,replace_dict)
         return query
     
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT4TurboJson(query)
         if result is None:
@@ -1093,12 +1093,12 @@ class ThinkAgent2(Agent,QueueNode):
     #     await self.event_queue.put(data)
 
 
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
         ExtendFunc.ExtendPrint(all_template_dict)
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
 
-    def prepareQuery(self, tI:TransportedItem)->list[MessageQuery]:
+    def prepareQuery(self, tI:TransportedItem)->list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(tI, self.previous_situation)
         # ExtendFunc.ExtendPrint(self.replace_dict)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -1110,7 +1110,7 @@ class ThinkAgent2(Agent,QueueNode):
         # ExtendFunc.ExtendPrint(query)
         return query
 
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         #result = await self._gpt_api_unit.asyncGenereateResponseGPT4TurboJson(query)
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
@@ -1290,12 +1290,12 @@ class ThinkAgent(Agent,QueueNode):
     #     await self.event_queue.put(data)
 
 
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
         ExtendFunc.ExtendPrint(all_template_dict)
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
 
-    def prepareQuery(self, tI:TransportedItem)->list[MessageQuery]:
+    def prepareQuery(self, tI:TransportedItem)->list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(tI, self.previous_situation)
         # ExtendFunc.ExtendPrint(self.replace_dict)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
@@ -1307,7 +1307,7 @@ class ThinkAgent(Agent,QueueNode):
         # ExtendFunc.ExtendPrint(query)
         return query
 
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         #result = await self._gpt_api_unit.asyncGenereateResponseGPT4TurboJson(query)
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
@@ -1510,15 +1510,15 @@ class SerifAgent(Agent):
     #     await self.event_queue.put(data)
     
 
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
         # return JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})[self.name]#self.replace_dict)[self.name]
 
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
         ExtendFunc.ExtendPrint(all_template_dict)
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
 
 
-    def prepareQuery(self, ti:TransportedItem)->list[MessageQuery]:
+    def prepareQuery(self, ti:TransportedItem)->list[MessageQueryDict]:
         think_data = JsonAccessor.dictToJsonString(ti.Think_data)
         non_think_serif_list = self.getSerifList(ti.NonThinkingSerif_data)
         self.replace_dict = self.replaceDictDef(think_data, non_think_serif_list)
@@ -1529,7 +1529,7 @@ class SerifAgent(Agent):
 
         return query
 
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         #result = await self._gpt_api_unit.asyncGenereateResponseGPT4TurboJson(query)
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
@@ -1684,14 +1684,14 @@ class NonThinkingSerifAgent(Agent):
     #     # 読み上げるための文章を通知
     #     await self.event_queue.put(data)
 
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
         # return JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})[self.name]#self.replace_dict)[self.name]
 
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
         ExtendFunc.ExtendPrint(all_template_dict)
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    def prepareQuery(self, ti:TransportedItem)->list[MessageQuery]:
+    def prepareQuery(self, ti:TransportedItem)->list[MessageQueryDict]:
         previous_situation = self.agent_manager.think_agent.previous_situation
         conversations = ti.recieve_messages
         self.replace_dict = self.replaceDictDef(previous_situation, conversations)
@@ -1702,7 +1702,7 @@ class NonThinkingSerifAgent(Agent):
 
         return query
 
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         #result = await self._gpt_api_unit.asyncGenereateResponseGPT4TurboJson(query)
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
@@ -1783,11 +1783,11 @@ class LifeProcessModule:
         pass
     
     @abstractmethod
-    def prepareQuery(self,input: GeneralTransportedItem)->list[MessageQuery]:
+    def prepareQuery(self,input: GeneralTransportedItem)->list[MessageQueryDict]:
         pass
 
     @abstractmethod
-    async def request(self,query:list[MessageQuery])->str:
+    async def request(self,query:list[MessageQueryDict])->str:
         """
         ここはjsonになっていようといまいとstrで返し、correctResultで型を矯正する
         """
@@ -1854,11 +1854,11 @@ class TaskDecompositionProposerAgent(LifeProcessModule):
         ExtendFunc.ExtendPrint(transported_item)
         return transported_item
     
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})#self.replace_dict)
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    def prepareQuery(self, input: TaskBreakingDownTransportedItem) -> list[MessageQuery]:
+    def prepareQuery(self, input: TaskBreakingDownTransportedItem) -> list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(input)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         replaced_template = ExtendFunc.replaceBulkStringRecursiveCollection(self.agent_setting_template, self.replace_dict)
@@ -1872,7 +1872,7 @@ class TaskDecompositionProposerAgent(LifeProcessModule):
             "{{problem}}":input.problem.summarizeProblem(),
         }
     
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
         if result is None:
@@ -1934,11 +1934,11 @@ class TaskDecompositionCheckerAgent(LifeProcessModule):
         ExtendFunc.ExtendPrint(transported_item)
         return transported_item
     
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    def prepareQuery(self, input: TaskBreakingDownTransportedItem) -> list[MessageQuery]:
+    def prepareQuery(self, input: TaskBreakingDownTransportedItem) -> list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(input)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         replaced_template = ExtendFunc.replaceBulkStringRecursiveCollection(self.agent_setting_template, self.replace_dict)
@@ -1956,7 +1956,7 @@ class TaskDecompositionCheckerAgent(LifeProcessModule):
             "{{conversation}}":TaskBreakingDownTransportedItem.conversationToString(input.conversation)
         }
     
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
         if result is None:
@@ -2040,7 +2040,7 @@ class TaskToJsonConverterAgent(LifeProcessModule):
         ExtendFunc.ExtendPrint(transported_item)
         return transported_item
 
-    def prepareQuery(self, input: TaskBreakingDownTransportedItem) -> list[MessageQuery]:
+    def prepareQuery(self, input: TaskBreakingDownTransportedItem) -> list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(input)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         replaced_template = ExtendFunc.replaceBulkStringRecursiveCollection(self.agent_setting_template, self.replace_dict)
@@ -2052,11 +2052,11 @@ class TaskToJsonConverterAgent(LifeProcessModule):
             "{{task_breaking_down_idea}}":input.conversationToString(input.conversation)
         }
     
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
         if result is None:
@@ -2222,7 +2222,7 @@ class DestinationAgent(LifeProcessModule):
         result = self.run(transported_item)
         return result
     
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
         if result is None:
@@ -2248,11 +2248,11 @@ class DestinationAgent(LifeProcessModule):
         corrected_profit_dict:目標と利益ベクトル = ExtendFunc.correctDictToTypeDict(jsonnized_result, self.typeDestinationAgentResponse(self.replace_dict))  # type: ignore
         return DestinationAndProfitVector.from_dict(corrected_profit_dict)
     
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    def prepareQuery(self, input: DestinationTransportedItem) -> list[MessageQuery]:
+    def prepareQuery(self, input: DestinationTransportedItem) -> list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(input)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         replaced_template = ExtendFunc.replaceBulkStringRecursiveCollection(self.agent_setting_template, self.replace_dict)
@@ -2340,11 +2340,11 @@ class NormalChatAgent(LifeProcessModule):
         ExtendFunc.ExtendPrint(transported_item)
         return transported_item
     
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    def prepareQuery(self, input: NormalChatTransportedItem) -> list[MessageQuery]:
+    def prepareQuery(self, input: NormalChatTransportedItem) -> list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(input)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         replaced_template = ExtendFunc.replaceBulkStringRecursiveCollection(self.agent_setting_template, self.replace_dict)
@@ -2359,7 +2359,7 @@ class NormalChatAgent(LifeProcessModule):
             "{{task}}":input.task["description"]
         }
     
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
         if result is None:
@@ -2472,11 +2472,11 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
         self.agent_manager.think_agent.failSerifFeedBack(serifs)
 
     
-    def loadAgentSetting(self)->tuple[list[MessageQuery],list[MessageQuery]]:
-        all_template_dict: dict[str,list[MessageQuery]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
+    def loadAgentSetting(self)->tuple[list[MessageQueryDict],list[MessageQueryDict]]:
+        all_template_dict: dict[str,list[MessageQueryDict]] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})
         return all_template_dict[self.name], all_template_dict[self.request_template_name]
     
-    def prepareQuery(self, input: ThoughtsSerifnizeTransportedItem) -> list[MessageQuery]:
+    def prepareQuery(self, input: ThoughtsSerifnizeTransportedItem) -> list[MessageQueryDict]:
         self.replace_dict = self.replaceDictDef(input)
         self.agent_setting, self.agent_setting_template = self.loadAgentSetting()
         replaced_template = ExtendFunc.replaceBulkStringRecursiveCollection(self.agent_setting_template, self.replace_dict)
@@ -2488,7 +2488,7 @@ class ThoughtsSerifnizeAgent(LifeProcessModule):
         raise NotImplementedError("未定義")
         return {}
 
-    async def request(self, query:list[MessageQuery])->str:
+    async def request(self, query:list[MessageQueryDict])->str:
         print(f"{self.name}がリクエストを送信します")
         result = await self._gpt_api_unit.asyncGenereateResponseGPT3Turbojson(query)
         if result is None:
@@ -3357,7 +3357,7 @@ class AgentManagerTest:
         pass
     def ChatGptApiUnitがちゃんと文章を送受信できるかどうかのテスト(self):
         gpt_unit = ChatGptApiUnit(True)
-        test_message_query:list[MessageQuery] = [
+        test_message_query:list[MessageQueryDict] = [
             {
                 "role":"system",
                 "content":""""
