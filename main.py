@@ -963,7 +963,7 @@ async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
     if human == None:
         return
     human.aiRubiConverter.setOnOff(req.voiceVoxCharacterSettingModel.voiceSetting.AIによる文章変換)
-    ExtendFunc.ExtendPrint(human.aiRubiConverter.on_off)
+    ExtendFunc.ExtendPrint(human.aiRubiConverter.mode)
     voiceVox = human.human_Voice
     if isinstance(voiceVox, voicevox_human):
         voiceVox.setVoiceSetting(req.voiceVoxCharacterSettingModel.voiceSetting)
