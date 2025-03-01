@@ -1,13 +1,5 @@
 {
     "$defs": {
-        "AISentenceConverter": {
-            "enum": [
-                "無効",
-                "ChatGPT"
-            ],
-            "title": "AISentenceConverter",
-            "type": "string"
-        },
         "Talker2V40": {
             "properties": {
                 "Cast": {
@@ -70,26 +62,11 @@
         }
     },
     "properties": {
-        "talker2V40": {
+        "コンディション": {
             "$ref": "#/$defs/Talker2V40"
         },
-        "talkerComponentArray2": {
+        "感情": {
             "$ref": "#/$defs/TalkerComponentArray2"
-        },
-        "読み上げ間隔": {
-            "default": 0.0,
-            "maximum": 2.0,
-            "minimum": 0.0,
-            "title": "読み上げ間隔",
-            "type": "number"
-        },
-        "AIによる文章変換": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/AISentenceConverter"
-                }
-            ],
-            "default": "無効"
         }
     },
     "title": "CevioAIVoiceSettingModel",

@@ -2,32 +2,32 @@
     "$defs": {
         "CoeiroinkVoiceSettingModel": {
             "properties": {
-                "speedScale": {
+                "スピード": {
                     "default": 1.0,
                     "maximum": 2.0,
                     "minimum": 0.5,
-                    "title": "Speedscale",
+                    "title": "スピード",
                     "type": "number"
                 },
-                "pitchScale": {
+                "ピッチ": {
                     "default": 0.0,
                     "maximum": 0.15,
                     "minimum": -0.15,
-                    "title": "Pitchscale",
+                    "title": "ピッチ",
                     "type": "number"
                 },
-                "intonationScale": {
+                "イントネーション": {
                     "default": 1.0,
                     "maximum": 2.0,
                     "minimum": 0.0,
-                    "title": "Intonationscale",
+                    "title": "イントネーション",
                     "type": "number"
                 },
-                "volumeScale": {
+                "音量": {
                     "default": 1.0,
                     "maximum": 2.0,
                     "minimum": 0.0,
-                    "title": "Volumescale",
+                    "title": "音量",
                     "type": "number"
                 }
             },

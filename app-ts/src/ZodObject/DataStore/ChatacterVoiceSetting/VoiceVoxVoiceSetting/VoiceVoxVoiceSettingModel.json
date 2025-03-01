@@ -1,16 +1,6 @@
 {
-    "$defs": {
-        "AISentenceConverter": {
-            "enum": [
-                "無効",
-                "ChatGPT"
-            ],
-            "title": "AISentenceConverter",
-            "type": "string"
-        }
-    },
     "properties": {
-        "speedScale": {
+        "スピード": {
             "default": 1.0,
             "description": "読み上げ速度を調整します。",
             "maximum": 2.0,
@@ -18,41 +8,26 @@
             "title": "読み上げ速度",
             "type": "number"
         },
-        "pitchScale": {
+        "ピッチ": {
             "default": 0.0,
             "maximum": 0.15,
             "minimum": -0.15,
-            "title": "Pitchscale",
+            "title": "ピッチ",
             "type": "number"
         },
-        "intonationScale": {
+        "イントネーション": {
             "default": 1.0,
             "maximum": 2.0,
             "minimum": 0.0,
-            "title": "Intonationscale",
+            "title": "イントネーション",
             "type": "number"
         },
-        "volumeScale": {
+        "音量": {
             "default": 1.0,
             "maximum": 2.0,
             "minimum": 0.0,
-            "title": "Volumescale",
+            "title": "音量",
             "type": "number"
-        },
-        "読み上げ間隔": {
-            "default": 0.0,
-            "maximum": 2.0,
-            "minimum": 0.0,
-            "title": "読み上げ間隔",
-            "type": "number"
-        },
-        "AIによる文章変換": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/AISentenceConverter"
-                }
-            ],
-            "default": "無効"
         }
     },
     "title": "VoiceVoxVoiceSettingModel",

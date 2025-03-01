@@ -5,7 +5,7 @@ export const CevioAIVoiceSettingModelReq = z.object({
   character_id: z.string(),
   cevio_ai_voice_setting: z
     .object({
-      talker2V40: z
+      コンディション: z
         .object({
           Cast: z.string().default(""),
           Volume: z.number().int().gte(0).lte(100).default(50),
@@ -15,7 +15,7 @@ export const CevioAIVoiceSettingModelReq = z.object({
           ToneScale: z.number().int().gte(0).lte(100).default(50),
         })
         .optional(),
-      talkerComponentArray2: z
+      感情: z
         .object({ record: z.record(z.number().int()).default({}) })
         .optional(),
     })

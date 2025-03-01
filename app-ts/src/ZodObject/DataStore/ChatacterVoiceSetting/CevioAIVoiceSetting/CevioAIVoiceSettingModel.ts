@@ -1,6 +1,6 @@
 import { z } from "zod";
 export const CevioAIVoiceSettingModel = z.object({
-  talker2V40: z
+  コンディション: z
     .object({
       Cast: z.string().default(""),
       Volume: z.number().int().gte(0).lte(100).default(50),
@@ -10,10 +10,6 @@ export const CevioAIVoiceSettingModel = z.object({
       ToneScale: z.number().int().gte(0).lte(100).default(50),
     })
     .optional(),
-  talkerComponentArray2: z
-    .object({ record: z.record(z.number().int()).default({}) })
-    .optional(),
-  読み上げ間隔: z.number().gte(0).lte(2).default(0),
-  AIによる文章変換: z.enum(["無効", "ChatGPT"]).default("無効"),
+  感情: z.object({ record: z.record(z.number().int()).default({}) }).optional(),
 });
 export type CevioAIVoiceSettingModel = z.infer<typeof CevioAIVoiceSettingModel>;
