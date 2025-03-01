@@ -9,5 +9,9 @@ export interface ISaveCharacterInfo {
     saveCharacterInfo(characterInfo: CharacterInfo): void
 }
 
+export interface ISaveReadingAloud {
+    saveReadingAloud(readingAloud: SerifSettingModel): void
+}
+
 export interface ISaveSetting <T extends VoiceSettingModel> extends ISaveVoiceSetting<T>, ISaveCharacterInfo {
 }
