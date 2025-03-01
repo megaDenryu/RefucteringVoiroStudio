@@ -24,16 +24,16 @@ export class AIVoiceVoiceSetting implements IComponentManager, IVoiceSetting, IH
   private _manageDataSettingComponent: ObjectInputComponent<AIVoiceVoiceSettingModel>;
   private _開閉Button: ToggleButton<OpenCloseState>;
 
-  public get 読み上げ間隔() {
-    return this.manageData.読み上げ間隔;
-  }
+  // public get 読み上げ間隔() {
+  //   return this.manageData.読み上げ間隔;
+  // }
 
   /**
    * @param SchemaType スキーマーの型
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  public constructor(req: TtsSoftWareVoiceSettingReq, voiceSetting:AIVoiceVoiceSettingModel|undefined, settingSaver:ISaveSetting<AIVoiceVoiceSettingModel>) {
+  public constructor(voiceSetting:AIVoiceVoiceSettingModel|undefined, settingSaver:ISaveSetting<AIVoiceVoiceSettingModel>) {
     this._squareBoardComponent = new SquareBoardComponent(
       "設定画面",
       null,
@@ -145,12 +145,6 @@ export class AIVoiceVoiceSetting implements IComponentManager, IVoiceSetting, IH
 export function createAIVoiceVoiceSetting(
   character_id: string, voiceSetting:AIVoiceVoiceSettingModel|undefined, settingSaver:ISaveSetting<AIVoiceVoiceSettingModel>
 ): AIVoiceVoiceSetting {
-  const ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq = {
-    page_mode: "App",
-    client_id: "test",
-    character_id: character_id,   
-  };
-
-  const coeiroinkVoiceSetting = new AIVoiceVoiceSetting(ttsSoftWareVoiceSettingReq, voiceSetting, settingSaver);
+  const coeiroinkVoiceSetting = new AIVoiceVoiceSetting(voiceSetting, settingSaver);
   return coeiroinkVoiceSetting;
 }

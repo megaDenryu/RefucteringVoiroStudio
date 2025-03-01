@@ -23,16 +23,12 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IVoiceSetting, 
   private _manageDataSettingComponent: ObjectInputComponent<CoeiroinkVoiceSettingModel>;
   private _開閉Button: ToggleButton<OpenCloseState>;
 
-  public get 読み上げ間隔() {
-    return this.manageData.読み上げ間隔;
-  }
-
   /**
    * @param SchemaType スキーマーの型
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  public constructor(req: TtsSoftWareVoiceSettingReq, voiceSetting:CoeiroinkVoiceSettingModel|undefined, settingSaver:ISaveSetting<CoeiroinkVoiceSettingModel>) {
+  public constructor(voiceSetting:CoeiroinkVoiceSettingModel|undefined, settingSaver:ISaveSetting<CoeiroinkVoiceSettingModel>) {
     this._squareBoardComponent = new SquareBoardComponent(
       "設定画面",
       null,
@@ -141,12 +137,6 @@ export class CoeiroinkVoiceSetting implements IComponentManager, IVoiceSetting, 
 export function createCoeiroinkVoiceSetting(
   character_id: string, voiceSetting:CoeiroinkVoiceSettingModel|undefined, settingSaver:ISaveSetting<CoeiroinkVoiceSettingModel>
 ): CoeiroinkVoiceSetting {
-  const ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq = {
-    page_mode: "App",
-    client_id: "test",
-    character_id: character_id,   
-  };
-
-  const coeiroinkVoiceSetting = new CoeiroinkVoiceSetting(ttsSoftWareVoiceSettingReq, voiceSetting, settingSaver);
+  const coeiroinkVoiceSetting = new CoeiroinkVoiceSetting(voiceSetting, settingSaver);
   return coeiroinkVoiceSetting;
 }

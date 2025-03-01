@@ -226,7 +226,7 @@ export class MessageBox {
     human_tab: HumanTab;
 
     get 読み上げ間隔():number {
-        return this.human_tab.characterSetting?.voiceSetting.読み上げ間隔 ?? 0;
+        return this.human_tab.characterSetting?.readingAloudSetting.読み上げ間隔 ?? 0;
     }
 
     get front_name(): string|null {

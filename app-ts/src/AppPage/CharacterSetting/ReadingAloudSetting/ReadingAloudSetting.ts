@@ -58,6 +58,10 @@ export class ReadingAloudSetting implements IComponentManager, IHasComponent , I
         this.bindEvents();
     }
 
+    public get 読み上げ間隔() {
+        return this.manageData.読み上げ間隔;
+    }
+
     private bindEvents() {
         //セーブをオブジェクトインプットコンポーネントに,dartyになったときにセーブを実行するように登録
         this._manageDataSettingComponent.addOnDartyEvent(() => {

@@ -25,10 +25,6 @@ export class VoiceVoxVoiceSetting implements IComponentManager, IVoiceSetting, I
   private _開閉Button: ToggleButton<OpenCloseState>;
   private _reqInfo: TtsSoftWareVoiceSettingReq;
 
-  public get 読み上げ間隔() {
-    return this.manageData.読み上げ間隔;
-  }
-
   /**
    * @param SchemaType スキーマーの型
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
@@ -144,7 +140,8 @@ export function createVoiceVoxVoiceSetting(
   const ttsSoftWareVoiceSettingReq: TtsSoftWareVoiceSettingReq = {
     page_mode: "App",
     client_id: "test",
-    character_id: character_id,   
+    character_id: character_id,
+    saveID: characterSaveData.saveID
   };
 
   const voiceVoxVoiceSetting = new VoiceVoxVoiceSetting(ttsSoftWareVoiceSettingReq, characterSaveData.voiceSetting, settingSaver);  

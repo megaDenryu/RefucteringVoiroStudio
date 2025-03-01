@@ -10,6 +10,6 @@ export const CevioAIVoiceSettingModel = z.object({
       ToneScale: z.number().int().gte(0).lte(100).default(50),
     })
     .optional(),
-  感情: z.object({ record: z.record(z.number().int()).default({}) }).optional(),
+    感情: z.object({ record: z.record(z.number().int()).default({}) }).optional(),
 });
 export type CevioAIVoiceSettingModel = z.infer<typeof CevioAIVoiceSettingModel>;

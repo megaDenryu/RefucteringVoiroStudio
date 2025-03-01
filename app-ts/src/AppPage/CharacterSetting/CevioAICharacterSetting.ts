@@ -128,8 +128,8 @@ export interface CevioAIDefaultVoiceSettingReq {
 export async function createCevioAICharacterSetting(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>) {
     if (characterSaveData.voiceSetting === undefined) {
         let firstStep:CevioAIVoiceSettingModel = generateDefaultObject(CevioAIVoiceSettingModel);
-        if (firstStep.talker2V40 != undefined && firstStep.talker2V40.Cast == "") {
-            firstStep.talker2V40.Cast = characterSaveData.characterInfo.characterName.name;
+        if (firstStep.コンディション != undefined && firstStep.コンディション.Cast == "") {
+            firstStep.コンディション.Cast = characterSaveData.characterInfo.characterName.name;
         }
         const cevioAIDefaultVoiceSettingReq:CevioAIDefaultVoiceSettingReq = {
             page_mode: "Chat",
@@ -137,17 +137,17 @@ export async function createCevioAICharacterSetting(req:TtsSoftWareVoiceSettingR
             character_id: req.character_id,
         };
         const res = await RequestAPI.postRequest<TalkerComponentArray2>("CevioAIDefaultVoiceSetting", cevioAIDefaultVoiceSettingReq);
-        firstStep.talkerComponentArray2 = res;
+        firstStep.感情 = res;
         characterSaveData.voiceSetting = firstStep;
         return new CevioAICharacterSetting(req, characterSaveData);
-    } else if (Object.keys(characterSaveData.voiceSetting.talkerComponentArray2?.record??{}).length == 0) {
+    } else if (Object.keys(characterSaveData.voiceSetting.感情?.record??{}).length == 0) {
         const cevioAIDefaultVoiceSettingReq:CevioAIDefaultVoiceSettingReq = {
             page_mode: "Chat",
             client_id: GlobalState.client_id,
             character_id: req.character_id,
         };
         const res = await RequestAPI.postRequest<TalkerComponentArray2>("CevioAIDefaultVoiceSetting", cevioAIDefaultVoiceSettingReq);
-        characterSaveData.voiceSetting.talkerComponentArray2 = res;
+        characterSaveData.voiceSetting.感情 = res;
         return new CevioAICharacterSetting(req, characterSaveData);
     }
     else {

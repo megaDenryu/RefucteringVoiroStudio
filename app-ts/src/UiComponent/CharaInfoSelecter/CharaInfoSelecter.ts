@@ -1110,6 +1110,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
             page_mode: "App",
             client_id: GlobalState.client_id,
             character_id: characterId,
+            saveID: charactersaveData.saveID,
         }
         this.human_tab.characterSetting = await createCharacterVoiceSetting(req, tts_software, charactersaveData);
 
