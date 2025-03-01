@@ -30,6 +30,7 @@ from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
 from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import IMessageQuery
 from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict, QueryConverter
 from api.LLM.エージェント.RubiConverter.KanaText import KanaText
+from api.LLM.エージェント.会話用エージェント.返答判定機.LLM返答判定機 import LLM返答判定機
 from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.ObjectConverter.ObjectConverterTest import generate_zod_schema, write_to_ts_file
 from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
@@ -179,7 +180,7 @@ if __name__ == "__main__":
     
     # duration = ExtendSound.get_wav_duration("./output_wav/cevio_audio_フィーちゃん_0.wav")
     # print(duration)
-
+    gudge = LLM返答判定機
         
 
 

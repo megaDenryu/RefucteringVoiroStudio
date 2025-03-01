@@ -1,25 +1,9 @@
 from abc import ABC, abstractmethod
 import enum
 from typing import Literal, Type, TypeVar
-
 from pydantic import BaseModel
-
-
-ResponseBaseModelT = TypeVar("ResponseBaseModelT", bound=BaseModel)
-ResponseEnumT = TypeVar("ResponseEnumT", bound=enum.Enum)
-
-class IMessageQuery(BaseModel):
-    id: str
-    role: Literal['system', 'user', 'assistant']
-    content: str
-
-class IMessageList(BaseModel):
-    messages: list[IMessageQuery]
-
-class ILLMResponse(ABC):
-    @abstractmethod
-    def id(self)->str:
-        pass
+from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
+from api.LLM.LLMAPIBase.LLMInterface.ResponseModel import ResponseBaseModelT
 
 class ILLMApiUnit(ABC):
     """

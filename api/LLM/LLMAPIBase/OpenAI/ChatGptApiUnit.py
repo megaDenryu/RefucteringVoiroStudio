@@ -1,12 +1,9 @@
 from typing import Type, TypeVar
 from openai import AsyncOpenAI, OpenAI
-from pydantic import BaseModel
-from typing_extensions import Literal, TypedDict
-
+from typing_extensions import Literal
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit, IMessageQuery, ResponseBaseModelT
 from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict, QueryConverter
-
 
 class ChatGptApiUnit(ILLMApiUnit):
     """

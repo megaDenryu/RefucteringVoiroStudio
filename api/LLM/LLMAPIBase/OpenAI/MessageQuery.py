@@ -1,8 +1,6 @@
 from typing import TypedDict
 from typing_extensions import Literal
-
 from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import IMessageQuery
-
 
 class MessageQueryDict(TypedDict):
     role: Literal['system', 'user', 'assistant']
