@@ -23,6 +23,8 @@ import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterV
 import { GlobalState } from "../../AppPage/AppVoiroStudio/AppVoiroStudio";
 import { simulateSelectValueChange } from "../../Extend/ExtendElement/ExtendHTMLSelectElement";
 import { clickSimulate, ISelecterComponent, ISelecterComponentProxy } from "../Base/SelecterComponent/ISelecterComponent";
+import { SerifSettingModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/SerifSetting/SerifSettingModel";
+import { generateDefaultObject } from "../../Extend/ZodExtend/ZodExtend";
 
 export class TTSSoftwareSelecter implements ISelecterComponent {
     public readonly component: BaseComponent;
@@ -450,6 +452,7 @@ export interface ICharacterSettingSaveModel<T extends VoiceSettingModel> {
     saveID: CharacterSaveId;
     characterInfo: CharacterInfo;
     voiceSetting?: T;
+    readingAloud: SerifSettingModel;
 }
 
 export type SaveDataSelecterOptionDataset = {
@@ -677,6 +680,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
                     行動パターン: [],
                 }
             },
+            readingAloud: generateDefaultObject(SerifSettingModel),
             voiceSetting: undefined,
         };
     }
@@ -705,6 +709,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
                     行動パターン: [],
                 }
             },
+            readingAloud: generateDefaultObject(SerifSettingModel),
             voiceSetting: undefined,
         };
     }
@@ -733,6 +738,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
                     行動パターン: [],
                 }
             },
+            readingAloud: generateDefaultObject(SerifSettingModel),
             voiceSetting: undefined,
         };
     }
@@ -761,6 +767,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
                     行動パターン: [],
                 }
             },
+            readingAloud: generateDefaultObject(SerifSettingModel),
             voiceSetting: undefined,
         };
     }
@@ -851,9 +858,6 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
 
         return coeiroinkSaveData;
     }
-
-    
-
 }
 
 export class CharacterSelectDecisionButton implements IHasComponent {
