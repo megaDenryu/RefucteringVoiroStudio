@@ -6,7 +6,7 @@ from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict, QueryConver
 from api.LLM.エージェント.RubiConverter.KanaText import KanaText
 
 
-def test():
+def LLMApiTest():
     unit = GeminiAPIUnit()
     unit = GeminiAPIUnit(False, )
     system_message_query:MessageQueryDict = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel"][0]
