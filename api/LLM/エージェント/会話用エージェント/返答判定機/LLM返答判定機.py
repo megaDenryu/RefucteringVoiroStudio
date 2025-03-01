@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Type, Literal, Union
 
 from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit
+from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageList, IMessageQuery
 from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
 from api.LLM.LLMAPIBase.OpenAI.ChatGptApiUnit import ChatGptApiUnit
 from api.LLM.エージェント.会話用エージェント.返答判定機.AnalysisResponse import AnalysisResponse
@@ -11,7 +12,7 @@ from api.LLM.エージェント.会話用エージェント.返答判定機.パ�
 
 
 class LLM返答判定機(I返答判定機):
-    def __init__(self, api_unit: ILLMApiUnit, ai_params: AIParameters, conversation_history: list):
+    def __init__(self, api_unit: ILLMApiUnit, ai_params: AIParameters, conversation_history: list[IMessageQuery]):
         self.api_unit = api_unit
         self.ai_params = ai_params
         self.conversation_history = conversation_history
@@ -20,9 +21,7 @@ class LLM返答判定機(I返答判定機):
         buffer_text = a未完全入力.buffer_text
 
         # 会話履歴と発話をLLMに送信
-        message_query = self.conversation_history + [
-            {"role": "user", "content": f"発話: \"{buffer_text}\"\n分析してください。"}
-        ]
+        message_query:list[IMessageQuery] = self.conversation_history + [IMessageQuery(id = "1", role = "user", content = f"発話: \"{buffer_text}\"\n分析してください。")]
         
         analysis = await self.api_unit.asyncGenerateResponse(message_query, AnalysisResponse)
         if isinstance(analysis, str) or analysis is None:

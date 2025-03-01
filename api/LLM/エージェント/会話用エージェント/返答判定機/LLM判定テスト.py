@@ -15,7 +15,7 @@ async def LLM判定テスト():
         print("判定中...")
         result = await llm判定機.f判定(c未完全入力(text))
         if isinstance(result, c未完全入力):
-            ExtendFunc.ExtendPrint(result.buffer_text)
+            ExtendFunc.ExtendPrint(["未完全入力",result.buffer_text])
         else:
-            ExtendFunc.ExtendPrint(result.buffer_text)
+            ExtendFunc.ExtendPrint(["完全入力",result.buffer_text,result.should_respond])
         print("判定完了")
