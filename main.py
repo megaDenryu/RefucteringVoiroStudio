@@ -317,7 +317,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 print(f"{human_ai.char_name=}")
                 if "" != input_dict[character_id]:
                     print(f"{input_dict[character_id]=}")
-                    rubi_sentence = human_ai.aiRubiConverter.convertAsync(input_dict[character_id])
+                    rubi_sentence = human_ai.aiRubiConverter.convert(input_dict[character_id])
                     if rubi_sentence == None:
                         return
                     for sentence in Human.parseSentenseList(rubi_sentence):
