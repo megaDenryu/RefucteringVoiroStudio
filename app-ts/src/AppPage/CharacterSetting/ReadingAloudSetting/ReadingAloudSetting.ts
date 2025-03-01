@@ -7,9 +7,10 @@ import { IComponentManager, オブジェクトデータの特定の子要素の�
 import { ObjectInputComponent } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
 import { SerifSettingModel } from "../../../ZodObject/DataStore/AppSetting/AppSettingModel/SerifSetting/SerifSettingModel";
 import { CharacterInfoFormat } from "../../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfoFormat";
-import { ISaveCharacterInfo, ISaveReadingAloud } from "../ISaveSetting";
+import { ISaveReadingAloud } from "../ISaveSetting";
+import { IReadingAloudSetting } from "./IReadingAloudSetting";
 
-export class ReadingAloudSetting implements IComponentManager, IHasComponent {
+export class ReadingAloudSetting implements IComponentManager, IHasComponent , IReadingAloudSetting{
     public readonly component: BaseComponent;
     private testMode: boolean = false;
     public readonly title = "読み上げ設定";
