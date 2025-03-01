@@ -3530,8 +3530,8 @@ export class GlobalState {
             //AIによる文章変換の一括設定をする。クライアント側はUIの見た目だけが問題なのでUIを変更する
             let セリフ設定 = data.セリフ設定;
             if (セリフ設定 == undefined) { return; }
-            let AIによる文章変換の一括設定 = セリフ設定.AIによる文章変換の一括設定;
-            let 読み上げ間隔の一括設定 = セリフ設定.読み上げ間隔の一括設定;
+            let AIによる文章変換の一括設定 = セリフ設定.AIによる文章変換;
+            let 読み上げ間隔の一括設定 = セリフ設定.読み上げ間隔;
             let humanTabList = GlobalState.message_box_manager.humanTabList
             for (let i = 0; i < humanTabList.length; i++) {
                 let humanTab:HumanTab = humanTabList[i];
