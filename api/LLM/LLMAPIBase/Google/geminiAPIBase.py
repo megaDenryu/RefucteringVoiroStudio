@@ -13,6 +13,7 @@ from google.genai.types import GenerateContentConfigOrDict
 from google.generativeai.models import list_models
 from pydantic import BaseModel
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.Google.ContentsConverter import ContentsConverter
 from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit, IMessageQuery, ResponseBaseModelT
 from api.LLM.LLMAPIBase.LLMInterface.ResponseModel import ResponseEnumT
@@ -21,6 +22,7 @@ from api.LLM.LLMAPIBase.LLMInterface.ResponseModel import ResponseEnumT
 
 
 # https://googleapis.github.io/python-genai/#json-response-schema
+# Default value is not supported in the response schema for the Gemini API.
 class GeminiAPIUnit(ILLMApiUnit):
     api_key:str|None
     client:genai.Client
@@ -81,6 +83,7 @@ class GeminiAPIUnit(ILLMApiUnit):
         
     async def asyncGenerateB(self, コンテンツ:Union[types.ContentListUnion, types.ContentListUnionDict], ベースモデルタイプ:type[ResponseBaseModelT],システムメッセージ:Optional[ContentUnion] = None)->ResponseBaseModelT|Literal['テストモードです']|None:
         if self.test_mode == True:
+            ExtendFunc.ExtendPrint(["テストモードです"])
             return "テストモードです"
         try:
             response:GenerateContentResponse = await self.client.aio.models.generate_content(
@@ -94,7 +97,7 @@ class GeminiAPIUnit(ILLMApiUnit):
             )
             return response.parsed # type: ignore
         except Exception as e:
-            print(e)
+            ExtendFunc.ExtendPrint(e)
             return None
 
     def generateEnum(self, contents:Union[types.ContentListUnion, types.ContentListUnionDict], enumType:type[ResponseEnumT], システムメッセージ:Optional[ContentUnion] = None)->ResponseEnumT|Literal['テストモードです']|None:
@@ -132,7 +135,7 @@ class GeminiAPIUnit(ILLMApiUnit):
         elif self.system_message is not None:
             システムメッセージ = self.system_message
         else:
-            システムメッセージ = None
+            raise Exception("システムメッセージが設定されていません")
         return await self.asyncGenerateB(コンテンツ, model, システムメッセージ)
 
     def setModel(self,model_name:str):

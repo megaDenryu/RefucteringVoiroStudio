@@ -22,8 +22,8 @@ class LLM返答判定機(I返答判定機):
 
         # 会話履歴と発話をLLMに送信
         message_query:list[IMessageQuery] = self.conversation_history + [IMessageQuery(id = "1", role = "user", content = f"発話: \"{buffer_text}\"\n分析してください。")]
-        
-        analysis = await self.api_unit.asyncGenerateResponse(message_query, AnalysisResponse)
+        system_message = IMessageQuery(id = "1",role = "system", content = "会話の分析を行います。")
+        analysis = await self.api_unit.asyncGenerateResponse(message_query, AnalysisResponse, system_message)
         if isinstance(analysis, str) or analysis is None:
             return c未完全入力(buffer_text)
 

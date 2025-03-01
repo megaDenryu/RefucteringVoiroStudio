@@ -8,6 +8,7 @@ from api.LLM.エージェント.会話用エージェント.返答判定機.User
 async def LLM判定テスト():
     #入力inputを無限ループさせてテストする
     llm判定機 = LLM判定機ファクトリー.Gemini判定機作成()
+    # llm判定機 = LLM判定機ファクトリー.ChatGpt判定機作成()
     while True:
         text = input("入力してください:")
         if text == "exit":

@@ -11,8 +11,8 @@ class QueryConverter:
     @staticmethod
     def toMessageQueryDict(query:IMessageQuery) -> MessageQueryDict:
         return {
-            "role": IMessageQuery.role,
-            "content": IMessageQuery.content
+            "role": query.role,
+            "content": query.content
         }
     
     @staticmethod
