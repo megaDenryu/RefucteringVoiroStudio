@@ -6,4 +6,5 @@ export const GPTModeReq = z.object({
   gptMode: GptMode,
   clientId: z.string(),
 });
+export type GptMode = z.infer<typeof GptMode>;
 export type GPTModeReq = z.infer<typeof GPTModeReq>;
