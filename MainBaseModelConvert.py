@@ -58,6 +58,8 @@ if __name__ == "__main__":
     # 型の変換と保存(CoeiroinkVoiceSettingModel)
     # 型の変換と保存(AIVoiceVoiceSettingModel)
     # 型の変換と保存(CharacterInfo)
+
+    BaseModelConverterTest.Zodを出力する本番(SerifSettingModel)
     型の変換と保存(SerifSettingModel)
 
 
