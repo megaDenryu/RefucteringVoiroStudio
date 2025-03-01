@@ -14,7 +14,8 @@ from google.generativeai.models import list_models
 from pydantic import BaseModel
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.LLM.LLMAPIBase.Google.ContentsConverter import ContentsConverter
-from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit, IMessageQuery, ResponseBaseModelT, ResponseEnumT
+from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit, IMessageQuery, ResponseBaseModelT
+from api.LLM.LLMAPIBase.LLMInterface.ResponseModel import ResponseEnumT
 
 
 

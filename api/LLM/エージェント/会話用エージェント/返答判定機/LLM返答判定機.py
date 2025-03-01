@@ -31,7 +31,6 @@ class LLM返答判定機(I返答判定機):
         # 意図とテンポに応じた調整
         if analysis.intent in ["ask_question", "seek_confirmation"]:
             analysis.should_respond = True
-        
 
         self.ai_params.update_desire(analysis)
         self.ai_params.recover_energy()
