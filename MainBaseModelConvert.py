@@ -47,20 +47,20 @@ if __name__ == "__main__":
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModelReq)
     # BaseModelConverterTest.Zodを出力する本番(GPTModeReq)
-    BaseModelConverterTest.再帰的にZodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
-    BaseModelConverterTest.再帰的にZodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
-    BaseModelConverterTest.再帰的にZodを出力する本番(CevioAICharacterSettingSaveModelReq)
-    BaseModelConverterTest.再帰的にZodを出力する本番(AIVoiceCharacterSettingSaveModelReq)
+    # BaseModelConverterTest.再帰的にZodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
+    # BaseModelConverterTest.再帰的にZodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
+    # BaseModelConverterTest.再帰的にZodを出力する本番(CevioAICharacterSettingSaveModelReq)
+    # BaseModelConverterTest.再帰的にZodを出力する本番(AIVoiceCharacterSettingSaveModelReq)
 
     
-    # # 型の変換と保存(AppSettingsModel)
-    # # 型の変換と保存(CevioAIVoiceSettingModel)
-    # # 型の変換と保存(VoiceVoxVoiceSettingModel)
-    # # 型の変換と保存(CoeiroinkVoiceSettingModel)
-    # # 型の変換と保存(AIVoiceVoiceSettingModel)
-    # # 型の変換と保存(CharacterInfo)
+    型の変換と保存(AppSettingsModel)
+    型の変換と保存(CevioAIVoiceSettingModel)
+    型の変換と保存(VoiceVoxVoiceSettingModel)
+    型の変換と保存(CoeiroinkVoiceSettingModel)
+    型の変換と保存(AIVoiceVoiceSettingModel)
+    型の変換と保存(CharacterInfo)
 
-    # # BaseModelConverterTest.Zodを出力する本番(SerifSettingModel)
-    # # 型の変換と保存(SerifSettingModel)
+    # BaseModelConverterTest.Zodを出力する本番(SerifSettingModel)
+    # 型の変換と保存(SerifSettingModel)
 
 

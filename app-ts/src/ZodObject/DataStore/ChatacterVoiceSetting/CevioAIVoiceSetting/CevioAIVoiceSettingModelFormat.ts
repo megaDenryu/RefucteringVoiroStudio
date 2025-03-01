@@ -6,18 +6,8 @@ import { TalkerComponentArray2Format } from "./TalkerComponentArray2/TalkerCompo
 export const CevioAIVoiceSettingModelFormat:InputTypeObject = {
     type: "object",
     collectionType: {
-        talker2V40: Talker2V40Format as InputTypeObject,
-        talkerComponentArray2: TalkerComponentArray2Format as InputTypeObject,
-        読み上げ間隔: {
-            type: "number",
-            collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 0.01 }
-        } as InputTypeNumber,
-        AIによる文章変換: {
-            type: "enum",
-            collectionType: null,
-            format: { visualType: "enum", visualTitle: null }
-        } as InputTypeEnum,
+        コンディション: Talker2V40Format as InputTypeObject,
+        感情: TalkerComponentArray2Format as InputTypeObject,
     },
     format: {
         visualType: "object",
