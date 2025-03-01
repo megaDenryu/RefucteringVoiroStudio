@@ -9,8 +9,8 @@ from api.LLM.エージェント.RubiConverter.ConverterUnits.IRubiConverterUnit 
 
 
 def factory():
-    system_message_query:MessageQueryDict = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel2"]
-    system_message:str = system_message_query["content"]
+    system_message_query:list[MessageQueryDict] = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel2"]
+    system_message:str = system_message_query[0]["content"]
     unit_dict:dict[AISentenceConverter,IRubiConverterUnit] = {
         AISentenceConverter.ChatGPT:ChatGptRubiConverter(system_message),
         AISentenceConverter.gemini:GeminiRubiConverterUnit(system_message)
