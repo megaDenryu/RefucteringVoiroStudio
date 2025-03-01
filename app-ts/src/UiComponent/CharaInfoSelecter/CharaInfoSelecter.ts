@@ -452,7 +452,7 @@ export interface ICharacterSettingSaveModel<T extends VoiceSettingModel> {
     saveID: CharacterSaveId;
     characterInfo: CharacterInfo;
     voiceSetting?: T;
-    readingAloud: SerifSettingModel;
+    readingAloud?: SerifSettingModel;
 }
 
 export type SaveDataSelecterOptionDataset = {
