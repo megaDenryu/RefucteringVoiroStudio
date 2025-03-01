@@ -4,7 +4,7 @@ import { InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, In
 import { CommentReceiveSettingModelFormat } from "./CommentReciver/CommentReceiveSettingModelFormat";
 import { GPTSettingModelFormat } from "./GPTSetting/GPTSetting_GPTSettingModelFormat";
 import { SynthesisVoiceSettingModelFormat } from "./SynthesisVoiceSetting/SynthesisVoiceSettingModelFormat";
-import { SerifSettingModelFormat } from "./SerifSetting/SpeechRecognitionSettingModel_SerifSettingModelFormat";
+import { SerifSettingModelFormat } from "./SerifSetting/SerifSettingModelFormat";
 export const AppSettingsModelFormat:InputTypeObject = {
     type: "object",
     collectionType: {

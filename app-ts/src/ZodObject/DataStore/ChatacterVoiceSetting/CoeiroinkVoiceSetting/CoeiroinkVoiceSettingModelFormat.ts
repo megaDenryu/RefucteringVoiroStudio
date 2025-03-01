@@ -4,36 +4,26 @@ import { InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, In
 export const CoeiroinkVoiceSettingModelFormat:InputTypeObject = {
     type: "object",
     collectionType: {
-        speedScale: {
+        スピード: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 0.01 }
+            format: { visualType: "number", visualTitle: null, step: 1 }
         } as InputTypeNumber,
-        pitchScale: {
+        ピッチ: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 0.01 }
+            format: { visualType: "number", visualTitle: null, step: 1 }
         } as InputTypeNumber,
-        intonationScale: {
+        イントネーション: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 0.01 }
+            format: { visualType: "number", visualTitle: null, step: 1 }
         } as InputTypeNumber,
-        volumeScale: {
+        音量: {
             type: "number",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 0.01 }
+            format: { visualType: "number", visualTitle: null, step: 1 }
         } as InputTypeNumber,
-        読み上げ間隔: {
-            type: "number",
-            collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 0.01 }
-        } as InputTypeNumber,
-        AIによる文章変換: {
-            type: "enum",
-            collectionType: null,
-            format: { visualType: "enum", visualTitle: null }
-        } as InputTypeEnum,
     },
     format: {
         visualType: "object",

@@ -1,5 +1,6 @@
 import { z } from "zod";
-const GptMode = z.enum(["off", "individual_process0501dev"]);
+
+export const GptMode = z.enum(["off", "individual_process0501dev"]);
 export const GPTModeReq = z.object({
   characterId: z.string(),
   gptMode: GptMode,

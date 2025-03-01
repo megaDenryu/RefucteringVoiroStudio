@@ -6,6 +6,7 @@ import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton
 import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { CharacterId } from "../../ValueObject/Character";
 import { RequestAPI } from "../../Web/RequestApi";
+import { SerifSettingModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/SerifSetting/SerifSettingModel";
 import { CevioAICharacterSettingSaveModelReq } from "../../ZodObject/DataStore/CharacterSetting/CevioAICharacterSettingSaveModelReq";
 import { CharacterInfo } from "../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfo";
 import { CevioAIVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CevioAIVoiceSetting/CevioAIVoiceSettingModel";
@@ -15,6 +16,8 @@ import { GlobalState } from "../AppVoiroStudio/AppVoiroStudio";
 import { CharacterInfoSetting } from "./CharacterInfoSetting/CharacterInfoSetting";
 import { ICharacterInfoSetting } from "./CharacterInfoSetting/ICharacterInfoSetting";
 import { ICharacterSetting } from "./ICharacterSetting";
+import { IReadingAloudSetting } from "./ReadingAloudSetting/IReadingAloudSetting";
+import { ReadingAloudSetting } from "./ReadingAloudSetting/ReadingAloudSetting";
 import { CevioAIVoiceSetting, createCevioAIVoiceSetting } from "./VoiceSetting/CevioAIVoiceSetting";
 
 
@@ -26,6 +29,7 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
     private _closeButton: NormalButton;
     public voiceSetting: CevioAIVoiceSetting;
     public characterInfoSetting: ICharacterInfoSetting;
+    public readingAloudSetting: IReadingAloudSetting;
     private readonly req:TtsSoftWareVoiceSettingReq;
     private _characterSaveData: ICharacterSettingSaveModel<CevioAIVoiceSettingModel>;
     
@@ -44,6 +48,7 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
         this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(() => {this.close()});
         this.voiceSetting = createCevioAIVoiceSetting(req.character_id, characterSaveData, this);
         this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
+        this.readingAloudSetting = new ReadingAloudSetting(characterSaveData.readingAloud, this);
         this.initialize();
     }
 
@@ -56,6 +61,12 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
         this._characterSaveData.characterInfo = characterInfo;
         this.sendSaveData(this._characterSaveData);
     }
+    
+    public saveReadingAloud(readingAloud: SerifSettingModel): void {
+        this._characterSaveData.readingAloud = readingAloud;
+        this.sendSaveData(this._characterSaveData);
+    }
+    
     private sendSaveData(saveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>): void {
         const saveDataReq:CevioAICharacterSettingSaveModelReq = {
             page_mode: this.req.page_mode,
@@ -82,14 +93,17 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
         this._squareBoardComponent.component.delete();
         this.voiceSetting.delete();
         this.characterInfoSetting.delete();
+        this.readingAloudSetting.delete();
     }
 
     private initialize() {
         this.voiceSetting.component.setAsChildComponent();
         this.characterInfoSetting.component.setAsChildComponent();
+        this.readingAloudSetting.component.setAsChildComponent();
         this._squareBoardComponent.addComponentToHeader(this._closeButton);
         this.component.setAsParentComponent();
         this._squareBoardComponent.addComponentToContent(this.voiceSetting);
+        this._squareBoardComponent.addComponentToContent(this.readingAloudSetting);
         this._squareBoardComponent.addComponentToContent(this.characterInfoSetting);
 
 
@@ -100,11 +114,6 @@ export class CevioAICharacterSetting implements ICharacterSetting<CevioAIVoiceSe
             window.innerWidth / 2,
             window.innerHeight / 2
         );
-    }
-
-    public onAddedToDom() {
-        this.voiceSetting.onAddedToDom();
-        this.characterInfoSetting.onAddedToDom();
     }
 }
 
@@ -117,8 +126,8 @@ export interface CevioAIDefaultVoiceSettingReq {
 export async function createCevioAICharacterSetting(req:TtsSoftWareVoiceSettingReq, characterSaveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>) {
     if (characterSaveData.voiceSetting === undefined) {
         let firstStep:CevioAIVoiceSettingModel = generateDefaultObject(CevioAIVoiceSettingModel);
-        if (firstStep.talker2V40 != undefined && firstStep.talker2V40.Cast == "") {
-            firstStep.talker2V40.Cast = characterSaveData.characterInfo.characterName.name;
+        if (firstStep.コンディション != undefined && firstStep.コンディション.Cast == "") {
+            firstStep.コンディション.Cast = characterSaveData.characterInfo.characterName.name;
         }
         const cevioAIDefaultVoiceSettingReq:CevioAIDefaultVoiceSettingReq = {
             page_mode: "Chat",
@@ -126,17 +135,17 @@ export async function createCevioAICharacterSetting(req:TtsSoftWareVoiceSettingR
             character_id: req.character_id,
         };
         const res = await RequestAPI.postRequest<TalkerComponentArray2>("CevioAIDefaultVoiceSetting", cevioAIDefaultVoiceSettingReq);
-        firstStep.talkerComponentArray2 = res;
+        firstStep.感情 = res;
         characterSaveData.voiceSetting = firstStep;
         return new CevioAICharacterSetting(req, characterSaveData);
-    } else if (Object.keys(characterSaveData.voiceSetting.talkerComponentArray2?.record??{}).length == 0) {
+    } else if (Object.keys(characterSaveData.voiceSetting.感情?.record??{}).length == 0) {
         const cevioAIDefaultVoiceSettingReq:CevioAIDefaultVoiceSettingReq = {
             page_mode: "Chat",
             client_id: GlobalState.client_id,
             character_id: req.character_id,
         };
         const res = await RequestAPI.postRequest<TalkerComponentArray2>("CevioAIDefaultVoiceSetting", cevioAIDefaultVoiceSettingReq);
-        characterSaveData.voiceSetting.talkerComponentArray2 = res;
+        characterSaveData.voiceSetting.感情 = res;
         return new CevioAICharacterSetting(req, characterSaveData);
     }
     else {

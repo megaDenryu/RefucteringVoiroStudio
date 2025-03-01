@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.CommentReceiveSettingModel import CommentReceiveSettingModel
 from api.DataStore.AppSetting.AppSettingModel.GPTSetting.GPTSetting import GPTSettingModel
-from api.DataStore.AppSetting.AppSettingModel.SerifSetting.SpeechRecognitionSettingModel import SerifSettingModel
+from api.DataStore.AppSetting.AppSettingModel.SerifSetting.SerifSettingModel import SerifSettingModel
 from api.DataStore.AppSetting.AppSettingModel.SynthesisVoiceSetting.SynthesisVoiceSettingModel import SynthesisVoiceSettingModel
 
 class AppSettingsModel(BaseModel):

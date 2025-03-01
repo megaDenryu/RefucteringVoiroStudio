@@ -3,7 +3,8 @@
         "AISentenceConverter": {
             "enum": [
                 "無効",
-                "ChatGPT"
+                "ChatGPT",
+                "Gemini"
             ],
             "title": "AISentenceConverter",
             "type": "string"
@@ -26,6 +27,15 @@
                     ],
                     "description": "音声設定を指定します。",
                     "title": "音声設定"
+                },
+                "readingAloud": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/SerifSettingModel"
+                        }
+                    ],
+                    "description": "読み上げ設定を指定します。",
+                    "title": "読み上げ設定"
                 }
             },
             "required": [
@@ -37,20 +47,10 @@
         },
         "AIVoiceVoiceSettingModel": {
             "properties": {
-                "読み上げ間隔": {
-                    "default": 0.0,
-                    "maximum": 2.0,
-                    "minimum": 0.0,
-                    "title": "読み上げ間隔",
-                    "type": "number"
-                },
-                "AIによる文章変換": {
-                    "allOf": [
-                        {
-                            "$ref": "#/$defs/AISentenceConverter"
-                        }
-                    ],
-                    "default": "無効"
+                "声の調整方法": {
+                    "default": "音声調整はAIVoiceのソフトの方でできます",
+                    "title": "声の調整方法",
+                    "type": "string"
                 }
             },
             "title": "AIVoiceVoiceSettingModel",
@@ -251,6 +251,28 @@
                 "name"
             ],
             "title": "NickName",
+            "type": "object"
+        },
+        "SerifSettingModel": {
+            "properties": {
+                "AIによる文章変換": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/AISentenceConverter"
+                        }
+                    ],
+                    "default": "無効",
+                    "title": "AIによる文章変換"
+                },
+                "読み上げ間隔": {
+                    "default": 0.0,
+                    "maximum": 2.0,
+                    "minimum": 0.0,
+                    "title": "読み上げ間隔",
+                    "type": "number"
+                }
+            },
+            "title": "SerifSettingModel",
             "type": "object"
         }
     },

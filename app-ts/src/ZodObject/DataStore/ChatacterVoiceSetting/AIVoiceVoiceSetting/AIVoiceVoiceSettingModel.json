@@ -1,29 +1,9 @@
 {
-    "$defs": {
-        "AISentenceConverter": {
-            "enum": [
-                "無効",
-                "ChatGPT"
-            ],
-            "title": "AISentenceConverter",
-            "type": "string"
-        }
-    },
     "properties": {
-        "読み上げ間隔": {
-            "default": 0.0,
-            "maximum": 2.0,
-            "minimum": 0.0,
-            "title": "読み上げ間隔",
-            "type": "number"
-        },
-        "AIによる文章変換": {
-            "allOf": [
-                {
-                    "$ref": "#/$defs/AISentenceConverter"
-                }
-            ],
-            "default": "無効"
+        "声の調整方法": {
+            "default": "音声調整はAIVoiceのソフトの方でできます",
+            "title": "声の調整方法",
+            "type": "string"
         }
     },
     "title": "AIVoiceVoiceSettingModel",

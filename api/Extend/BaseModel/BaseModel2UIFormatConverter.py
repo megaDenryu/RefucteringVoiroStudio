@@ -294,6 +294,7 @@ import {{ InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, I
     
 
 def 型の変換と保存(model: Type[BaseModel]):
+    # 型インプットUIのフォーマットを生成する
     generator = TypeScriptFormatGenerator(model)
     generator.saveThisModel()
 

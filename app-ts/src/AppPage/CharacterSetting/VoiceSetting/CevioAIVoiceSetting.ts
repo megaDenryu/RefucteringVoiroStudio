@@ -27,18 +27,13 @@ export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IH
   private _manageDataSettingComponent: ObjectInputComponent<CevioAIVoiceSettingModel>;
   private characterSetting:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>
   private _開閉Button: ToggleButton<OpenCloseState>;
-  private _reqInfo: TtsSoftWareVoiceSettingReq;
-
-  public get 読み上げ間隔() {
-    return this.manageData.読み上げ間隔;
-  }
 
   /**
    * @param SchemaType スキーマーの型
    * @param req この設定モデルがデータをサーバーにリクエストするためのリクエストデータ
    * @param reqURL リクエストURL。RequestAPI.rootURLの後に続けるので/はいらない。
    */
-  public constructor(req: CevioAIVoiceSettingReq, voiceSetting: CevioAIVoiceSettingModel, settingSaver:ISaveSetting<CevioAIVoiceSettingModel>) {
+  public constructor(voiceSetting: CevioAIVoiceSettingModel, settingSaver:ISaveSetting<CevioAIVoiceSettingModel>) {
     this._squareBoardComponent = new SquareBoardComponent(
       "設定画面",
       null,
@@ -50,7 +45,6 @@ export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IH
     );
     this.component = this._squareBoardComponent.component;
     this._開閉Button = createOpenCloseButton({"title":"開閉ボタン","openAction":()=>{this.open()}, "closeAction":()=>{this.close()}, "defaultState":"goClose"});
-    this._reqInfo = req;
     this.settingSaver = settingSaver;
     this.manageData = voiceSetting
     this.initialize();
@@ -145,12 +139,6 @@ export class CevioAIVoiceSetting implements IComponentManager, IVoiceSetting, IH
 export function createCevioAIVoiceSetting(
   character_id: string, characterSaveData:ICharacterSettingSaveModel<CevioAIVoiceSettingModel>, settingSaver:ISaveSetting<CevioAIVoiceSettingModel>
 ): CevioAIVoiceSetting {
-  const cevioAIVoiceSettingReq: CevioAIVoiceSettingReq = {
-    page_mode: "App",
-    client_id: "test",
-    character_id: character_id,   
-  };
-
-  const cevioAIVoiceSetting = new CevioAIVoiceSetting(cevioAIVoiceSettingReq, characterSaveData.voiceSetting as CevioAIVoiceSettingModel, settingSaver);
+  const cevioAIVoiceSetting = new CevioAIVoiceSetting(characterSaveData.voiceSetting as CevioAIVoiceSettingModel, settingSaver);
   return cevioAIVoiceSetting;
 }

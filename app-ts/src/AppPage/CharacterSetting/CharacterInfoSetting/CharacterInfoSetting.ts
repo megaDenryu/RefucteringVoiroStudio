@@ -75,56 +75,56 @@ export class CharacterInfoSetting implements IComponentManager, ICharacterInfoSe
   }
 
   private saveAllSettings() {
-      // セーブデータの状態を更新する
-      const updatedSettings = this._manageDataSettingComponent.getValue();
-      console.log(updatedSettings);
-      this.manageData = updatedSettings;
-  
-      // セーブデータを送信する
-      this.sendSettings(updatedSettings);
-    }
-  
-    private sendSettings(settings: CharacterInfo) {
-      this.settingSaver.saveCharacterInfo(settings);
-    }
-  
-    public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(
-      recordPath: RecordPath,
-      value: any
-    ): void {
-      オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(
-        this,
-        recordPath,
-        value
-      );
-      this.sendSettings(this.manageData);
-    }
-  
-    public オブジェクトデータの特定の子要素の配列から特定番号を削除する(
-      recordPath: RecordPath
-    ): void {
-      オブジェクトデータの特定の子要素の配列から特定番号を削除する(
-        this,
-        recordPath
-      );
-      this.sendSettings(this.manageData);
-    }
-  
-    public isOpen(): boolean {
-      return this._squareBoardComponent.component.isShow;
-    }
-  
-    private open(): void {
-      this._manageDataSettingComponent.component.show();
-    }
-  
-    private close(): void {
-      this._manageDataSettingComponent.component.hide();
-    }
-  
-    public delete(): void {
-      this._squareBoardComponent.component.element.remove();
-    }
+    // セーブデータの状態を更新する
+    const updatedSettings = this._manageDataSettingComponent.getValue();
+    console.log(updatedSettings);
+    this.manageData = updatedSettings;
+
+    // セーブデータを送信する
+    this.sendSettings(updatedSettings);
+  }
+
+  private sendSettings(settings: CharacterInfo) {
+    this.settingSaver.saveCharacterInfo(settings);
+  }
+
+  public オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(
+    recordPath: RecordPath,
+    value: any
+  ): void {
+    オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する(
+      this,
+      recordPath,
+      value
+    );
+    this.sendSettings(this.manageData);
+  }
+
+  public オブジェクトデータの特定の子要素の配列から特定番号を削除する(
+    recordPath: RecordPath
+  ): void {
+    オブジェクトデータの特定の子要素の配列から特定番号を削除する(
+      this,
+      recordPath
+    );
+    this.sendSettings(this.manageData);
+  }
+
+  public isOpen(): boolean {
+    return this._squareBoardComponent.component.isShow;
+  }
+
+  private open(): void {
+    this._manageDataSettingComponent.component.show();
+  }
+
+  private close(): void {
+    this._manageDataSettingComponent.component.hide();
+  }
+
+  public delete(): void {
+    this._squareBoardComponent.component.element.remove();
+  }
 
 }
 

@@ -35,10 +35,18 @@ export const AIVoiceCharacterSettingSaveModelReq = z.object({
     }),
     voiceSetting: z
       .object({
-        読み上げ間隔: z.number().gte(0).lte(2).default(0),
-        AIによる文章変換: z.enum(["無効", "ChatGPT"]).default("無効"),
+        声の調整方法: z
+          .string()
+          .default("音声調整はAIVoiceのソフトの方でできます"),
       })
       .describe("音声設定を指定します。")
+      .optional(),
+    readingAloud: z
+      .object({
+        AIによる文章変換: z.enum(["無効", "ChatGPT", "Gemini"]).default("無効"),
+        読み上げ間隔: z.number().gte(0).lte(2).default(0),
+      })
+      .describe("読み上げ設定を指定します。")
       .optional(),
   }),
 });

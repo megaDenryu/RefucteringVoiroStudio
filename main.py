@@ -11,22 +11,11 @@ from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettings
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingSaveModelReq import AIVoiceCharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import CevioAICharacterSettingCollectionOperator
-from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
 from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModelReq import CevioAICharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollectionOperator
-from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import CoeiroinkCharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
-from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import VoiceVoxCharacterSettingSaveModel
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
-from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
-from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModelReq import CevioAIVoiceSettingModelReq
-from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponentArray2 import TalkerComponentArray2
-from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModelReq import CoeiroinkVoiceSettingModelReq
-from api.DataStore.ChatacterVoiceSetting.CommonFeature.CommonFeature import AISentenceConverter
-from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
-from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModelReq import VoiceVoxVoiceSettingModelReq
-from api.DataStore.ChatacterVoiceSetting.TtsSoftWareVoiceSettingReq import TtsSoftWareVoiceSettingReq
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.GPTMode import GPTModeReq, GptMode
@@ -317,7 +306,7 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 print(f"{human_ai.char_name=}")
                 if "" != input_dict[character_id]:
                     print(f"{input_dict[character_id]=}")
-                    rubi_sentence = human_ai.aiRubiConverter.convertAsync(input_dict[character_id])
+                    rubi_sentence = human_ai.aiRubiConverter.convert(input_dict[character_id])
                     if rubi_sentence == None:
                         return
                     for sentence in Human.parseSentenseList(rubi_sentence):
@@ -537,7 +526,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             #キャラ立ち絵のパーツを全部送信する。エラーがあったらエラーを返す
             try:
                 tmp_human = inastanceManager.humanInstances.createHuman(chara_mode_state)
-                tmp_human.aiRubiConverter.setOnOff(inastanceManager.appSettingModule.setting.セリフ設定.AIによる文章変換の一括設定)
+                tmp_human.aiRubiConverter.setMode(inastanceManager.appSettingModule.setting.セリフ設定.AIによる文章変換)
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
                 human_part_folder:HumanData = tmp_human.image_data_for_client
                 charaCreateData:CharaCreateData = {
@@ -914,7 +903,7 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
             new_setting:AppSettingsModel = setting_module.setSetting(setting_mode, page_mode, client_id, saveSettingReq)
             # 設定の変更を適用
             for human in inastanceManager.humanInstances.Humans:
-                human.aiRubiConverter.setOnOff(new_setting.セリフ設定.AIによる文章変換の一括設定)
+                human.aiRubiConverter.setMode(new_setting.セリフ設定.AIによる文章変換)
                 ttsSoftware = human.human_Voice #TTSソフトウェアのインスタンス.まだ使うことはないが将来使うかもしれないので取得しておく
             await setting_module.notify(new_setting, setting_mode, "Chat", client_id)
             await setting_module.notify(new_setting, setting_mode, "Setting", client_id)
@@ -933,7 +922,7 @@ async def cevioAICharacterSetting(req: CevioAICharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setOnOff(req.cevioAICharacterSettingModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.cevioAICharacterSettingModel.readingAloud.AIによる文章変換)
     cevio = human.human_Voice
     #cevio_human かどうかの判定
     if isinstance(cevio, cevio_human):
@@ -948,7 +937,7 @@ async def aiVoiceCharacterSetting(req: AIVoiceCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setOnOff(req.aiVoiceCharacterSettingSaveModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.aiVoiceCharacterSettingSaveModel.readingAloud.AIによる文章変換)
     aiVoice = human.human_Voice
     if isinstance(aiVoice, AIVoiceHuman):
         # aiVoice.setVoiceSetting(req.aiVoiceCharacterSettingModel.voiceSetting)
@@ -962,8 +951,8 @@ async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setOnOff(req.voiceVoxCharacterSettingModel.voiceSetting.AIによる文章変換)
-    ExtendFunc.ExtendPrint(human.aiRubiConverter.on_off)
+    human.aiRubiConverter.setMode(req.voiceVoxCharacterSettingModel.readingAloud.AIによる文章変換)
+    ExtendFunc.ExtendPrint(human.aiRubiConverter.mode)
     voiceVox = human.human_Voice
     if isinstance(voiceVox, voicevox_human):
         voiceVox.setVoiceSetting(req.voiceVoxCharacterSettingModel.voiceSetting)
@@ -977,7 +966,7 @@ async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setOnOff(req.coeiroinkCharacterSettingModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.coeiroinkCharacterSettingModel.readingAloud.AIによる文章変換)
     coeiroink = human.human_Voice
     if isinstance(coeiroink, Coeiroink):
         coeiroink.setVoiceSetting(req.coeiroinkCharacterSettingModel.voiceSetting)

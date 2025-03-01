@@ -11,12 +11,17 @@
         "character_id": {
             "title": "Character Id",
             "type": "string"
+        },
+        "saveID": {
+            "title": "Saveid",
+            "type": "string"
         }
     },
     "required": [
         "page_mode",
         "client_id",
-        "character_id"
+        "character_id",
+        "saveID"
     ],
     "title": "TtsSoftWareVoiceSettingReq",
     "type": "object"

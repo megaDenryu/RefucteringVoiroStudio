@@ -4,16 +4,11 @@ import { InputTypeObject, InputTypeString, InputTypeNumber, InputTypeBoolean, In
 export const AIVoiceVoiceSettingModelFormat:InputTypeObject = {
     type: "object",
     collectionType: {
-        読み上げ間隔: {
-            type: "number",
+        声の調整方法: {
+            type: "string",
             collectionType: null,
-            format: { visualType: "number", visualTitle: null, step: 0.01 }
-        } as InputTypeNumber,
-        AIによる文章変換: {
-            type: "enum",
-            collectionType: null,
-            format: { visualType: "enum", visualTitle: null }
-        } as InputTypeEnum,
+            format: { visualType: "string", visualTitle: null }
+        } as InputTypeString,
     },
     format: {
         visualType: "object",

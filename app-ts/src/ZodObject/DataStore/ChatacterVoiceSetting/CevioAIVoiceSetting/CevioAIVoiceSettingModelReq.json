@@ -2,10 +2,10 @@
     "$defs": {
         "CevioAIVoiceSettingModel": {
             "properties": {
-                "talker2V40": {
+                "コンディション": {
                     "$ref": "#/$defs/Talker2V40"
                 },
-                "talkerComponentArray2": {
+                "感情": {
                     "$ref": "#/$defs/TalkerComponentArray2"
                 }
             },

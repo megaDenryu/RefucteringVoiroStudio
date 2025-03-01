@@ -4,6 +4,7 @@ import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { RequestAPI } from "../../Web/RequestApi";
+import { SerifSettingModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/SerifSetting/SerifSettingModel";
 import { AIVoiceCharacterSettingSaveModelReq } from "../../ZodObject/DataStore/CharacterSetting/AIVoiceCharacterSettingSaveModelReq";
 import { CharacterInfo } from "../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfo";
 import { AIVoiceVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/AIVoiceVoiceSetting/AIVoiceVoiceSettingModel";
@@ -11,6 +12,8 @@ import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterV
 import { CharacterInfoSetting } from "./CharacterInfoSetting/CharacterInfoSetting";
 import { ICharacterInfoSetting } from "./CharacterInfoSetting/ICharacterInfoSetting";
 import { ICharacterSetting } from "./ICharacterSetting";
+import { IReadingAloudSetting } from "./ReadingAloudSetting/IReadingAloudSetting";
+import { ReadingAloudSetting } from "./ReadingAloudSetting/ReadingAloudSetting";
 import { AIVoiceVoiceSetting, createAIVoiceVoiceSetting } from "./VoiceSetting/AIVoiceVoiceSetting";
 
 export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSettingModel> {
@@ -20,6 +23,7 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
     private _closeButton: NormalButton;
     public voiceSetting: AIVoiceVoiceSetting;
     public characterInfoSetting: ICharacterInfoSetting;
+    public readingAloudSetting: IReadingAloudSetting;
     private readonly req:TtsSoftWareVoiceSettingReq;
     private _characterSaveData: ICharacterSettingSaveModel<AIVoiceVoiceSettingModel>;
     
@@ -38,6 +42,7 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
         this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(() => {this.close()});
         this.voiceSetting = createAIVoiceVoiceSetting(req.character_id, characterSaveData.voiceSetting, this);
         this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
+        this.readingAloudSetting = new ReadingAloudSetting(characterSaveData.readingAloud, this);
         this.initialize();
     }
 
@@ -50,6 +55,12 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
         this._characterSaveData.characterInfo = characterInfo;
         this.sendSaveData(this._characterSaveData);
     }
+
+    public saveReadingAloud(readingAloud: SerifSettingModel): void {
+        this._characterSaveData.readingAloud = readingAloud;
+        this.sendSaveData(this._characterSaveData);
+    }
+
     private sendSaveData(saveData:ICharacterSettingSaveModel<AIVoiceVoiceSettingModel>): void {
         const saveDataReq:AIVoiceCharacterSettingSaveModelReq = {
             page_mode: this.req.page_mode,
@@ -77,14 +88,17 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
         this._squareBoardComponent.component.delete();
         this.voiceSetting.delete();
         this.characterInfoSetting.delete();
+        this.readingAloudSetting.delete();
     }
 
     private initialize() {
         this.voiceSetting.component.setAsChildComponent();
         this.characterInfoSetting.component.setAsChildComponent();
+        this.readingAloudSetting.component.setAsChildComponent();
         this._squareBoardComponent.addComponentToHeader(this._closeButton);
         this.component.setAsParentComponent();
         this._squareBoardComponent.addComponentToContent(this.voiceSetting);
+        this._squareBoardComponent.addComponentToContent(this.readingAloudSetting);
         this._squareBoardComponent.addComponentToContent(this.characterInfoSetting);
 
         document.body.appendChild(this._squareBoardComponent.component.element);
@@ -94,11 +108,6 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
             window.innerWidth / 2,
             window.innerHeight / 2
         );
-    }
-
-    public onAddedToDom() {
-        this.voiceSetting.onAddedToDom();
-        this.characterInfoSetting.onAddedToDom();
     }
 }
 
