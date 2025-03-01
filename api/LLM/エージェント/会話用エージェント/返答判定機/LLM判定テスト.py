@@ -1,10 +1,11 @@
 
 
+from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.エージェント.会話用エージェント.返答判定機.LLM判定機ファクトリー import LLM判定機ファクトリー
 from api.LLM.エージェント.会話用エージェント.返答判定機.UserInput import c未完全入力
 
 
-def LLM判定テスト():
+async def LLM判定テスト():
     #入力inputを無限ループさせてテストする
     llm判定機 = LLM判定機ファクトリー.Gemini判定機作成()
     while True:
@@ -12,6 +13,9 @@ def LLM判定テスト():
         if text == "exit":
             break
         print("判定中...")
-        result = llm判定機.f判定(c未完全入力(text))
-        print(result)
+        result = await llm判定機.f判定(c未完全入力(text))
+        if isinstance(result, c未完全入力):
+            ExtendFunc.ExtendPrint(result.buffer_text)
+        else:
+            ExtendFunc.ExtendPrint(result.buffer_text)
         print("判定完了")
