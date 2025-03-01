@@ -4,6 +4,7 @@ import { SquareBoardComponent } from "../../UiComponent/Board/SquareComponent";
 import { NormalButton } from "../../UiComponent/Button/NormalButton/NormalButton";
 import { ICharacterSettingSaveModel } from "../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { RequestAPI } from "../../Web/RequestApi";
+import { SerifSettingModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/SerifSetting/SerifSettingModel";
 import { CharacterInfo } from "../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfo";
 import { CoeiroinkCharacterSettingSaveModelReq } from "../../ZodObject/DataStore/CharacterSetting/CoeiroinkCharacterSettingSaveModelReq";
 import { CoeiroinkVoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetting/CoeiroinkVoiceSetting/CoeiroinkVoiceSettingModel";
@@ -11,6 +12,8 @@ import { TtsSoftWareVoiceSettingReq } from "../../ZodObject/DataStore/ChatacterV
 import { CharacterInfoSetting } from "./CharacterInfoSetting/CharacterInfoSetting";
 import { ICharacterInfoSetting } from "./CharacterInfoSetting/ICharacterInfoSetting";
 import { ICharacterSetting } from "./ICharacterSetting";
+import { IReadingAloudSetting } from "./ReadingAloudSetting/IReadingAloudSetting";
+import { ReadingAloudSetting } from "./ReadingAloudSetting/ReadingAloudSetting";
 import { CoeiroinkVoiceSetting, createCoeiroinkVoiceSetting } from "./VoiceSetting/CoeiroinkVoiceSetting";
 
 
@@ -18,9 +21,10 @@ import { CoeiroinkVoiceSetting, createCoeiroinkVoiceSetting } from "./VoiceSetti
 export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoiceSettingModel> {
     public readonly component: BaseComponent;
     public readonly title = "キャラクター設定";
+    private _squareBoardComponent: ScrollableSquareBoardComponent;
     public voiceSetting: CoeiroinkVoiceSetting;
     public characterInfoSetting: ICharacterInfoSetting;
-    private _squareBoardComponent: ScrollableSquareBoardComponent;
+    public readingAloudSetting: IReadingAloudSetting;
     private _closeButton: NormalButton;
     private readonly req:TtsSoftWareVoiceSettingReq;
     private _characterSaveData: ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>;
@@ -40,6 +44,7 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         this._closeButton = new NormalButton("閉じる", "warning").addOnClickEvent(this.close.bind(this));
         this.voiceSetting = createCoeiroinkVoiceSetting(req.character_id, characterSaveData.voiceSetting, this);
         this.characterInfoSetting = new CharacterInfoSetting(characterSaveData.characterInfo, this);
+        this.readingAloudSetting = new ReadingAloudSetting(characterSaveData.readingAloud, this);
         this.initialize();
     }
 
@@ -52,6 +57,12 @@ export class CoeiroinkCharacterSetting implements ICharacterSetting<CoeiroinkVoi
         this._characterSaveData.characterInfo = characterInfo;
         this.sendSaveData(this._characterSaveData);
     }
+
+    public saveReadingAloud(readingAloud: SerifSettingModel): void {
+        this._characterSaveData.readingAloud = readingAloud;
+        this.sendSaveData(this._characterSaveData);
+    }
+    
     private sendSaveData(saveData:ICharacterSettingSaveModel<CoeiroinkVoiceSettingModel>): void {
         const saveDataReq:CoeiroinkCharacterSettingSaveModelReq = {
             page_mode: this.req.page_mode,
