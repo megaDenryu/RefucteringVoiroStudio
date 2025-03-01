@@ -23,7 +23,7 @@ class AIRubiConverter:
         ExtendFunc.ExtendPrintWithTitle("response",response)
         return AIRubiConverter._check(response.フリガナ化文章)
     
-    def setOnOff(self, mode:AISentenceConverter):
+    def setMode(self, mode:AISentenceConverter):
         self.mode = mode
 
     @staticmethod

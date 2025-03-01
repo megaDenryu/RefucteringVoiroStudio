@@ -537,7 +537,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             #キャラ立ち絵のパーツを全部送信する。エラーがあったらエラーを返す
             try:
                 tmp_human = inastanceManager.humanInstances.createHuman(chara_mode_state)
-                tmp_human.aiRubiConverter.setOnOff(inastanceManager.appSettingModule.setting.セリフ設定.AIによる文章変換の一括設定)
+                tmp_human.aiRubiConverter.setMode(inastanceManager.appSettingModule.setting.セリフ設定.AIによる文章変換の一括設定)
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
                 human_part_folder:HumanData = tmp_human.image_data_for_client
                 charaCreateData:CharaCreateData = {
@@ -914,7 +914,7 @@ async def settingStore(websocket: WebSocket, setting_mode: SettingMode, page_mod
             new_setting:AppSettingsModel = setting_module.setSetting(setting_mode, page_mode, client_id, saveSettingReq)
             # 設定の変更を適用
             for human in inastanceManager.humanInstances.Humans:
-                human.aiRubiConverter.setOnOff(new_setting.セリフ設定.AIによる文章変換の一括設定)
+                human.aiRubiConverter.setMode(new_setting.セリフ設定.AIによる文章変換の一括設定)
                 ttsSoftware = human.human_Voice #TTSソフトウェアのインスタンス.まだ使うことはないが将来使うかもしれないので取得しておく
             await setting_module.notify(new_setting, setting_mode, "Chat", client_id)
             await setting_module.notify(new_setting, setting_mode, "Setting", client_id)
@@ -933,7 +933,7 @@ async def cevioAICharacterSetting(req: CevioAICharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setOnOff(req.cevioAICharacterSettingModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.cevioAICharacterSettingModel.voiceSetting.AIによる文章変換)
     cevio = human.human_Voice
     #cevio_human かどうかの判定
     if isinstance(cevio, cevio_human):
@@ -948,7 +948,7 @@ async def aiVoiceCharacterSetting(req: AIVoiceCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setOnOff(req.aiVoiceCharacterSettingSaveModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.aiVoiceCharacterSettingSaveModel.voiceSetting.AIによる文章変換)
     aiVoice = human.human_Voice
     if isinstance(aiVoice, AIVoiceHuman):
         # aiVoice.setVoiceSetting(req.aiVoiceCharacterSettingModel.voiceSetting)
@@ -962,7 +962,7 @@ async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setOnOff(req.voiceVoxCharacterSettingModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.voiceVoxCharacterSettingModel.voiceSetting.AIによる文章変換)
     ExtendFunc.ExtendPrint(human.aiRubiConverter.mode)
     voiceVox = human.human_Voice
     if isinstance(voiceVox, voicevox_human):
@@ -977,7 +977,7 @@ async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setOnOff(req.coeiroinkCharacterSettingModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.coeiroinkCharacterSettingModel.voiceSetting.AIによる文章変換)
     coeiroink = human.human_Voice
     if isinstance(coeiroink, Coeiroink):
         coeiroink.setVoiceSetting(req.coeiroinkCharacterSettingModel.voiceSetting)

@@ -52,10 +52,10 @@ if __name__ == "__main__":
 
     
     型の変換と保存(AppSettingsModel)
-    # 型の変換と保存(CevioAIVoiceSettingModel)
-    # 型の変換と保存(VoiceVoxVoiceSettingModel)
-    # 型の変換と保存(CoeiroinkVoiceSettingModel)
-    # 型の変換と保存(AIVoiceVoiceSettingModel)
+    型の変換と保存(CevioAIVoiceSettingModel)
+    型の変換と保存(VoiceVoxVoiceSettingModel)
+    型の変換と保存(CoeiroinkVoiceSettingModel)
+    型の変換と保存(AIVoiceVoiceSettingModel)
     # 型の変換と保存(CharacterInfo)
 
 

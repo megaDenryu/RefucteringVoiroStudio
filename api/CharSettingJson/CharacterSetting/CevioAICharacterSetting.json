@@ -178,14 +178,14 @@
                 "talker2V40": {
                     "Cast": "",
                     "Volume": 43,
-                    "Speed": 51,
+                    "Speed": 50,
                     "Tone": 50,
                     "Alpha": 50,
                     "ToneScale": 50
                 },
                 "talkerComponentArray2": {
                     "record": {
-                        "Bright": 26,
+                        "Bright": 25,
                         "Normal": 75,
                         "Strong": 0,
                         "Dark": 0
