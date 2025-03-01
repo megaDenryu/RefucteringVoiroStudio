@@ -88,14 +88,17 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
         this._squareBoardComponent.component.delete();
         this.voiceSetting.delete();
         this.characterInfoSetting.delete();
+        this.readingAloudSetting.delete();
     }
 
     private initialize() {
         this.voiceSetting.component.setAsChildComponent();
         this.characterInfoSetting.component.setAsChildComponent();
+        this.readingAloudSetting.component.setAsChildComponent();
         this._squareBoardComponent.addComponentToHeader(this._closeButton);
         this.component.setAsParentComponent();
         this._squareBoardComponent.addComponentToContent(this.voiceSetting);
+        this._squareBoardComponent.addComponentToContent(this.readingAloudSetting);
         this._squareBoardComponent.addComponentToContent(this.characterInfoSetting);
 
         document.body.appendChild(this._squareBoardComponent.component.element);
@@ -105,11 +108,6 @@ export class AIVoiceCharacterSetting implements ICharacterSetting<AIVoiceVoiceSe
             window.innerWidth / 2,
             window.innerHeight / 2
         );
-    }
-
-    public onAddedToDom() {
-        this.voiceSetting.onAddedToDom();
-        this.characterInfoSetting.onAddedToDom();
     }
 }
 

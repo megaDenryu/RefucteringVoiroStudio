@@ -11,7 +11,7 @@ def factory():
     system_message:str = system_message_query[0]["content"]
     unit_dict:dict[AISentenceConverter,IRubiConverterUnit] = {
         AISentenceConverter.ChatGPT:ChatGptRubiConverter(system_message),
-        AISentenceConverter.gemini:GeminiRubiConverterUnit(system_message)
+        AISentenceConverter.Gemini:GeminiRubiConverterUnit(system_message)
     }
 
     return unit_dict
