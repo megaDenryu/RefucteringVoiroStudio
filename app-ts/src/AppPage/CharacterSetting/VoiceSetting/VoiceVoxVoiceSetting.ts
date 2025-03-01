@@ -1,18 +1,14 @@
 import { generateDefaultObject } from "../../../Extend/ZodExtend/ZodExtend";
 import { BaseComponent, IHasComponent } from "../../../UiComponent/Base/ui_component_base";
-import { IOpenCloseWindow } from "../../../UiComponent/Board/IOpenCloseWindow";
 import { SquareBoardComponent } from "../../../UiComponent/Board/SquareComponent";
-import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
 import { ToggleButton, OpenCloseState, createOpenCloseButton } from "../../../UiComponent/Button/ToggleButton.ts/ToggleButton";
 import { ICharacterSettingSaveModel } from "../../../UiComponent/CharaInfoSelecter/CharaInfoSelecter";
 import { RecordPath } from "../../../UiComponent/TypeInput/RecordPath";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { ObjectInputComponent } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
-import { RequestAPI } from "../../../Web/RequestApi";
 import { TtsSoftWareVoiceSettingReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/TtsSoftWareVoiceSettingReq";
 import { VoiceVoxVoiceSettingModel } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModel";
 import { VoiceVoxVoiceSettingModelFormat } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelFormat";
-import { VoiceVoxVoiceSettingModelReq } from "../../../ZodObject/DataStore/ChatacterVoiceSetting/VoiceVoxVoiceSetting/VoiceVoxVoiceSettingModelReq";
 import { ISaveSetting } from "../ISaveSetting";
 import { IVoiceSetting } from "./IVoiceSetting";
 
