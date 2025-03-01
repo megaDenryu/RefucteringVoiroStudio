@@ -922,7 +922,7 @@ async def cevioAICharacterSetting(req: CevioAICharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setMode(req.cevioAICharacterSettingModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.cevioAICharacterSettingModel.readingAloud.AIによる文章変換)
     cevio = human.human_Voice
     #cevio_human かどうかの判定
     if isinstance(cevio, cevio_human):
@@ -937,7 +937,7 @@ async def aiVoiceCharacterSetting(req: AIVoiceCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setMode(req.aiVoiceCharacterSettingSaveModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.aiVoiceCharacterSettingSaveModel.readingAloud.AIによる文章変換)
     aiVoice = human.human_Voice
     if isinstance(aiVoice, AIVoiceHuman):
         # aiVoice.setVoiceSetting(req.aiVoiceCharacterSettingModel.voiceSetting)
@@ -951,7 +951,7 @@ async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setMode(req.voiceVoxCharacterSettingModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.voiceVoxCharacterSettingModel.readingAloud.AIによる文章変換)
     ExtendFunc.ExtendPrint(human.aiRubiConverter.mode)
     voiceVox = human.human_Voice
     if isinstance(voiceVox, voicevox_human):
@@ -966,7 +966,7 @@ async def coeiroinkCharacterSetting(req: CoeiroinkCharacterSettingSaveModelReq):
     human:Human|None = inastanceManager.humanInstances.tryGetHuman(req.character_id)
     if human == None:
         return
-    human.aiRubiConverter.setMode(req.coeiroinkCharacterSettingModel.voiceSetting.AIによる文章変換)
+    human.aiRubiConverter.setMode(req.coeiroinkCharacterSettingModel.readingAloud.AIによる文章変換)
     coeiroink = human.human_Voice
     if isinstance(coeiroink, Coeiroink):
         coeiroink.setVoiceSetting(req.coeiroinkCharacterSettingModel.voiceSetting)

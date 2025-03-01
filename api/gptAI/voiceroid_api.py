@@ -326,8 +326,8 @@ class cevio_human:
         return voiceSetting
     
     def setVoiceSetting(self, voiceSetting: CevioAIVoiceSettingModel):
-        self.setTalker2V40(voiceSetting.talker2V40)
-        self.setComponents(voiceSetting.talkerComponentArray2)
+        self.setTalker2V40(voiceSetting.コンディション)
+        self.setComponents(voiceSetting.感情)
 
     def setTalker2V40(self,talker2V40:Talker2V40):
         self.setCast(talker2V40.Cast)
@@ -432,10 +432,10 @@ class voicevox_human:
         """
         if self.voiceSetting is None:
             return query_dict
-        query_dict["speedScale"] = self.voiceSetting.speedScale
-        query_dict["pitchScale"] = self.voiceSetting.pitchScale
-        query_dict["intonationScale"] = self.voiceSetting.intonationScale
-        query_dict["volumeScale"] = self.voiceSetting.volumeScale
+        query_dict["speedScale"] = self.voiceSetting.スピード
+        query_dict["pitchScale"] = self.voiceSetting.ピッチ
+        query_dict["intonationScale"] = self.voiceSetting.イントネーション
+        query_dict["volumeScale"] = self.voiceSetting.音量
         return query_dict
         
     
@@ -1567,10 +1567,10 @@ class Coeiroink:
                 wav_path = f"output_wav/coeiroink_audio_{self.char_name}_{index}.wav"
                 # 設定の取得
                 ExtendFunc.ExtendPrint(self.voiceSetting)
-                speedScale = self.voiceSetting.speedScale
-                volumeScale = self.voiceSetting.volumeScale
-                pitchScale = self.voiceSetting.pitchScale
-                intonationScale = self.voiceSetting.intonationScale
+                speedScale = self.voiceSetting.スピード
+                volumeScale = self.voiceSetting.音量
+                pitchScale = self.voiceSetting.ピッチ
+                intonationScale = self.voiceSetting.イントネーション
                 wav_data, phoneme_str, phoneme_time, wav_time = self.getWavAndLabData(text,speedScale,volumeScale,pitchScale,intonationScale) #todo : ここでピッチとか音量とかを変える
                 # wav_time = ExtendSound.get_wav_duration_from_data(wav_data)
                 ExtendFunc.ExtendPrint(f"{self.char_name}のwav_time",wav_time)
