@@ -3,7 +3,8 @@
         "AISentenceConverter": {
             "enum": [
                 "無効",
-                "ChatGPT"
+                "ChatGPT",
+                "Gemini"
             ],
             "title": "AISentenceConverter",
             "type": "string"
@@ -205,36 +206,16 @@
             "title": "NickName",
             "type": "object"
         },
-        "VoiceVoxVoiceSettingModel": {
+        "SerifSettingModel": {
             "properties": {
-                "speedScale": {
-                    "default": 1.0,
-                    "description": "読み上げ速度を調整します。",
-                    "maximum": 2.0,
-                    "minimum": 0.5,
-                    "title": "読み上げ速度",
-                    "type": "number"
-                },
-                "pitchScale": {
-                    "default": 0.0,
-                    "maximum": 0.15,
-                    "minimum": -0.15,
-                    "title": "Pitchscale",
-                    "type": "number"
-                },
-                "intonationScale": {
-                    "default": 1.0,
-                    "maximum": 2.0,
-                    "minimum": 0.0,
-                    "title": "Intonationscale",
-                    "type": "number"
-                },
-                "volumeScale": {
-                    "default": 1.0,
-                    "maximum": 2.0,
-                    "minimum": 0.0,
-                    "title": "Volumescale",
-                    "type": "number"
+                "AIによる文章変換": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/AISentenceConverter"
+                        }
+                    ],
+                    "default": "無効",
+                    "title": "AIによる文章変換"
                 },
                 "読み上げ間隔": {
                     "default": 0.0,
@@ -242,14 +223,41 @@
                     "minimum": 0.0,
                     "title": "読み上げ間隔",
                     "type": "number"
+                }
+            },
+            "title": "SerifSettingModel",
+            "type": "object"
+        },
+        "VoiceVoxVoiceSettingModel": {
+            "properties": {
+                "スピード": {
+                    "default": 1.0,
+                    "description": "読み上げ速度を調整します。",
+                    "maximum": 2.0,
+                    "minimum": 0.5,
+                    "title": "読み上げ速度",
+                    "type": "number"
                 },
-                "AIによる文章変換": {
-                    "allOf": [
-                        {
-                            "$ref": "#/$defs/AISentenceConverter"
-                        }
-                    ],
-                    "default": "無効"
+                "ピッチ": {
+                    "default": 0.0,
+                    "maximum": 0.15,
+                    "minimum": -0.15,
+                    "title": "ピッチ",
+                    "type": "number"
+                },
+                "イントネーション": {
+                    "default": 1.0,
+                    "maximum": 2.0,
+                    "minimum": 0.0,
+                    "title": "イントネーション",
+                    "type": "number"
+                },
+                "音量": {
+                    "default": 1.0,
+                    "maximum": 2.0,
+                    "minimum": 0.0,
+                    "title": "音量",
+                    "type": "number"
                 }
             },
             "title": "VoiceVoxVoiceSettingModel",
@@ -273,6 +281,15 @@
             ],
             "description": "音声設定を指定します。",
             "title": "音声設定"
+        },
+        "readingAloud": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/SerifSettingModel"
+                }
+            ],
+            "description": "読み上げ設定を指定します。",
+            "title": "読み上げ設定"
         }
     },
     "required": [

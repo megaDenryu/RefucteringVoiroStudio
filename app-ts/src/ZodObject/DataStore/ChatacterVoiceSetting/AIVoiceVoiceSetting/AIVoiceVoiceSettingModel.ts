@@ -1,6 +1,5 @@
 import { z } from "zod";
 export const AIVoiceVoiceSettingModel = z.object({
-  読み上げ間隔: z.number().gte(0).lte(2).default(0),
-  AIによる文章変換: z.enum(["無効", "ChatGPT"]).default("無効"),
+  声の調整方法: z.string().default("音声調整はAIVoiceのソフトの方でできます"),
 });
 export type AIVoiceVoiceSettingModel = z.infer<typeof AIVoiceVoiceSettingModel>;

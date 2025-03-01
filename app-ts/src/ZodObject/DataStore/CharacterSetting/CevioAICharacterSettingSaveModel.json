@@ -3,7 +3,8 @@
         "AISentenceConverter": {
             "enum": [
                 "無効",
-                "ChatGPT"
+                "ChatGPT",
+                "Gemini"
             ],
             "title": "AISentenceConverter",
             "type": "string"
@@ -27,26 +28,11 @@
         },
         "CevioAIVoiceSettingModel": {
             "properties": {
-                "talker2V40": {
+                "コンディション": {
                     "$ref": "#/$defs/Talker2V40"
                 },
-                "talkerComponentArray2": {
+                "感情": {
                     "$ref": "#/$defs/TalkerComponentArray2"
-                },
-                "読み上げ間隔": {
-                    "default": 0.0,
-                    "maximum": 2.0,
-                    "minimum": 0.0,
-                    "title": "読み上げ間隔",
-                    "type": "number"
-                },
-                "AIによる文章変換": {
-                    "allOf": [
-                        {
-                            "$ref": "#/$defs/AISentenceConverter"
-                        }
-                    ],
-                    "default": "無効"
                 }
             },
             "title": "CevioAIVoiceSettingModel",
@@ -232,6 +218,28 @@
             "title": "NickName",
             "type": "object"
         },
+        "SerifSettingModel": {
+            "properties": {
+                "AIによる文章変換": {
+                    "allOf": [
+                        {
+                            "$ref": "#/$defs/AISentenceConverter"
+                        }
+                    ],
+                    "default": "無効",
+                    "title": "AIによる文章変換"
+                },
+                "読み上げ間隔": {
+                    "default": 0.0,
+                    "maximum": 2.0,
+                    "minimum": 0.0,
+                    "title": "読み上げ間隔",
+                    "type": "number"
+                }
+            },
+            "title": "SerifSettingModel",
+            "type": "object"
+        },
         "Talker2V40": {
             "properties": {
                 "Cast": {
@@ -310,6 +318,15 @@
             ],
             "description": "音声設定を指定します。",
             "title": "音声設定"
+        },
+        "readingAloud": {
+            "allOf": [
+                {
+                    "$ref": "#/$defs/SerifSettingModel"
+                }
+            ],
+            "description": "読み上げ設定を指定します。",
+            "title": "読み上げ設定"
         }
     },
     "required": [

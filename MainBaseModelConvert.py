@@ -46,11 +46,11 @@ if __name__ == "__main__":
     # BaseModelConverterTest.Zodを出力する本番(TtsSoftWareVoiceSettingReq)
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModel)
     # BaseModelConverterTest.Zodを出力する本番(CoeiroinkVoiceSettingModelReq)
-    BaseModelConverterTest.Zodを出力する本番(GPTModeReq)
-    # # BaseModelConverterTest.再帰的にZodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
-    # # BaseModelConverterTest.再帰的にZodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
-    # # BaseModelConverterTest.再帰的にZodを出力する本番(CevioAICharacterSettingSaveModelReq)
-    # # BaseModelConverterTest.再帰的にZodを出力する本番(AIVoiceCharacterSettingSaveModelReq)
+    # BaseModelConverterTest.Zodを出力する本番(GPTModeReq)
+    BaseModelConverterTest.再帰的にZodを出力する本番(VoiceVoxCharacterSettingSaveModelReq)
+    BaseModelConverterTest.再帰的にZodを出力する本番(CoeiroinkCharacterSettingSaveModelReq)
+    BaseModelConverterTest.再帰的にZodを出力する本番(CevioAICharacterSettingSaveModelReq)
+    BaseModelConverterTest.再帰的にZodを出力する本番(AIVoiceCharacterSettingSaveModelReq)
 
     
     # # 型の変換と保存(AppSettingsModel)

@@ -31,7 +31,7 @@ export const CevioAICharacterSettingSaveModel = z.object({
   }),
   voiceSetting: z
     .object({
-      talker2V40: z
+      コンディション: z
         .object({
           Cast: z.string().default(""),
           Volume: z.number().int().gte(0).lte(100).default(50),
@@ -41,13 +41,18 @@ export const CevioAICharacterSettingSaveModel = z.object({
           ToneScale: z.number().int().gte(0).lte(100).default(50),
         })
         .optional(),
-      talkerComponentArray2: z
+      感情: z
         .object({ record: z.record(z.number().int()).default({}) })
         .optional(),
-      読み上げ間隔: z.number().gte(0).lte(2).default(0),
-      AIによる文章変換: z.enum(["無効", "ChatGPT"]).default("無効"),
     })
     .describe("音声設定を指定します。")
+    .optional(),
+  readingAloud: z
+    .object({
+      AIによる文章変換: z.enum(["無効", "ChatGPT", "Gemini"]).default("無効"),
+      読み上げ間隔: z.number().gte(0).lte(2).default(0),
+    })
+    .describe("読み上げ設定を指定します。")
     .optional(),
 });
 export type CevioAICharacterSettingSaveModel = z.infer<
