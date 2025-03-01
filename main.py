@@ -6,6 +6,7 @@ from pathlib import Path
 
 from fastapi.concurrency import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
+import httpx
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollectionOperator
@@ -989,6 +990,20 @@ async def cevioAIDefaultVoiceSetting(req: CevioAIDefaultVoiceSettingReq):
         # talkerComponentArray2を取得する
         voiceSetting = cevio.Components
         return voiceSetting.model_dump_json()
+    
+@app.get("/api/niconico/{path:path}")
+async def proxy(path: str, request: Request):
+    url = f"https://live.nicovideo.jp/{path}"
+    async with httpx.AsyncClient() as client:
+        # リクエストヘッダーをコピー
+        headers = {k: v for k, v in request.headers.items() if k.lower() not in ['host', 'content-length']}
+        response = await client.request(
+            request.method,
+            url,
+            headers=headers,
+            cookies=request.cookies,
+        )
+        return response.content
     
 from api.Routers import LaunchTTSSoftware
 app.include_router(LaunchTTSSoftware.router)

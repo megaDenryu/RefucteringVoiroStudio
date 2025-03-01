@@ -1,0 +1,10 @@
+version: v2
+managed:
+  enabled: true
+plugins:
+  - local: protoc-gen-es
+    out: src/NiconamaCommentReciever/version20250227/gen
+    opt:
+      - target=ts
+inputs:
+  - directory: src/NiconamaCommentReciever/version20250227/proto
