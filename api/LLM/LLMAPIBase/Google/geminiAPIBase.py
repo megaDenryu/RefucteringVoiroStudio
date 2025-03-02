@@ -15,6 +15,7 @@ from pydantic import BaseModel
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.Google.ContentsConverter import ContentsConverter
+from api.LLM.LLMAPIBase.Google.GeminiSearch設定候補 import GoogleSearchTool, GoogleSearchTool設定候補
 from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit, IMessageQuery, ResponseBaseModelT
 from api.LLM.LLMAPIBase.LLMInterface.ResponseModel import ResponseEnumT
 from api.LLM.LLMAPIBase.LLMType import GeminiType, LLMModelType
@@ -27,14 +28,14 @@ from api.LLM.LLMAPIBase.LLMType import GeminiType, LLMModelType
 class GeminiAPIUnit(ILLMApiUnit):
     api_key:str|None
     client:genai.Client
-    モデル名:GeminiType
+    geminiモデル名:GeminiType
     test_mode:bool
     system_message:Optional[ContentUnion]
 
     def __init__(self,test_mode:bool = True, system_message:Optional[ContentUnion] = None):
         self.api_key = JsonAccessor.loadGeminiAPIKey()
         self.client = genai.Client(api_key = self.api_key)
-        self.モデル名 = GeminiType.gemini2flash
+        self.geminiモデル名 = GeminiType.gemini2flash
         self.test_mode = test_mode
         self.system_message = system_message
 
@@ -76,7 +77,7 @@ class GeminiAPIUnit(ILLMApiUnit):
 
     def setModel(self,model_name:LLMModelType):
         if isinstance(model_name, GeminiType):
-            self.モデル名 = model_name
+            self.geminiモデル名 = model_name
 
     def setSystemMessage(self, system_message: IMessageQuery):
         self.system_message = system_message.content
@@ -85,7 +86,7 @@ class GeminiAPIUnit(ILLMApiUnit):
         if self.test_mode == True:
             return "テストモードです"
         response = self.client.models.generate_content(
-            model=self.モデル名.value, 
+            model=self.geminiモデル名.value, 
             config=GenerateContentConfig(
                 system_instruction=システムメッセージ
             ),
@@ -99,7 +100,7 @@ class GeminiAPIUnit(ILLMApiUnit):
             return "テストモードです"
         try:
             response:GenerateContentResponse = self.client.models.generate_content(
-                model=self.モデル名.value, 
+                model=self.geminiモデル名.value, 
                 contents=コンテンツ, 
                 config=GenerateContentConfig(
                     response_mime_type="application/json", 
@@ -118,7 +119,7 @@ class GeminiAPIUnit(ILLMApiUnit):
             return "テストモードです"
         try:
             response:GenerateContentResponse = await self.client.aio.models.generate_content(
-                model=self.モデル名.value, 
+                model=self.geminiモデル名.value, 
                 contents=コンテンツ, 
                 config=GenerateContentConfig(
                     response_mime_type="application/json", 
@@ -136,7 +137,7 @@ class GeminiAPIUnit(ILLMApiUnit):
             return "テストモードです"
         try:
             response:GenerateContentResponse = self.client.models.generate_content(
-                model=self.モデル名.value, 
+                model=self.geminiモデル名.value, 
                 contents=contents, 
                 config=GenerateContentConfig(
                     response_mime_type="text/x.enum", 
@@ -149,4 +150,26 @@ class GeminiAPIUnit(ILLMApiUnit):
             print(e)
             return None
         
+    async def asyncGenerate検索結果B(self, コンテンツ:Union[types.ContentListUnion, types.ContentListUnionDict], 検索設定:GoogleSearchTool設定候補, システムメッセージ:Optional[ContentUnion] = None)->str|Literal['テストモードです']|None:
+        # googleで検索結果をさせたうえで、指定のベースモデルで返答する
+        if self.test_mode == True:
+            ExtendFunc.ExtendPrint(["テストモードです"])
+            return "テストモードです"
+        try:
+            googleSearchTool:types.Tool = GoogleSearchTool.設定(検索設定)
+            response:GenerateContentResponse = self.client.models.generate_content(
+                model=self.geminiモデル名.value, 
+                contents=コンテンツ, 
+                config=GenerateContentConfig(
+                    tools=[googleSearchTool],
+                    system_instruction=システムメッセージ
+                )
+            )
+            return response.text # type: ignore
+        except Exception as e:
+            ExtendFunc.ExtendPrint(e)
+            return None
+    
+    
+    
     
