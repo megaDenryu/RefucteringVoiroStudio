@@ -4,6 +4,7 @@ from typing import Literal, Type, TypeVar
 from pydantic import BaseModel
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
 from api.LLM.LLMAPIBase.LLMInterface.ResponseModel import ResponseBaseModelT
+from api.LLM.LLMAPIBase.LLMType import GeminiType, LLMModelType
 
 class ILLMApiUnit(ABC):
     """
@@ -20,7 +21,7 @@ class ILLMApiUnit(ABC):
         pass
 
     @abstractmethod
-    def setModel(self,model_name:str):
+    def setModel(self,model_name:LLMModelType):
         pass
 
     @abstractmethod
