@@ -21,10 +21,11 @@ class AIRubiConverter:
         if response.下ネタならtrue:
             return "サイテー"
         ExtendFunc.ExtendPrintWithTitle("response",response)
-        return AIRubiConverter._check(response.フリガナ化文章)
+        return AIRubiConverter._check(response.最終出力ユーザーの発言のフリガナ化文章)
     
     def setMode(self, mode:AISentenceConverter):
         self.mode = mode
+        return self
 
     @staticmethod
     def _check(text:str) -> str|None:
