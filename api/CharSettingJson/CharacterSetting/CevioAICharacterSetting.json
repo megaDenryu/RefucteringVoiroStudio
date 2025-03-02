@@ -30,7 +30,7 @@
                 }
             },
             "voiceSetting": {
-                "talker2V40": {
+                "コンディション": {
                     "Cast": "",
                     "Volume": 50,
                     "Speed": 50,
@@ -38,61 +38,13 @@
                     "Alpha": 50,
                     "ToneScale": 50
                 },
-                "talkerComponentArray2": {
+                "感情": {
                     "record": {}
-                },
-                "読み上げ間隔": 0.0,
-                "AIによる文章変換": "無効"
-            }
-        },
-        {
-            "saveID": "5d594010-135e-4fe4-ab73-41c8dba28b40",
-            "characterInfo": {
-                "characterName": {
-                    "name": "OИE"
-                },
-                "nickName": {
-                    "name": "OИE２"
-                },
-                "humanImage": {
-                    "folder_name": "新規作成"
-                },
-                "aiSetting": {
-                    "名前": "",
-                    "年齢": 0,
-                    "性別": "",
-                    "背景情報": "",
-                    "役割": "",
-                    "動機": "",
-                    "アリバイ": "",
-                    "性格特性": "",
-                    "関係": [],
-                    "秘密": "",
-                    "知っている情報": "",
-                    "外見の特徴": "",
-                    "所持品": [],
-                    "行動パターン": []
                 }
             },
-            "voiceSetting": {
-                "talker2V40": {
-                    "Cast": "ONE",
-                    "Volume": 50,
-                    "Speed": 50,
-                    "Tone": 50,
-                    "Alpha": 50,
-                    "ToneScale": 50
-                },
-                "talkerComponentArray2": {
-                    "record": {
-                        "Bright": 0,
-                        "Normal": 100,
-                        "Strong": 0,
-                        "Dark": 0
-                    }
-                },
-                "読み上げ間隔": 0.0,
-                "AIによる文章変換": "無効"
+            "readingAloud": {
+                "AIによる文章変換": "無効",
+                "読み上げ間隔": 0.0
             }
         },
         {
@@ -125,24 +77,21 @@
                 }
             },
             "voiceSetting": {
-                "talker2V40": {
-                    "Cast": "OИE",
+                "コンディション": {
+                    "Cast": "",
                     "Volume": 50,
                     "Speed": 50,
                     "Tone": 50,
                     "Alpha": 50,
                     "ToneScale": 50
                 },
-                "talkerComponentArray2": {
-                    "record": {
-                        "Bright": 26,
-                        "Normal": 100,
-                        "Strong": 0,
-                        "Dark": 0
-                    }
-                },
-                "読み上げ間隔": 0.74,
-                "AIによる文章変換": "無効"
+                "感情": {
+                    "record": {}
+                }
+            },
+            "readingAloud": {
+                "AIによる文章変換": "無効",
+                "読み上げ間隔": 0.0
             }
         },
         {
@@ -175,24 +124,73 @@
                 }
             },
             "voiceSetting": {
-                "talker2V40": {
+                "コンディション": {
                     "Cast": "",
-                    "Volume": 43,
+                    "Volume": 50,
                     "Speed": 50,
                     "Tone": 50,
                     "Alpha": 50,
                     "ToneScale": 50
                 },
-                "talkerComponentArray2": {
+                "感情": {
+                    "record": {}
+                }
+            },
+            "readingAloud": {
+                "AIによる文章変換": "無効",
+                "読み上げ間隔": 0.0
+            }
+        },
+        {
+            "saveID": "5d594010-135e-4fe4-ab73-41c8dba28b40",
+            "characterInfo": {
+                "characterName": {
+                    "name": "OИE"
+                },
+                "nickName": {
+                    "name": "OИE２"
+                },
+                "humanImage": {
+                    "folder_name": "新規作成"
+                },
+                "aiSetting": {
+                    "名前": "",
+                    "年齢": 0,
+                    "性別": "",
+                    "背景情報": "",
+                    "役割": "",
+                    "動機": "",
+                    "アリバイ": "",
+                    "性格特性": "",
+                    "関係": [],
+                    "秘密": "",
+                    "知っている情報": "",
+                    "外見の特徴": "",
+                    "所持品": [],
+                    "行動パターン": []
+                }
+            },
+            "voiceSetting": {
+                "コンディション": {
+                    "Cast": "",
+                    "Volume": 50,
+                    "Speed": 50,
+                    "Tone": 50,
+                    "Alpha": 50,
+                    "ToneScale": 50
+                },
+                "感情": {
                     "record": {
-                        "Bright": 25,
-                        "Normal": 75,
+                        "Bright": 0,
+                        "Normal": 100,
                         "Strong": 0,
                         "Dark": 0
                     }
-                },
-                "読み上げ間隔": 0.0,
-                "AIによる文章変換": "無効"
+                }
+            },
+            "readingAloud": {
+                "AIによる文章変換": "無効",
+                "読み上げ間隔": 0.0
             }
         }
     ]

@@ -10,10 +10,10 @@ class AIRubiConverter:
     def __init__(self, llm_unit_dict:dict[AISentenceConverter,IRubiConverterUnit]):
         self.llm_unit_dict = llm_unit_dict
         
-    def convert(self, text:str)->str|None:
+    async def convertAsync(self, text:str)->str|None:
         if self.mode == AISentenceConverter.無効:
             return text
-        response = self.llm_unit_dict[self.mode].convertAsync(text)
+        response = await self.llm_unit_dict[self.mode].convertAsync(text)
         if response == "テストモードです":
             return "テストモードです"
         if response is None:
