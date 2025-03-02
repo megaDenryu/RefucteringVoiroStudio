@@ -10,10 +10,10 @@ class AIRubiConverter:
     def __init__(self, llm_unit_dict:dict[AISentenceConverter,IRubiConverterUnit]):
         self.llm_unit_dict = llm_unit_dict
         
-    def convert(self, text:str)->str|None:
+    async def convertAsync(self, text:str)->str|None:
         if self.mode == AISentenceConverter.無効:
             return text
-        response = self.llm_unit_dict[self.mode].convertAsync(text)
+        response = await self.llm_unit_dict[self.mode].convertAsync(text)
         if response == "テストモードです":
             return "テストモードです"
         if response is None:
@@ -21,10 +21,11 @@ class AIRubiConverter:
         if response.下ネタならtrue:
             return "サイテー"
         ExtendFunc.ExtendPrintWithTitle("response",response)
-        return AIRubiConverter._check(response.フリガナ化文章)
+        return AIRubiConverter._check(response.最終出力ユーザーの発言のフリガナ化文章)
     
     def setMode(self, mode:AISentenceConverter):
         self.mode = mode
+        return self
 
     @staticmethod
     def _check(text:str) -> str|None:

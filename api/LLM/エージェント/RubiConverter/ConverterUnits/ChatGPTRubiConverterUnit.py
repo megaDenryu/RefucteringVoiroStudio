@@ -20,12 +20,12 @@ class ChatGptRubiConverter(IRubiConverterUnit):
             "role":"system",
             "content":systemMessage,
         }
-    def convertAsync(self, text:str)->KanaText|Literal['テストモードです']|None:
+    async def convertAsync(self, text:str)->KanaText|Literal['テストモードです']|None:
         """
         フリガナ化文章を取得します
         """
         messageQuery = self._createMessageQuery(text)
-        response = self._gptUnit.generateResponseStructured(messageQuery, KanaText)
+        response = await self._gptUnit.asyncGenerateResponseStructured(messageQuery, KanaText)
         return response
     
     def _createMessageQuery(self, text:str) -> list[MessageQueryDict]:

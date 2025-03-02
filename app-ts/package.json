@@ -12,6 +12,8 @@
     
     "clean:dist": "rimraf ./dist",
     "clean": "npm run clean:dist && npm run clean:proto",
+
+    "cleanBuild": "npm run clean && npm run build",
     
     "eslint": "eslint ."
   },

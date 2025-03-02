@@ -66,6 +66,8 @@ class ExtendFunc:
                 pprint(item, indent=indent, **kwargs)
         elif isinstance(data, Map|MapHasListValue):
             pprint(data.toDict(), indent=indent, **kwargs)
+        elif isinstance(data, BaseModel):
+            pprint(data.model_dump(), indent=indent, **kwargs)
         else:
             print(' ' * indent + str(data))
 

@@ -3,7 +3,7 @@ from typing import Literal
 
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
-from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import factory
+from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import AIRubiConverterFactory
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
@@ -54,7 +54,7 @@ class Human:
         human_image = chara_mode_state.human_image
         self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name, self.front_name, human_image)
         self.voice_system:VoiceSystem = self.start(voiceroid_dict)
-        self.aiRubiConverter = AIRubiConverter(factory())
+        self.aiRubiConverter = AIRubiConverterFactory.create()
     
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:

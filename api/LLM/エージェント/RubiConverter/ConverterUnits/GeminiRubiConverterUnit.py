@@ -10,12 +10,12 @@ class GeminiRubiConverterUnit(IRubiConverterUnit):
     _systemMessage: str
 
     def __init__(self, systemMessage:str):
-        self._geminiUnit = GeminiAPIUnit()
+        self._geminiUnit = GeminiAPIUnit(False)
         self._systemMessage = systemMessage
         
-    def convertAsync(self, text:str) -> KanaText|Literal['テストモードです']|None:
+    async def convertAsync(self, text:str) -> KanaText|Literal['テストモードです']|None:
         """
         フリガナ化文章を取得します
         """
-        response = self._geminiUnit.generateB(text, KanaText, self._systemMessage)
+        response = await self._geminiUnit.asyncGenerateB(text, KanaText, self._systemMessage)
         return response

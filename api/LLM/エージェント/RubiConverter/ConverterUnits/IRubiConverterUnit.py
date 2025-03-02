@@ -8,6 +8,6 @@ from api.LLM.エージェント.RubiConverter.KanaText import KanaText
 
 class IRubiConverterUnit(ABC):
     @abstractmethod
-    def convertAsync(self, text:str) -> KanaText|Literal['テストモードです']|None:
+    async def convertAsync(self, text:str) -> KanaText|Literal['テストモードです']|None:
         pass
     
