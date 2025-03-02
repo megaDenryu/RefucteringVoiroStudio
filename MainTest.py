@@ -1,3 +1,4 @@
+from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
 from api.LLM.エージェント.会話用エージェント.返答判定機.LLM判定テスト import LLM判定テスト
 import asyncio
 
@@ -12,7 +13,10 @@ def main():
 
 
 if __name__ == "__main__":
-    Geminiの連続会話テストユニット()
+    # Geminiの連続会話テストユニット()
+    unit = GeminiAPIUnit()
+    unit.modelList()
+    
         
 
 

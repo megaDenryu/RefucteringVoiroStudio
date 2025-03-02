@@ -33,15 +33,23 @@ class GeminiAPIUnit(ILLMApiUnit):
     def __init__(self,test_mode:bool = True, system_message:Optional[ContentUnion] = None):
         self.api_key = JsonAccessor.loadGeminiAPIKey()
         self.client = genai.Client(api_key = self.api_key)
-        self.モデル名 = "gemini-2.0-flash"
+        self.モデル名 = "gemini-2.0-flash-ex" #gemini-2.0-flash"
         self.test_mode = test_mode
         self.system_message = system_message
 
     def modelList(self):
-        models = []
-        for model in list_models():
-            models.append(model)
-        return models
+        models_pager = self.client.models.list()#config={"page_size": 50})# Pagerオブジェクトを取得
+
+        # 現在のページの結果を取得（モデルのリスト）
+        current_page_models = models_pager.page
+
+        # モデルをすべて順に処理
+        for model in models_pager:
+            if model.name == None:
+                return
+            if "gemini-2.0-flash" in model.name:
+                print("---====================================================================================---")
+                print(f"モデル名: {model.name}, 表示名: {model.display_name}, バージョン: {model.version}")
     
     
     def test(self):
