@@ -157,13 +157,9 @@ inastanceManager = InastanceManager.singleton()
 # gpt_mode_dict = {}
 #game_masterのインスタンスを生成
 yukarinet_enable = True
-nikonama_comment_reciever_list:dict[CharacterId,NicoNamaCommentReciever] = {}
 new_nikonama_comment_reciever_list:dict[CharacterId,newNikonamaCommentReciever] = {}
 YoutubeCommentReciever_list:dict[CharacterId,YoutubeCommentReciever] = {}
 twitchBotList:dict[CharacterId,TwitchBot] = {}
-# input_reciever = InputReciever(epic ,gpt_agent_dict, gpt_mode_dict)
-diary = Memo()
-
 
 app_setting = JsonAccessor.loadAppSetting()
 pprint(app_setting)
@@ -299,12 +295,10 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                     if rubi_sentence == None:
                         return
                     for sentence in Human.parseSentenseList(rubi_sentence):
-                        for reciever in nikonama_comment_reciever_list.values():
-                            reciever.checkAndStopRecieve(sentence)
-                            
-                        human_ai.outputWaveFile(sentence)
                         #wavデータを取得
-                        wav_info = human_ai.human_Voice.output_wav_info_list
+                        wav_info = human_ai.outputWaveFile(sentence)
+                        if wav_info == None:
+                            return None
                         sentence_info:list[SentenceInfo] = [{
                                 "characterModeState":human_ai.chara_mode_state.toDict(),
                                 "sentence":sentence
@@ -316,10 +310,9 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                             "chara_type":"player"
                         }
                         print(f"{human_ai.char_name}のwavデータを送信します")
-                        # await websocket.send_json(json.dumps(wav_info))
                         await websocket.send_json(json.dumps(send_data))
                     # daiaryに保存
-                    diary.insertTodayMemo(input_dict[character_id])
+                    inastanceManager.diary.insertTodayMemo(input_dict[character_id])
             
     # セッションが切れた場合
     except WebSocketDisconnect:
@@ -329,6 +322,12 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
         #ONE.shutDown()
         # 切れたセッションの削除
         notifier.remove(websocket)
+
+class NicoNamaCommment(TypedDict):
+    user_id: int
+    comment: str
+    date: str
+    char_name: str
 
 @app.websocket("/nikonama_comment_reciver/{room_id}/{characterId}")
 async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, characterId: CharacterId):
@@ -350,24 +349,21 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
         user_id = NDGRComment.raw_user_id if NDGRComment.raw_user_id > 0 else NDGRComment.hashed_user_id
         content = NDGRComment.content
         date = TimeExtend.convertDatetimeToString(NDGRComment.at)
-
-        comment = {
+        if "@" in content or "＠" in content:
+            print("ユーザーIDとキャラ名を紐づけます")
+            nulvm.registerNikonamaUserIdToCharaName(content,user_id)
+        commentData = {
             "user_id": user_id,
             "comment": content,
             "date": date,
+            "char_name": nulvm.getCharaNameByNikonamaUser(user_id)
         }
-
-        ExtendFunc.ExtendPrint(comment)
-        if "@" in comment["comment"] or "＠" in comment["comment"]:
-            print("ユーザーIDとキャラ名を紐づけます")
-            char_name = nulvm.registerNikonamaUserIdToCharaName(comment["comment"],user_id)
-        comment["char_name"] = nulvm.getCharaNameByNikonamaUser(user_id)
-        ExtendFunc.ExtendPrint(comment)
-        await websocket.send_text(json.dumps(comment))
+        ExtendFunc.ExtendPrint(commentData)
+        await websocket.send_text(json.dumps(commentData))
 
 @app.post("/nikonama_comment_reciver_stop/{characterId}")
 async def nikonama_comment_reciver_stop(characterId: CharacterId):
-    if characterId in nikonama_comment_reciever_list:
+    if characterId in new_nikonama_comment_reciever_list:
         print(f"{characterId}のニコ生コメント受信停止")
         nikonama_comment_reciever = new_nikonama_comment_reciever_list[characterId]
         nikonama_comment_reciever.stopRecieve()
@@ -994,7 +990,9 @@ async def proxy(path: str, request: Request):
         return response.content
     
 from api.Routers import LaunchTTSSoftware
+from api.Routers import HumanSpeakRuntime
 app.include_router(LaunchTTSSoftware.router)
+app.include_router(HumanSpeakRuntime.router)
 
 
 if __name__ == "__main__":

@@ -228,14 +228,6 @@ export class MessageBox {
     get 読み上げ間隔():number {
         return this.human_tab.characterSetting?.readingAloudSetting.読み上げ間隔 ?? 0;
     }
-
-    get front_name(): string|null {
-        if (this.human_tab.humanName.nick_name == null) {
-            return null;
-        }
-        return this.human_tab.humanName.nick_name.name;
-    }
-    
    
     constructor(message_box_elm:HTMLTextAreaElement, message_box_manager:MessageBoxManager, manage_num:Number, human_tab_elm:HTMLElement) {
         this.char_name = "";
@@ -430,14 +422,11 @@ export class MessageBox {
 
     sendMessage(message:string) {
         //メッセージを送信する
-        const message_dict:MessageDict = {}
-        if (this.front_name == null) {return;}
-        message_dict[this.front_name] = {
-            "text": message,
-            "characterModeState": this.human_tab.characterModeState?.toDict() ?? null
-        };
         const send_data:SendData = {
-            "message" : message_dict,
+            "messages" : [{
+                "text": message,
+                "characterModeState": this.human_tab.characterModeState?.toDict() ?? null
+            }]
         }
         let ret = JSON.stringify(send_data);
         console.log("websocketで送信するデータ",ret)

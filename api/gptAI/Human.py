@@ -6,6 +6,7 @@ from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConve
 from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import AIRubiConverterFactory
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
+from api.gptAI.VoiceInfo import WavInfo
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
 from api.gptAI.HumanInformation import CharacterId
 from .voiceroid_api import voicevox_human
@@ -98,7 +99,7 @@ class Human:
     def speak(self,str:str):
         self.human_Voice.speak(str)
 
-    def outputWaveFile(self,str:str):
+    def outputWaveFile(self,str:str)->list[WavInfo]|None:
         str = str.replace(" ","").replace("　","")
         # str = TextConverter.convertReadableJapanaeseSentense(str)
         if cevio_human == type(self.human_Voice):
@@ -115,6 +116,8 @@ class Human:
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         else:
             print("wav出力できるボイロが起動してないのでwav出力できませんでした。")
+            return None
+        return self.human_Voice.output_wav_info_list
 
     
     @staticmethod
