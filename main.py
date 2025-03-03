@@ -273,7 +273,6 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
             # クライアントからメッセージの受け取り
             datas:SendData = json.loads(await websocket.receive_text()) 
             message:MessageDict = datas["message"]
-            input = ""
             input_dict:dict[CharacterId,str] = {}
             inputer = ""
             for message_unit in message.values():
@@ -284,27 +283,16 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
                 ExtendFunc.ExtendPrintWithTitle("characterModeState",characterModeState)
                 # フロントでのキャラ名で帰ってきてるので、Humanインスタンスのキャラ名に変換
                 inastanceManager.humanInstances.updateHumanModeState(characterModeState)
-
-                sentence = f"{characterModeState.character_name.name}:{message_unit} , "
                 input_dict[character_id] = message_unit["text"]
-                input = input + sentence
                 # インプットしたキャラの名前を取得
-                if "" != message_unit:
-                    inputer = character_id
-            print(f"input:{input}")
-
+                inputer = character_id
             #inputerの音声を生成
             for character_id in [inputer]:
-                #gptには投げない
-                print(f"ユーザー：{character_id}の返答を生成します")
-                ExtendFunc.ExtendPrint(character_id)
                 human_ai:Human|None = inastanceManager.humanInstances.tryGetHuman(character_id)
                 if human_ai == None:
-                    ExtendFunc.ExtendPrint(f"{character_id}のHumanインスタンスが存在しません")
-                    ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.HumanFrontNames=}")
+                    ExtendFunc.ExtendPrintWithTitle(f"{character_id}のHumanインスタンスが存在しません",f"{inastanceManager.humanInstances.HumanFrontNames=}")
                     continue
                 await inastanceManager.epic.appendMessageAndNotify(input_dict)
-                print(f"{human_ai.char_name=}")
                 if "" != input_dict[character_id]:
                     print(f"{input_dict[character_id]=}")
                     rubi_sentence = await human_ai.aiRubiConverter.convertAsync(input_dict[character_id])
