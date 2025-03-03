@@ -29,4 +29,12 @@ class CharacterSettingCollectionOperatorManager():
         if len(saveDatas) == 0:
             return str(uuid4())
         return saveDatas[0].saveID
+    
+    @staticmethod
+    def getNickNameFromSaveId(tts_software: TTSSoftwareType,save_id:CharacterSaveId)->NickName:
+        operator = CharacterSettingCollectionOperatorManager.getCharacterSettingCollectionOperator(tts_software)
+        saveDatas = operator.getBySaveID(CharacterSaveId(save_id))
+        if len(saveDatas) == 0:
+            return NickName(name="None")
+        return saveDatas[0].characterInfo.nickName
         

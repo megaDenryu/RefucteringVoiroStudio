@@ -1,4 +1,5 @@
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
+from api.DataStore.Memo import Memo
 from api.Epic.Epic import Epic
 from api.InstanceManager.GptAgentInstanceManager import GPTAgentInstanceManager
 from api.InstanceManager.HumanDict import HumanInstanceContainer
@@ -13,7 +14,6 @@ from api.gptAI.InputReciever import InputReciever
 class InastanceManager(InstanceManagerInterface):
     _instance: "InastanceManager|None" = None
     _initialized: bool = False
-
     _clientIds: ClientIds
     _clientWs: ClientWebSocket
     _humanInstances: HumanInstanceContainer
@@ -23,6 +23,7 @@ class InastanceManager(InstanceManagerInterface):
     _inputReciever: InputReciever
     _agentPipeManager: AgentPipeManager
     _appSettingModule :AppSettingModule
+    _diary:Memo
 
     @property
     def clientIds(self):
@@ -67,6 +68,11 @@ class InastanceManager(InstanceManagerInterface):
     def appSettingModule(self):
         return self._appSettingModule
     
+    @property
+    def diary(self):
+        return self._diary
+
+    
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
@@ -89,6 +95,7 @@ class InastanceManager(InstanceManagerInterface):
         self._inputReciever = InputReciever(self._epic, self._gptAgentInstanceManager)
         self._agentPipeManager = AgentPipeManager(self._inputReciever)
         self._appSettingModule = AppSettingModule()
+        self._diary = Memo()
         self.registerEvent()
 
     @staticmethod

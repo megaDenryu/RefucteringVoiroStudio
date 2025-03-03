@@ -1,19 +1,48 @@
+import os
 from typing import Literal
-from api.gptAI.HumanInfoValueObject import CharacterName
+
+from pydantic import BaseModel, Field
+from api.Extend.ExtendFunc import ExtendFunc
+from api.gptAI.HumanInfoValueObject import CharacterId, CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager
 from ..gptAI.Human import Human
 from api.DataStore.JsonAccessor import JsonAccessor
 import json
 
+class UserData(BaseModel):
+    user_id:str                                             #ニコ生のユーザーID. 必須.
+    characterId:CharacterId                                 #対象のキャラクターID. 必須.
+    user_name:str|None = Field(default=None)                #ユーザー名. 任意.
+    characterName:CharacterName|None = Field(default=None)  #キャラ名. 任意.
+    nickName:NickName|None = Field(default=None)            #ニックネーム. 任意.
+
+class UserDatas(BaseModel):
+    user_datas:list[UserData]
+
 
 class NiconamaUserLinkVoiceroidModule:
-    
+    user_datas:UserDatas
 
     def __init__(self):
-        self.user_data = self.loadNikonamaUserIdToCharaNameJson()
+        self.user_datas = self.loadNikonamaUserIdToCharaNameJson()
+    
+        import os
     
     def loadNikonamaUserIdToCharaNameJson(self):
-        user_data = JsonAccessor.loadNikonamaUserIdToCharaNameJson()
+        path = ExtendFunc.api_dir / "AppSettingJson" / "NikonamaUserData.json"
+    
+        # ファイルが存在するかチェック
+        if not os.path.exists(path):
+            # ファイルが存在しない場合は作成する
+            with open(path, 'w') as f:
+                json.dump(UserDatas(user_datas=[]).dict(), f, indent=4)
+    
+        user_data = JsonAccessor.loadJsonToBaseModel(path, UserDatas)
+        if user_data is None:
+            user_data = UserDatas(user_datas=[])
+            # pathのファイルを作成する
+            with open(path, 'w') as f:
+                json.dump(user_data.dict(), f, indent=4)
         return user_data
     
     def getCharaNameByNikonamaUser(self,NikonamaUserId):
@@ -21,19 +50,17 @@ class NiconamaUserLinkVoiceroidModule:
         ユーザーIDからキャラ名を取得する
         """
         NikonamaUserId = str(NikonamaUserId)
-        if NikonamaUserId in self.user_data:
-            return self.user_data[NikonamaUserId].replace("*","")
+        if NikonamaUserId in self.user_datas:
+            return self.user_datas[NikonamaUserId].replace("*","")
         else:
             return "キャラ名は登録されていませんでした"
-    
     
     def registerNikonamaUserIdToCharaName(self,comment,NikonamaUserId)->CharacterName | Literal['名前が無効です'] :
         chara_name = self.getCharaNameFromComment(comment)
         if chara_name != "名前が無効です":
             self.saveNikonamaUserIdToCharaName(NikonamaUserId, chara_name)
-            self.user_data = self.loadNikonamaUserIdToCharaNameJson()
+            self.user_datas = self.loadNikonamaUserIdToCharaNameJson()
         return chara_name
-        
 
     
     def getCharaNameFromComment(self,comment):

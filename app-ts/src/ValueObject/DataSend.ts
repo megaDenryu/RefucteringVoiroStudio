@@ -7,9 +7,7 @@ interface MessageUnit {
 
 }
 
-export type MessageDict = Record<CharacterId, MessageUnit>;
-
 export interface SendData {
-    message: MessageDict;
+    messages: MessageUnit[];
 }
 

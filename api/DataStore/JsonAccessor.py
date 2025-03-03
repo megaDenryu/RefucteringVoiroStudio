@@ -114,10 +114,6 @@ class JsonAccessor:
             user_data = {}
         return user_data
     
-    @staticmethod
-    def saveNikonamaUserIdToCharaNameJson(user_data):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/user_data.json"
-        ExtendFunc.saveDictToJson(path, user_data)
 
     @staticmethod
     def ApiKeyFileGenerate():
@@ -171,6 +167,7 @@ class JsonAccessor:
             return None
     
     BaseModelList = TypeVar("BaseModelList", bound=BaseModelList)
+    BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
     @staticmethod
     def loadYamlToBaseModel(yaml_path:Path, baseModel:Type[BaseModelList])->BaseModelList:
         with open(yaml_path,encoding="UTF8") as f:
@@ -194,6 +191,17 @@ class JsonAccessor:
             t = baseModel.model_dump_json()
             jsonToDict = json.loads(t)
             yaml.dump(jsonToDict, f, allow_unicode=True, sort_keys=False)
+
+    @staticmethod
+    def loadJsonToBaseModel(json_path:Path, baseModel:Type[BaseModelT])->BaseModelT|None:
+        with open(json_path,encoding="UTF8") as f:
+            content = f.read()
+        try:
+            parsedData = json.loads(content)
+            return baseModel(**parsedData)
+        except json.JSONDecodeError as e:
+            ExtendFunc.ExtendPrint("json読み込みエラー",e)
+            return None
     
     @staticmethod
     def updateJsonFromBaseModel(json_path:Path, baseModel:BaseModel):
