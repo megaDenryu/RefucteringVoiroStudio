@@ -11,7 +11,7 @@ import { ElementCreater } from "../../UiComponent/Base/ui_component_base";
 import { RequestAPI } from "../../Web/RequestApi";
 import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
 import { ZIndexManager } from "./ZIndexManager";
-import { MessageDict, SendData } from "../../ValueObject/DataSend";
+import { SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
 import { CharacterId, CharacterModeState, CharacterName, NickName } from "../../ValueObject/Character";
 import { ICharacterModeState, ICharacterModeStateReq, ICharacterName, INickName } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
