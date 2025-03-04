@@ -2,6 +2,7 @@ import os
 from typing import Literal
 
 from pydantic import BaseModel, Field
+from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import CharacterId, CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager
@@ -11,7 +12,7 @@ import json
 
 class UserData(BaseModel):
     user_id:str                                             #ニコ生のユーザーID. 必須.
-    characterId:CharacterId                                 #対象のキャラクターID. 必須.
+    save_id:str                                      #対象のセーブID. 必須.
     user_name:str|None = Field(default=None)                #ユーザー名. 任意.
     characterName:CharacterName|None = Field(default=None)  #キャラ名. 任意.
     nickName:NickName|None = Field(default=None)            #ニックネーム. 任意.
@@ -25,8 +26,6 @@ class NiconamaUserLinkVoiceroidModule:
 
     def __init__(self):
         self.user_datas = self.loadNikonamaUserIdToCharaNameJson()
-    
-        import os
     
     def loadNikonamaUserIdToCharaNameJson(self):
         path = ExtendFunc.api_dir / "AppSettingJson" / "NikonamaUserData.json"
@@ -45,54 +44,69 @@ class NiconamaUserLinkVoiceroidModule:
                 json.dump(user_data.dict(), f, indent=4)
         return user_data
     
-    def getCharaNameByNikonamaUser(self,NikonamaUserId):
+    def getUserData(self,NikonamaUserId:str):
         """
         ユーザーIDからキャラ名を取得する
         """
-        NikonamaUserId = str(NikonamaUserId)
-        if NikonamaUserId in self.user_datas:
-            return self.user_datas[NikonamaUserId].replace("*","")
-        else:
-            return "キャラ名は登録されていませんでした"
+        for user_data in self.user_datas.user_datas:
+            if user_data.user_id == NikonamaUserId:
+                return user_data
+        return None
     
-    def registerNikonamaUserIdToCharaName(self,comment,NikonamaUserId)->CharacterName | Literal['名前が無効です'] :
-        chara_name = self.getCharaNameFromComment(comment)
-        if chara_name != "名前が無効です":
-            self.saveNikonamaUserIdToCharaName(NikonamaUserId, chara_name)
+    def registerNikonamaUserIdToCharaName(self,comment,NikonamaUserId)->UserData|None:
+        nick_name = self.getNickNameFromComment(comment)
+        if nick_name != None:
+            user_data = self.saveNikonamaUserIdToCharaName(NikonamaUserId, None,nick_name)
             self.user_datas = self.loadNikonamaUserIdToCharaNameJson()
-        return chara_name
+            return user_data
+        return None
+    
+    @staticmethod
+    def checkCommentNameInNickNameList(atmark_type,comment:str)->NickName|Literal[None]:
+        """
+        コメントに含まれる名前がキャラ名リストに含まれているか確認する
+        """
+        nickNameList = CharacterSettingCollectionOperatorManager.getNickNameList()
+        for nickName in nickNameList:
+            target = f"{atmark_type}{nickName.name}"
+            if target in comment:
+                return nickName
+        return None
 
     
-    def getCharaNameFromComment(self,comment):
+    def getNickNameFromComment(self,comment):
         """
         コメントから@の後ろのキャラ名を取得する
         """
         if "@" in comment:
-            chara_name = Human.checkCommentNameInNameList("@",comment)
+            nick_name = self.checkCommentNameInNickNameList("@",comment)
         elif "＠" in comment:
-            chara_name = Human.checkCommentNameInNameList("＠",comment)
+            nick_name = self.checkCommentNameInNickNameList("＠",comment)
         else:
-            return "名前が無効です"
+            return None
 
-        if chara_name != "名前が無効です":
-            return chara_name
-        return "名前が無効です"
+        if nick_name != None:
+            return nick_name
+        return None
              
     
     
-    def saveNikonamaUserIdToCharaName(self,NikonamaUserId, chara_name):
+    def saveNikonamaUserIdToCharaName(self,NikonamaUserId:str, user_name: str|None,nickName: NickName)->UserData|None:
         """
         ユーザーIDとキャラ名を紐づけてjsonに保存する
         """
         # 既存のデータを読み込む
-        data = self.loadNikonamaUserIdToCharaNameJson()
-        NikonamaUserId = str(NikonamaUserId)
-        if NikonamaUserId in data and "*" in data[NikonamaUserId]:
-            print("このユーザーはキャラを変更できません")
-            return
-
-        # ユーザーIDとキャラ名を紐づける
-        data[NikonamaUserId] = chara_name
-
-        # データをjsonに保存する
-        JsonAccessor.saveNikonamaUserIdToCharaNameJson(data)
+        characterDataList = CharacterSettingCollectionOperatorManager.getOperatorFromNickName(nickName)
+        if characterDataList is None:
+            return None
+        characterData = characterDataList[0]
+        oldUserDatas = self.loadNikonamaUserIdToCharaNameJson()
+        user_data = UserData(
+            user_id=NikonamaUserId,
+            save_id=characterData.saveID,
+            user_name=user_name,
+            characterName=characterData.characterInfo.characterName,
+            nickName=nickName
+        )
+        oldUserDatas.user_datas.append(user_data)
+        return user_data

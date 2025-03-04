@@ -1,4 +1,8 @@
 from uuid import uuid4
+from api.DataStore.CharacterSetting.AIVoiceCharacterSettingSaveModel import AIVoiceCharacterSettingSaveModel
+from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
+from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
+from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import VoiceVoxCharacterSettingSaveModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import NickName, TTSSoftwareType
 from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import CevioAICharacterSettingCollectionOperator
@@ -8,7 +12,7 @@ from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import C
 from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NickName, TTSSoftware, VoiceMode, TTSSoftwareType, CharacterId, CharacterSaveId
 
 
-class CharacterSettingCollectionOperatorManager():
+class CharacterSettingCollectionOperatorManager:
     @staticmethod
     def getCharacterSettingCollectionOperator(tts_software: TTSSoftwareType):
         if tts_software == "CevioAI":
@@ -37,4 +41,24 @@ class CharacterSettingCollectionOperatorManager():
         if len(saveDatas) == 0:
             return NickName(name="None")
         return saveDatas[0].characterInfo.nickName
+    
+    @staticmethod
+    def getOperatorFromNickName(nick_name:NickName)->list[AIVoiceCharacterSettingSaveModel] | list[CevioAICharacterSettingSaveModel] | list[CoeiroinkCharacterSettingSaveModel] | list[VoiceVoxCharacterSettingSaveModel]|None:
+        for tts_software in TTSSoftware.get_all_software_names():
+            operator = CharacterSettingCollectionOperatorManager.getCharacterSettingCollectionOperator(tts_software)
+            saveDatas = operator.getByNickName(nick_name)
+            if len(saveDatas) != 0:
+                return saveDatas
+        return None
+    
+    @staticmethod
+    def getNickNameList()->list[NickName]:
+        nick_name_list:list[NickName] = []
+        for tts_software in TTSSoftware.get_all_software_names():
+            operator = CharacterSettingCollectionOperatorManager.getCharacterSettingCollectionOperator(tts_software)
+            for data in operator.collection.collection:
+                nick_name_list.append(data.characterInfo.nickName)
+        return nick_name_list
+    
+    
         
