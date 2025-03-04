@@ -205,6 +205,36 @@ export class MessageBoxManager {
         }
         return gpt_mode_dict;
     }
+
+    getMessageBoxBySaveId(save_id:string):MessageBox|null {
+        for (let message_box of this.message_box_list) {
+            if (message_box.human_tab.characterModeState == null) {continue;}
+            if (message_box.human_tab.characterModeState.save_id == save_id) {
+                return message_box;
+            }
+        }
+        return null;
+    }
+
+    getMessageBoxByNickName(nickName:NickName):MessageBox|null {
+        for (let message_box of this.message_box_list) {
+            if (message_box.human_tab.characterSetting?.characterInfoSetting.nickName == null) {continue;}
+            if (message_box.human_tab.characterSetting.characterInfoSetting.nickName == nickName) {
+                return message_box;
+            }
+        }
+        return null;
+    }
+
+    getMessageBoxByCharacterName(characterName:CharacterName):MessageBox|null {
+        for (let message_box of this.message_box_list) {
+            if (message_box.human_tab.characterSetting?.characterInfoSetting.characterName == null) {continue;}
+            if (message_box.human_tab.characterSetting.characterInfoSetting.characterName == characterName) {
+                return message_box;
+            }
+        }
+        return null;
+    }
 }
 
 
@@ -3515,20 +3545,23 @@ export class GlobalState {
     static chatSideSettingReciever: ChatSideSettingReciever;
 
     static getMessageBoxByCharacterId(character_id: CharacterId): MessageBox {
-        const messageBox =  GlobalState.message_box_manager.message_box_dict.get(character_id)
+        const messageBox:MessageBox|undefined =  GlobalState.message_box_manager.message_box_dict.get(character_id)
         if (messageBox == undefined) { throw new Error("messageBoxが見つかりません") };
         return messageBox;
     }
 
     static getMessageBoxBySaveId(save_id: string): MessageBox|null {
-        const messageBox =  GlobalState.message_box_manager.message_box_dict.getSaveId(save_id)
-        if (messageBox == undefined) { throw new Error("messageBoxが見つかりません") };
+        const messageBox:MessageBox|null =  GlobalState.message_box_manager.getMessageBoxBySaveId(save_id)
         return messageBox;
     }
 
     static getMessageBoxByNickName(nick_name: NickName): MessageBox|null {
-        const messageBox =  GlobalState.message_box_manager.message_box_dict.getNickName(nick_name)
-        if (messageBox == undefined) { throw new Error("messageBoxが見つかりません") };
+        const messageBox =  GlobalState.message_box_manager.getMessageBoxByNickName(nick_name)
+        return messageBox;
+    }
+
+    static getMessageBoxByCharacterName(character_name: CharacterName): MessageBox|null {
+        const messageBox =  GlobalState.message_box_manager.getMessageBoxByCharacterName(character_name)
         return messageBox;
     }
 
