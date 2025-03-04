@@ -4,6 +4,7 @@ import json
 from typing import TypedDict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
+from api.Extend.ExtendFunc import ExtendFunc
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.gptAI.Human import Human
 from api.gptAI.HumanInfoValueObject import CharacterId
@@ -30,6 +31,7 @@ async def speakVoiceRoid(websocket: WebSocket, client_id: str):
     try:
         while True:
             datas:SendData = json.loads(await websocket.receive_text()) 
+            ExtendFunc.ExtendPrint(datas)
             for message_unit in datas["messages"]:
                 text = message_unit["text"]
                 if message_unit["characterModeState"] is None: #ここNoneにならないようにできるだろたぶん
