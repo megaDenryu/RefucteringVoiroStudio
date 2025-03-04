@@ -244,6 +244,13 @@ async def read_root(path_param: str):
     # ファイルを読み込み、Content-Typeとともにレスポンスとして返す
     return FileResponse(str(target), media_type=content_type)
 
+class CharaCreateData(TypedDict):
+    humanData: HumanData
+    characterModeState: ICharacterModeState
+
+
+
+
 
 class NicoNamaCommment(TypedDict):
     user_id: str
