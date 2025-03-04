@@ -54,7 +54,7 @@ import mimetypes
 
 from api.comment_reciver.comment_module import NicoNamaCommentReciever
 from api.comment_reciver.newNikonamaCommentReciever import newNikonamaCommentReciever
-from api.comment_reciver.NiconamaUserLinkVoiceroidModule import NiconamaUserLinkVoiceroidModule
+from api.comment_reciver.NiconamaUserLinkVoiceroidModule import ILiveCommentUserData, NiconamaUserLinkVoiceroidModule, LiveCommentUserData
 from api.comment_reciver.YoutubeCommentReciever import YoutubeCommentReciever
 
 from api.web.notifier import Notifier
@@ -324,10 +324,10 @@ async def websocket_endpoint2(websocket: WebSocket, client_id: str):
         notifier.remove(websocket)
 
 class NicoNamaCommment(TypedDict):
-    user_id: int
+    user_id: str
     comment: str
     date: str
-    char_name: str
+    user_data: ILiveCommentUserData
 
 @app.websocket("/nikonama_comment_reciver/{room_id}/{characterId}")
 async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, characterId: CharacterId):
@@ -351,12 +351,14 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
         date = TimeExtend.convertDatetimeToString(NDGRComment.at)
         if "@" in content or "＠" in content:
             print("ユーザーIDとキャラ名を紐づけます")
-            nulvm.registerNikonamaUserIdToCharaName(content,user_id)
-        commentData = {
-            "user_id": user_id,
+            user_data:ILiveCommentUserData = nulvm.registerNikonamaUserIdToCharaInfo(content,user_id).model_dump() # type: ignore
+        else: 
+            user_data:ILiveCommentUserData = nulvm.getUserData(str(user_id))  # type: ignore
+        commentData:NicoNamaCommment = {
+            "user_id": str(user_id),
             "comment": content,
             "date": date,
-            "char_name": nulvm.getUserData(str(user_id))
+            "user_data": user_data
         }
         ExtendFunc.ExtendPrint(commentData)
         await websocket.send_text(json.dumps(commentData))
@@ -389,9 +391,9 @@ async def getYoutubeComment(websocket: WebSocket, video_id: str, characterId: Ch
                     author = comment["author"]
                     if "@" in comment["message"] or "＠" in comment["message"]:
                         print("authorとキャラ名を紐づけます")
-                        char_name = nulvm.registerNikonamaUserIdToCharaName(comment["message"],author)
-
-                    comment["char_name"] = nulvm.getUserData(author)
+                        user_data:LiveCommentUserData|None = nulvm.registerNikonamaUserIdToCharaInfo(comment["message"],author)
+                        if user_data != None:
+                            comment["char_name"] = user_data.model_dump()
                     await websocket.send_text(json.dumps(comment))
             else:
                 ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}で{video_id}のYoutubeコメント受信停止")
@@ -448,7 +450,7 @@ async def twitchCommentReceiver(websocket: WebSocket, video_id: str, characterId
             ExtendFunc.ExtendPrint(f"message:{message}")
             if "@" in message or "＠" in message:
                 print("ユーザーIDとキャラ名を紐づけます")
-                registered_char_name = nulvm.registerNikonamaUserIdToCharaName(message,listener)
+                registered_char_name = nulvm.registerNikonamaUserIdToCharaInfo(message,listener)
             comment["char_name"] = nulvm.getUserData(listener)
             comment["comment"] = message
             ExtendFunc.ExtendPrint(comment)

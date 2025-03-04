@@ -1,5 +1,5 @@
 import os
-from typing import Literal
+from typing import Literal, TypedDict
 
 from pydantic import BaseModel, Field
 from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
@@ -10,15 +10,22 @@ from ..gptAI.Human import Human
 from api.DataStore.JsonAccessor import JsonAccessor
 import json
 
-class UserData(BaseModel):
+class LiveCommentUserData(BaseModel):
     user_id:str                                             #ニコ生のユーザーID. 必須.
     save_id:str                                      #対象のセーブID. 必須.
     user_name:str|None = Field(default=None)                #ユーザー名. 任意.
     characterName:CharacterName|None = Field(default=None)  #キャラ名. 任意.
     nickName:NickName|None = Field(default=None)            #ニックネーム. 任意.
 
+class ILiveCommentUserData(TypedDict):
+    user_id:str
+    save_id:str
+    user_name:str|None
+    characterName:CharacterName|None
+    nickName:NickName|None
+
 class UserDatas(BaseModel):
-    user_datas:list[UserData]
+    user_datas:list[LiveCommentUserData]
 
 
 class NiconamaUserLinkVoiceroidModule:
@@ -44,7 +51,7 @@ class NiconamaUserLinkVoiceroidModule:
                 json.dump(user_data.dict(), f, indent=4)
         return user_data
     
-    def getUserData(self,NikonamaUserId:str):
+    def getUserData(self,NikonamaUserId:str)->LiveCommentUserData|None:
         """
         ユーザーIDからキャラ名を取得する
         """
@@ -53,7 +60,7 @@ class NiconamaUserLinkVoiceroidModule:
                 return user_data
         return None
     
-    def registerNikonamaUserIdToCharaName(self,comment,NikonamaUserId)->UserData|None:
+    def registerNikonamaUserIdToCharaInfo(self,comment,NikonamaUserId)->LiveCommentUserData|None:
         nick_name = self.getNickNameFromComment(comment)
         if nick_name != None:
             user_data = self.saveNikonamaUserIdToCharaName(NikonamaUserId, None,nick_name)
@@ -91,7 +98,7 @@ class NiconamaUserLinkVoiceroidModule:
              
     
     
-    def saveNikonamaUserIdToCharaName(self,NikonamaUserId:str, user_name: str|None,nickName: NickName)->UserData|None:
+    def saveNikonamaUserIdToCharaName(self,NikonamaUserId:str, user_name: str|None,nickName: NickName)->LiveCommentUserData|None:
         """
         ユーザーIDとキャラ名を紐づけてjsonに保存する
         """
@@ -101,7 +108,7 @@ class NiconamaUserLinkVoiceroidModule:
             return None
         characterData = characterDataList[0]
         oldUserDatas = self.loadNikonamaUserIdToCharaNameJson()
-        user_data = UserData(
+        user_data = LiveCommentUserData(
             user_id=NikonamaUserId,
             save_id=characterData.saveID,
             user_name=user_name,

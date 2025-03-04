@@ -13,8 +13,8 @@ import { HumanTab } from "../../UiComponent/HumanDisplay/HumanWindow";
 import { ZIndexManager } from "./ZIndexManager";
 import { MessageDict, SendData } from "../../ValueObject/DataSend";
 import { IHumanTab } from "../../UiComponent/HumanDisplay/IHumanWindow";
-import { CharacterId, CharacterModeState, NickName } from "../../ValueObject/Character";
-import { ICharacterModeState, ICharacterModeStateReq } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
+import { CharacterId, CharacterModeState, CharacterName, NickName } from "../../ValueObject/Character";
+import { ICharacterModeState, ICharacterModeStateReq, ICharacterName, INickName } from "../../UiComponent/CharaInfoSelecter/ICharacterInfo";
 import { GPTModeReq, GptMode } from "../../ZodObject/gptAI/GPTMode";
 import { json } from "stream/consumers";
 import { ChatSideSettingReciever } from "../Setting/ChatSideSettingReciever";
@@ -205,9 +205,23 @@ export class MessageBoxManager {
         }
         return gpt_mode_dict;
     }
-
 }
 
+
+export interface ILiveCommentUserData {
+    user_id: string;  // ニコ生のユーザーID. 必須.
+    save_id: string;  // 対象のセーブID. 必須.
+    user_name?: string;  // ユーザー名. 任意.
+    characterName?: ICharacterName;  // キャラ名. 任意.
+    nickName?: INickName;  // ニックネーム. 任意.
+}
+
+export interface NicoNamaCommment {
+    user_id: string
+    comment: string
+    date: string
+    user_data: ILiveCommentUserData
+}
 
 export class MessageBox {
     //message_box単体のクラス
@@ -379,20 +393,38 @@ export class MessageBox {
 
     }
     receiveNikoNamaComment(event) {
-        const message = JSON.parse(event.data);
-        const char_name = message["char_name"];
-        const comment = message["comment"];
-        console.log("char_name=",char_name,"comment=",comment)
-        if (char_name == this.char_name) {
-            this.sendMessage(comment);
-        } else {
-            let message_box = GlobalState.getMessageBoxByCharacterId(this.human_tab.characterId);
-            if (message_box == null) {
-                this.sendMessage(comment);
-            } else {
+        const message:NicoNamaCommment = JSON.parse(event.data) as NicoNamaCommment;
+        const comment = message.comment;
+        //まずsaveIdでメッセージボックスを探す
+        const save_id:string = message.user_data.save_id
+        let message_box = GlobalState.getMessageBoxBySaveId(save_id);
+        if (message_box != null) {
+            message_box.sendMessage(comment);
+            return;
+        }
+
+        //次にニックネームでメッセージボックスを探す
+        const nickName:INickName|undefined = message.user_data.nickName;
+        if (nickName != null) {
+            message_box = GlobalState.getMessageBoxByNickName(NickName.fromDict(nickName));
+            if (message_box != null) {
                 message_box.sendMessage(comment);
+                return;
             }
         }
+
+        //いなければキャラ名で探す
+        const char_name:ICharacterName|undefined = message.user_data.characterName;
+        if (char_name != null) {
+            message_box = GlobalState.getMessageBoxByCharacterName(CharacterName.fromDict(char_name));
+            if (message_box != null) {
+                message_box.sendMessage(comment);
+                return;
+            }
+        }
+
+        //いなければ今のメッセージボックスに送信
+        this.sendMessage(comment);
     }
 
     receiveYoutubeLiveComment(event) {
@@ -3484,6 +3516,18 @@ export class GlobalState {
 
     static getMessageBoxByCharacterId(character_id: CharacterId): MessageBox {
         const messageBox =  GlobalState.message_box_manager.message_box_dict.get(character_id)
+        if (messageBox == undefined) { throw new Error("messageBoxが見つかりません") };
+        return messageBox;
+    }
+
+    static getMessageBoxBySaveId(save_id: string): MessageBox|null {
+        const messageBox =  GlobalState.message_box_manager.message_box_dict.getSaveId(save_id)
+        if (messageBox == undefined) { throw new Error("messageBoxが見つかりません") };
+        return messageBox;
+    }
+
+    static getMessageBoxByNickName(nick_name: NickName): MessageBox|null {
+        const messageBox =  GlobalState.message_box_manager.message_box_dict.getNickName(nick_name)
         if (messageBox == undefined) { throw new Error("messageBoxが見つかりません") };
         return messageBox;
     }
