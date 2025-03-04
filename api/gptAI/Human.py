@@ -1,6 +1,7 @@
 import re
 from typing import Literal
 
+from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
 from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import AIRubiConverterFactory
@@ -154,17 +155,7 @@ class Human:
                 return charaName
         return "名前が無効です"
     
-    @staticmethod
-    def checkCommentNameInNameList(atmark_type,comment:str):
-        """
-        コメントに含まれる名前がキャラ名リストに含まれているか確認する
-        """
-        name_list = Human.getNameList()
-        for nickName in name_list:
-            target = f"{atmark_type}{nickName.name}"
-            if target in comment:
-                return Human.setCharName(nickName.name)
-        return "名前が無効です"
+    
 
     
     def getHumanImage(self):
