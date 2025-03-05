@@ -7,6 +7,7 @@ import { createOpenCloseButton, OpenCloseState, ToggleButton } from "../../../Ui
 import { RecordPath } from "../../../UiComponent/TypeInput/RecordPath";
 import { IComponentManager, オブジェクトデータの特定の子要素のセグメントのみを部分的に修正する, オブジェクトデータの特定の子要素の配列から特定番号を削除する } from "../../../UiComponent/TypeInput/TypeComponents/IComponentManager";
 import { ObjectInputComponent } from "../../../UiComponent/TypeInput/TypeComponents/ObjectInputComponent/ObjectInputComponent";
+import { CharacterName, NickName } from "../../../ValueObject/Character";
 import { CharacterInfo } from "../../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfo";
 import { CharacterInfoFormat } from "../../../ZodObject/DataStore/CharacterSetting/CharacterInfo/CharacterInfoFormat";
 import { ISaveCharacterInfo, ISaveSetting } from "../ISaveSetting";
@@ -59,6 +60,14 @@ export class CharacterInfoSetting implements IComponentManager, ICharacterInfoSe
       this._manageDataSettingComponent
     );
     this.bindEvents();
+  }
+
+  public get nickName(): NickName {
+    return NickName.fromDict(this.manageData.nickName);
+  }
+
+  public get characterName(): CharacterName {
+    return CharacterName.fromDict(this.manageData.characterName);
   }
 
   public onAddedToDom() {
