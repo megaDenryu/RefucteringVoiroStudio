@@ -1,20 +1,40 @@
-import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
+import { BaseComponent, IHasComponent } from "../../../UiComponent/Base/ui_component_base";
+import { IHasSquareBoard } from "../../../UiComponent/Board/IHasSquareBoard";
+import { SquareBoardComponent } from "../../../UiComponent/Board/SquareComponent";
 import { Launcher } from "../../Launcher/Launcher";
-import { OpenLauncherButton } from "./OpenLauncherButton";
 
-
-
-
-
-export class AppPageSetting{
-    private _Elm_body_setting: Element;
+export class AppPageSetting implements IHasSquareBoard, IHasComponent {
+    public readonly title: string = "このページの設定";
+    public component: BaseComponent;
+    public squareBoardComponent: SquareBoardComponent;
     public launcher: Launcher;
-    public openLauncherButton: OpenLauncherButton;
 
     constructor() {
-        this._Elm_body_setting = document.getElementsByClassName("body_setting")[0];
-        this.launcher = new Launcher();
-        this.openLauncherButton = new OpenLauncherButton(this._Elm_body_setting, this.launcher);
-        document.body.appendChild(this.launcher.component.element);
+        this.squareBoardComponent = new SquareBoardComponent(
+            this.title,
+            null,null,
+            [],
+            {},
+            null,
+            true
+        );
+        this.component = this.squareBoardComponent.component.setAsParentComponent();
+        this.launcher = new Launcher().setAsChildComponent();
+        this.initialize();
     }
+
+    private initialize() {
+        this.component.createArrowBetweenComponents(this,this.launcher);
+    }
+
+    public delete(): void {
+        this.component.delete();
+    }
+
+    public onAddedToDom(): void {
+    }
+
+    public optimizeBoardSize(): void {
+    }
+
 }

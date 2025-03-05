@@ -1,16 +1,13 @@
 import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
 import { Launcher } from "../../Launcher/Launcher";
+import { AppPageSetting } from "./AppPageSetting";
 
-
-
-
-
-export class OpenLauncherButton {
-    public launcher: Launcher;
+export class OpenAppPageSettingsButton {
+    public appPageSetting: AppPageSetting;
     private button: NormalButton;
     private isOpen: boolean = false;
-    constructor(parent: Element, launcher: Launcher) {
-        this.launcher = launcher;
+    constructor(parent: Element, appPageSetting: AppPageSetting) {
+        this.appPageSetting = appPageSetting;
         this.button = new NormalButton("設定を開く","OpenSettingLauncherButton").addOnClickEvent(this.toggle.bind(this));
         parent.appendChild(this.button.component.element);
         this.close();
@@ -26,14 +23,14 @@ export class OpenLauncherButton {
     }
 
     public open() {
-        this.launcher.component.show();
+        this.appPageSetting.component.show();
         this.isOpen = true;
         // launcherにtransform: translate(318px, -500px);を設定する
-        this.launcher.component.element.style.transform = "translate(318px, -500px)";
+        this.appPageSetting.component.element.style.transform = "translate(318px, -500px)";
     }
 
     public close() {
-        this.launcher.component.hide();
+        this.appPageSetting.component.hide();
         this.isOpen = false;
     }
 }

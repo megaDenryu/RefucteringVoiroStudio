@@ -30,6 +30,7 @@ export class Launcher implements IHasSquareBoard, IHasComponent {
         this._coeiroinkLaunchButton = new TTSLaunchButton("Coeiroink",this).setAsChildComponent();
         this._cevioAIVoiceLaunchButton = new TTSLaunchButton("CevioAI",this).setAsChildComponent();
         this.initialize();
+        return this;
     }
 
     public onAddedToDom(): void {
@@ -49,6 +50,11 @@ export class Launcher implements IHasSquareBoard, IHasComponent {
 
     public delete(): void {
         this.component.delete();
+    }
+
+    public setAsChildComponent(): Launcher {
+        this.component.setAsChildComponent();
+        return this;
     }
 
 }

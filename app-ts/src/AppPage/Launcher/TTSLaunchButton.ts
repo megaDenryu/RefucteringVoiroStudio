@@ -55,7 +55,6 @@ export class TTSLaunchButton implements IHasComponent {
         result.then((res) => {
             this._notifyBoard.changeSentence(res.message);
         });
-        
     }
     
     public addOnClickEvent(f: (() => void)): TTSLaunchButton {
