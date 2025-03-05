@@ -24,6 +24,7 @@ import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetti
 import { ICharacterSetting } from "../CharacterSetting/ICharacterSetting";
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
 import { SentenceDisplay } from "../../UiComponent/Display/SentenceDisplay/SentenceDisplay";
+import { AppPageSetting } from "./AppPageSetting/AppPageSetting";
 
 // const { promises } = require("fs");
 
@@ -3543,6 +3544,7 @@ export class GlobalState {
     static human_ws: WebSocket;
     static test = 0;
     static chatSideSettingReciever: ChatSideSettingReciever;
+    static appPageSetting: AppPageSetting;
 
     static getMessageBoxByCharacterId(character_id: CharacterId): MessageBox {
         const messageBox:MessageBox|undefined =  GlobalState.message_box_manager.message_box_dict.get(character_id)
@@ -3637,6 +3639,7 @@ export class GlobalState {
         };
         GlobalState.ws.onclose = closeEventProcces_ws;
         GlobalState.chatSideSettingReciever = new ChatSideSettingReciever(RequestAPI.client_id, GlobalState.handleWebSocketMessage);
+        GlobalState.appPageSetting = new AppPageSetting();
 
         humanWsOpen();
     }
