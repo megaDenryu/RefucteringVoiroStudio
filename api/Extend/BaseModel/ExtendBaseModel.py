@@ -55,12 +55,12 @@ class Map(Generic[MapKey, MapValue], BaseModel):
             if isinstance(item["value"], list):
                 values = []
                 # リストの要素の型を取得
-                element_type = value_type.__args__[0]
+                element_type = value_type.__args__[0] # type: ignore
                 print(element_type)
                 # 各要素に対してコンストラクタを呼び出し、リストを作成
                 for v in item["value"]:
                     values.append(element_type(**v))
-                items.append(MapItem[MapKey, MapValue](key=key, value=values)) 
+                items.append(MapItem[MapKey, MapValue](key=key, value=values)) # type: ignore
             else:
                 value = value_type(**item["value"])
                 items.append(MapItem[MapKey, MapValue](key=key, value=value))

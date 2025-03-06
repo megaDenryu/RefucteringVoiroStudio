@@ -42,6 +42,8 @@ class TwitchBot(commands.Bot):
         except KeyboardInterrupt:
             pass
         finally:
+            if self._closing == None:
+                return
             if not self._closing.is_set():
                 await self.close()
         
@@ -67,9 +69,8 @@ class TwitchBot(commands.Bot):
             return
         for chatter in channel.chatters:
             ExtendFunc.ExtendPrint(f'ユーザー名: {chatter.name}')
-        
-        if self.judgeConfirmingConnect(self.initial_channels, chatter) == True:
-            await channel.send(f"{chatter.name}があらわれた！")
+            if self.judgeConfirmingConnect(self.initial_channels, chatter) == True:
+                await channel.send(f"{chatter.name}があらわれた！")
 
     #全てのチャンネルにログイン
     async def event_ready(self):

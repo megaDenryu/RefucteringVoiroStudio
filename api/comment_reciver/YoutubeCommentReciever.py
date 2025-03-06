@@ -36,13 +36,15 @@ class YoutubeCommentRecieverOld:
     
     def getComments(self):
         while self.chat.is_alive():
-            for c in self.chat.get().sync_items():
-                comment = {}
-                comment["datetime"] = c.datetime
-                comment["author"] = c.author.name
-                comment["message"] = c.message
-                pprint(comment)
-                yield comment
+            chat_data = self.chat.get()
+            if isinstance(chat_data, Chatdata):
+                for c in chat_data.sync_items():
+                    comment = {}
+                    comment["datetime"] = c.datetime
+                    comment["author"] = c.author.name
+                    comment["message"] = c.message
+                    pprint(comment)
+                    yield comment
 
     
     """
@@ -106,13 +108,15 @@ class YoutubeCommentReciever:
         try:
             self.chat = pytchat.create(video_id=video_id, interruptable=False)
             while self.chat.is_alive():
-                async for c in self.chat.get().async_items():
-                    print(f"{c.datetime} [{c.author.name}]: {c.message}")
-                    comment = {}
-                    comment["datetime"] = c.datetime
-                    comment["author"] = c.author.name
-                    comment["message"] = c.message
-                    yield comment
+                chat_data = self.chat.get()
+                if isinstance(chat_data, Chatdata):
+                    async for c in chat_data.async_items():
+                        print(f"{c.datetime} [{c.author.name}]: {c.message}")
+                        comment = {}
+                        comment["datetime"] = c.datetime
+                        comment["author"] = c.author.name
+                        comment["message"] = c.message
+                        yield comment
         except Exception as e:
             print(e)
     

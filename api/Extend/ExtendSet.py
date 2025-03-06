@@ -40,7 +40,7 @@ class Interval:
 
     def __str__(self):
         return f"{self.start_oc}{self.start},{self.end}{self.end_oc}"
-    def __eq__(self, other: Interval):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Interval):
             return False
         return self.start_oc == other.start_oc and self.start == other.start and self.end == other.end and self.end_oc == other.end_oc

@@ -1,6 +1,7 @@
 import os
 import shutil
 import re
+from typing import Literal
 
 class converter2voiroidAIImage:
 
@@ -44,6 +45,7 @@ class converter2voiroidAIImage:
                     #fileから拡張子を取り除いた名前のフォルダを作成する
                     def decideFileName():
                         # current_depthが0の場合はレイヤーの順番が重要なのでまとめずにファイル名をそのまま使う
+                        file_name:str|Literal["その他","未分類","無題"] = ""
                         if current_depth == 0:
                             file_name = os.path.splitext(file)[0]
                         else:

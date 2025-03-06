@@ -837,8 +837,8 @@ class AIVoiceHuman:
         # A.I.VOICE Editor APIの読み込み
         try:
             # pythonnet DLLの読み込み
-            clr.AddReference(_editor_dir + "AI.Talk.Editor.Api")
-            from AI.Talk.Editor.Api import TtsControl, HostStatus
+            clr.AddReference(_editor_dir + "AI.Talk.Editor.Api") # type: ignore # AI.Talk.Editor.Api.dll
+            from AI.Talk.Editor.Api import TtsControl, HostStatus # type: ignore # AI.Talk.Editor.Api.dll
         
         except Exception as e:
             print(f"AI.Talk.Editor.Api.dllの読み込みに失敗しました: {e}")

@@ -16,9 +16,9 @@ if not os.path.isfile(_editor_dir + 'AI.Talk.Editor.Api.dll'):
   print("A.I.VOICE Editor (v1.3.0以降) がインストールされていません。")
   exit()
 
-# pythonnet DLLの読み込み
-clr.AddReference(_editor_dir + "AI.Talk.Editor.Api")
-from AI.Talk.Editor.Api import TtsControl, HostStatus
+# pythonnet DLLの読み込み 
+clr.AddReference(_editor_dir + "AI.Talk.Editor.Api") # type: ignore # 
+from AI.Talk.Editor.Api import TtsControl, HostStatus # type: ignore #
 
 tts_control = TtsControl()
 

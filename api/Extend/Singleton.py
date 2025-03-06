@@ -1,26 +1,46 @@
 from functools import wraps
+from threading import Lock
 
-class Singleton:
-    _instance = None
+def singleton(cls):
+    """
+    スレッドセーフなシングルトンデコレータ
+    """
+    _instances = {}
+    _lock = Lock()
 
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super(Singleton, cls).__new__(cls)
-        return cls._instance
+    @wraps(cls)
+    def get_instance(*args, **kwargs):
+        if cls not in _instances:
+            with _lock:
+                # double-checked locking pattern
+                if cls not in _instances:
+                    _instances[cls] = cls(*args, **kwargs)
+        return _instances[cls]
+    
+    # クラスメソッドとしてsingletonインスタンス取得メソッドを追加
+    cls.get_instance = staticmethod(get_instance)
+    return cls
 
+# 使用例
+@singleton
+class MyClass:
     def __init__(self):
-        if not hasattr(self, 'initialized'):
-            self.initialized = True
-            # 初期化コードをここに追加
-            self.isinstance = self
+        self.value = 0
 
-    @staticmethod
-    def singleton(cls):
-        instances = {}
+    def increment(self):
+        self.value += 1
 
-        @wraps(cls)
-        def wrapper(*args, **kwargs):
-            if cls not in instances:
-                instances[cls] = cls(*args, **kwargs)
-            return instances[cls]
-        return wrapper
+# def test():
+#     # インスタンスの取得
+#     instance1 = MyClass.get_instance() #なんかエラー出るが動作するので問題なさそう
+#     instance2 = MyClass.get_instance()
+#     assert instance1 is instance2  # 同じインスタンス
+
+#     # または
+#     instance3 = MyClass.get_instance()
+#     assert instance1 is instance3  # 同じインスタンス
+
+#     print("All assertions passed.")
+
+# # テストの実行
+# test()

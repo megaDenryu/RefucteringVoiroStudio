@@ -23,7 +23,6 @@ from api.gptAI.GPTMode import GPTModeReq, GptMode
 from api.gptAI.HumanInfoValueObject import NickName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
 from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
-from api.gptAI.gpt import ChatGPT
 from api.gptAI.voiceroid_api import AIVoiceHuman, Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
@@ -51,8 +50,6 @@ from pydantic import BaseModel
 from typing import Dict, List, Any, Literal, TypedDict
 
 import mimetypes
-
-from api.comment_reciver.comment_module import NicoNamaCommentReciever
 from api.comment_reciver.newNikonamaCommentReciever import newNikonamaCommentReciever
 from api.comment_reciver.NiconamaUserLinkVoiceroidModule import ILiveCommentUserData, NiconamaUserLinkVoiceroidModule, LiveCommentUserData, toILiveCommentUserData
 from api.comment_reciver.YoutubeCommentReciever import YoutubeCommentReciever

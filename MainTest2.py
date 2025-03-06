@@ -132,7 +132,7 @@ def test4():
 
 def タスクグラフのテスト():
     inastanceManager = InastanceManager()
-    charaModeState = CharacterModeState.newFromFrontName("ずんだもん")
+    charaModeState = CharacterModeState.newFromFrontName("ずんだもん","1")
     human = inastanceManager.humanInstances.createHuman(charaModeState)
     gptAgent:GPTAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human = human, webSocket = None)
     gptBrain:GPTBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
@@ -171,18 +171,17 @@ def 構造化apiテスト():
 
 
 if __name__ == "__main__":
-    # タスクグラフのテスト()
-    # CharacterDestinationCollectionTest.目的設定を生成するてすと()
-    # d = {}
-    # a = GPTSettingModel(**d)
-    # print(a.model_dump_json())
-    # saveSettingReq = AppSettingsModel(**d)
-    # print(saveSettingReq.model_dump_json())
-    # JsonAccessor.saveAppSettingTest(saveSettingReq)
+    タスクグラフのテスト()
+    CharacterDestinationCollectionTest.目的設定を生成するてすと()
+    d = {}
+    a = GPTSettingModel(**d)
+    print(a.model_dump_json())
+    saveSettingReq = AppSettingsModel(**d)
+    print(saveSettingReq.model_dump_json())
+    JsonAccessor.saveAppSettingTest(saveSettingReq)
     
-    # duration = ExtendSound.get_wav_duration("./output_wav/cevio_audio_フィーちゃん_0.wav")
-    # print(duration)
-    LLM判定テスト()
+    duration = ExtendSound.get_wav_duration("./output_wav/cevio_audio_フィーちゃん_0.wav")
+    print(duration)
         
 
 

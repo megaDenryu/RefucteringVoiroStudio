@@ -14,7 +14,7 @@ from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollect
 from api.LLM.LLMAPIBase.OpenAI.ChatGptApiUnit import ChatGptApiUnit
 from api.LLM.LLMAPIBase.OpenAI.MessageQuery import MessageQueryDict
 from api.gptAI.ThirdPersonEvaluation import ThirdPersonEvaluation
-from api.gptAI.GPTMode import GptModeManager
+from api.gptAI.GPTMode import GptMode, GptModeManager
 from api.gptAI.HumanBaseModel import DestinationAndProfitVector, ProfitVector, 目標と利益ベクトル
 from fastapi import WebSocket
 import asyncio
@@ -53,9 +53,6 @@ class SpeakerDistributeAgentResponse(TypedDict):
 
 class GeneralTransportedItem(BaseModel):
     usage_purpose:str
-    @classmethod
-    def init(cls) -> "GeneralTransportedItem":
-        raise NotImplementedError("initメソッドをオーバーライドしてください")
 
 
 class TransportedItem(GeneralTransportedItem):
@@ -146,7 +143,7 @@ class ProblemDecomposedIntoTasks(BaseModel):
 
 class TaskBreakingDownTransportedItem(GeneralTransportedItem):
     usage_purpose:str
-    problem:ProblemDecomposedIntoTasks
+    problem:ProblemDecomposedIntoTasks|None
     comlete_breaking_down_task:bool
     conversation:list[TaskBrekingDownConversationUnit]
     breaking_downed_task:list[Task]
@@ -613,7 +610,7 @@ class AgentEventManager:
         event_queue_for_reciever:Queue[GeneralTransportedItem_T] =notifier.appendReciever(reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+            if self.gptModeManager.特定のモードが動いてるか確認(GptMode.individual_process0501dev) == False:
                 ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             item = await event_queue_for_reciever.get()
@@ -628,7 +625,7 @@ class AgentEventManager:
         stop_queue = self.run_state.addPublisher(event_id)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+            if self.gptModeManager.特定のモードが動いてるか確認(GptMode.individual_process0501dev) == False:
                 ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             
@@ -676,7 +673,7 @@ class AgentEventManager:
         event_queue_for_reciever:Queue[GeneralTransportedItem_T] =notifier.appendReciever(reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+            if self.gptModeManager.特定のモードが動いてるか確認(GptMode.individual_process0501dev) == False:
                 ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             try:
@@ -698,7 +695,7 @@ class AgentEventManager:
             list_event_queue_for_reciever.append(event_queue_for_reciever)
         while True:
             ExtendFunc.ExtendPrint(f"{reciever.name}イベント待機中")
-            if self.gptModeManager.特定のモードが動いてるか確認("individual_process0501dev") == False:
+            if self.gptModeManager.特定のモードが動いてるか確認(GptMode.individual_process0501dev) == False:
                 ExtendFunc.ExtendPrint(f"GPTモードがindividual_process0501devではないため、{reciever.name}イベントを終了します")
                 return
             task = [event_queue.get() for event_queue in list_event_queue_for_reciever]

@@ -173,7 +173,9 @@ class ParserProject:
         r = 0.0
         g = 1.0
         b = 0.0
-        all_image = psd.composite(color=(r,g,b),alpha=1.0,layer_filter=lambda layer: layer.is_visible())
+        all_image = psd.composite(color=g,alpha=1.0,layer_filter=lambda layer: layer.is_visible())
+        if all_image is None:
+            return f"{name}.pngが保存できませんでした。"
         #背景を透明にするために画像にアルファチャンネルを追加する
         all_image.putalpha(255)
         #一度画像を保存する
@@ -182,8 +184,10 @@ class ParserProject:
         #all_image = Image.open(name)
         all_image.convert("RGBA")
         datas = all_image.getdata()
+        if datas is None:
+            return f"{name}.pngが保存できませんでした。"
         newData = []
-        for item in datas:
+        for item in datas: # type: ignore
             if item[0] == int(255*r) and item[1] == int(255*g) and item[2] == int(255*b):
                 newData.append((255, 255, 255, 0))
             else:
