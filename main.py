@@ -275,7 +275,7 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
             print("ユーザーIDとキャラ名を紐づけます")
             user_data:ILiveCommentUserData|None = toILiveCommentUserData(nulvm.registerNikonamaUserIdToCharaInfo(content,user_id))
         else: 
-            user_data:ILiveCommentUserData|None = toILiveCommentUserData(nulvm.getUserData(str(user_id)))  
+            user_data:ILiveCommentUserData|None = toILiveCommentUserData(nulvm.getUserData(str(user_id)))
         commentData:NicoNamaCommment = {
             "user_id": str(user_id),
             "comment": content,

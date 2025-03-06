@@ -69,11 +69,11 @@ class NiconamaUserLinkVoiceroidModule:
         return None
     
     @staticmethod
-    def checkCommentNameInNickNameList(atmark_type,comment:str)->NickName|Literal[None]:
+    def checkCommentNameInNickNameList(atmark_type:Literal["@","＠"],comment:str)->NickName|Literal[None]:
         """
         コメントに含まれる名前がキャラ名リストに含まれているか確認する
         """
-        nickNameList = CharacterSettingCollectionOperatorManager.getNickNameList()
+        nickNameList = CharacterSettingCollectionOperatorManager.getNickNameList() + AllHumanInformationManager.singleton().nick_names_manager.allNicknames
         for nickName in nickNameList:
             target = f"{atmark_type}{nickName.name}"
             if target in comment:

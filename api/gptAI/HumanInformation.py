@@ -21,7 +21,6 @@ class VoiceModeNamesManager:
     voice_mode_list: dict[TTSSoftware, list[VoiceMode]]        # ボイスモード名リスト
     def __init__(self):
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
-        
         self.voice_mode_names_filepath = self.createVoiceModeNamesFilePath()
         self.voice_mode_list = self.loadAllVoiceModeNames()
 
@@ -219,6 +218,13 @@ class NicknamesManager:
     nicknames: dict[CharacterName, list[NickName]]
     nickname2Charaname: dict[NickName,CharacterName]
     defaultNicknamesManager: DefaultNicknamesManager
+
+    @property
+    def allNicknames(self)->list[NickName]:
+        ret_list: list[NickName] = []
+        for nicknames in self.nicknames.values():
+            ret_list += nicknames
+        return ret_list
 
     def __init__(self):
         self.defaultNicknamesManager = DefaultNicknamesManager()
