@@ -270,7 +270,7 @@ class NicknamesManager:
         path = self.nicknames_filepath
         JsonAccessor.checkExistAndCreateJson(path, {})
         update_nicknames = self.mergeNicknames(nicknames)
-        nicknames_dict = {chara_name.name:[nickname.name for nickname in nicknames] for chara_name, nicknames in nicknames.items()}
+        nicknames_dict = {chara_name.name:[nickname.name for nickname in nicknames] for chara_name, nicknames in update_nicknames.items()}
         ExtendFunc.saveDictToJson(path, nicknames_dict)
     
     def mergeNicknames(self, nicknames:dict[CharacterName, list[NickName]]):

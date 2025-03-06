@@ -272,10 +272,12 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
         content = NDGRComment.content
         date = TimeExtend.convertDatetimeToString(NDGRComment.at)
         if "@" in content or "＠" in content:
-            print("ユーザーIDとキャラ名を紐づけます")
+            # todo: なぜか@葵とか書くと、ここは通るがuser_data= None になる
             user_data:ILiveCommentUserData|None = toILiveCommentUserData(nulvm.registerNikonamaUserIdToCharaInfo(content,user_id))
+            ExtendFunc.ExtendPrintWithTitle("ユーザーIDとキャラ名を紐づけます",user_data)
         else: 
             user_data:ILiveCommentUserData|None = toILiveCommentUserData(nulvm.getUserData(str(user_id)))
+            ExtendFunc.ExtendPrintWithTitle("ユーザーIDとキャラ名を取得しました",user_data)
         commentData:NicoNamaCommment = {
             "user_id": str(user_id),
             "comment": content,
