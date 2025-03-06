@@ -1,3 +1,4 @@
+from tokenize import Token
 import unicodedata
 from janome.tokenizer import Tokenizer
 
@@ -27,6 +28,8 @@ class Kanji2Hiragana:
         tokens = t.tokenize(input_str)
         ret = ""
         for token in tokens:
+            if isinstance(token, str):
+                raise ValueError("input_str must be str")
             if token.surface.isdecimal():  # 数字の場合
                 ret += token.surface
             elif token.surface.isascii():  # 英字の場合

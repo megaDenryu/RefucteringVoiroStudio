@@ -15,7 +15,7 @@ def audio_query(text, speaker, max_retry):
             break
         time.sleep(1)
     else:
-        raise ConnectionError("リトライ回数が上限に到達しました。 audio_query : ", "/", text[:30], r.text)
+        raise ConnectionError("リトライ回数が上限に到達しました。 ")
     return query_data
 def synthesis(speaker, query_data,max_retry):
     synth_payload = {"speaker": speaker}
@@ -27,7 +27,7 @@ def synthesis(speaker, query_data,max_retry):
             return r.content
         time.sleep(1)
     else:
-        raise ConnectionError("音声エラー：リトライ回数が上限に到達しました。 synthesis : ", r)
+        raise ConnectionError("音声エラー：リトライ回数が上限に到達しました")
 
 
 def text_to_speech(texts, speaker=8, max_retry=20):

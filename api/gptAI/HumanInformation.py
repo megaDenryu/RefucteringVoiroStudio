@@ -1,4 +1,3 @@
-
 from enum import Enum
 from pathlib import Path
 from typing import Literal, NewType, TypeAlias, TypedDict
@@ -10,7 +9,7 @@ from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager im
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollection, CoeiroinkCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollection, VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.JsonAccessor import JsonAccessor
-from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel, Map
+from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NickName, TTSSoftware, VoiceMode, TTSSoftwareType, CharacterId, CharacterSaveId
 from api.gptAI.VoiceController import IVoiceState, VoiceState
@@ -72,10 +71,10 @@ class CharaNameManager:
     
     def createCharaNamesFilePath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VoiceVox: self.api_dir / "CharSettingJson/CharaNames/VoiceVoxNames.json",
+            TTSSoftware.VoiceVox:  self.api_dir / "CharSettingJson/CharaNames/VoiceVoxNames.json",
             TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/CharaNames/CoeiroinkNames.json",
-            TTSSoftware.AIVoice: self.api_dir / "CharSettingJson/CharaNames/AIVoiceNames.json",
-            TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/CharaNames/CevioAINames.json"
+            TTSSoftware.AIVoice:   self.api_dir / "CharSettingJson/CharaNames/AIVoiceNames.json",
+            TTSSoftware.CevioAI:   self.api_dir / "CharSettingJson/CharaNames/CevioAINames.json"
         }
     
     def loadCharaNames(self, software:TTSSoftware)->list[CharacterName]:
@@ -187,19 +186,43 @@ class  CharaNames2VoiceModeDictManager:
                     raise ValueError(f"キャラ名{Chara_name}にはボイスモードが存在しません。")
         raise ValueError(f"キャラ名{Chara_name}はどのソフトウェアにも存在しません。")
 
+class DefaultNicknamesManager:
+    """
+    ニックネーム辞書はユーザーが持ってるTTSソフトから使用可能なキャラクターのリストを取得して作る必要があるが、それと同時に開発側で先に想定されるニックネームも用意したい。
+    なのでデフォルトニックネームリストとTTSソフトから抽出したキャラリストの共通部分として実際のニックネームリストを構成するような方式にすることで両方を満たせる。
+    """
+    defalutNicknamesPath: Path
+    defalutNicknames: dict[CharacterName, list[NickName]]
+    def __init__(self) -> None:
+        self.defalutNicknamesPath = ExtendFunc.api_dir / "CharSettingJson/DefaultNickNames.json" #絶対に消さないでください
+        self.defalutNicknames = self.loadDefaultNicknames()
+    
+    def loadDefaultNicknames(self)->dict[CharacterName, list[NickName]]:
+        path = self.defalutNicknamesPath
+        # もしファイルが存在しない場合はファイルを作成
+        JsonAccessor.checkExistAndCreateJson(path, {})
+        nicknames_dict:dict[str, list[str]] = ExtendFunc.loadJsonToDict(path)
+        # nicknamesの型が正常かどうかを確認
+        for name, nicknames in nicknames_dict.items():
+            if not isinstance(name, str) or not isinstance(nicknames, list):
+                raise TypeError(f"nicknamesの型が正常ではありません。name:{name}, nicknames:{nicknames}")
+        return {CharacterName(name=name):[NickName(name=nickname) for nickname in nicknames] for name, nicknames in nicknames_dict.items()}
+
 class NicknamesManager:
     """
+    ニックネーム候補を管理するクラス。
     持っていないキャラクターに対しても最初からある程度ニックネームが実装しておく。
-    そしてキャラクターを取り出したときにボイスモード辞書にキーがないキャラクターは仕様化のではないと判断するようにする。
+    ニックネーム候補はコメントで[@ゆかり]などの形でキャラクターを指定するためだけに使うと思う。
     """
     api_dir: Path
-    nicknames_filepath: Path                # キャラ名とニックネームの対応リストのファイルパス
+    nicknames_filepath: Path #キャラ名とニックネームの対応リストのファイルパス
     nicknames: dict[CharacterName, list[NickName]]
     nickname2Charaname: dict[NickName,CharacterName]
+    defaultNicknamesManager: DefaultNicknamesManager
 
     def __init__(self):
-        self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
-        self.nicknames_filepath = self.api_dir / "CharSettingJson/NickNames.json"
+        self.defaultNicknamesManager = DefaultNicknamesManager()
+        self.nicknames_filepath = ExtendFunc.api_dir / "CharSettingJson/NickNames.json"
         self.nicknames = self.loadNicknames()
         self.nickname2Charaname = self.loadNickname2Charaname()
     
@@ -240,8 +263,23 @@ class NicknamesManager:
         """
         path = self.nicknames_filepath
         JsonAccessor.checkExistAndCreateJson(path, {})
+        update_nicknames = self.mergeNicknames(nicknames)
         nicknames_dict = {chara_name.name:[nickname.name for nickname in nicknames] for chara_name, nicknames in nicknames.items()}
         ExtendFunc.saveDictToJson(path, nicknames_dict)
+    
+    def mergeNicknames(self, nicknames:dict[CharacterName, list[NickName]]):
+        """
+        ニックネームリストとデフォルトニックネームリストをマージします。
+        ニックネームリストに存在しているキャラクターだけデフォルトニックネームリストからニックネームを取って来ます。
+        """
+        new_dict:dict[CharacterName,list[NickName]] = {}
+        for chara_name, nickname_list in nicknames.items():
+            if chara_name in self.defaultNicknamesManager.defalutNicknames:
+                nickname_list += self.defaultNicknamesManager.defalutNicknames[chara_name]
+                nickname_list = list(set(nickname_list))
+            new_dict[chara_name] = nickname_list
+        return new_dict
+
 
     @staticmethod
     def transformNickName2CharaName(nicknames:dict[CharacterName, list[NickName]]):
