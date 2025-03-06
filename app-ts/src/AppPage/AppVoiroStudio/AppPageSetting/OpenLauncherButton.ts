@@ -19,7 +19,6 @@ export class OpenAppPageSettingsButton {
         } else {
             this.open();
         }
-        console.log("toggle");
     }
 
     public open() {

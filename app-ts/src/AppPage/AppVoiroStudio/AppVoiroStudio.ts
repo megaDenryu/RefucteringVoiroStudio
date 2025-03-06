@@ -251,7 +251,7 @@ export interface NicoNamaCommment {
     user_id: string
     comment: string
     date: string
-    user_data: ILiveCommentUserData
+    user_data: ILiveCommentUserData|null
 }
 
 export class MessageBox {
@@ -426,6 +426,11 @@ export class MessageBox {
     receiveNikoNamaComment(event) {
         const message:NicoNamaCommment = JSON.parse(event.data) as NicoNamaCommment;
         const comment = message.comment;
+        if (message.user_data == null) {
+            this.sendMessage(comment);
+            return;
+        }
+
         //まずsaveIdでメッセージボックスを探す
         const save_id:string = message.user_data.save_id
         let message_box = GlobalState.getMessageBoxBySaveId(save_id);

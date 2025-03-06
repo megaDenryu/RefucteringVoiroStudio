@@ -43,12 +43,14 @@ class CharacterSettingCollectionOperatorManager:
         return saveDatas[0].characterInfo.nickName
     
     @staticmethod
-    def getOperatorFromNickName(nick_name:NickName)->list[AIVoiceCharacterSettingSaveModel] | list[CevioAICharacterSettingSaveModel] | list[CoeiroinkCharacterSettingSaveModel] | list[VoiceVoxCharacterSettingSaveModel]|None:
+    def getSaveDatasFromNickName(nick_name:NickName)->list[AIVoiceCharacterSettingSaveModel] | list[CevioAICharacterSettingSaveModel] | list[CoeiroinkCharacterSettingSaveModel] | list[VoiceVoxCharacterSettingSaveModel]|None:
         for tts_software in TTSSoftware.get_all_software_names():
             operator = CharacterSettingCollectionOperatorManager.getCharacterSettingCollectionOperator(tts_software)
             saveDatas = operator.getByNickName(nick_name)
             if len(saveDatas) != 0:
                 return saveDatas
+        # 一致するものがない場合、[ニックネーム候補]を見てキャラクターをまず特定し、その後に起動中のそのキャラクターのsaveDatasを返せば良い
+        # [ニックネーム候補]は、あらかじめ作っておく + 既存の名前、ニックネームに部分的に入力ニックネームがマッチしたものを返す感じ
         return None
     
     @staticmethod

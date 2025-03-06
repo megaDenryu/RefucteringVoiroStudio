@@ -4,11 +4,12 @@ from typing import Literal, TypedDict
 from pydantic import BaseModel, Field
 from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInfoValueObject import CharacterId, CharacterName, NickName
+from api.gptAI.HumanInfoValueObject import CharacterId, CharacterName, ICharacterName, INickName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager
 from ..gptAI.Human import Human
 from api.DataStore.JsonAccessor import JsonAccessor
 import json
+from pathlib import Path
 
 class LiveCommentUserData(BaseModel):
     user_id:str                                             #ニコ生のユーザーID. 必須.
@@ -21,34 +22,33 @@ class ILiveCommentUserData(TypedDict):
     user_id:str
     save_id:str
     user_name:str|None
-    characterName:CharacterName|None
-    nickName:NickName|None
+    characterName:ICharacterName|None
+    nickName:INickName|None
+
+def toILiveCommentUserData(data:LiveCommentUserData|None)->ILiveCommentUserData|None:
+    if data is None:
+        return None
+    return data.model_dump() # type: ignore
 
 class UserDatas(BaseModel):
     user_datas:list[LiveCommentUserData]
 
 
 class NiconamaUserLinkVoiceroidModule:
+    path:Path
     user_datas:UserDatas
 
     def __init__(self):
+        self.path = ExtendFunc.api_dir / "AppSettingJson" / "NikonamaUserData.json"
         self.user_datas = self.loadNikonamaUserIdToCharaNameJson()
-    
     def loadNikonamaUserIdToCharaNameJson(self):
-        path = ExtendFunc.api_dir / "AppSettingJson" / "NikonamaUserData.json"
-    
-        # ファイルが存在するかチェック
-        if not os.path.exists(path):
-            # ファイルが存在しない場合は作成する
-            with open(path, 'w') as f:
-                json.dump(UserDatas(user_datas=[]).dict(), f, indent=4)
-    
-        user_data = JsonAccessor.loadJsonToBaseModel(path, UserDatas)
+        user_data = JsonAccessor.loadJsonToBaseModel(self.path, UserDatas)
         if user_data is None:
             user_data = UserDatas(user_datas=[])
+            # ファイルが存在するかチェック
+            if not os.path.exists(self.path):
             # pathのファイルを作成する
-            with open(path, 'w') as f:
-                json.dump(user_data.dict(), f, indent=4)
+                JsonAccessor.updateJsonFromBaseModel(self.path, user_data)
         return user_data
     
     def getUserData(self,NikonamaUserId:str)->LiveCommentUserData|None:
@@ -103,7 +103,7 @@ class NiconamaUserLinkVoiceroidModule:
         ユーザーIDとキャラ名を紐づけてjsonに保存する
         """
         # 既存のデータを読み込む
-        characterDataList = CharacterSettingCollectionOperatorManager.getOperatorFromNickName(nickName)
+        characterDataList = CharacterSettingCollectionOperatorManager.getSaveDatasFromNickName(nickName)
         if characterDataList is None:
             return None
         characterData = characterDataList[0]
@@ -116,4 +116,6 @@ class NiconamaUserLinkVoiceroidModule:
             nickName=nickName
         )
         oldUserDatas.user_datas.append(user_data)
+        # ファイルに保存
+        JsonAccessor.updateJsonFromBaseModel(self.path, oldUserDatas)
         return user_data

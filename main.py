@@ -54,7 +54,7 @@ import mimetypes
 
 from api.comment_reciver.comment_module import NicoNamaCommentReciever
 from api.comment_reciver.newNikonamaCommentReciever import newNikonamaCommentReciever
-from api.comment_reciver.NiconamaUserLinkVoiceroidModule import ILiveCommentUserData, NiconamaUserLinkVoiceroidModule, LiveCommentUserData
+from api.comment_reciver.NiconamaUserLinkVoiceroidModule import ILiveCommentUserData, NiconamaUserLinkVoiceroidModule, LiveCommentUserData, toILiveCommentUserData
 from api.comment_reciver.YoutubeCommentReciever import YoutubeCommentReciever
 
 from api.web.notifier import Notifier
@@ -248,15 +248,11 @@ class CharaCreateData(TypedDict):
     humanData: HumanData
     characterModeState: ICharacterModeState
 
-
-
-
-
 class NicoNamaCommment(TypedDict):
     user_id: str
     comment: str
     date: str
-    user_data: ILiveCommentUserData
+    user_data: ILiveCommentUserData|None
 
 @app.websocket("/nikonama_comment_reciver/{room_id}/{characterId}")
 async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, characterId: CharacterId):
@@ -280,9 +276,9 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
         date = TimeExtend.convertDatetimeToString(NDGRComment.at)
         if "@" in content or "＠" in content:
             print("ユーザーIDとキャラ名を紐づけます")
-            user_data:ILiveCommentUserData = nulvm.registerNikonamaUserIdToCharaInfo(content,user_id).model_dump() # type: ignore
+            user_data:ILiveCommentUserData|None = toILiveCommentUserData(nulvm.registerNikonamaUserIdToCharaInfo(content,user_id))
         else: 
-            user_data:ILiveCommentUserData = nulvm.getUserData(str(user_id))  # type: ignore
+            user_data:ILiveCommentUserData|None = toILiveCommentUserData(nulvm.getUserData(str(user_id)))  
         commentData:NicoNamaCommment = {
             "user_id": str(user_id),
             "comment": content,
