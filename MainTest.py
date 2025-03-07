@@ -1,3 +1,5 @@
+from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
+from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
 from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
 from api.LLM.エージェント.会話用エージェント.返答判定機.LLM判定テスト import LLM判定テスト
 import asyncio
@@ -23,7 +25,10 @@ if __name__ == "__main__":
     # 連続検索テスト()
     # a = DefaultNicknamesManager()
     # TTSSoftwareManager.singleton()
-    VoiceVoxLauncher.startVoicevox()
+    # VoiceVoxLauncher.startVoicevox()
+    asyncio.run(LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe")))
+    
+
     
         
 
