@@ -21,7 +21,6 @@ class VoiceModeNamesManager:
     voice_mode_list: dict[TTSSoftware, list[VoiceMode]]        # ボイスモード名リスト
     def __init__(self):
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
-        
         self.voice_mode_names_filepath = self.createVoiceModeNamesFilePath()
         self.voice_mode_list = self.loadAllVoiceModeNames()
 
@@ -220,6 +219,13 @@ class NicknamesManager:
     nickname2Charaname: dict[NickName,CharacterName]
     defaultNicknamesManager: DefaultNicknamesManager
 
+    @property
+    def allNicknames(self)->list[NickName]:
+        ret_list: list[NickName] = []
+        for nicknames in self.nicknames.values():
+            ret_list += nicknames
+        return ret_list
+
     def __init__(self):
         self.defaultNicknamesManager = DefaultNicknamesManager()
         self.nicknames_filepath = ExtendFunc.api_dir / "CharSettingJson/NickNames.json"
@@ -264,7 +270,7 @@ class NicknamesManager:
         path = self.nicknames_filepath
         JsonAccessor.checkExistAndCreateJson(path, {})
         update_nicknames = self.mergeNicknames(nicknames)
-        nicknames_dict = {chara_name.name:[nickname.name for nickname in nicknames] for chara_name, nicknames in nicknames.items()}
+        nicknames_dict = {chara_name.name:[nickname.name for nickname in nicknames] for chara_name, nicknames in update_nicknames.items()}
         ExtendFunc.saveDictToJson(path, nicknames_dict)
     
     def mergeNicknames(self, nicknames:dict[CharacterName, list[NickName]]):

@@ -62,26 +62,31 @@ class NiconamaUserLinkVoiceroidModule:
     
     def registerNikonamaUserIdToCharaInfo(self,comment,NikonamaUserId)->LiveCommentUserData|None:
         nick_name = self.getNickNameFromComment(comment)
+        ExtendFunc.ExtendPrintWithTitle("コメントにキャラ指定があったのでニックネームを取得", nick_name)
         if nick_name != None:
             user_data = self.saveNikonamaUserIdToCharaName(NikonamaUserId, None,nick_name)
             self.user_datas = self.loadNikonamaUserIdToCharaNameJson()
+            #todo: @ONEとかでここを通った上でNoneになってるぽい。
+            ExtendFunc.ExtendPrintWithTitle("ユーザーデータを登録user_data", user_data)
+            ExtendFunc.ExtendPrintWithTitle("ユーザーデータを登録self.user_datas", self.user_datas)
             return user_data
         return None
     
     @staticmethod
-    def checkCommentNameInNickNameList(atmark_type,comment:str)->NickName|Literal[None]:
+    def checkCommentNameInNickNameList(atmark_type:Literal["@","＠"],comment:str)->NickName|None:
         """
         コメントに含まれる名前がキャラ名リストに含まれているか確認する
         """
-        nickNameList = CharacterSettingCollectionOperatorManager.getNickNameList()
+        nickNameList = CharacterSettingCollectionOperatorManager.getNickNameList() + AllHumanInformationManager.singleton().nick_names_manager.allNicknames
         for nickName in nickNameList:
+            print(nickName.name)
             target = f"{atmark_type}{nickName.name}"
             if target in comment:
                 return nickName
         return None
 
     
-    def getNickNameFromComment(self,comment):
+    def getNickNameFromComment(self,comment)->NickName|None:
         """
         コメントから@の後ろのキャラ名を取得する
         """
