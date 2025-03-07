@@ -1,3 +1,4 @@
+from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
 from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
@@ -26,8 +27,8 @@ if __name__ == "__main__":
     # a = DefaultNicknamesManager()
     # TTSSoftwareManager.singleton()
     # VoiceVoxLauncher.startVoicevox()
-    asyncio.run(LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe")))
-    
+    result = asyncio.run(LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe")))
+    ExtendFunc.ExtendPrint(result)
 
     
         

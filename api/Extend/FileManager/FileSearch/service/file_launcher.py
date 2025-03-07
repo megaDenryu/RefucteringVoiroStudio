@@ -22,6 +22,6 @@ class FileLauncher:
                 print(f"起動に失敗しました: {e}")
                 return LaunchResult(file_path=file_path, exec_success=ExecSuccess.FAILED, message=f"起動に失敗しました: {e}")
         else:
-            print(f"{filename} は指定した場所に見つかりませんでした")
-            return LaunchResult(file_path=None, exec_success=ExecSuccess.FAILED, message=f"{filename} は指定した場所に見つかりませんでした")
+            print(f"{filename.name} は指定した場所に見つかりませんでした")
+            return LaunchResult(file_path=None, exec_success=ExecSuccess.FAILED, message=f"{filename.name} は指定した場所に見つかりませんでした")
             
