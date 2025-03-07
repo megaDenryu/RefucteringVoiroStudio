@@ -1,6 +1,7 @@
-import os
+from pathlib import Path
 import subprocess
 import winreg
+import os
 
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
@@ -18,31 +19,47 @@ class VoiceVoxLauncher:
             return voicevox_path
         except FileNotFoundError:
             return None
+
     
 
     @staticmethod
     def startVoicevox()->VoiceVoxHuman:
+
         tmp_human = VoiceVoxHuman(None,0)
+        username = os.getenv("USERNAME")
+
+        #　ショートカットから起動
+        try:
+            # ショートカットのパス（実際のユーザー名に置き換えてください）
+            shortcut_path = Path(f"C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\VOICEVOX.lnk")
+            # ショートカットを起動
+            os.startfile(shortcut_path)
+            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human.onTTSSoftware = True
+            return tmp_human
+        except Exception as e:
+            print(f"VoiceVoxのショートカット起動に失敗しました: {e}")
+
+        # ショートカットがない場合はexeファイルから起動
         voicevox_path = VoiceVoxLauncher.find_voicevox_path()
         if voicevox_path is None:
-            username = os.getenv("USERNAME")
             # 既知のパスをチェック
             known_paths = [
-                "C://Program Files//VOICEVOX//",
-                f"C:\\Users\\{username}\\AppData\\Local\\Programs\\VOICEVOX\\VOICEVOX.exe",
+                Path("C://Program Files//VOICEVOX//"),
+                Path(f"C:\\Users\\{username}\\AppData\\Local\\Programs\\VOICEVOX\\"),
             ]
             for path in known_paths:
                 if os.path.exists(path):
                     voicevox_path = path
                     break
-
+        
         if voicevox_path is None:
             print("VoiceVoxのインストール場所が見つかりませんでした。")
             tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
             tmp_human.onTTSSoftware = False
             return tmp_human
 
-        voicevox_exe_path = os.path.join(voicevox_path, "VOICEVOX.exe")
+        voicevox_exe_path = voicevox_path / "VoiceVox.exe"
         if not os.path.exists(voicevox_exe_path):
             print("VoiceVoxのexeファイルが見つかりませんでした。")
             tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
