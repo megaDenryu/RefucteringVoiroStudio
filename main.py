@@ -18,12 +18,13 @@ from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.GPTMode import GPTModeReq, GptMode
 from api.gptAI.HumanInfoValueObject import NickName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
 from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
-from api.gptAI.voiceroid_api import AIVoiceHuman, Coeiroink, TTSSoftwareManager, cevio_human, voicevox_human
+from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, Coeiroink, TTSSoftwareManager, cevio_human
 from api.gptAI.Human import Human
 from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
@@ -865,7 +866,7 @@ async def voiceVoxCharacterSetting(req: VoiceVoxCharacterSettingSaveModelReq):
     human.aiRubiConverter.setMode(req.voiceVoxCharacterSettingModel.readingAloud.AIによる文章変換)
     ExtendFunc.ExtendPrint(human.aiRubiConverter.mode)
     voiceVox = human.human_Voice
-    if isinstance(voiceVox, voicevox_human):
+    if isinstance(voiceVox, VoiceVoxHuman):
         voiceVox.setVoiceSetting(req.voiceVoxCharacterSettingModel.voiceSetting)
         VoiceVoxCharacterSettingCollectionOperator.singleton().save(req.voiceVoxCharacterSettingModel)
         return json.dumps({"message": "VoiceVoxCharacterSettingを保存しました"})

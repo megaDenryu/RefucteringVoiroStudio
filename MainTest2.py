@@ -39,7 +39,7 @@ from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifePro
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
 from api.gptAI.HumanInfoValueObject import ICharacterName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
-from api.gptAI.voiceroid_api import Coeiroink, voiceroid_apiTest, voicevox_human
+from api.TtsSoftApi.voiceroid_api import Coeiroink, voiceroid_apiTest
 from api.AppSettingJson.InitMemory.InitMemoryCollection import InitMemoryCollection, InitMemoryCollectionTest
 from pydantic.fields import FieldInfo
 

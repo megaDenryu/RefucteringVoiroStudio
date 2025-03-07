@@ -5,24 +5,23 @@ from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager im
 from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
 from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import AIRubiConverterFactory
+from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
 from api.gptAI.VoiceInfo import WavInfo
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
-from api.gptAI.HumanInformation import CharacterId
-from .voiceroid_api import voicevox_human
-from .voiceroid_api import Coeiroink
+from ..TtsSoftApi.voiceroid_api import Coeiroink
 
 from ..images.image_manager.HumanPart import HumanPart
 
 try:
-    from .voiceroid_api import cevio_human
+    from ..TtsSoftApi.voiceroid_api import cevio_human
 except ImportError:
     cevio_human = None
     print("cevio_human module could not be imported. Please ensure the required application is installed.")
 
 try:
-    from .voiceroid_api import AIVoiceHuman
+    from ..TtsSoftApi.voiceroid_api import AIVoiceHuman
 except ImportError:
     AIVoiceHuman = None
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
@@ -70,7 +69,7 @@ class Human:
                 self.human_Voice.speak("起動完了")
                 return "cevio"
             elif TTSSoftware.VoiceVox.equal(self.chara_mode_state.tts_software):
-                tmp_voicevox = voicevox_human(self.chara_mode_state,voiceroid_dict["voicevox"])
+                tmp_voicevox = VoiceVoxHuman(self.chara_mode_state,voiceroid_dict["voicevox"])
                 print(f"{self.char_name}のvoicevox起動開始")
                 self.human_Voice = tmp_voicevox
                 print(f"{self.char_name}のvoicevox起動完了")
@@ -109,7 +108,7 @@ class Human:
         elif AIVoiceHuman == type(self.human_Voice):
             print("AIvoiceでwav出力します")
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
-        elif voicevox_human == type(self.human_Voice):
+        elif VoiceVoxHuman == type(self.human_Voice):
             print("voicevoxでwav出力します")
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif Coeiroink == type(self.human_Voice):

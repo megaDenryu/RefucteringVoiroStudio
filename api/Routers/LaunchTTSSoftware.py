@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import TTSSoftware
 from api.gptAI.HumanInformation import AllHumanInformationManager
-from api.gptAI.voiceroid_api import TTSSoftwareManager
+from api.TtsSoftApi.voiceroid_api import TTSSoftwareManager
 
 router = APIRouter()
 
