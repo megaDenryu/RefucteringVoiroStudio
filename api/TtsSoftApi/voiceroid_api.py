@@ -28,6 +28,7 @@ from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSet
 from api.Extend.ExtendFunc import ExtendFunc
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendSound import ExtendSound
+from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.gptAI.HumanInfoValueObject import CharacterSaveId
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
 
@@ -1425,7 +1426,7 @@ class TTSSoftwareManager:
         elif ttss == TTSSoftware.CevioAI:
             tmp_human = cevio_human(None,0)
         elif ttss == TTSSoftware.VoiceVox:
-            tmp_human = voicevox_human.startVoicevox()
+            tmp_human = VoiceVoxHuman.startVoicevox()
         elif ttss == TTSSoftware.Coeiroink:
             tmp_human = Coeiroink.startCoeiroink()
         
