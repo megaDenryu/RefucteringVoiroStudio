@@ -4,6 +4,7 @@ import asyncio
 
 from api.LLM.エージェントテスト.テスト環境.GeminiApiテスト.GeminiTest import 連続検索テスト
 from api.LLM.エージェントテスト.テスト環境.ルビ振りテスト.GeminiConverterTest import Geminiの連続会話テストユニット
+from api.TtsSoftApi.TTSSoftwareManager import TTSSoftwareManager
 from api.gptAI.HumanInformation import DefaultNicknamesManager
  
 
@@ -19,7 +20,8 @@ if __name__ == "__main__":
     # unit = GeminiAPIUnit()
     # unit.modelList()
     # 連続検索テスト()
-    a = DefaultNicknamesManager()
+    # a = DefaultNicknamesManager()
+    TTSSoftwareManager.singleton()
     
         
 
