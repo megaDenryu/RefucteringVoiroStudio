@@ -77,3 +77,10 @@ class NameSpecies(Enum):
     @staticmethod
     def is_instance_of_name_species(obj):
         return any(isinstance(obj, species.value) for species in NameSpecies)
+    
+class NamePair:
+    nickName: NickName
+    characterName: CharacterName
+    def __init__(self, nickName:NickName, characterName:CharacterName):
+        self.nickName = nickName
+        self.characterName = characterName

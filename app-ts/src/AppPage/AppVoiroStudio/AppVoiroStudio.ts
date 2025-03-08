@@ -220,7 +220,7 @@ export class MessageBoxManager {
     getMessageBoxByNickName(nickName:NickName):MessageBox|null {
         for (let message_box of this.message_box_list) {
             if (message_box.human_tab.characterSetting?.characterInfoSetting.nickName == null) {continue;}
-            if (message_box.human_tab.characterSetting.characterInfoSetting.nickName == nickName) {
+            if (message_box.human_tab.characterSetting.characterInfoSetting.nickName.equals(nickName)) {
                 return message_box;
             }
         }
@@ -230,7 +230,7 @@ export class MessageBoxManager {
     getMessageBoxByCharacterName(characterName:CharacterName):MessageBox|null {
         for (let message_box of this.message_box_list) {
             if (message_box.human_tab.characterSetting?.characterInfoSetting.characterName == null) {continue;}
-            if (message_box.human_tab.characterSetting.characterInfoSetting.characterName == characterName) {
+            if (message_box.human_tab.characterSetting.characterInfoSetting.characterName.equals(characterName)) {
                 return message_box;
             }
         }

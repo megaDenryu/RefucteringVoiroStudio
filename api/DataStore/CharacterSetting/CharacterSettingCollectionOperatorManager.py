@@ -4,7 +4,7 @@ from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import Cevi
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModel import VoiceVoxCharacterSettingSaveModel
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInfoValueObject import NickName, TTSSoftwareType
+from api.gptAI.HumanInfoValueObject import NamePair, NickName, TTSSoftwareType
 from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import CevioAICharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollectionOperator
@@ -47,6 +47,7 @@ class CharacterSettingCollectionOperatorManager:
         for tts_software in TTSSoftware.get_all_software_names():
             operator = CharacterSettingCollectionOperatorManager.getCharacterSettingCollectionOperator(tts_software)
             saveDatas = operator.getByNickName(nick_name)
+            ExtendFunc.ExtendPrintWithTitle("saveDatas", saveDatas)
             if len(saveDatas) != 0:
                 return saveDatas
         # 一致するものがない場合、[ニックネーム候補]を見てキャラクターをまず特定し、その後に起動中のそのキャラクターのsaveDatasを返せば良い
@@ -62,5 +63,12 @@ class CharacterSettingCollectionOperatorManager:
                 nick_name_list.append(data.characterInfo.nickName)
         return nick_name_list
     
-    
+    @staticmethod
+    def getNamePairList()->list[NamePair]:
+        name_pair_list:list[NamePair] = []
+        for tts_software in TTSSoftware.get_all_software_names():
+            operator = CharacterSettingCollectionOperatorManager.getCharacterSettingCollectionOperator(tts_software)
+            for data in operator.collection.collection:
+                name_pair_list.append(NamePair(data.characterInfo.nickName,data.characterInfo.characterName))
+        return name_pair_list
         
