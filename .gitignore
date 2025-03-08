@@ -35,3 +35,5 @@ node_modules
 app-ts/dist
 build/*
 dist/*
+app.log
+app-ts/.tsbuildinfo
