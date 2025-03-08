@@ -16,6 +16,7 @@ api/CharSettingJson/CharaNames/*
 api/CharSettingJson/CharaNames2VoiceMode/*
 api/CharSettingJson/VoiceModeNames/*
 api/CharSettingJson/AllHumanInformation.json
+api/AppSettingJson/NikonamaUserData.json
 
 ボイロキャラ素材/*
 app/images/
