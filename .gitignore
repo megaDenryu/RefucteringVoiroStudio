@@ -37,3 +37,6 @@ build/*
 dist/*
 app.log
 app-ts/.tsbuildinfo
+api/AppSettingJson/app_setting.json
+api/CharSettingJson/NickNames.json
+api/CharSettingJson/CharacterSetting/CevioAICharacterSetting.json
