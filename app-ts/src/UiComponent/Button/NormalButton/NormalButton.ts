@@ -42,6 +42,12 @@ export class NormalButton implements IHasComponent, IButton {
         return this;
     }
 
+    public setText(text: string): NormalButton {
+        this._title = text;
+        this.component.element.textContent = this._title;
+        return this;
+    }
+
     public addOnClickEvent(f: (() => void)): NormalButton {
         this._onClick.push(f);
         return this;

@@ -1,35 +1,45 @@
+import { IHasComponent } from "../../../UiComponent/Base/ui_component_base";
+import { IToggleWindow } from "../../../UiComponent/Board/IToggleWindow";
 import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
-import { Launcher } from "../../Launcher/Launcher";
-import { AppPageSettingBoard } from "./AppPageSettingBoard";
 
-export class OpenAppPageSettingsButton {
-    public appPageSetting: AppPageSettingBoard;
+export class ToggleOtherWindowButton {
+    public targetWindow: IToggleWindow;
     private button: NormalButton;
-    private isOpen: boolean = false;
-    constructor(parent: Element, appPageSetting: AppPageSettingBoard) {
-        this.appPageSetting = appPageSetting;
+    constructor(targetWindow: IToggleWindow) {
+        this.targetWindow = targetWindow;
         this.button = new NormalButton("設定を開く","OpenSettingLauncherButton").addOnClickEvent(this.toggle.bind(this));
-        parent.appendChild(this.button.component.element);
-        this.close();
+        this.targetWindow.isOpenState.addMethod((isOpen) => {this.changeButtonState(isOpen);});
+        return this;
+    }
+
+    public get component():IHasComponent {
+        return this.button;
+    }
+
+    public setParentElement(parentElement: Element) {
+        parentElement.appendChild(this.button.component.element);
+        return this;
     }
 
     public toggle() {
-        if (this.isOpen) {
-            this.close();
-        } else {
-            this.open();
-        }
+        this.targetWindow.toggle();
     }
 
     public open() {
-        this.appPageSetting.component.show();
-        this.isOpen = true;
-        // launcherにtransform: translate(318px, -500px);を設定する
-        this.appPageSetting.component.element.style.transform = "translate(318px, -500px)";
+        this.targetWindow.open();
     }
 
     public close() {
-        this.appPageSetting.component.hide();
-        this.isOpen = false;
+        this.targetWindow.close();
+    }
+
+    public changeButtonState(isOpen: boolean) {
+        if (isOpen) {
+            this.button.setText("設定を閉じる");
+            // this.button.setView();
+        } else {
+            this.button.setText("設定を開く");
+            // this.button.setView();
+        }
     }
 }
