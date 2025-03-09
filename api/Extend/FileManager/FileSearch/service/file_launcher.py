@@ -17,7 +17,7 @@ class FileLauncher:
             try:
                 subprocess.Popen([str(file_path)])
                 print(f"{filename} を起動しました")
-                return LaunchResult(file_path=file_path, exec_success=ExecSuccess.SUCCESS, message=f"{filename} を起動しました")
+                return LaunchResult(file_path=file_path, exec_success=ExecSuccess.SUCCESS, message=f"{filename.name} を起動しました")
             except Exception as e:
                 print(f"起動に失敗しました: {e}")
                 return LaunchResult(file_path=file_path, exec_success=ExecSuccess.FAILED, message=f"起動に失敗しました: {e}")

@@ -16,6 +16,7 @@ api/CharSettingJson/CharaNames/*
 api/CharSettingJson/CharaNames2VoiceMode/*
 api/CharSettingJson/VoiceModeNames/*
 api/CharSettingJson/AllHumanInformation.json
+api/AppSettingJson/NikonamaUserData.json
 
 ボイロキャラ素材/*
 app/images/
@@ -34,3 +35,8 @@ node_modules
 app-ts/dist
 build/*
 dist/*
+app.log
+app-ts/.tsbuildinfo
+api/AppSettingJson/app_setting.json
+api/CharSettingJson/NickNames.json
+api/CharSettingJson/CharacterSetting/CevioAICharacterSetting.json

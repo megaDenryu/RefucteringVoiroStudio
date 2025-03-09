@@ -11,7 +11,7 @@ from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import Vo
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
-from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NickName, TTSSoftware, VoiceMode, TTSSoftwareType, CharacterId, CharacterSaveId
+from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NamePair, NickName, TTSSoftware, VoiceMode, TTSSoftwareType, CharacterId, CharacterSaveId
 from api.gptAI.VoiceController import IVoiceState, VoiceState
 from api.images.image_manager.HumanPart import HumanPart
 
@@ -224,6 +224,13 @@ class NicknamesManager:
         ret_list: list[NickName] = []
         for nicknames in self.nicknames.values():
             ret_list += nicknames
+        return ret_list
+    
+    @property
+    def allNamePair(self)->list[NamePair]:
+        ret_list: list[NamePair] = []
+        for item in self.nickname2Charaname.items():
+            ret_list.append(NamePair(item[0], item[1]))
         return ret_list
 
     def __init__(self):

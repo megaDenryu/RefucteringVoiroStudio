@@ -27,7 +27,8 @@ if __name__ == "__main__":
     # a = DefaultNicknamesManager()
     # TTSSoftwareManager.singleton()
     # VoiceVoxLauncher.startVoicevox()
-    result = asyncio.run(LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe")))
+    # result = asyncio.run(LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe")))
+    result = asyncio.run(LaunchUtils.launchExe(ExeFileName("COEIROINKv2.exe")))
     ExtendFunc.ExtendPrint(result)
 
     

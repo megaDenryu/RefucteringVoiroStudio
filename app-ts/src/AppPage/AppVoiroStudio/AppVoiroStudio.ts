@@ -24,7 +24,7 @@ import { VoiceSettingModel } from "../../ZodObject/DataStore/ChatacterVoiceSetti
 import { ICharacterSetting } from "../CharacterSetting/ICharacterSetting";
 import { RecordPath } from "../../UiComponent/TypeInput/RecordPath";
 import { SentenceDisplay } from "../../UiComponent/Display/SentenceDisplay/SentenceDisplay";
-import { AppPageSettingManager } from "./AppPageSetting/AppPageSettingManager";
+import { AppPageSetting } from "./AppPageSetting/AppPageSetting";
 
 // const { promises } = require("fs");
 
@@ -220,7 +220,7 @@ export class MessageBoxManager {
     getMessageBoxByNickName(nickName:NickName):MessageBox|null {
         for (let message_box of this.message_box_list) {
             if (message_box.human_tab.characterSetting?.characterInfoSetting.nickName == null) {continue;}
-            if (message_box.human_tab.characterSetting.characterInfoSetting.nickName == nickName) {
+            if (message_box.human_tab.characterSetting.characterInfoSetting.nickName.equals(nickName)) {
                 return message_box;
             }
         }
@@ -230,7 +230,7 @@ export class MessageBoxManager {
     getMessageBoxByCharacterName(characterName:CharacterName):MessageBox|null {
         for (let message_box of this.message_box_list) {
             if (message_box.human_tab.characterSetting?.characterInfoSetting.characterName == null) {continue;}
-            if (message_box.human_tab.characterSetting.characterInfoSetting.characterName == characterName) {
+            if (message_box.human_tab.characterSetting.characterInfoSetting.characterName.equals(characterName)) {
                 return message_box;
             }
         }
@@ -3549,7 +3549,7 @@ export class GlobalState {
     static human_ws: WebSocket;
     static test = 0;
     static chatSideSettingReciever: ChatSideSettingReciever;
-    static appPageSetting: AppPageSettingManager;
+    static appPageSetting: AppPageSetting;
 
     static getMessageBoxByCharacterId(character_id: CharacterId): MessageBox {
         const messageBox:MessageBox|undefined =  GlobalState.message_box_manager.message_box_dict.get(character_id)
@@ -3644,7 +3644,7 @@ export class GlobalState {
         };
         GlobalState.ws.onclose = closeEventProcces_ws;
         GlobalState.chatSideSettingReciever = new ChatSideSettingReciever(RequestAPI.client_id, GlobalState.handleWebSocketMessage);
-        GlobalState.appPageSetting = new AppPageSettingManager();
+        GlobalState.appPageSetting = new AppPageSetting();
 
         humanWsOpen();
     }

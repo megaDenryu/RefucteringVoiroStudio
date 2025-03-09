@@ -1,40 +1,18 @@
-import { BaseComponent, IHasComponent } from "../../../UiComponent/Base/ui_component_base";
-import { IHasSquareBoard } from "../../../UiComponent/Board/IHasSquareBoard";
-import { SquareBoardComponent } from "../../../UiComponent/Board/SquareComponent";
+import { ReactiveProperty } from "../../../BaseClasses/EventDrivenCode/observer";
+import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
 import { Launcher } from "../../Launcher/Launcher";
+import { AppPageSettingBoard } from "./AppPageSettingBoard";
+import { ToggleOtherWindowButton } from "./OpenLauncherButton";
 
-export class AppPageSetting implements IHasSquareBoard, IHasComponent {
-    public readonly title: string = "このページの設定";
-    public component: BaseComponent;
-    public squareBoardComponent: SquareBoardComponent;
-    public launcher: Launcher;
+export class AppPageSetting{
+    private _Elm_body_setting: Element;
+    public appPageSettingBoard: AppPageSettingBoard;
+    public openAppPageSettingsButton: ToggleOtherWindowButton;
 
     constructor() {
-        this.squareBoardComponent = new SquareBoardComponent(
-            this.title,
-            null,null,
-            [],
-            {},
-            null,
-            true
-        );
-        this.component = this.squareBoardComponent.component.setAsParentComponent();
-        this.launcher = new Launcher().setAsChildComponent();
-        this.initialize();
+        this._Elm_body_setting = document.getElementsByClassName("body_setting")[0];
+        this.appPageSettingBoard = new AppPageSettingBoard();
+        this.openAppPageSettingsButton = new ToggleOtherWindowButton(this.appPageSettingBoard).setParentElement(this._Elm_body_setting);
+        document.body.appendChild(this.appPageSettingBoard.component.element);
     }
-
-    private initialize() {
-        this.component.createArrowBetweenComponents(this,this.launcher);
-    }
-
-    public delete(): void {
-        this.component.delete();
-    }
-
-    public onAddedToDom(): void {
-    }
-
-    public optimizeBoardSize(): void {
-    }
-
 }
