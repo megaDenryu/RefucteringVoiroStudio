@@ -1,12 +1,12 @@
 import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
 import { Launcher } from "../../Launcher/Launcher";
-import { AppPageSetting } from "./AppPageSetting";
+import { AppPageSettingBoard } from "./AppPageSettingBoard";
 
 export class OpenAppPageSettingsButton {
-    public appPageSetting: AppPageSetting;
+    public appPageSetting: AppPageSettingBoard;
     private button: NormalButton;
     private isOpen: boolean = false;
-    constructor(parent: Element, appPageSetting: AppPageSetting) {
+    constructor(parent: Element, appPageSetting: AppPageSettingBoard) {
         this.appPageSetting = appPageSetting;
         this.button = new NormalButton("設定を開く","OpenSettingLauncherButton").addOnClickEvent(this.toggle.bind(this));
         parent.appendChild(this.button.component.element);
