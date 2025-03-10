@@ -34,7 +34,6 @@ from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule, PageMode, SettingMode
-from api.Epic.Epic import Epic
 from api.DataStore.Memo import Memo
 
 import logging
