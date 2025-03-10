@@ -1,10 +1,6 @@
-import logging
+
 from typing import Dict, Callable, TypeVar, Generic, List, Optional, Any, Union, AsyncIterable
-import asyncio
-
 from api.Extend.ExtendFunc import ExtendFunc
-
-logger = logging.getLogger(__name__)
 
 T = TypeVar('T')
 R = TypeVar('R')

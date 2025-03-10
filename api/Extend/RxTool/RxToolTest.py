@@ -1,5 +1,5 @@
 import asyncio
-from api.Extend.RxTool.AsyncReactiveProperty import AsyncReactiveProperty
+from api.Extend.RxTool.ReactiveProperty.AsyncReactiveProperty import AsyncReactiveProperty
 
 
 async def main():
