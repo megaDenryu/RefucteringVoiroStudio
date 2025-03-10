@@ -1,4 +1,10 @@
-from typing import Dict, Callable, TypeVar, Generic, List, Optional, Any, Union
+import logging
+from typing import Dict, Callable, TypeVar, Generic, List, Optional, Any, Union, AsyncIterable
+import asyncio
+
+from api.Extend.ExtendFunc import ExtendFunc
+
+logger = logging.getLogger(__name__)
 
 T = TypeVar('T')
 R = TypeVar('R')
@@ -17,16 +23,19 @@ class EventDelegator(Generic[T]):
     
     def invoke(self, value: T, key: Optional[str] = None) -> None:
         if key is None:
-            print("invoke all")
-            for k in self._methods:
-                self._methods[k](value)
-                print(f"invoke: {k}")
+            # コールバック実行中の変更を防ぐためコピー
+            methods_copy = dict(self._methods)
+            for k, method in methods_copy.items():
+                try:
+                    method(value)
+                except Exception as e:
+                    ExtendFunc.ExtendPrint(f"Error invoking method {k}: {e}")
         else:
             method = self._methods.get(key)
             if method:
                 method(value)
             else:
-                print(f"Method not found for key: {key}")
+                ExtendFunc.ExtendPrint(f"Method not found for key: {key}")
     
     def invoke_by_queue(self, value: T, keys: List[str]) -> None:
         for key in keys:
@@ -34,7 +43,7 @@ class EventDelegator(Generic[T]):
             if method:
                 method(value)
             else:
-                print(f"Method not found for key: {key}")
+                ExtendFunc.ExtendPrint(f"Method not found for key: {key}")
     
     def remove_method(self, key: str) -> None:
         if key in self._methods:
@@ -55,7 +64,7 @@ class ActionDelegator(Generic[T, R]):
         if self._method:
             return self._method(value)
         else:
-            print("Method not set")
+            ExtendFunc.ExtendPrint("Method not set")
             return None
     
     def clear_method(self) -> None:
