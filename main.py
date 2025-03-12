@@ -1,7 +1,5 @@
 import asyncio
 import os
-import random
-import sys
 from pathlib import Path
 
 from fastapi.concurrency import asynccontextmanager
@@ -24,17 +22,15 @@ from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUn
 from api.gptAI.GPTMode import GPTModeReq, GptMode
 from api.gptAI.HumanInfoValueObject import NickName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
-from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
 from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, Coeiroink, cevio_human
 from api.gptAI.Human import Human
-from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
+# from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
 from api.images.image_manager.IHumanPart import HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule, PageMode, SettingMode
-from api.DataStore.Memo import Memo
 
 import logging
 from enum import Enum
@@ -48,7 +44,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
-from typing import Dict, List, Any, Literal, TypedDict
+from typing import Any, Literal, TypedDict
 
 import mimetypes
 from api.comment_reciver.newNikonamaCommentReciever import newNikonamaCommentReciever
@@ -58,7 +54,6 @@ from api.comment_reciver.YoutubeCommentReciever import YoutubeCommentReciever
 from api.web.notifier import Notifier
 import json
 from pprint import pprint
-import datetime
 import traceback
 from uuid import uuid4
 import uvicorn
@@ -675,61 +670,61 @@ async def ws_gpt_routine(websocket: WebSocket, front_name: str):
     #             # forが正常に終了した場合はelseが実行されて、メモリ解放処理を行う
     #             human_gpt_manager.message_memory = []
 
-@app.websocket("/gpt_routine2/{front_name}")
-async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
-    # クライアントとのコネクション確立
-    print("gpt_routine2コネクションします")
-    await websocket.accept()
-    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
-    if human == None:
-        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
-        return
+# @app.websocket("/gpt_routine2/{front_name}")
+# async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
+#     # クライアントとのコネクション確立
+#     print("gpt_routine2コネクションします")
+#     await websocket.accept()
+#     human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+#     if human == None:
+#         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
+#         return
     
-    # agenet_event_manager = AgentEventManager(human, inastanceManager)
-    # agenet_manager = AgentManager(human, epic, human_dict, websocket, input_reciever)
-    # gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-    # gpt_agent_dict[chara_name] = gpt_agent
-    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    pipe = inastanceManager.agentPipeManager.createPipeVer2(gptAgent)
-    # pipeが完了したら通知
-    await pipe
-    ExtendFunc.ExtendPrint("gpt_routine終了")
+#     # agenet_event_manager = AgentEventManager(human, inastanceManager)
+#     # agenet_manager = AgentManager(human, epic, human_dict, websocket, input_reciever)
+#     # gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
+#     # gpt_agent_dict[chara_name] = gpt_agent
+#     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+#     pipe = inastanceManager.agentPipeManager.createPipeVer2(gptAgent)
+#     # pipeが完了したら通知
+#     await pipe
+#     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 
-@app.websocket("/gpt_routine/{characterId}")
-async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
-    # クライアントとのコネクション確立
-    print("gpt_routineコネクションします")
-    await websocket.accept()
-    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
-    if human == None:
-        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
-        return
+# @app.websocket("/gpt_routine/{characterId}")
+# async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
+#     # クライアントとのコネクション確立
+#     print("gpt_routineコネクションします")
+#     await websocket.accept()
+#     human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+#     if human == None:
+#         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
+#         return
     
-    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    pipe = inastanceManager.agentPipeManager.createPipeVer0(gptAgent)
+#     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+#     pipe = inastanceManager.agentPipeManager.createPipeVer0(gptAgent)
 
-    # pipeが完了したら通知
-    await pipe
-    ExtendFunc.ExtendPrint("gpt_routine終了")
+#     # pipeが完了したら通知
+#     await pipe
+#     ExtendFunc.ExtendPrint("gpt_routine終了")
 
-@app.websocket("/gpt_routine3/{characterId}")
-async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq):
-    # クライアントとのコネクション確立
-    print("gpt_routineコネクションします")
-    await websocket.accept()
-    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
-    if human == None:
-        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
-        return
+# @app.websocket("/gpt_routine3/{characterId}")
+# async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq):
+#     # クライアントとのコネクション確立
+#     print("gpt_routineコネクションします")
+#     await websocket.accept()
+#     human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+#     if human == None:
+#         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
+#         return
 
-    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    gptBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
-    pipe = inastanceManager.agentPipeManager.createPipeVer3(gptBrain)
+#     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+#     gptBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
+#     pipe = inastanceManager.agentPipeManager.createPipeVer3(gptBrain)
 
-    # pipeが完了したら通知
-    await pipe
-    ExtendFunc.ExtendPrint("gpt_routine終了")
+#     # pipeが完了したら通知
+#     await pipe
+#     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 """
 # 問題

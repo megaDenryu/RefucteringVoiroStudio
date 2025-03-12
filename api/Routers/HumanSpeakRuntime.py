@@ -42,7 +42,7 @@ async def speakVoiceRoid(websocket: WebSocket, client_id: str):
                 if human_ai is None:
                     return
                 epic_unit = {CharacterSettingCollectionOperatorManager.getNickNameFromSaveId(characterModeState.tts_software, characterModeState.id).name:text}
-                await inastanceManager.epic.appendMessageAndNotify(epic_unit)#作り直す
+                # await inastanceManager.epic.appendMessageAndNotify(epic_unit)#作り直す
                 rubi_sentence = await human_ai.aiRubiConverter.convertAsync(text)
                 if rubi_sentence == None:
                     return

@@ -35,7 +35,7 @@ from api.LLM.エージェント.会話用エージェント.返答判定機.LLM�
 from api.LLM.エージェント.会話用エージェント.返答判定機.LLM返答判定機 import LLM返答判定機
 from api.LibraryStudySample.BaseModel.FieldSample import Field_factoryを使ってみる
 from api.ObjectConverter.ObjectConverterTest import generate_zod_schema, write_to_ts_file
-from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
+# from api.gptAI.AgentManager import AgentManagerTest, GPTAgent, GPTBrain, LifeProcessBrain, 外界からの入力
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
 from api.gptAI.HumanInfoValueObject import ICharacterName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, TTSSoftware, VoiceMode, VoiceModeNamesManager, TTSSoftwareType
@@ -129,18 +129,18 @@ def test4():
     s1 = TTSSoftware.fromType(t1)
     print(s1)
 
-def タスクグラフのテスト():
-    inastanceManager = InastanceManager()
-    charaModeState = CharacterModeState.newFromFrontName("ずんだもん","1")
-    human = inastanceManager.humanInstances.createHuman(charaModeState)
-    gptAgent:GPTAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human = human, webSocket = None)
-    gptBrain:GPTBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
-    gptAgent.manager.GPTModeSetting
-    lifeProcess:LifeProcessBrain = gptBrain.brain
-    #タスクグラフを作ってグラフを実行してみる
-    input: 外界からの入力 = 外界からの入力(会話 = "楕円関数のグラフを書くプログラムを書きたいな")
-    asyncProcess = lifeProcess.runGraphProcess(input)
-    asyncio.run(asyncProcess)
+# def タスクグラフのテスト():
+#     inastanceManager = InastanceManager()
+#     charaModeState = CharacterModeState.newFromFrontName("ずんだもん","1")
+#     human = inastanceManager.humanInstances.createHuman(charaModeState)
+#     gptAgent:GPTAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human = human, webSocket = None)
+#     gptBrain:GPTBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
+#     gptAgent.manager.GPTModeSetting
+#     lifeProcess:LifeProcessBrain = gptBrain.brain
+#     #タスクグラフを作ってグラフを実行してみる
+#     input: 外界からの入力 = 外界からの入力(会話 = "楕円関数のグラフを書くプログラムを書きたいな")
+#     asyncProcess = lifeProcess.runGraphProcess(input)
+#     asyncio.run(asyncProcess)
 
 def 構造化apiテスト():
     from pydantic import BaseModel
@@ -170,7 +170,7 @@ def 構造化apiテスト():
 
 
 if __name__ == "__main__":
-    タスクグラフのテスト()
+    # タスクグラフのテスト()
     CharacterDestinationCollectionTest.目的設定を生成するてすと()
     d = {}
     a = GPTSettingModel(**d)
