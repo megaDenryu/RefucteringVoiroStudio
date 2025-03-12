@@ -1,3 +1,4 @@
+import asyncio
 from api.Extend.ExtendFunc import ExtendFunc
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
@@ -47,11 +48,11 @@ class TTSSoftwareManager:
         全てのボイスロイドを起動する
         """
         for ttss in TTSSoftware:
-            TTSSate = TTSSoftwareManager.tryStartTTSSoftware(ttss)
+            TTSSate = asyncio.run(TTSSoftwareManager.tryStartTTSSoftware(ttss))
             TTSSoftwareManager.HasTTSStateDict[ttss] = TTSSate
 
     @staticmethod
-    def tryStartTTSSoftware(ttss:TTSSoftware)->HasTTSState:
+    async def tryStartTTSSoftware(ttss:TTSSoftware)->HasTTSState:
         """
         各種ボイスロイドを起動する
         """
@@ -61,9 +62,9 @@ class TTSSoftwareManager:
         elif ttss == TTSSoftware.CevioAI:
             tmp_human = cevio_human(None,0)
         elif ttss == TTSSoftware.VoiceVox:
-            tmp_human = VoiceVoxLauncher.startVoicevox()
+            tmp_human = await VoiceVoxLauncher.startVoicevox()
         elif ttss == TTSSoftware.Coeiroink:
-            tmp_human = Coeiroink.startCoeiroink()
+            tmp_human = await Coeiroink.startCoeiroink()
         
         mana = TTSSoftwareManager.singleton()
         mana.onTTSSoftwareDict[ttss] = tmp_human.onTTSSoftware
