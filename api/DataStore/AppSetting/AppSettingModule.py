@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from typing import TypedDict
 from typing_extensions import Literal
 from pydantic import BaseModel
@@ -38,6 +39,8 @@ class SettingClientWs(TypedDict):
 
 class AppSettingModule:
     setting: AppSettingsModel
+    file_path = ExtendFunc.api_dir / "AppSettingJson/app_setting_test.json"
+    _instance: "AppSettingModule|None" = None
     def __init__(self):
         self.setting_client_ws:SettingClientWs = {
             "AppSettings":{
@@ -45,8 +48,16 @@ class AppSettingModule:
                 "Chat":[]
             }
         }
-        self.setting = AppSettingsModel(**self.loadSetting()) #型が違うのになんか動いてるので調べる
+        # self.setting = AppSettingsModel(**self.loadSetting()) #型が違うのになんか動いてるので調べる
+        self.fileCreate()
+        self.setting = self.loadSetting()
         ExtendFunc.ExtendPrint(self.setting)
+
+    @staticmethod
+    def singleton():
+        if AppSettingModule._instance is None:
+            AppSettingModule._instance = AppSettingModule()
+        return AppSettingModule._instance
 
     def addWs(self, setting_mode: SettingMode, page_mode:PageMode , client_id:str, ws:WebSocket):
         connction = ConnectionStatus(client_id=client_id, ws=ws, page_mode=page_mode, setting_mode=setting_mode)
@@ -93,16 +104,22 @@ class AppSettingModule:
         ExtendFunc.ExtendPrint(self.setting)
         self.setting = appSettingsModel
         ExtendFunc.ExtendPrint(self.setting)
-
-        JsonAccessor.saveAppSettingTest(appSettingsModel)
+        self.saveSetting(self.setting)
         return appSettingsModel
 
 
-    def loadSetting(self):
-        return JsonAccessor.loadAppSetting()
+    def loadSetting(self)->AppSettingsModel:
+        try:
+            data = JsonAccessor.loadJsonToBaseModel(self.file_path, AppSettingsModel)
+            if data is None:
+                return self.getInitSetting()
+            return data
+        except Exception as e:
+            ExtendFunc.ExtendPrint(e)
+            raise e
     
-    def saveSetting(self, setting):
-        JsonAccessor.saveAppSetting(setting)
+    def saveSetting(self, appSettingsModel:AppSettingsModel):
+        ExtendFunc.saveBaseModelToJson(self.file_path, appSettingsModel)
 
     def getInitSetting(self):
         return AppSettingsModel(
@@ -112,4 +129,21 @@ class AppSettingModule:
                 Twitch =TwitchSettingModel(配信URL="")
             )
         )
+    
+    def fileCreate(self)->bool:
+        try:
+            # ファイルがあるかチェックする
+            if not self.file_path.exists():
+                # ファイルがなかったら作成する
+                ExtendFunc.saveBaseModelToJson(self.file_path, self.getInitSetting())
+            return True
+        except Exception as e:
+            ExtendFunc.ExtendPrint(e)
+            return False
+        
+    
+    def saveVoiceVoxPath(self, path:Path):
+        self.setting.合成音声設定.VoiceVox設定.path = str(path)
+        self.saveSetting(self.setting)
+
 

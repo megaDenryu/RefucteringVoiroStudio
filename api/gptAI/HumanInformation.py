@@ -56,8 +56,6 @@ class VoiceModeNamesManager:
         # 既存のボイスモードリストとの差分がある場合は更新
         if self.voice_mode_list[software] != voice_modes:
             ExtendFunc.saveListToJson(path, voice_modes)
-        
-
 
 class CharaNameManager:
     api_dir: Path
@@ -122,8 +120,7 @@ class ICharaNamaeVoiceModePair(TypedDict):
 class CharaNamaeVoiceModePairList(BaseModel):
     charaNameAndVoiceModesPair: list[CharaNamaeVoiceModePair]
 
-
-class  CharaNames2VoiceModeDictManager:
+class CharaNames2VoiceModeDictManager:
     api_dir: Path
     CharaNames2VoiceModeDict_filepath: dict[TTSSoftware, Path] # キャラ名とボイスモードの対応リストのファイルパス
     charaNameAndVoiceModesPairList: CharaNamaeVoiceModePairList
@@ -422,8 +419,6 @@ class AllHumanInformationManager:
     def loadImages(self)->dict[CharacterName, list[HumanImage]]:
         return {}
 
-    
-
 class HumanInformation(BaseModel):
     chara_name: CharacterName
     nicknames: list[NickName]
@@ -492,9 +487,6 @@ class AllHumanInformationDict(BaseModel):
         path = AllHumanInformationManager.singleton().api_dir / "CharSettingJson/AllHumanInformation.json"
         data = ExtendFunc.loadJsonToDict(path)
         return AllHumanInformationDict(**data)
-
-
-
 
 class ICharacterModeState(TypedDict):
     id: CharacterId
@@ -568,8 +560,6 @@ class CharacterModeState(HashableBaseModel):
             front_name=data["front_name"]
             )
     
-    
     def toDict(self) -> ICharacterModeState:
         ret:ICharacterModeState = self.model_dump() # type: ignore
         return ret
-        

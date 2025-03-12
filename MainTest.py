@@ -1,3 +1,4 @@
+from api.DataStore.AppSetting.AppSettingModel.SynthesisVoiceSetting.COEIROINKv2Setting.COEIROINKv2Setting import COEIROINKv2SettingModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
@@ -27,10 +28,13 @@ if __name__ == "__main__":
     # a = DefaultNicknamesManager()
     # TTSSoftwareManager.singleton()
     # VoiceVoxLauncher.startVoicevox()
-    result = asyncio.run(LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe")))
+    # result = asyncio.run(LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe")))
     # result = asyncio.run(LaunchUtils.launchExe(ExeFileName("COEIROINKv2.exe")))
-    ExtendFunc.ExtendPrint(result)
-
+    # ExtendFunc.ExtendPrint(result)
+    c = COEIROINKv2SettingModel(path="a")
+    ExtendFunc.ExtendPrint(c)
+    c.path = "b"
+    ExtendFunc.ExtendPrint(c)
     
         
 

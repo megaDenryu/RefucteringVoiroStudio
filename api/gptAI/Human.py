@@ -1,16 +1,16 @@
 import re
 from typing import Literal
 
-from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
-from api.Extend.ExtendFunc import ExtendFunc, TextConverter
+from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
 from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import AIRubiConverterFactory
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBody import LLMHumanBody
+from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
 from api.gptAI.VoiceInfo import WavInfo
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
-from ..TtsSoftApi.voiceroid_api import Coeiroink
 
 from ..images.image_manager.HumanPart import HumanPart
 
@@ -35,6 +35,7 @@ class Human:
     human_part:HumanPart
     voice_system:VoiceSystem
     aiRubiConverter:AIRubiConverter
+    llmHumanBody: LLMHumanBody
     @property
     def front_name(self): #フロントで入力してウインドウに表示されてる名前
         return self.chara_mode_state.front_name
@@ -153,9 +154,6 @@ class Human:
                 charaName = AllHumanInformationManager.singleton().nick_names_manager.nickname2Charaname[front_name_candidate]
                 return charaName
         return "名前が無効です"
-    
-    
-
     
     def getHumanImage(self):
         return self.image_data_for_client

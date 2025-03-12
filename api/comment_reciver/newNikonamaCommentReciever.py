@@ -5,9 +5,8 @@ from ndgr_client.ndgr_client import NDGRClient
 
 class newNikonamaCommentReciever:
 
-    def __init__(self, nicolive_program_id: str, end_keyword=""):
+    def __init__(self, nicolive_program_id: str):
         self.nicolive_program_id = nicolive_program_id
-        self.end_keyword = end_keyword
         self.recieve_status = "recieve"
     async def streamComments(self)->AsyncGenerator[NDGRComment, None]:
 
@@ -21,10 +20,6 @@ class newNikonamaCommentReciever:
                 break
             yield comment
         print("コメント受信を終了します")
-
-    def checkAndStopRecieve(self,sentence):
-        if self.end_keyword != "" and self.end_keyword in sentence:
-            self.stopRecieve()
     
     def stopRecieve(self):
         self.recieve_status = "end"

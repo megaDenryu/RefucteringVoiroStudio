@@ -55,25 +55,6 @@ class JsonAccessor:
             ExtendFunc.ExtendPrint("new_dict",new_dict)
             JsonAccessor.saveLogJson("ErrorLog.json",new_dict)
             return new_dict
-        
-    @staticmethod
-    def loadAppSettingTest()->dict:
-        # VoiroStudioReleaseVer\api\web\app_setting.jsonを取得
-        try:
-            path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting_test.json"
-            app_setting = ExtendFunc.loadJsonToDict(path)
-            return app_setting
-        except:
-            return {}
-    
-    @staticmethod
-    def saveAppSettingTest(app_setting: BaseModel):
-        """
-        使用前にloadAppSettingを使用してapp_settingを取得
-        書き換えたい値を変更した後にこの関数を使用して保存
-        """
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting_test.json"
-        ExtendFunc.saveBaseModelToJson(path, app_setting)
     
     @staticmethod
     def loadAppSetting():
