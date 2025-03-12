@@ -3,6 +3,7 @@ import os
 import subprocess
 
 import psutil
+from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
@@ -17,39 +18,34 @@ class CoeiroinkLauncher:
     async def startCoeiroink()->"Coeiroink":
         tmp_human = Coeiroink(None,0)
 
-        coeiroink_exe_path = CoeiroinkLauncher.find_coeiroink_exe_path()
-        ExtendFunc.ExtendPrint(coeiroink_exe_path)
+        savedPath = AppSettingModule.singleton().setting.合成音声設定.COEIROINKv2設定.path
+        if savedPath != "":
+            if os.path.exists(savedPath):
+                try:
+                    # 非同期でプロセスを起動
+                    subprocess.Popen([savedPath])
+                    print("VoiceVoxが正常に起動しました。")
+                    tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
+                    tmp_human.onTTSSoftware = True
+                    return tmp_human
+                except Exception as e:
+                    print(f"VoiceVoxの起動に失敗しました: {e}")
 
-        if coeiroink_exe_path is None:
-            result = await LaunchUtils.launchExe(ExeFileName("COEIROINKv2.exe"))
-            print(result.message)
-            if result.exec_success == LaunchResult.exec_success.SUCCESS:
-                tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
-                tmp_human.onTTSSoftware = True
-                CoeiroinkLauncher.saveCoeiroinkPath(result.file_path.__str__())
-                return tmp_human
-
-
-        if coeiroink_exe_path is None:
-            print("Coeiroinkのインストール場所が見つかりませんでした。")
-            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
-            tmp_human.onTTSSoftware = False
-            return tmp_human
-        
-        CoeiroinkLauncher.saveCoeiroinkPath(coeiroink_exe_path)
-
-        try:
-            # 非同期でプロセスを起動
-            subprocess.Popen([coeiroink_exe_path])
-            print("Coeiroinkが正常に起動しました。")
+        result = await LaunchUtils.launchExe(ExeFileName("COEIROINKv2.exe"))
+        print(result.message)
+        if result.exec_success == LaunchResult.exec_success.SUCCESS:
             tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
             tmp_human.onTTSSoftware = True
+            CoeiroinkLauncher.saveCoeiroinkPath(result.file_path.__str__())
             return tmp_human
-        except Exception as e:
-            print(f"Coeiroinkの起動に失敗しました: {e}")
-            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            tmp_human.onTTSSoftware = False
-            return tmp_human
+
+
+        print("Coeiroinkのインストール場所が見つかりませんでした。")
+        tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+        tmp_human.onTTSSoftware = False
+        return tmp_human
+    
+
         
     @staticmethod
     def find_coeiroink_exe_path():
