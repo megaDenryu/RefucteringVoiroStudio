@@ -24,4 +24,3 @@ class FileLauncher:
         else:
             print(f"{filename.name} は指定した場所に見つかりませんでした")
             return LaunchResult(file_path=None, exec_success=ExecSuccess.FAILED, message=f"{filename.name} は指定した場所に見つかりませんでした")
-            

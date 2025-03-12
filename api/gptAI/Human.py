@@ -5,12 +5,12 @@ from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
 from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import AIRubiConverterFactory
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBody import LLMHumanBody
+from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.gptAI.HumanInfoValueObject import CharacterName, NickName
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
 from api.gptAI.VoiceInfo import WavInfo
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
-from ..TtsSoftApi.voiceroid_api import Coeiroink
 
 from ..images.image_manager.HumanPart import HumanPart
 

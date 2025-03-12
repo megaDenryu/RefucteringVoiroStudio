@@ -17,8 +17,8 @@ async def launchTTSSoftware(req: LaunchTTSSoftwareReq):
     # todo :TTSSoftwareを起動する
     tts = req.tts
     ExtendFunc.ExtendPrint("ボイスロイドの起動")
-    state = TTSSoftwareManager.tryStartTTSSoftware(tts)
-    result = TTSSoftwareManager.updateCharaList(tts,state)
+    state = await TTSSoftwareManager.tryStartTTSSoftware(tts)
+    result = await TTSSoftwareManager.updateCharaList(tts,state)
     ExtendFunc.ExtendPrint("ボイスロイドの起動完了")
 
     if result == True:

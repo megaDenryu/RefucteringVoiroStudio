@@ -45,3 +45,5 @@ class LaunchUtils:
         searcher = FileSearcher()
         locations = LaunchUtils.getAvailableDriveLocations()
         return await searcher.searchFileInLocations(locations, exe)
+    
+    

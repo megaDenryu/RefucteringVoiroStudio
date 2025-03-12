@@ -32,6 +32,20 @@ class VoiceVoxLauncher:
         tmp_human = VoiceVoxHuman(None,0)
         username = os.getenv("USERNAME")
 
+        savedPath = AppSettingModule.singleton().setting.合成音声設定.VoiceVox設定.path
+        if savedPath != "":
+            if os.path.exists(savedPath):
+                try:
+                    # 非同期でプロセスを起動
+                    subprocess.Popen([savedPath])
+                    print("VoiceVoxが正常に起動しました。")
+                    tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
+                    tmp_human.onTTSSoftware = True
+                    return tmp_human
+                except Exception as e:
+                    print(f"VoiceVoxの起動に失敗しました: {e}")
+
+
         #　ショートカットから起動
         try:
             # ショートカットのパス（実際のユーザー名に置き換えてください）
@@ -46,11 +60,11 @@ class VoiceVoxLauncher:
         
         result = await LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe"))
         print(result.message)
-        if result.exec_success == LaunchResult.exec_success.SUCCESS:
+        if result.exec_success == LaunchResult.exec_success.SUCCESS and result.file_path is not None:
             print("VoiceVoxが正常に起動しました。")
             tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
             tmp_human.onTTSSoftware = True
-            AppSettingModule.singleton().savePath(result.file_path)
+            AppSettingModule.singleton().saveVoiceVoxPath(result.file_path)
             return tmp_human
         else:
             if result.file_path is None:
