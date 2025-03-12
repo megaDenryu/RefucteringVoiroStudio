@@ -1,3 +1,4 @@
+from api.AppInitializer.AppInitializer import アプリ起動確認者
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
 from api.DataStore.Memo import Memo
 # from api.Epic.Epic import Epic
@@ -15,6 +16,7 @@ from api.gptAI.GPTMode import GptModeManager
 class InastanceManager(InstanceManagerInterface):
     _instance: "InastanceManager|None" = None
     _initialized: bool = False
+    _appStartChecker: アプリ起動確認者
     _clientIds: ClientIds
     _clientWs: ClientWebSocket
     _humanInstances: HumanInstanceContainer
@@ -25,6 +27,10 @@ class InastanceManager(InstanceManagerInterface):
     # _agentPipeManager: AgentPipeManager
     _appSettingModule :AppSettingModule
     _diary:Memo
+
+    @property
+    def appStartChecker(self):
+        return self._appStartChecker
 
     @property
     def clientIds(self):
@@ -87,6 +93,7 @@ class InastanceManager(InstanceManagerInterface):
             return
         self._initialized = True
         self._instance = self
+        self._appStartChecker = アプリ起動確認者()
         self._clientIds = ClientIds()
         self._clientWs = ClientWebSocket()
         self._humanInstances = HumanInstanceContainer()

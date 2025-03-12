@@ -5,6 +5,7 @@ from pathlib import Path
 from fastapi.concurrency import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 import httpx
+from api.AppInitializer.AppInitializer import アプリ起動確認者
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollectionOperator
@@ -63,7 +64,9 @@ class CharacterModeStateReq(BaseModel):
     client_id: str
 
 #フォルダーがあるか確認
-HumanPart.initalCheck()
+checker = アプリ起動確認者()
+result = checker.アプリ起動確認()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -153,9 +156,6 @@ yukarinet_enable = True
 new_nikonama_comment_reciever_list:dict[CharacterId,newNikonamaCommentReciever] = {}
 YoutubeCommentReciever_list:dict[CharacterId,YoutubeCommentReciever] = {}
 twitchBotList:dict[CharacterId,TwitchBot] = {}
-
-app_setting = JsonAccessor.loadAppSetting()
-pprint(app_setting)
 
 @app.websocket("/id_create")
 async def create_id(websocket: WebSocket):
@@ -257,8 +257,7 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
         }
     }
     JsonAccessor.updateAppSettingJson(update_room_id_query)
-    end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
-    ndgr_client = newNikonamaCommentReciever(room_id, end_keyword)
+    ndgr_client = newNikonamaCommentReciever(room_id)
     new_nikonama_comment_reciever_list[characterId] = ndgr_client
     nulvm = NiconamaUserLinkVoiceroidModule()
 
@@ -780,15 +779,14 @@ async def push_to_connected_websockets(message: str):
 
 @app.post("/appSettingInit")
 async def appSettingInit(appSettingInitReq: AppSettingInitReq):
-    saveData:dict = JsonAccessor.loadAppSettingTest()
-    appSetting = AppSettingsModel(**saveData)
+    appSetting = inastanceManager.appSettingModule.loadSetting()
     return appSetting
 
 @app.post("/SaveSetting")
 async def saveSetting(saveSettingReq: AppSettingsModel):
     try:
         ExtendFunc.ExtendPrint(saveSettingReq)
-        JsonAccessor.saveAppSettingTest(saveSettingReq)
+        inastanceManager.appSettingModule.saveSetting(saveSettingReq)
         # 処理ロジック
         return json.dumps({"message": "設定を保存しました"})
     except Exception as e:

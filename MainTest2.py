@@ -172,12 +172,6 @@ def 構造化apiテスト():
 if __name__ == "__main__":
     # タスクグラフのテスト()
     CharacterDestinationCollectionTest.目的設定を生成するてすと()
-    d = {}
-    a = GPTSettingModel(**d)
-    print(a.model_dump_json())
-    saveSettingReq = AppSettingsModel(**d)
-    print(saveSettingReq.model_dump_json())
-    JsonAccessor.saveAppSettingTest(saveSettingReq)
     
     duration = ExtendSound.get_wav_duration("./output_wav/cevio_audio_フィーちゃん_0.wav")
     print(duration)
