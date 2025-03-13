@@ -8,6 +8,7 @@ import asyncio
 
 from api.LLM.エージェントテスト.テスト環境.GeminiApiテスト.GeminiTest import 連続検索テスト
 from api.LLM.エージェントテスト.テスト環境.ルビ振りテスト.GeminiConverterTest import Geminiの連続会話テストユニット
+from api.TtsSoftApi.Coeiroink.CoeiroinkLauncher import CoeiroinkLauncher
 from api.TtsSoftApi.TTSSoftwareManager import TTSSoftwareManager
 from api.TtsSoftApi.VoiceVox.VoiceVoxLauncher import VoiceVoxLauncher
 from api.gptAI.HumanInformation import DefaultNicknamesManager
@@ -36,6 +37,7 @@ if __name__ == "__main__":
     # c.path = "b"
     # ExtendFunc.ExtendPrint(c)
     a = VoiceVoxLauncher.startVoicevox()
+    # a = CoeiroinkLauncher.startCoeiroink()
     asyncio.run(a)
     
         

@@ -62,7 +62,6 @@ class VoiceVoxLauncher:
         result = await LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe"))
         print(result.message)
         if result.exec_success == ExecSuccess.SUCCESS and result.file_path is not None:
-            print("VoiceVoxが正常に起動しました。")
             tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
             tmp_human.onTTSSoftware = True
             AppSettingModule.singleton().saveVoiceVoxPath(result.file_path)
