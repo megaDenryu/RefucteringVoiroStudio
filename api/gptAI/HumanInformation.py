@@ -56,8 +56,6 @@ class VoiceModeNamesManager:
         # 既存のボイスモードリストとの差分がある場合は更新
         if self.voice_mode_list[software] != voice_modes:
             ExtendFunc.saveListToJson(path, voice_modes)
-        
-
 
 class CharaNameManager:
     api_dir: Path
@@ -122,8 +120,7 @@ class ICharaNamaeVoiceModePair(TypedDict):
 class CharaNamaeVoiceModePairList(BaseModel):
     charaNameAndVoiceModesPair: list[CharaNamaeVoiceModePair]
 
-
-class  CharaNames2VoiceModeDictManager:
+class CharaNames2VoiceModeDictManager:
     api_dir: Path
     CharaNames2VoiceModeDict_filepath: dict[TTSSoftware, Path] # キャラ名とボイスモードの対応リストのファイルパス
     charaNameAndVoiceModesPairList: CharaNamaeVoiceModePairList
@@ -422,8 +419,6 @@ class AllHumanInformationManager:
     def loadImages(self)->dict[CharacterName, list[HumanImage]]:
         return {}
 
-    
-
 class HumanInformation(BaseModel):
     chara_name: CharacterName
     nicknames: list[NickName]
@@ -456,8 +451,15 @@ class HumanInformationList(BaseModel):
 
     def __init__(self, tTSSoftware:TTSSoftware):
         mana = AllHumanInformationManager.singleton()
-        charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
-        super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
+        if tTSSoftware in mana.chara_names_manager.chara_names.keys():
+            charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
+        else:
+            charaNames = []
+        ExtendFunc.ExtendPrintWithTitle("キャラクター名リスト",charaNames)
+        try:
+            super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
+        except Exception as e:
+            ExtendFunc.ExtendPrint(["HumanInformationListの生成に失敗しました",e])
 
 class CharacterSettingSaveDatas(BaseModel):
     characterSettingCevioAI: CevioAICharacterSettingCollection
@@ -477,7 +479,9 @@ class AllHumanInformationDict(BaseModel):
     characterSettingSaveDatas: CharacterSettingSaveDatas
 
     def __init__(self):
-        data = {software.value:HumanInformationList(software) for software in TTSSoftware}
+        data = {}
+        for software in TTSSoftware:
+            data[software.value] = HumanInformationList(software)
         characterSettingSaveDatas = CharacterSettingSaveDatas()
         
         super().__init__(data=data, characterSettingSaveDatas=characterSettingSaveDatas)
@@ -492,9 +496,6 @@ class AllHumanInformationDict(BaseModel):
         path = AllHumanInformationManager.singleton().api_dir / "CharSettingJson/AllHumanInformation.json"
         data = ExtendFunc.loadJsonToDict(path)
         return AllHumanInformationDict(**data)
-
-
-
 
 class ICharacterModeState(TypedDict):
     id: CharacterId
@@ -568,8 +569,6 @@ class CharacterModeState(HashableBaseModel):
             front_name=data["front_name"]
             )
     
-    
     def toDict(self) -> ICharacterModeState:
         ret:ICharacterModeState = self.model_dump() # type: ignore
         return ret
-        

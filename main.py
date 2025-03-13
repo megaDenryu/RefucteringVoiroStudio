@@ -1,12 +1,11 @@
 import asyncio
 import os
-import random
-import sys
 from pathlib import Path
 
 from fastapi.concurrency import asynccontextmanager
 from fastapi.exceptions import RequestValidationError
 import httpx
+from api.AppInitializer.AppInitializer import アプリ起動確認者
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollectionOperator
@@ -18,23 +17,22 @@ from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.TTSSoftwareManager import TTSSoftwareManager
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUnit
 from api.gptAI.GPTMode import GPTModeReq, GptMode
 from api.gptAI.HumanInfoValueObject import NickName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
-from api.gptAI.VoiceInfo import SentenceInfo, SentenceOrWavSendData
-from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, Coeiroink, cevio_human
+from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
 from api.gptAI.Human import Human
-from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
+# from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
 from api.images.image_manager.IHumanPart import HumanData
 from api.images.psd_parser_python.parse_main import PsdParserMain
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule, PageMode, SettingMode
-from api.DataStore.Memo import Memo
 
 import logging
 from enum import Enum
@@ -48,7 +46,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 
-from typing import Dict, List, Any, Literal, TypedDict
+from typing import Any, Literal, TypedDict
 
 import mimetypes
 from api.comment_reciver.newNikonamaCommentReciever import newNikonamaCommentReciever
@@ -58,7 +56,6 @@ from api.comment_reciver.YoutubeCommentReciever import YoutubeCommentReciever
 from api.web.notifier import Notifier
 import json
 from pprint import pprint
-import datetime
 import traceback
 from uuid import uuid4
 import uvicorn
@@ -68,7 +65,9 @@ class CharacterModeStateReq(BaseModel):
     client_id: str
 
 #フォルダーがあるか確認
-HumanPart.initalCheck()
+checker = アプリ起動確認者()
+result = checker.アプリ起動確認()
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -158,9 +157,6 @@ yukarinet_enable = True
 new_nikonama_comment_reciever_list:dict[CharacterId,newNikonamaCommentReciever] = {}
 YoutubeCommentReciever_list:dict[CharacterId,YoutubeCommentReciever] = {}
 twitchBotList:dict[CharacterId,TwitchBot] = {}
-
-app_setting = JsonAccessor.loadAppSetting()
-pprint(app_setting)
 
 @app.websocket("/id_create")
 async def create_id(websocket: WebSocket):
@@ -262,8 +258,7 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
         }
     }
     JsonAccessor.updateAppSettingJson(update_room_id_query)
-    end_keyword = app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"]
-    ndgr_client = newNikonamaCommentReciever(room_id, end_keyword)
+    ndgr_client = newNikonamaCommentReciever(room_id)
     new_nikonama_comment_reciever_list[characterId] = ndgr_client
     nulvm = NiconamaUserLinkVoiceroidModule()
 
@@ -675,61 +670,61 @@ async def ws_gpt_routine(websocket: WebSocket, front_name: str):
     #             # forが正常に終了した場合はelseが実行されて、メモリ解放処理を行う
     #             human_gpt_manager.message_memory = []
 
-@app.websocket("/gpt_routine2/{front_name}")
-async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
-    # クライアントとのコネクション確立
-    print("gpt_routine2コネクションします")
-    await websocket.accept()
-    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
-    if human == None:
-        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
-        return
+# @app.websocket("/gpt_routine2/{front_name}")
+# async def ws_gpt_event_start2(websocket: WebSocket, req: CharacterModeStateReq):
+#     # クライアントとのコネクション確立
+#     print("gpt_routine2コネクションします")
+#     await websocket.accept()
+#     human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+#     if human == None:
+#         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
+#         return
     
-    # agenet_event_manager = AgentEventManager(human, inastanceManager)
-    # agenet_manager = AgentManager(human, epic, human_dict, websocket, input_reciever)
-    # gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
-    # gpt_agent_dict[chara_name] = gpt_agent
-    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    pipe = inastanceManager.agentPipeManager.createPipeVer2(gptAgent)
-    # pipeが完了したら通知
-    await pipe
-    ExtendFunc.ExtendPrint("gpt_routine終了")
+#     # agenet_event_manager = AgentEventManager(human, inastanceManager)
+#     # agenet_manager = AgentManager(human, epic, human_dict, websocket, input_reciever)
+#     # gpt_agent = GPTAgent(agenet_manager, agenet_event_manager)
+#     # gpt_agent_dict[chara_name] = gpt_agent
+#     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+#     pipe = inastanceManager.agentPipeManager.createPipeVer2(gptAgent)
+#     # pipeが完了したら通知
+#     await pipe
+#     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 
-@app.websocket("/gpt_routine/{characterId}")
-async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
-    # クライアントとのコネクション確立
-    print("gpt_routineコネクションします")
-    await websocket.accept()
-    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
-    if human == None:
-        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
-        return
+# @app.websocket("/gpt_routine/{characterId}")
+# async def ws_gpt_event_start(websocket: WebSocket, req: CharacterModeStateReq):
+#     # クライアントとのコネクション確立
+#     print("gpt_routineコネクションします")
+#     await websocket.accept()
+#     human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+#     if human == None:
+#         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
+#         return
     
-    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    pipe = inastanceManager.agentPipeManager.createPipeVer0(gptAgent)
+#     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+#     pipe = inastanceManager.agentPipeManager.createPipeVer0(gptAgent)
 
-    # pipeが完了したら通知
-    await pipe
-    ExtendFunc.ExtendPrint("gpt_routine終了")
+#     # pipeが完了したら通知
+#     await pipe
+#     ExtendFunc.ExtendPrint("gpt_routine終了")
 
-@app.websocket("/gpt_routine3/{characterId}")
-async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq):
-    # クライアントとのコネクション確立
-    print("gpt_routineコネクションします")
-    await websocket.accept()
-    human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
-    if human == None:
-        ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
-        return
+# @app.websocket("/gpt_routine3/{characterId}")
+# async def wsGptGraphEventStart(websocket: WebSocket, req: CharacterModeStateReq):
+#     # クライアントとのコネクション確立
+#     print("gpt_routineコネクションします")
+#     await websocket.accept()
+#     human = inastanceManager.humanInstances.tryGetHuman(req.characterModeState.id)
+#     if human == None:
+#         ExtendFunc.ExtendPrint(f"{req.characterModeState.id}のHumanインスタンスが存在しません")
+#         return
 
-    gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
-    gptBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
-    pipe = inastanceManager.agentPipeManager.createPipeVer3(gptBrain)
+#     gptAgent = inastanceManager.gptAgentInstanceManager.createGPTAgent(human, websocket)
+#     gptBrain = inastanceManager.agentPipeManager.createLifeProcessBrain(gptAgent)
+#     pipe = inastanceManager.agentPipeManager.createPipeVer3(gptBrain)
 
-    # pipeが完了したら通知
-    await pipe
-    ExtendFunc.ExtendPrint("gpt_routine終了")
+#     # pipeが完了したら通知
+#     await pipe
+#     ExtendFunc.ExtendPrint("gpt_routine終了")
 
 """
 # 問題
@@ -742,9 +737,9 @@ async def AllCharaInfoTest():
 
 @app.post("/AllCharaInfo")
 async def AllCharaInfo():
-    TTSSoftwareManager.updateAllCharaList()
+    await TTSSoftwareManager.updateAllCharaList()
     AllHumanInformationManager.singleton().load() #変更があるかもしれないのでリロード
-    mana = AllHumanInformationDict()
+    mana = AllHumanInformationDict() # なんかここで初めてやったときエラーになる。
     ExtendFunc.ExtendPrint(mana)
     return mana
 
@@ -785,15 +780,14 @@ async def push_to_connected_websockets(message: str):
 
 @app.post("/appSettingInit")
 async def appSettingInit(appSettingInitReq: AppSettingInitReq):
-    saveData:dict = JsonAccessor.loadAppSettingTest()
-    appSetting = AppSettingsModel(**saveData)
+    appSetting = inastanceManager.appSettingModule.loadSetting()
     return appSetting
 
 @app.post("/SaveSetting")
 async def saveSetting(saveSettingReq: AppSettingsModel):
     try:
         ExtendFunc.ExtendPrint(saveSettingReq)
-        JsonAccessor.saveAppSettingTest(saveSettingReq)
+        inastanceManager.appSettingModule.saveSetting(saveSettingReq)
         # 処理ロジック
         return json.dumps({"message": "設定を保存しました"})
     except Exception as e:

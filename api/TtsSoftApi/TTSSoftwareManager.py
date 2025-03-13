@@ -1,8 +1,10 @@
+import asyncio
 from api.Extend.ExtendFunc import ExtendFunc
+from api.TtsSoftApi.Coeiroink.CoeiroinkLauncher import CoeiroinkLauncher
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.TtsSoftApi.VoiceVox.VoiceVoxLauncher import VoiceVoxLauncher
-from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, Coeiroink, cevio_human
+from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
 from api.gptAI.HumanInfoValueObject import TTSSoftware
 
 
@@ -47,11 +49,11 @@ class TTSSoftwareManager:
         全てのボイスロイドを起動する
         """
         for ttss in TTSSoftware:
-            TTSSate = TTSSoftwareManager.tryStartTTSSoftware(ttss)
+            TTSSate = asyncio.run(TTSSoftwareManager.tryStartTTSSoftware(ttss))
             TTSSoftwareManager.HasTTSStateDict[ttss] = TTSSate
 
     @staticmethod
-    def tryStartTTSSoftware(ttss:TTSSoftware)->HasTTSState:
+    async def tryStartTTSSoftware(ttss:TTSSoftware)->HasTTSState:
         """
         各種ボイスロイドを起動する
         """
@@ -61,9 +63,9 @@ class TTSSoftwareManager:
         elif ttss == TTSSoftware.CevioAI:
             tmp_human = cevio_human(None,0)
         elif ttss == TTSSoftware.VoiceVox:
-            tmp_human = VoiceVoxLauncher.startVoicevox()
+            tmp_human = await VoiceVoxLauncher.startVoicevox()
         elif ttss == TTSSoftware.Coeiroink:
-            tmp_human = Coeiroink.startCoeiroink()
+            tmp_human = await CoeiroinkLauncher.startCoeiroink()
         
         mana = TTSSoftwareManager.singleton()
         mana.onTTSSoftwareDict[ttss] = tmp_human.onTTSSoftware
@@ -71,26 +73,26 @@ class TTSSoftwareManager:
         return tmp_human
     
     @staticmethod
-    def updateAllCharaList():
+    async def updateAllCharaList():
         """
         ボイロの起動コマンド直後にやると、声色インクとかが、非同期ではなく別プロセスで実行されてるせいで失敗することがあるのでアプデボタンを押したときに実行するようにする。また、通信に失敗した場合はエラーを投げる。
         """
         for ttss in TTSSoftware:
             state = TTSSoftwareManager.HasTTSStateDict[ttss]
             if state is not None:
-                TTSSoftwareManager.updateCharaList(ttss,state)
+                await TTSSoftwareManager.updateCharaList(ttss,state)
     
     @staticmethod
-    def tryUpdateCharaList(ttss:TTSSoftware):
+    async def tryUpdateCharaList(ttss:TTSSoftware):
         """
         ボイロの起動コマンド直後にやると、声色インクとかが、非同期ではなく別プロセスで実行されてるせいで失敗することがあるのでアプデボタンを押したときに実行するようにする。また、通信に失敗した場合はエラーを投げる。
         """
         state = TTSSoftwareManager.HasTTSStateDict[ttss]
         if state is not None:
-            TTSSoftwareManager.updateCharaList(ttss,state)
+            await TTSSoftwareManager.updateCharaList(ttss,state)
 
     @staticmethod
-    def updateCharaList(ttss:TTSSoftware, human_state:HasTTSState)->bool:
+    async def updateCharaList(ttss:TTSSoftware, human_state:HasTTSState)->bool:
         """
         各種ボイスロイドのキャラクターリストを更新する
         """

@@ -6,10 +6,9 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[
-        ('api/AIMemoryPickle', 'api/AIMemoryPickle'),
         ('api/AppSettingJson/*', 'api/AppSettingJson'),
         ('api/CharSettingJson/*', 'api/CharSettingJson'),
-        ('app', 'app')
+        ('app-ts', 'app-ts')
     ],
     hiddenimports=['openai','win32com','pyaudio','clr','psd_tools'],
     hookspath=[],

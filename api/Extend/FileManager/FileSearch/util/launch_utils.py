@@ -39,3 +39,11 @@ class LaunchUtils:
         available_drives = [FileLocation(drive) for drive in Drive if drive.value.exists()]
         print(f"利用可能なドライブ: {[str(loc) for loc in available_drives]}")
         return available_drives
+    
+    @staticmethod
+    async def searchFileInLocation(exe:ExeFileName) -> Path | None:
+        searcher = FileSearcher()
+        locations = LaunchUtils.getAvailableDriveLocations()
+        return await searcher.searchFileInLocations(locations, exe)
+    
+    

@@ -5,7 +5,7 @@
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.Conversation import Conversation
 
 
-class ConversationOperator:
+class ConversationHistory:
     conversation: Conversation
     def __init__(self):
         self.conversation = Conversation(history=[])
