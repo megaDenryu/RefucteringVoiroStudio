@@ -453,13 +453,14 @@ class HumanInformationList(BaseModel):
         mana = AllHumanInformationManager.singleton()
         if tTSSoftware in mana.chara_names_manager.chara_names.keys():
             charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
+            ExtendFunc.ExtendPrintWithTitle("キャラクター名リスト",charaNames)
+            super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
         else:
             charaNames = []
-        ExtendFunc.ExtendPrintWithTitle("キャラクター名リスト",charaNames)
-        try:
-            super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
-        except Exception as e:
-            ExtendFunc.ExtendPrint(["HumanInformationListの生成に失敗しました",e])
+            super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[])
+        
+        # except Exception as e:
+        #     ExtendFunc.ExtendPrint(["HumanInformationListの生成に失敗しました",e])
 
 class CharacterSettingSaveDatas(BaseModel):
     characterSettingCevioAI: CevioAICharacterSettingCollection
