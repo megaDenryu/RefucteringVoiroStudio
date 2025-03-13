@@ -433,7 +433,7 @@ class HumanInformation(BaseModel):
         # ExtendFunc.ExtendPrint("ボイスモードロード")
         voice_modes = self.loadVoiceModes(chara_name)
         # ExtendFunc.ExtendPrint("イメージロード")
-        images = self.loadImages(chara_name)
+        images = self.loadImages(chara_name) # ここでエラーが起きうる。CharFilePath.jsonにキャラが起動フローのバグで書き込まれてなさそう。
         super().__init__(chara_name=chara_name, nicknames=nicknames, voice_modes=voice_modes, images=images)
 
     def loadNicknames(self, chara_name:CharacterName):
