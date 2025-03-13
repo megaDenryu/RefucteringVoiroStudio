@@ -31,10 +31,12 @@ if __name__ == "__main__":
     # result = asyncio.run(LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe")))
     # result = asyncio.run(LaunchUtils.launchExe(ExeFileName("COEIROINKv2.exe")))
     # ExtendFunc.ExtendPrint(result)
-    c = COEIROINKv2SettingModel(path="a")
-    ExtendFunc.ExtendPrint(c)
-    c.path = "b"
-    ExtendFunc.ExtendPrint(c)
+    # c = COEIROINKv2SettingModel(path="a")
+    # ExtendFunc.ExtendPrint(c)
+    # c.path = "b"
+    # ExtendFunc.ExtendPrint(c)
+    a = VoiceVoxLauncher.startVoicevox()
+    asyncio.run(a)
     
         
 

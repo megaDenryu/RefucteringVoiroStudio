@@ -144,6 +144,7 @@ class AppSettingModule:
     
     def saveVoiceVoxPath(self, path:Path):
         self.setting.合成音声設定.VoiceVox設定.path = str(path)
+        ExtendFunc.ExtendPrint(self.setting)
         self.saveSetting(self.setting)
 
 
