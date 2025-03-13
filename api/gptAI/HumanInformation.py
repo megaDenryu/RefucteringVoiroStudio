@@ -433,7 +433,7 @@ class HumanInformation(BaseModel):
         # ExtendFunc.ExtendPrint("ボイスモードロード")
         voice_modes = self.loadVoiceModes(chara_name)
         # ExtendFunc.ExtendPrint("イメージロード")
-        images = self.loadImages(chara_name)
+        images = self.loadImages(chara_name)  # ここでエラーが起きうる。CharFilePath.jsonにキャラが起動フローのバグで書き込まれてなさそう。
         super().__init__(chara_name=chara_name, nicknames=nicknames, voice_modes=voice_modes, images=images)
 
     def loadNicknames(self, chara_name:CharacterName):
@@ -451,8 +451,13 @@ class HumanInformationList(BaseModel):
 
     def __init__(self, tTSSoftware:TTSSoftware):
         mana = AllHumanInformationManager.singleton()
-        charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
-        super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
+        if tTSSoftware in mana.chara_names_manager.chara_names.keys():
+            charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
+            ExtendFunc.ExtendPrintWithTitle("キャラクター名リスト",charaNames)
+            super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
+        else:
+            charaNames = []
+            super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[])
 
 class CharacterSettingSaveDatas(BaseModel):
     characterSettingCevioAI: CevioAICharacterSettingCollection
@@ -474,11 +479,7 @@ class AllHumanInformationDict(BaseModel):
     def __init__(self):
         data = {}
         for software in TTSSoftware:
-            try:
-                data[software.value] = HumanInformationList(software)
-            except Exception as e:
-                ExtendFunc.ExtendPrint([f"{software}を持っていません",e])
-                pass
+            data[software.value] = HumanInformationList(software)
         characterSettingSaveDatas = CharacterSettingSaveDatas()
         
         super().__init__(data=data, characterSettingSaveDatas=characterSettingSaveDatas)
