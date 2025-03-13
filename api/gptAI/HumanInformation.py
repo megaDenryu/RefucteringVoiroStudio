@@ -451,8 +451,13 @@ class HumanInformationList(BaseModel):
 
     def __init__(self, tTSSoftware:TTSSoftware):
         mana = AllHumanInformationManager.singleton()
-        charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
-        super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
+        if tTSSoftware in mana.chara_names_manager.chara_names.keys():
+            charaNames = mana.chara_names_manager.chara_names[tTSSoftware]
+            ExtendFunc.ExtendPrintWithTitle("キャラクター名リスト",charaNames)
+            super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[HumanInformation(chara_name) for chara_name in charaNames])
+        else:
+            charaNames = []
+            super().__init__(tTSSoftware=tTSSoftware.value, human_informations=[])
 
 class CharacterSettingSaveDatas(BaseModel):
     characterSettingCevioAI: CevioAICharacterSettingCollection
@@ -474,11 +479,7 @@ class AllHumanInformationDict(BaseModel):
     def __init__(self):
         data = {}
         for software in TTSSoftware:
-            try:
-                data[software.value] = HumanInformationList(software)
-            except Exception as e:
-                ExtendFunc.ExtendPrint([f"{software}を持っていません",e])
-                pass
+            data[software.value] = HumanInformationList(software)
         characterSettingSaveDatas = CharacterSettingSaveDatas()
         
         super().__init__(data=data, characterSettingSaveDatas=characterSettingSaveDatas)
