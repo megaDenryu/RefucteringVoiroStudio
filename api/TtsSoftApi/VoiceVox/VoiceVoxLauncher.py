@@ -5,7 +5,7 @@ import winreg
 import os
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
-from api.Extend.FileManager.FileSearch.domain.LaunchResult import LaunchResult
+from api.Extend.FileManager.FileSearch.domain.LaunchResult import ExecSuccess, LaunchResult
 from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
@@ -54,14 +54,14 @@ class VoiceVoxLauncher:
             os.startfile(shortcut_path)
             tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
             tmp_human.onTTSSoftware = True
+            AppSettingModule.singleton().saveVoiceVoxPath(shortcut_path)
             return tmp_human
         except Exception as e:
             print(f"VoiceVoxのショートカット起動に失敗しました: {e}")
         
         result = await LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe"))
         print(result.message)
-        if result.exec_success == LaunchResult.exec_success.SUCCESS and result.file_path is not None:
-            print("VoiceVoxが正常に起動しました。")
+        if result.exec_success == ExecSuccess.SUCCESS and result.file_path is not None:
             tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
             tmp_human.onTTSSoftware = True
             AppSettingModule.singleton().saveVoiceVoxPath(result.file_path)

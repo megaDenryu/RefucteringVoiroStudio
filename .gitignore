@@ -40,3 +40,9 @@ app-ts/.tsbuildinfo
 api/AppSettingJson/app_setting.json
 api/CharSettingJson/NickNames.json
 api/CharSettingJson/CharacterSetting/CevioAICharacterSetting.json
+api/AppSettingJson/app_setting_test.json
+api/CharSettingJson/CharFilePath.json
+api/CharSettingJson/VoiceVoxNameToNumber.json
+api/CharSettingJson/CharacterSetting/AIVoiceCharacterSetting.json
+api/CharSettingJson/CharacterSetting/CoeiroinkCharacterSetting.json
+api/CharSettingJson/CharacterSetting/VoiceVoxCharacterSetting.json

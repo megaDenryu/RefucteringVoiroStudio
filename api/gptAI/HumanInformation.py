@@ -472,7 +472,13 @@ class AllHumanInformationDict(BaseModel):
     characterSettingSaveDatas: CharacterSettingSaveDatas
 
     def __init__(self):
-        data = {software.value:HumanInformationList(software) for software in TTSSoftware}
+        data = {}
+        for software in TTSSoftware:
+            try:
+                data[software.value] = HumanInformationList(software)
+            except Exception as e:
+                ExtendFunc.ExtendPrint([f"{software}を持っていません",e])
+                pass
         characterSettingSaveDatas = CharacterSettingSaveDatas()
         
         super().__init__(data=data, characterSettingSaveDatas=characterSettingSaveDatas)
