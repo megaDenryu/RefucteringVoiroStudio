@@ -739,7 +739,7 @@ async def AllCharaInfoTest():
 async def AllCharaInfo():
     await TTSSoftwareManager.updateAllCharaList()
     AllHumanInformationManager.singleton().load() #変更があるかもしれないのでリロード
-    mana = AllHumanInformationDict()
+    mana = AllHumanInformationDict() # なんかここで初めてやったときエラーになる。
     ExtendFunc.ExtendPrint(mana)
     return mana
 
