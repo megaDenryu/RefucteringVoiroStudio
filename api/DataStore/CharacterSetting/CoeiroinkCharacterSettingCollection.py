@@ -1,6 +1,7 @@
 
 from pydantic import BaseModel
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModel import CoeiroinkCharacterSettingSaveModel
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import NickName
 
@@ -20,7 +21,7 @@ class CoeiroinkCharacterSettingCollectionOperator():
         return CoeiroinkCharacterSettingCollectionOperator.instance
     @staticmethod
     def loadAll():
-        path = ExtendFunc.api_dir / "CharSettingJson" / "CharacterSetting" / "CoeiroinkCharacterSetting.json"
+        path = DataDir._().CharSettingJson / "CharacterSetting" / "CoeiroinkCharacterSetting.json"
         try:
             settinglist = ExtendFunc.loadJsonToBaseModel(path, CoeiroinkCharacterSettingCollection)
         except:
@@ -31,7 +32,7 @@ class CoeiroinkCharacterSettingCollectionOperator():
         return settinglist
     @staticmethod
     def saveAll(settinglist: CoeiroinkCharacterSettingCollection):
-        path = ExtendFunc.api_dir / "CharSettingJson" / "CharacterSetting" / "CoeiroinkCharacterSetting.json"
+        path = DataDir._().CharSettingJson / "CharacterSetting" / "CoeiroinkCharacterSetting.json"
         ExtendFunc.saveBaseModelToJson(path, settinglist)
     
     def add(self, setting: CoeiroinkCharacterSettingSaveModel):

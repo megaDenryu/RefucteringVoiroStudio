@@ -3,6 +3,7 @@
 from pydantic import BaseModel
 
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingSaveModel import AIVoiceCharacterSettingSaveModel
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import NickName
 
@@ -22,7 +23,7 @@ class AIVoiceCharacterSettingCollectionOperator():
         return AIVoiceCharacterSettingCollectionOperator.instance
     @staticmethod
     def loadAll():
-        path = ExtendFunc.api_dir / "CharSettingJson" / "CharacterSetting" / "AIVoiceCharacterSetting.json"
+        path = DataDir._().CharSettingJson / "CharacterSetting" / "AIVoiceCharacterSetting.json"
         try:
             settinglist = ExtendFunc.loadJsonToBaseModel(path, AIVoiceCharacterSettingCollection)
         except:
@@ -33,7 +34,7 @@ class AIVoiceCharacterSettingCollectionOperator():
         return settinglist
     @staticmethod
     def saveAll(settinglist: AIVoiceCharacterSettingCollection):
-        path = ExtendFunc.api_dir / "CharSettingJson" / "CharacterSetting" / "AIVoiceCharacterSetting.json"
+        path = DataDir._().CharSettingJson / "CharacterSetting" / "AIVoiceCharacterSetting.json"
         ExtendFunc.saveBaseModelToJson(path, settinglist)
     
     def add(self, setting: AIVoiceCharacterSettingSaveModel):

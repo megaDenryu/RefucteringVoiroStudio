@@ -13,6 +13,7 @@ from requests import Response
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxQueryBaseTypedDict import QueryDict
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
 from api.TtsSoftApi.voiceroid_api import TTSSoftwareInstallState
@@ -94,7 +95,7 @@ class VoiceVoxHuman:
         """
 
         api_dir = Path(__file__).parent.parent
-        path = api_dir / "CharSettingJson" / "VoiceVoxNameToNumber.json"
+        path = DataDir._().CharSettingJson / "VoiceVoxNameToNumber.json"
         with open(path, "r", encoding="utf-8") as f:
             name_dict = json.load(f)
         #name_listのキーにnameがあれば、その値を返す。なければ空文字を返す。
@@ -350,7 +351,7 @@ class VoiceVoxHuman:
                 save_dict[save_name] = style_num
         pprint(save_dict)
         api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
-        path = api_dir / "CharSettingJson" / "VoiceVoxNameToNumber.json"
+        path = DataDir._().CharSettingJson / "VoiceVoxNameToNumber.json"
         #pathにspeaker_dictを書き込む
         with open(path, "w", encoding="utf-8") as f:
             json.dump(save_dict,f,ensure_ascii=False, indent=4)
