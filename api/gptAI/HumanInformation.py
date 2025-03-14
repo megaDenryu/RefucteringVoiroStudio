@@ -190,7 +190,7 @@ class DefaultNicknamesManager:
     defalutNicknamesPath: Path
     defalutNicknames: dict[CharacterName, list[NickName]]
     def __init__(self) -> None:
-        self.defalutNicknamesPath = ExtendFunc.api_dir / "CharSettingJson/DefaultNickNames.json" #絶対に消さないでください
+        self.defalutNicknamesPath = ExtendFunc.api_dir / "AppSettingJson/VoiceRoidDefaultSettings/DefaultNickNames.json" #絶対に消さないでください
         self.defalutNicknames = self.loadDefaultNicknames()
     
     def loadDefaultNicknames(self)->dict[CharacterName, list[NickName]]:
