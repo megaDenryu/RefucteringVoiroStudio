@@ -94,7 +94,8 @@ class TTSSoftwareManager:
     @staticmethod
     async def updateCharaList(ttss:TTSSoftware, human_state:HasTTSState)->bool:
         """
-        各種ボイスロイドのキャラクターリストを更新する
+        各種ボイスロイドのキャラクターリストを更新する.
+        todo : ボイロが起動するまで待つ。
         """
         if human_state.hasTTSSoftware == TTSSoftwareInstallState.Installed and human_state.onTTSSoftware:
             ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストを更新します。")
