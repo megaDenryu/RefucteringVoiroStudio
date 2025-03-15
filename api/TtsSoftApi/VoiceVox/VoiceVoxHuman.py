@@ -16,6 +16,7 @@ from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSetti
 from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
+from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.voiceroid_api import TTSSoftwareInstallState
 from api.gptAI.HumanInfoValueObject import CharacterName, CharacterSaveId, TTSSoftware, VoiceMode
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState
@@ -29,7 +30,7 @@ class SpeakerStyle(TypedDict):
 class SpeakerInfo(TypedDict):
     name:str
     styles:list[SpeakerStyle]
-class VoiceVoxHuman:
+class VoiceVoxHuman(HasTTSState):
     chara_mode_state:CharacterModeState|None
     onTTSSoftware:bool = False #voicevoxが起動しているかどうか
     hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
@@ -261,12 +262,12 @@ class VoiceVoxHuman:
         speaker_dict = response.json()
         return speaker_dict
     
-    def updateAllCharaList(self):
-        VoiceVoxHuman.updateAllCharaListStatic()
+    def updateAllCharaList(self)->bool:
+        return VoiceVoxHuman.updateAllCharaListStatic()
         
     
     @staticmethod
-    def updateAllCharaListStatic():
+    def updateAllCharaListStatic()->bool:
         """
         1. VoiceVoxのキャラクター名を取得
         2. キャラクター名リストを更新
@@ -283,9 +284,11 @@ class VoiceVoxHuman:
             VoiceVoxHuman.updateVoiceModeInfo(speaker_dict)
             #4. キャラクター名から立ち絵のフォルダ名リストを返す辞書を更新
             VoiceVoxHuman.upadteNicknameAndHumanImagesFolder(speaker_dict)
+            return True
         except Exception as e:
             print(e)
             print("VoiceVoxのキャラクター名取得に失敗しました。起動してないかもしれません")
+            return False
         
     @staticmethod
     def updateCharaNames(speaker_dict:list[SpeakerInfo]):

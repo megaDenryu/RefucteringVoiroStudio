@@ -99,8 +99,25 @@ class TTSSoftwareManager:
         """
         if human_state.hasTTSSoftware == TTSSoftwareInstallState.Installed and human_state.onTTSSoftware:
             ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリストを更新します。")
-            human_state.updateAllCharaList()
-            return True
+            MAX_RETRIES = 10
+            RETRY_INTERVAL = 3  # 秒
+            
+            for attempt in range(MAX_RETRIES):
+                result = human_state.updateAllCharaList()
+                if result:
+                    return True
+                    
+                if attempt < MAX_RETRIES - 1:  # 最後の試行でなければ待機
+                    ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリスト更新を再試行します。(試行回数: {attempt + 1})")
+                    await asyncio.sleep(RETRY_INTERVAL)
+            
+            ExtendFunc.ExtendPrintWithTitle(f"{ttss}のキャラクターリスト更新が{MAX_RETRIES}回失敗しました。")
+            return False
+
+
+
+
+
         else:
             onTTSSoftwareDict = TTSSoftwareManager._instance.onTTSSoftwareDict[ttss]
             ExtendFunc.ExtendPrintWithTitle(f"{ttss}の起動状況",onTTSSoftwareDict)

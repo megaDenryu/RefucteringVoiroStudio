@@ -135,7 +135,7 @@ class CharaNames2VoiceModeDictManager:
     
     def createCharaNames2VoiceModeDictPath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VoiceVox: DataDir._().CharaNames2VoiceMode / "/VoiceVoxNames2VoiceMode.json",
+            TTSSoftware.VoiceVox: DataDir._().CharaNames2VoiceMode / "VoiceVoxNames2VoiceMode.json",
             TTSSoftware.Coeiroink: DataDir._().CharaNames2VoiceMode / "CoeiroinkNames2VoiceMode.json",
             TTSSoftware.AIVoice: DataDir._().CharaNames2VoiceMode / "AIVoiceNames2VoiceMode.json",
             TTSSoftware.CevioAI: DataDir._().CharaNames2VoiceMode / "CevioAINames2VoiceMode.json"
@@ -144,7 +144,7 @@ class CharaNames2VoiceModeDictManager:
     def loadCharaNames2VoiceModeDict(self, software:TTSSoftware)->CharaNamaeVoiceModePairList:
         path = self.CharaNames2VoiceModeDict_filepath[software]
         # もしファイルが存在しない場合はファイルを作成
-        JsonAccessor.checkExistAndCreateJson(path, None)
+        JsonAccessor.checkExistAndCreateJson(path, {})
         voice_modes_dict:CharaNamaeVoiceModePairList|None = ExtendFunc.loadJsonToBaseModel(path, CharaNamaeVoiceModePairList)
         if voice_modes_dict is None:
             return CharaNamaeVoiceModePairList(charaNameAndVoiceModesPair=[])
@@ -423,9 +423,9 @@ class HumanInformation(BaseModel):
     images: list[HumanImage]
 
     def __init__(self, chara_name:CharacterName):
-        # ExtendFunc.ExtendPrintWithTitle("名前",chara_name)
-        # ExtendFunc.ExtendPrint(chara_name)
-        # ExtendFunc.ExtendPrint("ニックネームロード")
+        ExtendFunc.ExtendPrintWithTitle("名前",chara_name)
+        ExtendFunc.ExtendPrint(chara_name)
+        ExtendFunc.ExtendPrint("ニックネームロード")
         nicknames = self.loadNicknames(chara_name)
         # ExtendFunc.ExtendPrint("ボイスモードロード")
         voice_modes = self.loadVoiceModes(chara_name)

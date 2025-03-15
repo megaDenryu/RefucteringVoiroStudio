@@ -1,5 +1,6 @@
 from api.AppInitializer.AppInitializer import アプリ起動確認者
 from api.DataStore.AppSetting.AppSettingModel.SynthesisVoiceSetting.COEIROINKv2Setting.COEIROINKv2Setting import COEIROINKv2SettingModel
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
@@ -40,9 +41,13 @@ if __name__ == "__main__":
     # a = VoiceVoxLauncher.startVoicevox()
     # # a = CoeiroinkLauncher.startCoeiroink()
     # asyncio.run(a)
+    
     a = アプリ起動確認者()
+    a.アプリ起動確認()
     a.初期化()
     
+
+    # d = DataDir._().checkPrint()
         
 
 

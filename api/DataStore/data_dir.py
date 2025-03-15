@@ -37,6 +37,18 @@ class DataDir:
         self.VoiceModeNames = self.CharSettingJson / "VoiceModeNames"
         
         # self._initialize_directories()
+    def checkPrint(self):
+        ExtendFunc.ExtendPrint(self.api_dir)
+        ExtendFunc.ExtendPrint(self.AppSettingJson)
+        ExtendFunc.ExtendPrint(self.CharacterDestination)
+        ExtendFunc.ExtendPrint(self.CharcterAISetting)
+        ExtendFunc.ExtendPrint(self.GPTBehavior)
+        ExtendFunc.ExtendPrint(self.InitMemory)
+        ExtendFunc.ExtendPrint(self.VoiceRoidDefaultSettings)
+        ExtendFunc.ExtendPrint(self.CharSettingJson)
+        ExtendFunc.ExtendPrint(self.CharaNames)
+        ExtendFunc.ExtendPrint(self.CharaNames2VoiceMode)
+        ExtendFunc.ExtendPrint(self.VoiceModeNames)
     
     def _initialize_directories(self) -> None:
         """必要なディレクトリを作成します"""

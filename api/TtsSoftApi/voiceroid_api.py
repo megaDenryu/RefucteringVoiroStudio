@@ -23,6 +23,7 @@ from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSetting
 from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
+from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.gptAI.HumanInfoValueObject import CharacterSaveId
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
@@ -32,7 +33,7 @@ from api.gptAI.VoiceInfo import WavInfo
 
 
 
-class cevio_human:
+class cevio_human(HasTTSState):
     chara_mode_state:CharacterModeState|None
     output_wav_info_list:list[WavInfo]
     @property
@@ -249,7 +250,7 @@ class cevio_human:
             print(e)
             raise Exception("CeVIOが起動していません")
     
-    def updateAllCharaList(self):
+    def updateAllCharaList(self)->bool:
         """
         CeVIOのキャラクター名を取得して、CevioKnownNames.jsonを更新する
 
@@ -287,6 +288,7 @@ class cevio_human:
         all_human_info_manager.human_images.tryAddHumanFolder(CharacterName_list)
         # 6. キャラクター名からニックネームリストを返す辞書      を更新
         all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(CharacterName_list)
+        return True
     
     @property
     def talker2V40(self)->Talker2V40:
@@ -396,7 +398,7 @@ class VoicePresetModel(BaseModel):
 
 
 
-class AIVoiceHuman:
+class AIVoiceHuman(HasTTSState):
     chara_mode_state:CharacterModeState|None
     output_wav_info_list:list[WavInfo]
     @property
@@ -690,7 +692,7 @@ class AIVoiceHuman:
             name = name.split("（")[0]
         return CharacterName(name = name)
     
-    def updateAllCharaList(self):
+    def updateAllCharaList(self)->bool:
         """
         1. AIVoiceのキャラクター名を取得
         2. キャラクター名リストを更新
@@ -710,9 +712,11 @@ class AIVoiceHuman:
             all_human_info_manager.human_images.tryAddHumanFolder(charaNames)
             #5. キャラクター名からニックネームリストを返す辞書      を更新
             all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(charaNames)
+            return True
         except Exception as e:
             print(e)
             print("AIVoiceのキャラクター名取得に失敗しました。起動してないかもしれません")
+            return False
     
     def updateCharName(self):
         """
