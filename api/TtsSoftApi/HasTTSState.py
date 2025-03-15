@@ -1,9 +1,19 @@
-from typing import Protocol
+
+from abc import ABC, abstractmethod
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 
 
-class HasTTSState(Protocol):
-    hasTTSSoftware:TTSSoftwareInstallState
-    onTTSSoftware:bool
-    def updateAllCharaList(self):
+class HasTTSState(ABC):
+    @property
+    @abstractmethod
+    def hasTTSSoftware(self)->TTSSoftwareInstallState:
+        pass
+    
+    @property
+    @abstractmethod
+    def onTTSSoftware(self)->bool:
+        pass
+    
+    @abstractmethod
+    def updateAllCharaList(self)->bool:
         pass

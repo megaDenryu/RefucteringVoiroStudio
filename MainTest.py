@@ -1,4 +1,6 @@
+from api.AppInitializer.AppInitializer import アプリ起動確認者
 from api.DataStore.AppSetting.AppSettingModel.SynthesisVoiceSetting.COEIROINKv2Setting.COEIROINKv2Setting import COEIROINKv2SettingModel
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
@@ -10,6 +12,7 @@ from api.LLM.エージェントテスト.テスト環境.GeminiApiテスト.Gemi
 from api.LLM.エージェントテスト.テスト環境.ルビ振りテスト.GeminiConverterTest import Geminiの連続会話テストユニット
 from api.TtsSoftApi.Coeiroink.CoeiroinkLauncher import CoeiroinkLauncher
 from api.TtsSoftApi.TTSSoftwareManager import TTSSoftwareManager
+from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.TtsSoftApi.VoiceVox.VoiceVoxLauncher import VoiceVoxLauncher
 from api.gptAI.HumanInformation import DefaultNicknamesManager
  
@@ -36,10 +39,13 @@ if __name__ == "__main__":
     # ExtendFunc.ExtendPrint(c)
     # c.path = "b"
     # ExtendFunc.ExtendPrint(c)
-    a = VoiceVoxLauncher.startVoicevox()
-    # a = CoeiroinkLauncher.startCoeiroink()
-    asyncio.run(a)
+    # a = VoiceVoxLauncher.startVoicevox()
+    # # a = CoeiroinkLauncher.startCoeiroink()
+    # asyncio.run(a)
     
+    a = アプリ起動確認者()
+    a.アプリ起動確認()
+    a.初期化()
         
 
 

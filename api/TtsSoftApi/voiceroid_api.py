@@ -20,8 +20,10 @@ from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.Talker2V40.Talker2V
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponent2.TalkerComponent2 import TalkerComponent2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.TalkerComponentArray2.TalkerComponentArray2 import TalkerComponentArray2
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
+from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.gptAI.HumanInfoValueObject import CharacterSaveId
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
@@ -31,7 +33,7 @@ from api.gptAI.VoiceInfo import WavInfo
 
 
 
-class cevio_human:
+class cevio_human(HasTTSState):
     chara_mode_state:CharacterModeState|None
     output_wav_info_list:list[WavInfo]
     @property
@@ -160,7 +162,7 @@ class cevio_human:
             return None
         name = chara.character_name.name
         api_dir = Path(__file__).parent.parent
-        path = api_dir / "CharSettingJson" / "CevioNameForVoiceroidAPI.json"
+        path = DataDir._().CharSettingJson / "CevioNameForVoiceroidAPI.json"
         with open(path, "r", encoding="utf-8") as f:
             name_list:list[str] = json.load(f)
         #name_dictのキーにnameがあれば、その値を返す。なければ空文字を返す。
@@ -248,7 +250,7 @@ class cevio_human:
             print(e)
             raise Exception("CeVIOが起動していません")
     
-    def updateAllCharaList(self):
+    def updateAllCharaList(self)->bool:
         """
         CeVIOのキャラクター名を取得して、CevioKnownNames.jsonを更新する
 
@@ -286,6 +288,7 @@ class cevio_human:
         all_human_info_manager.human_images.tryAddHumanFolder(CharacterName_list)
         # 6. キャラクター名からニックネームリストを返す辞書      を更新
         all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(CharacterName_list)
+        return True
     
     @property
     def talker2V40(self)->Talker2V40:
@@ -395,7 +398,7 @@ class VoicePresetModel(BaseModel):
 
 
 
-class AIVoiceHuman:
+class AIVoiceHuman(HasTTSState):
     chara_mode_state:CharacterModeState|None
     output_wav_info_list:list[WavInfo]
     @property
@@ -575,8 +578,7 @@ class AIVoiceHuman:
         AIVOICEとの通信で使う名前。
         front_nameとchar_nameのようなgptや画像管理で使うための名前ではない。
         """
-
-        path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__, "api/CharSettingJson/AIVOICENameForVoiceroidAPI.json")
+        path = DataDir._().CharSettingJson / "AIVOICENameForVoiceroidAPI.json"
         name_dict:dict[str,str] = ExtendFunc.loadJsonToDict(path)
         #name_listのキーにnameがあれば、その値を返す。なければ空文字を返す。
         if name in name_dict:
@@ -690,7 +692,7 @@ class AIVoiceHuman:
             name = name.split("（")[0]
         return CharacterName(name = name)
     
-    def updateAllCharaList(self):
+    def updateAllCharaList(self)->bool:
         """
         1. AIVoiceのキャラクター名を取得
         2. キャラクター名リストを更新
@@ -710,9 +712,11 @@ class AIVoiceHuman:
             all_human_info_manager.human_images.tryAddHumanFolder(charaNames)
             #5. キャラクター名からニックネームリストを返す辞書      を更新
             all_human_info_manager.nick_names_manager.tryAddCharacterNameKey(charaNames)
+            return True
         except Exception as e:
             print(e)
             print("AIVoiceのキャラクター名取得に失敗しました。起動してないかもしれません")
+            return False
     
     def updateCharName(self):
         """
@@ -722,11 +726,9 @@ class AIVoiceHuman:
 
         2025/02/24 AIVOICEKnownNames.json自体必要ないので削除して良さそう
         """
-        # 同じapi_dirにアクセスするので効率化のために先に取得しておく
-        api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
         
         # AIVOICEKnouwnNames.jsonを取得する
-        AIVOICEKnouwnNames_path = api_dir / "CharSettingJson/AIVOICEKnownNames.json"
+        AIVOICEKnouwnNames_path = DataDir._().CharSettingJson / "AIVOICEKnownNames.json"
         knouwn_name_list:list[str] = ExtendFunc.loadJsonToList(AIVOICEKnouwnNames_path)
         
         # 利用可能なキャラクター名一覧を取得
@@ -748,7 +750,7 @@ class AIVoiceHuman:
             if name not in knouwn_name_list:
                 new_name_list.append(name)
         # AIVOICENameForVoiceroidAPI.jsonを取得する
-        AIVOICENameForVoiceroidAPI_path = api_dir / "CharSettingJson/AIVOICENameForVoiceroidAPI.json"
+        AIVOICENameForVoiceroidAPI_path = DataDir._().CharSettingJson / "AIVOICENameForVoiceroidAPI.json"
         old_name_list:list[str] = list(ExtendFunc.loadJsonToDict(AIVOICENameForVoiceroidAPI_path).values())
         
         #old_name_listとnew_name_listを比較して、違う名前があればchange_name_listに追加する

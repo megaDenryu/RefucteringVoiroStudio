@@ -9,6 +9,7 @@ from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager im
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollection, CoeiroinkCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollection, VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.DataStore.data_dir import DataDir
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NamePair, NickName, TTSSoftware, VoiceMode, TTSSoftwareType, CharacterId, CharacterSaveId
@@ -16,20 +17,18 @@ from api.gptAI.VoiceController import IVoiceState, VoiceState
 from api.images.image_manager.HumanPart import HumanPart
 
 class VoiceModeNamesManager:
-    api_dir: Path
     voice_mode_names_filepath: dict[TTSSoftware, Path]         # ボイスモード名リストのファイルパス
     voice_mode_list: dict[TTSSoftware, list[VoiceMode]]        # ボイスモード名リスト
     def __init__(self):
-        self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
         self.voice_mode_names_filepath = self.createVoiceModeNamesFilePath()
         self.voice_mode_list = self.loadAllVoiceModeNames()
 
     def createVoiceModeNamesFilePath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VoiceVox: self.api_dir / "CharSettingJson/VoiceModeNames/VoiceVoxVoiceModes.json",
-            TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/VoiceModeNames/CoeiroinkVoiceModes.json",
-            TTSSoftware.AIVoice: self.api_dir / "CharSettingJson/VoiceModeNames/AIVoiceVoiceModes.json",
-            TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/VoiceModeNames/CevioAIVoiceModes.json"
+            TTSSoftware.VoiceVox:  DataDir._().VoiceModeNames / "VoiceVoxVoiceModes.json",
+            TTSSoftware.Coeiroink: DataDir._().VoiceModeNames / "CoeiroinkVoiceModes.json",
+            TTSSoftware.AIVoice:   DataDir._().VoiceModeNames / "AIVoiceVoiceModes.json",
+            TTSSoftware.CevioAI:   DataDir._().VoiceModeNames / "CevioAIVoiceModes.json"
         }
     
     def loadVoiceModeNames(self, software:TTSSoftware)->list[VoiceMode]:
@@ -68,10 +67,10 @@ class CharaNameManager:
     
     def createCharaNamesFilePath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VoiceVox:  self.api_dir / "CharSettingJson/CharaNames/VoiceVoxNames.json",
-            TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/CharaNames/CoeiroinkNames.json",
-            TTSSoftware.AIVoice:   self.api_dir / "CharSettingJson/CharaNames/AIVoiceNames.json",
-            TTSSoftware.CevioAI:   self.api_dir / "CharSettingJson/CharaNames/CevioAINames.json"
+            TTSSoftware.VoiceVox:  DataDir._().CharaNames/"VoiceVoxNames.json",
+            TTSSoftware.Coeiroink: DataDir._().CharaNames/"CoeiroinkNames.json",
+            TTSSoftware.AIVoice:   DataDir._().CharaNames/"AIVoiceNames.json",
+            TTSSoftware.CevioAI:   DataDir._().CharaNames/"CevioAINames.json"
         }
     
     def loadCharaNames(self, software:TTSSoftware)->list[CharacterName]:
@@ -136,16 +135,16 @@ class CharaNames2VoiceModeDictManager:
     
     def createCharaNames2VoiceModeDictPath(self)->dict[TTSSoftware, Path]:
         return {
-            TTSSoftware.VoiceVox: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/VoiceVoxNames2VoiceMode.json",
-            TTSSoftware.Coeiroink: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/CoeiroinkNames2VoiceMode.json",
-            TTSSoftware.AIVoice: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/AIVoiceNames2VoiceMode.json",
-            TTSSoftware.CevioAI: self.api_dir / "CharSettingJson/CharaNames2VoiceMode/CevioAINames2VoiceMode.json"
+            TTSSoftware.VoiceVox: DataDir._().CharaNames2VoiceMode / "VoiceVoxNames2VoiceMode.json",
+            TTSSoftware.Coeiroink: DataDir._().CharaNames2VoiceMode / "CoeiroinkNames2VoiceMode.json",
+            TTSSoftware.AIVoice: DataDir._().CharaNames2VoiceMode / "AIVoiceNames2VoiceMode.json",
+            TTSSoftware.CevioAI: DataDir._().CharaNames2VoiceMode / "CevioAINames2VoiceMode.json"
         }
     
     def loadCharaNames2VoiceModeDict(self, software:TTSSoftware)->CharaNamaeVoiceModePairList:
         path = self.CharaNames2VoiceModeDict_filepath[software]
         # もしファイルが存在しない場合はファイルを作成
-        JsonAccessor.checkExistAndCreateJson(path, None)
+        JsonAccessor.checkExistAndCreateJson(path, {})
         voice_modes_dict:CharaNamaeVoiceModePairList|None = ExtendFunc.loadJsonToBaseModel(path, CharaNamaeVoiceModePairList)
         if voice_modes_dict is None:
             return CharaNamaeVoiceModePairList(charaNameAndVoiceModesPair=[])
@@ -190,7 +189,7 @@ class DefaultNicknamesManager:
     defalutNicknamesPath: Path
     defalutNicknames: dict[CharacterName, list[NickName]]
     def __init__(self) -> None:
-        self.defalutNicknamesPath = ExtendFunc.api_dir / "CharSettingJson/DefaultNickNames.json" #絶対に消さないでください
+        self.defalutNicknamesPath = DataDir._().AppSettingJson / "VoiceRoidDefaultSettings/DefaultNickNames.json" #絶対に消さないでください
         self.defalutNicknames = self.loadDefaultNicknames()
     
     def loadDefaultNicknames(self)->dict[CharacterName, list[NickName]]:
@@ -232,7 +231,7 @@ class NicknamesManager:
 
     def __init__(self):
         self.defaultNicknamesManager = DefaultNicknamesManager()
-        self.nicknames_filepath = ExtendFunc.api_dir / "CharSettingJson/NickNames.json"
+        self.nicknames_filepath = DataDir._().CharSettingJson / "NickNames.json"
         self.nicknames = self.loadNicknames()
         self.nickname2Charaname = self.loadNickname2Charaname()
     
@@ -256,16 +255,23 @@ class NicknamesManager:
         """
         humanlistを取得してNickNames辞書にキーがないキャラ名があった場合はキーを追加する
         """
-        all_manager = AllHumanInformationManager.singleton()
-        charaNameList = all_manager.chara_names_manager.chara_names
-        for charaName in charaNames:
-            if charaName not in charaNameList or charaName not in self.nicknames:
-                #ファイルパス一覧に追加する
-                if charaName not in self.nicknames[charaName]:
-                    self.nicknames[charaName].append(NickName(name = charaName.name))
-        
-        #上書き保存する
-        self.updateNicknames(self.nicknames)
+        try:
+            all_manager = AllHumanInformationManager.singleton()
+            charaNameList = all_manager.chara_names_manager.chara_names
+            for charaName in charaNames:
+                # まず辞書にキーが存在しない場合は空リストで初期化
+                if charaName not in self.nicknames:
+                    self.nicknames[charaName] = []
+                
+                # キャラ名自体をニックネームとして追加（まだ存在しない場合）
+                default_nickname = NickName(name=charaName.name)
+                if default_nickname not in self.nicknames[charaName]:
+                    self.nicknames[charaName].append(default_nickname)
+            
+            #上書き保存する
+            self.updateNicknames(self.nicknames)
+        except Exception as e:
+            ExtendFunc.ExtendPrint(["キャラ名追加エラー",e])
     
     def updateNicknames(self, nicknames:dict[CharacterName, list[NickName]]):
         """
@@ -335,7 +341,7 @@ class HumanImagesManager:
 
     def __init__(self):
         self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
-        self.charaFilePathJson_filepath = self.api_dir / "CharSettingJson/CharFilePath.json"
+        self.charaFilePathJson_filepath = DataDir._().CharSettingJson / "CharFilePath.json"
         self.human_images = self.loadAllHumanImages()
 
     
@@ -387,7 +393,6 @@ class HumanImagesManager:
 
 class AllHumanInformationManager:
     instance: "AllHumanInformationManager|None" = None
-    api_dir: Path
     voice_mode_names_manager: VoiceModeNamesManager
     chara_names_manager: CharaNameManager
     CharaNames2VoiceModeDict_manager: CharaNames2VoiceModeDictManager
@@ -400,7 +405,6 @@ class AllHumanInformationManager:
     def __init__(self):
         self.load()
     def load(self):
-        self.api_dir = ExtendFunc.getTargetDirFromParents(__file__, "api")
         
         self.voice_mode_names_manager = VoiceModeNamesManager()
         self.chara_names_manager = CharaNameManager()
@@ -426,9 +430,9 @@ class HumanInformation(BaseModel):
     images: list[HumanImage]
 
     def __init__(self, chara_name:CharacterName):
-        # ExtendFunc.ExtendPrintWithTitle("名前",chara_name)
-        # ExtendFunc.ExtendPrint(chara_name)
-        # ExtendFunc.ExtendPrint("ニックネームロード")
+        ExtendFunc.ExtendPrintWithTitle("名前",chara_name)
+        ExtendFunc.ExtendPrint(chara_name)
+        ExtendFunc.ExtendPrint("ニックネームロード")
         nicknames = self.loadNicknames(chara_name)
         # ExtendFunc.ExtendPrint("ボイスモードロード")
         voice_modes = self.loadVoiceModes(chara_name)
@@ -485,13 +489,13 @@ class AllHumanInformationDict(BaseModel):
         super().__init__(data=data, characterSettingSaveDatas=characterSettingSaveDatas)
 
     def save(self):
-        path = AllHumanInformationManager.singleton().api_dir / "CharSettingJson/AllHumanInformation.json"
+        path = DataDir._().CharSettingJson / "AllHumanInformation.json"
         JsonAccessor.checkExistAndCreateJson(path, {})
         ExtendFunc.ExtendPrintWithTitle("保存",self.model_dump())
         ExtendFunc.saveDictToJson(path, self.model_dump())
 
     def load(self):
-        path = AllHumanInformationManager.singleton().api_dir / "CharSettingJson/AllHumanInformation.json"
+        path = DataDir._().CharSettingJson / "AllHumanInformation.json"
         data = ExtendFunc.loadJsonToDict(path)
         return AllHumanInformationDict(**data)
 

@@ -8,6 +8,7 @@ import base64
 from pprint import pprint
 import re
 from collections import OrderedDict
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage
 from api.images.image_manager.IHumanPart import BodyPartsImages, AllBodyFileInfo, HumanData, InitImageInfo
@@ -28,8 +29,7 @@ class HumanPart:
     
     def getCharFilePath(self,characterName:CharacterName,human_image:HumanImage,psd_num:int|None = None):
         
-        char_file_path = self.api_dir / "CharSettingJson" / "CharFilePath.json"
-        print("char_file_path",char_file_path)
+        char_file_path = DataDir._().CharSettingJson / "CharFilePath.json"
         with open(char_file_path, 'r', encoding='utf-8') as f:
             name_list:dict[str,list[str]] = json.load(f)
         ExtendFunc.ExtendPrintWithTitle("name_list",name_list)
@@ -43,7 +43,7 @@ class HumanPart:
     
     @staticmethod
     def writeCharFilePathToNewPSDFileName(chara_name:CharacterName,human_image:HumanImage):
-        CharFilePath_path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__, "api/CharSettingJson/CharFilePath.json")
+        CharFilePath_path = DataDir._().CharSettingJson / "CharFilePath.json"
         CharFilePathDict:dict[str,list[str]] = ExtendFunc.loadJsonToDict(CharFilePath_path)
         if chara_name.name in CharFilePathDict:
             CharFilePathDict[chara_name.name].insert(0,human_image.folder_name)
@@ -216,7 +216,7 @@ class HumanPart:
         """
         ボイロキャラの画像フォルダのパスを取得する
         """
-        root_dir = ExtendFunc.getTargetDirFromParents(__file__,"api").parent
+        root_dir = ExtendFunc.api_dir.parent
         target_dir = root_dir / "ボイロキャラ素材"
         return target_dir
     
@@ -243,9 +243,9 @@ class HumanPart:
         """
         if not HumanPart.checkExistVoiroCharaImageFolder():
             HumanPart.createVoiroCharaImageFolder()
-            print("ボイロキャラの画像フォルダがなかったので作成しました。")
+            ExtendFunc.ExtendPrint("ボイロキャラの画像フォルダがなかったので作成しました。")
         else:
-            print("ボイロキャラの画像フォルダが正常に存在します。")
+            ExtendFunc.ExtendPrint("ボイロキャラの画像フォルダが正常に存在します。")
     
     @staticmethod
     def checkNameExistInVoiroCharaImageFolderAndCreate(name:str):
@@ -264,7 +264,7 @@ class HumanPart:
         # CharaFilePathのキャラ名キーがすべてそろっているかチェックする
         # chara_name_list = HumanPart.getAllCharacterName()
 
-        path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/CharFilePath.json")
+        path = DataDir._().CharSettingJson / "CharFilePath.json"
         # pathが存在しない場合は作成する
         if not os.path.exists(path):
             ExtendFunc.saveDictToJson(path,{})
@@ -298,7 +298,7 @@ class HumanPart:
             chara_names = []
         else:
             #CevioNameForVoiceroidAPI.jsonから名前を取得
-            path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/CevioNameForVoiceroidAPI.json")
+            path = DataDir._().CharSettingJson / "CevioNameForVoiceroidAPI.json"
             chara_names = ExtendFunc.loadJsonToList(path)
         return chara_names
     
@@ -308,7 +308,7 @@ class HumanPart:
         if is_aivoice_active:
             chara_names = []
         else:
-            path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/AIVOICENameForVoiceroidAPI.json")
+            path = DataDir._().CharSettingJson / "AIVOICENameForVoiceroidAPI.json"
             chara_names = ExtendFunc.loadJsonToList(path)
         return chara_names
 
@@ -318,7 +318,7 @@ class HumanPart:
         if is_voicevox_active:
             chara_names = []
         else:
-            path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/VoiceVoxNameForVoiceroidAPI.json")
+            path = DataDir._().CharSettingJson / "VoiceVoxNameForVoiceroidAPI.json"
             chara_names = ExtendFunc.loadJsonToList(path)
         return chara_names
 
@@ -329,6 +329,6 @@ class HumanPart:
         if is_coeiroink_active:
             chara_names = []
         else:
-            path = ExtendFunc.createTargetFilePathFromCommonRoot(__file__,"api/CharSettingJson/CoeiroinkNameForVoiceroidAPI.json")
+            path = DataDir._().CharSettingJson / "CoeiroinkNameForVoiceroidAPI.json"
             chara_names = ExtendFunc.loadJsonToList(path)
         return chara_names

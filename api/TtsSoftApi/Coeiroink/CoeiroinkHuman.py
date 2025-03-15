@@ -16,6 +16,7 @@ from api.Extend.ExtendSound import ExtendSound
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.domain.LaunchResult import LaunchResult
 from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
+from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.gptAI.HumanInfoValueObject import CharacterName, CharacterSaveId, TTSSoftware, VoiceMode
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState
@@ -53,7 +54,7 @@ class CoeiroinkSpeaker(TypedDict):
     version: str
     base64Portrait: str
 
-class Coeiroink:
+class Coeiroink(HasTTSState):
     chara_mode_state:CharacterModeState|None
     output_wav_info_list:list[WavInfo]
     @property
@@ -498,11 +499,11 @@ class Coeiroink:
             voiceModeDict[charaName] = voiceModeList
         return voiceModeDict
     
-    def updateAllCharaList(self):
-        Coeiroink.updateAllCharaListStatic()
+    def updateAllCharaList(self)->bool:
+        return Coeiroink.updateAllCharaListStatic()
     
     @staticmethod
-    def updateAllCharaListStatic():
+    def updateAllCharaListStatic()->bool:
         try:
             manager = AllHumanInformationManager.singleton()
             
@@ -514,10 +515,12 @@ class Coeiroink:
             manager.CharaNames2VoiceModeDict_manager.updateCharaNames2VoiceModeDict(TTSSoftware.Coeiroink,voiceModeDict)
             manager.human_images.tryAddHumanFolder(charaNameList)
             manager.nick_names_manager.tryAddCharacterNameKey(charaNameList)
+            return True
         except Exception as e:
             # coeiroinkが起動してないとき
             print(e)
             print("Coeiroinkのキャラクター名取得に失敗しました。起動してないかもしれません")
+            return False
 
     
 

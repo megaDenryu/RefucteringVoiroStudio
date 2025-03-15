@@ -9,6 +9,7 @@ from api.AppSettingJson.CharacterDestination.CharacterDestination import Charact
 from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit, CharacterAISettingList
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict,GPTBehaviorKey
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
+from api.DataStore.data_dir import DataDir
 from api.Extend.BaseModel.BaseModelList import BaseModelList
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 import json
@@ -271,13 +272,13 @@ class JsonAccessor:
     
     @staticmethod
     def loadCoeiroinkNameToNumberJson():
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "CharSettingJson/CoeiroinkNameToNumber.json"
+        path = DataDir._().CharSettingJson / "CoeiroinkNameToNumber.json"
         coeiroink_name_to_number = ExtendFunc.loadJsonToDict(path)
         return coeiroink_name_to_number
     
     @staticmethod
     def saveCoeiroinkNameToNumberJson(coeiroink_name_to_number):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "CharSettingJson/CoeiroinkNameToNumber.json"
+        path = DataDir._().CharSettingJson / "CoeiroinkNameToNumber.json"
         ExtendFunc.saveDictToJson(path, coeiroink_name_to_number)
 
     @staticmethod

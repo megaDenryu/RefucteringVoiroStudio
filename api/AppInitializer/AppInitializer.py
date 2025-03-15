@@ -1,7 +1,12 @@
 
+from pathlib import Path
 from pydantic import BaseModel
 from api.AppInitializer.アプリステータス import Eアプリ進行ステータス
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
+from api.DataStore.data_dir import DataDir
+from api.Extend.ExtendFunc import ExtendFunc
+from api.Extend.FileManager.FileCreater.FileCreater import FileCreater
+from api.Extend.FileManager.FileDeleter.FileDeleter import FileDeleter
 from api.images.image_manager.HumanPart import HumanPart
 
 class アプリ起動確認結果(BaseModel):
@@ -33,4 +38,10 @@ class アプリ起動確認者:
         return アプリ起動確認結果(success=True, message="一度起動したことがあります")
     
     def 初期化(self):
-        pass
+        FileDeleter.まとめて削除([
+            ExtendFunc.api_dir / "AppSettingJson/app_setting_test.json",
+            DataDir._().CharSettingJson
+        ])
+        FileCreater.まとめて作成([
+            DataDir._().CharSettingJson
+        ])

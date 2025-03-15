@@ -6,6 +6,7 @@ from api.DataStore.CharacterSetting.CharacterInfo.CharacterInfo import Character
 from api.DataStore.ChatacterVoiceSetting.CevioAIVoiceSetting.CevioAIVoiceSettingModel import CevioAIVoiceSettingModel
 from api.DataStore.ChatacterVoiceSetting.VoiceVoxVoiceSetting.VoiceVoxVoiceSettingModel import VoiceVoxVoiceSettingModel
 from api.DataStore.JsonAccessor import JsonAccessor
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.gptAI.HumanInfoValueObject import NickName
 
@@ -26,7 +27,7 @@ class CevioAICharacterSettingCollectionOperator():
         return CevioAICharacterSettingCollectionOperator.instance
     @staticmethod
     def loadAll():
-        path = ExtendFunc.api_dir / "CharSettingJson" / "CharacterSetting" / "CevioAICharacterSetting.json"
+        path = DataDir._().CharSettingJson / "CharacterSetting" / "CevioAICharacterSetting.json"
         try:
             settinglist = ExtendFunc.loadJsonToBaseModel(path, CevioAICharacterSettingCollection)
         except:
@@ -37,7 +38,7 @@ class CevioAICharacterSettingCollectionOperator():
         return settinglist
     @staticmethod
     def saveAll(settinglist: CevioAICharacterSettingCollection):
-        path = ExtendFunc.api_dir / "CharSettingJson" / "CharacterSetting" / "CevioAICharacterSetting.json"
+        path = DataDir._().CharSettingJson / "CharacterSetting" / "CevioAICharacterSetting.json"
         ExtendFunc.saveBaseModelToJson(path, settinglist)
     
     def add(self, setting: CevioAICharacterSettingSaveModel):
