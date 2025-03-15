@@ -30,7 +30,6 @@ class HumanPart:
     def getCharFilePath(self,characterName:CharacterName,human_image:HumanImage,psd_num:int|None = None):
         
         char_file_path = DataDir._().CharSettingJson / "CharFilePath.json"
-        print("char_file_path",char_file_path)
         with open(char_file_path, 'r', encoding='utf-8') as f:
             name_list:dict[str,list[str]] = json.load(f)
         ExtendFunc.ExtendPrintWithTitle("name_list",name_list)
@@ -217,7 +216,7 @@ class HumanPart:
         """
         ボイロキャラの画像フォルダのパスを取得する
         """
-        root_dir = ExtendFunc.getTargetDirFromParents(__file__,"api").parent
+        root_dir = ExtendFunc.api_dir.parent
         target_dir = root_dir / "ボイロキャラ素材"
         return target_dir
     
@@ -244,9 +243,9 @@ class HumanPart:
         """
         if not HumanPart.checkExistVoiroCharaImageFolder():
             HumanPart.createVoiroCharaImageFolder()
-            print("ボイロキャラの画像フォルダがなかったので作成しました。")
+            ExtendFunc.ExtendPrint("ボイロキャラの画像フォルダがなかったので作成しました。")
         else:
-            print("ボイロキャラの画像フォルダが正常に存在します。")
+            ExtendFunc.ExtendPrint("ボイロキャラの画像フォルダが正常に存在します。")
     
     @staticmethod
     def checkNameExistInVoiroCharaImageFolderAndCreate(name:str):

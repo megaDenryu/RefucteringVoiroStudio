@@ -1,3 +1,4 @@
+from api.AppInitializer.AppInitializer import アプリ起動確認者
 from api.DataStore.AppSetting.AppSettingModel.SynthesisVoiceSetting.COEIROINKv2Setting.COEIROINKv2Setting import COEIROINKv2SettingModel
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
@@ -36,9 +37,11 @@ if __name__ == "__main__":
     # ExtendFunc.ExtendPrint(c)
     # c.path = "b"
     # ExtendFunc.ExtendPrint(c)
-    a = VoiceVoxLauncher.startVoicevox()
-    # a = CoeiroinkLauncher.startCoeiroink()
-    asyncio.run(a)
+    # a = VoiceVoxLauncher.startVoicevox()
+    # # a = CoeiroinkLauncher.startCoeiroink()
+    # asyncio.run(a)
+    a = アプリ起動確認者()
+    a.初期化()
     
         
 
