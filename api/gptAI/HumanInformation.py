@@ -255,16 +255,23 @@ class NicknamesManager:
         """
         humanlistを取得してNickNames辞書にキーがないキャラ名があった場合はキーを追加する
         """
-        all_manager = AllHumanInformationManager.singleton()
-        charaNameList = all_manager.chara_names_manager.chara_names
-        for charaName in charaNames:
-            if charaName not in charaNameList or charaName not in self.nicknames:
-                #ファイルパス一覧に追加する
-                if charaName not in self.nicknames[charaName]:
-                    self.nicknames[charaName].append(NickName(name = charaName.name))
-        
-        #上書き保存する
-        self.updateNicknames(self.nicknames)
+        try:
+            all_manager = AllHumanInformationManager.singleton()
+            charaNameList = all_manager.chara_names_manager.chara_names
+            for charaName in charaNames:
+                # まず辞書にキーが存在しない場合は空リストで初期化
+                if charaName not in self.nicknames:
+                    self.nicknames[charaName] = []
+                
+                # キャラ名自体をニックネームとして追加（まだ存在しない場合）
+                default_nickname = NickName(name=charaName.name)
+                if default_nickname not in self.nicknames[charaName]:
+                    self.nicknames[charaName].append(default_nickname)
+            
+            #上書き保存する
+            self.updateNicknames(self.nicknames)
+        except Exception as e:
+            ExtendFunc.ExtendPrint(["キャラ名追加エラー",e])
     
     def updateNicknames(self, nicknames:dict[CharacterName, list[NickName]]):
         """
