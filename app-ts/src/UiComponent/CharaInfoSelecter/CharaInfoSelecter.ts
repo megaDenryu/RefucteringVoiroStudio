@@ -25,6 +25,7 @@ import { simulateSelectValueChange } from "../../Extend/ExtendElement/ExtendHTML
 import { clickSimulate, ISelecterComponent, ISelecterComponentProxy } from "../Base/SelecterComponent/ISelecterComponent";
 import { SerifSettingModel } from "../../ZodObject/DataStore/AppSetting/AppSettingModel/SerifSetting/SerifSettingModel";
 import { generateDefaultObject } from "../../Extend/ZodExtend/ZodExtend";
+import { NormalText } from "../Display/Text/NormalText";
 
 export class TTSSoftwareSelecter implements ISelecterComponent {
     public readonly component: BaseComponent;
@@ -860,6 +861,29 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
     }
 }
 
+export class SelecteItemDisplay implements IHasComponent {
+    /**
+     * 選択されたアイテム名を表示する。なのでアイテムを表示するための関数が必要。名前を受け取ってそれに表示名を切り替える。
+     * それから名前を表示する要素が必要。
+     */
+    textDisplay: NormalText;
+    public get component(): BaseComponent { return this.textDisplay.component; }
+
+    constructor() {
+        this.textDisplay = new NormalText("");
+    }
+
+    public setText(text: string): void {
+        console.log(text);
+        this.textDisplay.changeText(text);
+    }
+
+    public delete(): void {
+        this.component.delete();
+    }
+
+}
+
 export class CharacterSelectDecisionButton implements IHasComponent {
     /**キャラクターを決定するために押すボタン
      * 押すとapiサーバーにリクエストを投げる
@@ -919,6 +943,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
             <div class="CharaSelectFunction">
                 <div class="AriaTTSSoftwareSelecter"></div>
                 <div class="AriaFlexCompositeCharaSelecters"></div>
+                <div class="AriaSelectItemDisplay"></div>
                 <div class="AriaButton"></div>
                 <div class="AriaDeleteButton"></div>
             </div>
@@ -926,6 +951,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         {
             "AriaTTSSoftwareSelecter":"AriaTTSSoftwareSelecter",
             "AriaFlexCompositeCharaSelecters":"AriaFlexCompositeCharaSelecters",
+            "AriaSelectItemDisplay":"AriaSelectItemDisplay",
             "AriaButton":"AriaButton",
             "AriaDeleteButton":"AriaDeleteButton"
         }
@@ -941,6 +967,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
     private compositehumanImageSelecter: CompositeHumanImageSelecter;
     private compositeVoiceModeSelecter: CompositeVoiceModeSelecter;
     private compositeCharacterSettingSaveDataSelecter: CompositeCharacterSettingSaveDataSelecter;
+    private selecteItemDisplay: SelecteItemDisplay;
     private characterSelectDecisionButton: CharacterSelectDecisionButton;
     private characterSelecterDeleteButton: CharaSelecterDeleteButton;
     private _onReceiveDecideCharacterResponse = new ReactiveProperty<HumanData|null>(null);
@@ -1015,6 +1042,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         this.compositehumanImageSelecter = new CompositeHumanImageSelecter(humanImagesDict, this.defaultCharacterName, this.defaultHumanImage);
         this.compositeVoiceModeSelecter = new CompositeVoiceModeSelecter(voiceModesDict, this.defaultCharacterName, this.defaultVoiceMode);
         this.compositeCharacterSettingSaveDataSelecter = new CompositeCharacterSettingSaveDataSelecter(characterSettingSaveDatas, this.defaultTTSSoftWare, this.defaultCharacterName, this.characterNamesDict);
+        this.selecteItemDisplay = new SelecteItemDisplay();
         this.characterSelectDecisionButton = new CharacterSelectDecisionButton();
         this.characterSelecterDeleteButton = new CharaSelecterDeleteButton();
         this.component = BaseComponent.createElement<typeof this.Def["classNames"]>(this.Def);
@@ -1040,6 +1068,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         this.component.createArrowBetweenComponents(this, this.compositehumanImageSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);        //人間の画像セレクター
         this.component.createArrowBetweenComponents(this, this.compositeVoiceModeSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters);         //ボイスモードセレクター
         this.component.createArrowBetweenComponents(this, this.compositeCharacterSettingSaveDataSelecter, this.Def.classNames.AriaFlexCompositeCharaSelecters); //キャラクターセーブデータセレクター
+        this.component.createArrowBetweenComponents(this, this.selecteItemDisplay, this.Def.classNames.AriaSelectItemDisplay);      //選択されたアイテムを表示する
         this.component.createArrowBetweenComponents(this, this.characterSelectDecisionButton, this.Def.classNames.AriaButton);      //決定ボタン
         this.component.createArrowBetweenComponents(this, this.characterSelecterDeleteButton, this.Def.classNames.AriaDeleteButton);      //削除ボタン
         this.dragMover = new DragMover(this);
@@ -1053,6 +1082,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         //tts選択をすると、そのttsのキャラセレクターが表示される
         this.ttsSoftwareSelecter.addOnSelectedSoftwareChanged( (tts_software) => {
             this.compositeCharacterNameSelecter.selectedSoftware.set(tts_software);
+
         })
         //キャラクターが選択されたとき、画像セレクターの今のキャラの値を変更する
         this.compositeCharacterNameSelecter.addOnCharacterNameChanged((characterName) => {
