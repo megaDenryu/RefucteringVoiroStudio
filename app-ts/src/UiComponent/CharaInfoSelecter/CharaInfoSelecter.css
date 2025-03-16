@@ -113,8 +113,11 @@
     background-color: #b32c2c; /* フォーカスアウト時の背景色を変更 */
 }
 
+.AriaSelectItemDisplay{
+
+}
+
 .AriaButton {
-    margin-top: 5%;
     position: relative;
     display: flex;
     justify-content: center;

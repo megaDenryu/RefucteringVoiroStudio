@@ -257,14 +257,14 @@ export class CompositeHumanImageSelecter implements ISelecterComponentProxy {
     private readonly humanImageSelecterDict: VoMap<CharacterName, HumanImageSelecter>;
     //変化したときに表示するセレクターを変える
     public readonly selectedCharacterName: ReactiveProperty<CharacterName>;
-    private _selectedHumanImage: HumanImage;
-    public get selectedHumanImage(): HumanImage { return this._selectedHumanImage; }
+    private _selectedHumanImage: ReactiveProperty<HumanImage>;
+    public get selectedHumanImage(): HumanImage { return this._selectedHumanImage.get(); }
 
     constructor(humanImagesDict: VoMap<CharacterName, HumanImage[]>, defaultCharacterName: CharacterName, defaultHumanImage: HumanImage) {
         this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.humanImagesDict = humanImagesDict;
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
-        this._selectedHumanImage = defaultHumanImage;
+        this._selectedHumanImage = new ReactiveProperty<HumanImage>(defaultHumanImage);
         this.humanImageSelecterDict = this.createHumanImageSelecter(humanImagesDict);
         this.start();
     }
@@ -290,7 +290,7 @@ export class CompositeHumanImageSelecter implements ISelecterComponentProxy {
         const humanImageSelecterMap: VoMap<CharacterName, HumanImageSelecter> = new VoMap();
         for (const [characterName, humanImages] of humanImagesDict.entries()) {
             const humanImageSelecter = new HumanImageSelecter(humanImages);
-            humanImageSelecter.addOnHumanImageChanged((humanImage) => {this._selectedHumanImage = humanImage;});
+            humanImageSelecter.addOnHumanImageChanged((humanImage) => {this._selectedHumanImage.set(humanImage);});
             humanImageSelecterMap.set(characterName, humanImageSelecter);
         }
         
@@ -300,11 +300,11 @@ export class CompositeHumanImageSelecter implements ISelecterComponentProxy {
     private setGraph(): void {
         for (const [characterName, humanImageSelecter] of this.humanImageSelecterDict.entries()) {
             this.component.createArrowBetweenComponents(this, humanImageSelecter);
-            humanImageSelecter.addOnHumanImageChanged((humanImage) => {this._selectedHumanImage = humanImage;});
+            humanImageSelecter.addOnHumanImageChanged((humanImage) => {this._selectedHumanImage.set(humanImage);});
         }
     }
 
-    changeShowHumanImageSelecter(characterName: CharacterName): void {
+    public changeShowHumanImageSelecter(characterName: CharacterName): void {
         for (const [name, humanImageSelecter] of this.humanImageSelecterDict.entries()) {
             if (name.equals(characterName)) {
                 humanImageSelecter.show();
@@ -314,7 +314,11 @@ export class CompositeHumanImageSelecter implements ISelecterComponentProxy {
         }
     }
 
-    delete(): void {
+    public addOnHumanImageChanged(method: (humanImage: HumanImage) => void): void {
+        this._selectedHumanImage.addMethod(method);
+    }
+
+    public delete(): void {
         this.component.delete();
     }
 
@@ -329,9 +333,6 @@ export class VoicemodeSelecter implements ISelecterComponent {
      * 音声モードを選択するセレクター
      * アクション１：一つのキャラクターの音声モードを選択するとコンポジットボイスモードセレクターに送られて、音声モードが変更される
      * アクション２：キャラクターが変更されるとこのセレクターが表示されたり消えたりする
-     * 
-     * 
-     * 
      */
     public readonly component: BaseComponent;
     public readonly characterName: CharacterName;
@@ -382,11 +383,11 @@ export class VoicemodeSelecter implements ISelecterComponent {
 export class CompositeVoiceModeSelecter implements ISelecterComponentProxy {
     component: BaseComponent;
     public readonly selectedCharacterName: ReactiveProperty<CharacterName>;
-    private _selectedVoiceMode: VoiceMode;
+    private _selectedVoiceMode: ReactiveProperty<VoiceMode>;
     private voiceModesDict: VoMap<CharacterName, VoiceMode[]>;
     private voiceModeSelecterDict: VoMap<CharacterName, VoicemodeSelecter>;
 
-    get selectedVoiceMode(): VoiceMode { return this._selectedVoiceMode; }
+    get selectedVoiceMode(): VoiceMode { return this._selectedVoiceMode.get(); }
     get HTMLInput(): string {
         return `
         <div class="CompositeVoiceModeSelecter CompositeSelecterSize">
@@ -398,7 +399,7 @@ export class CompositeVoiceModeSelecter implements ISelecterComponentProxy {
     constructor(voiceModesDict: VoMap<CharacterName, VoiceMode[]>, defaultCharacterName: CharacterName, defaultVoiceMode: VoiceMode) {
         this.component = BaseComponent.createElementByString(this.HTMLInput);
         this.selectedCharacterName = new ReactiveProperty<CharacterName>(defaultCharacterName);
-        this._selectedVoiceMode = defaultVoiceMode;
+        this._selectedVoiceMode = new ReactiveProperty<VoiceMode>(defaultVoiceMode);
         this.voiceModesDict = voiceModesDict;
         console.log(voiceModesDict);
         this.voiceModeSelecterDict = this.createVoiceModeSelecter(voiceModesDict);
@@ -422,14 +423,18 @@ export class CompositeVoiceModeSelecter implements ISelecterComponentProxy {
         return voiceModeSelecter;
     }
 
-    setGraph(): void {
+    public setGraph(): void {
         for (const [characterName, voiceModeSelecter] of this.voiceModeSelecterDict.entries()) {
             this.component.createArrowBetweenComponents(this, voiceModeSelecter);
-            voiceModeSelecter.addOnVoiceModeChanged((voiceMode) => {this._selectedVoiceMode = voiceMode;});
+            voiceModeSelecter.addOnVoiceModeChanged((voiceMode) => {this._selectedVoiceMode.set(voiceMode);});
         }
     }
 
-    changeShowVoiceModeSelecter(characterName: CharacterName): void {
+    public addOnVoiceModeChanged(method: (voiceMode: VoiceMode) => void): void {
+        this._selectedVoiceMode.addMethod(method);
+    }
+
+    public changeShowVoiceModeSelecter(characterName: CharacterName): void {
         for (const [name, voiceModeSelecter] of this.voiceModeSelecterDict.entries()) {
             if (name.equals(characterName)) {
                 voiceModeSelecter.show();
@@ -439,7 +444,7 @@ export class CompositeVoiceModeSelecter implements ISelecterComponentProxy {
         }
     }
 
-    delete(): void {
+    public delete(): void {
         this.component.delete();
     }
 
@@ -454,6 +459,15 @@ export interface ICharacterSettingSaveModel<T extends VoiceSettingModel> {
     characterInfo: CharacterInfo;
     voiceSetting?: T;
     readingAloud?: SerifSettingModel;
+}
+
+export function createDumyCharacterSettingSaveModel(): ICharacterSettingSaveModel<VoiceSettingModel> {
+    return {
+        saveID: "dummy",
+        characterInfo: generateDefaultObject(CharacterInfo),
+        voiceSetting: undefined,
+        readingAloud: generateDefaultObject(SerifSettingModel),
+    };
 }
 
 export type SaveDataSelecterOptionDataset = {
@@ -551,6 +565,7 @@ export interface SelectCharacterInfo {
 export class CompositeCharacterSettingSaveDataSelecter implements ISelecterComponentProxy {
     component: BaseComponent;
     public readonly selectedCharacter: ReactiveProperty<SelectCharacterInfo>;
+    private _selectedCharacterSaveData: ReactiveProperty<ICharacterSettingSaveModel<VoiceSettingModel>>;
     private _characterSettingSaveData: CharacterSettingSaveDatas;
     private _characterNamesDict: Record<TTSSoftware, CharacterName[]>;
     private _cevioAISaveDataSelecterDict: VoMap<CharacterName, CharacterSettingSaveDataSelecter<CevioAIVoiceSettingModel>> = new VoMap();
@@ -583,6 +598,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
         this.component = BaseComponent.createElementByString(this.HTMLInput);
         this._characterSettingSaveData = characterSettingSaveDatas;
         this._characterNamesDict = characterNamesDict;
+        this._selectedCharacterSaveData = new ReactiveProperty<ICharacterSettingSaveModel<VoiceSettingModel>>(createDumyCharacterSettingSaveModel());
         this.セレクターの作成とバインド();
         //最初のキャラクターを表示し、他のキャラクターを非表示にし、選択されたキャラクターを変更する。また、選択されたセーブIDを変更する
         this.selectedCharacter = new ReactiveProperty<SelectCharacterInfo>({"ttsSoftware": ttsSoftware, "characterName": defaultCharacterName});
@@ -592,6 +608,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
         this.selectedCharacter.addMethod((newCharacter) => {
             this.changeCharacter(newCharacter);
         });
+        
     }
 
     public changeCharacter(newCharacter: SelectCharacterInfo): void {
@@ -617,6 +634,10 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
         }
     }
 
+    public addOnSelectedCharacterSaveData(method: (characterSaveData: ICharacterSettingSaveModel<VoiceSettingModel>) => void): void {
+        this._selectedCharacterSaveData.addMethod(method);
+    }
+
     public delete(): void {
         this.component.delete();
     }
@@ -630,6 +651,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
     private セレクターの作成とバインド()  {
         for (const [characterName, saveData] of this.セーブデータの分類AIVoice(this._characterSettingSaveData.characterSettingAIVoice).entries()) {
             const selecter = new CharacterSettingSaveDataSelecter(characterName, TTSSoftwareEnum.AIVoice, saveData);
+            selecter.addOnSaveIDChanged((saveID) => {this._selectedCharacterSaveData.set(selecter.selectedCharacterSaveData);});
             this._aiVoiceSaveDataSelecterDict.set(characterName, selecter);
             this.component.createArrowBetweenComponents(this, selecter);
             selecter.hide();
@@ -637,6 +659,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
 
         for (const [characterName, saveData] of this.セーブデータの分類CevioAi(this._characterSettingSaveData.characterSettingCevioAI).entries()) {
             const selecter = new CharacterSettingSaveDataSelecter(characterName, TTSSoftwareEnum.CevioAI, saveData);
+            selecter.addOnSaveIDChanged((saveID) => {this._selectedCharacterSaveData.set(selecter.selectedCharacterSaveData);});
             this._cevioAISaveDataSelecterDict.set(characterName, selecter);
             this.component.createArrowBetweenComponents(this, selecter);
             selecter.hide();
@@ -644,6 +667,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
 
         for (const [characterName, saveData] of this.セーブデータの分類VoiceVox(this._characterSettingSaveData.characterSettingVoiceVox).entries()) {
             const selecter = new CharacterSettingSaveDataSelecter(characterName, TTSSoftwareEnum.VoiceVox, saveData);
+            selecter.addOnSaveIDChanged((saveID) => {this._selectedCharacterSaveData.set(selecter.selectedCharacterSaveData);});
             this._voiceVoxSaveDataSelecterDict.set(characterName, selecter);
             this.component.createArrowBetweenComponents(this, selecter);
             selecter.hide();
@@ -651,6 +675,7 @@ export class CompositeCharacterSettingSaveDataSelecter implements ISelecterCompo
 
         for (const [characterName, saveData] of this.セーブデータの分類Coeiroink(this._characterSettingSaveData.characterSettingCoeiroink).entries()) {
             const selecter = new CharacterSettingSaveDataSelecter(characterName, TTSSoftwareEnum.Coeiroink, saveData);
+            selecter.addOnSaveIDChanged((saveID) => {this._selectedCharacterSaveData.set(selecter.selectedCharacterSaveData);});
             this._coeiroinkSaveDataSelecterDict.set(characterName, selecter);
             this.component.createArrowBetweenComponents(this, selecter);
             selecter.hide();
@@ -870,11 +895,10 @@ export class SelecteItemDisplay implements IHasComponent {
     public get component(): BaseComponent { return this.textDisplay.component; }
 
     constructor() {
-        this.textDisplay = new NormalText("");
+        this.textDisplay = new NormalText("test");
     }
 
-    public setText(text: string): void {
-        console.log(text);
+    public changeText(text: string): void {
         this.textDisplay.changeText(text);
     }
 
@@ -1082,12 +1106,13 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         //tts選択をすると、そのttsのキャラセレクターが表示される
         this.ttsSoftwareSelecter.addOnSelectedSoftwareChanged( (tts_software) => {
             this.compositeCharacterNameSelecter.selectedSoftware.set(tts_software);
-
+            this.selecteItemDisplay.changeText(tts_software);
         })
         //キャラクターが選択されたとき、画像セレクターの今のキャラの値を変更する
         this.compositeCharacterNameSelecter.addOnCharacterNameChanged((characterName) => {
             console.log("キャラクターが選択されました" + characterName.name + ": compositehumanImageSelecter");
             this.compositehumanImageSelecter.selectedCharacterName.set(characterName);
+            
         });
         //キャラクターが選択されたとき、ボイスモードセレクターの今のキャラの値を変更する
         this.compositeCharacterNameSelecter.addOnCharacterNameChanged( (characterName) => {
@@ -1098,7 +1123,24 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         this.compositeCharacterNameSelecter.addOnCharacterNameChanged( (characterName) => {
             console.log("キャラクターが選択されました: " + characterName.name + ": compositeCharacterSettingSaveDataSelecter");
             this.compositeCharacterSettingSaveDataSelecter.selectedCharacter.set({"ttsSoftware": this.ttsSoftwareSelecter.selectedSoftware, "characterName": characterName});
+            this.selecteItemDisplay.changeText(characterName.name);
         });
+        //画像が選択されたとき、選択された画像名を表示する
+        this.compositehumanImageSelecter.addOnHumanImageChanged((humanImage) => {
+            if (humanImage == null) {return;}
+            this.selecteItemDisplay.changeText(humanImage.folder_name);
+        });
+        //ボイスモードが選択されたとき、選択されたボイスモードを表示する
+        this.compositeVoiceModeSelecter.addOnVoiceModeChanged((voiceMode) => {
+            if (voiceMode == null) {return;}
+            this.selecteItemDisplay.changeText(voiceMode.name);
+        });
+        //セーブデータが選択されたとき、選択されたセーブデータを表示する
+        this.compositeCharacterSettingSaveDataSelecter.addOnSelectedCharacterSaveData((characterSaveData) => {
+            if (characterSaveData == null) {return;}
+            this.selecteItemDisplay.changeText(characterSaveData.characterInfo.nickName.name);
+        });
+
         //決定ボタンを押すと、キャラクターが決定される
         this.characterSelectDecisionButton.addOnPushButton(() => {
             this.decideCharacter();
