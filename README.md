@@ -64,6 +64,8 @@ GBmode:
 cevioとAIVOICEをdockerからだと触り方がわからなかったのでdockerでの起動は無理だと思います。
 
 
-# 対応ブラウザ
+# 対応os/対応ブラウザ
+今はwindowsのみ動作します。
+音声認識が使える以下のブラウザを想定しています。
 - Google chrome
 - Microsoft Edge
