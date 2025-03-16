@@ -28,7 +28,7 @@ export class SentenceDisplay implements IHasComponent,IHasSquareBoard {
             [],
             {},
             null,
-            true
+            false
         );
         this.component = this.squareBoardComponent.component;
         this.closeButton = new NormalButton("閉じる",closeButton).addOnClickEvent(() => {this.close()});

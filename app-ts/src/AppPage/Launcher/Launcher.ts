@@ -22,7 +22,7 @@ export class Launcher implements IHasSquareBoard, IHasComponent {
             [],
             {},
             null,
-            true
+            false
         );
         this.component = this.squareBoardComponent.component.setAsParentComponent();
         this._aivoiceLaunchButton = new TTSLaunchButton("AIVoice",this).setAsChildComponent();
