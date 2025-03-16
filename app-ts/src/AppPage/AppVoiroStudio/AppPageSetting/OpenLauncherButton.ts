@@ -1,13 +1,14 @@
 import { IHasComponent } from "../../../UiComponent/Base/ui_component_base";
 import { IToggleWindow } from "../../../UiComponent/Board/IToggleWindow";
 import { NormalButton } from "../../../UiComponent/Button/NormalButton/NormalButton";
+import { launchCloseButton, launchOpenButton } from "../../Launcher/styles.css";
 
 export class ToggleOtherWindowButton {
     public targetWindow: IToggleWindow;
     private button: NormalButton;
     constructor(targetWindow: IToggleWindow) {
         this.targetWindow = targetWindow;
-        this.button = new NormalButton("設定を開く","OpenSettingLauncherButton").addOnClickEvent(this.toggle.bind(this));
+        this.button = new NormalButton("設定ひらく",launchOpenButton).addOnClickEvent(this.toggle.bind(this));
         this.targetWindow.isOpenState.addMethod((isOpen) => {this.changeButtonState(isOpen);});
         return this;
     }
@@ -35,11 +36,11 @@ export class ToggleOtherWindowButton {
 
     public changeButtonState(isOpen: boolean) {
         if (isOpen) {
-            this.button.setText("設定を閉じる");
-            // this.button.setView();
+            this.button.setText("設定とじる");
+            this.button.setView(launchCloseButton)
         } else {
-            this.button.setText("設定を開く");
-            // this.button.setView();
+            this.button.setText("設定ひらく");
+            this.button.setView(launchOpenButton)
         }
     }
 }

@@ -2,7 +2,6 @@ import { BaseComponent, ElementCreater, IHasComponent } from "../../Base/ui_comp
 import { ReactiveProperty } from "../../../BaseClasses/EventDrivenCode/observer";
 import { IButton } from "../IButton";
 import { VanillaExtractClassName } from "../../../Extend/VanilaExtractExtend.ts/VanillaExtractClassName";
-import { clsx } from "clsx";
 
 
 
@@ -31,12 +30,12 @@ export class NormalButton implements IHasComponent, IButton {
 
     private initialize() {
         this._view.addMethod((newView) => {
-            this.component.removeCSSClass(["normal", "warning", "danger"]);
-            this.component.addCSSClass(newView);
+            this.component.setCSSClass(newView); //cssクラスの何を削除するか指定するのを考えると一般化は不可能に見えたのでここでは対応しない
         });
         this._view.set(this._view.get());
     }
 
+    //cssクラスを完全に上書きする。ボタンの状態はボタンを持つクラスで管理する。
     public setView(view: VanillaExtractClassName): NormalButton {
         this._view.set(view);
         return this;
