@@ -114,7 +114,9 @@
 }
 
 .AriaSelectItemDisplay{
-
+    font-size: 16px;
+    font-weight: bold;
+    color: #df00ab;
 }
 
 .AriaButton {
@@ -155,8 +157,7 @@
 
 .AriaDeleteButton {
     position: absolute;
-    left: 50%; /* 親要素の中央に、この要素の左端を合わせる */
-    transform: translate(22vh, -27vh); /* 要素の中心を基準に位置を調整 */
+    left: 75%; 
     display: flex;
     justify-content: center;
     align-items: center;

@@ -1110,20 +1110,14 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         })
         //キャラクターが選択されたとき、画像セレクターの今のキャラの値を変更する
         this.compositeCharacterNameSelecter.addOnCharacterNameChanged((characterName) => {
-            console.log("キャラクターが選択されました" + characterName.name + ": compositehumanImageSelecter");
             this.compositehumanImageSelecter.selectedCharacterName.set(characterName);
-            
-        });
-        //キャラクターが選択されたとき、ボイスモードセレクターの今のキャラの値を変更する
-        this.compositeCharacterNameSelecter.addOnCharacterNameChanged( (characterName) => {
-            console.log("キャラクターが選択されました: " + characterName.name + ": compositeVoiceModeSelecter");
+            //キャラクターが選択されたとき、ボイスモードセレクターの今のキャラの値を変更する
             this.compositeVoiceModeSelecter.selectedCharacterName.set(characterName);
-        });
-        //キャラクターが選択されたとき、キャラクターセーブデータセレクターの今のキャラの値を変更する
-        this.compositeCharacterNameSelecter.addOnCharacterNameChanged( (characterName) => {
-            console.log("キャラクターが選択されました: " + characterName.name + ": compositeCharacterSettingSaveDataSelecter");
+            //キャラクターが選択されたとき、キャラクターセーブデータセレクターの今のキャラの値を変更する
             this.compositeCharacterSettingSaveDataSelecter.selectedCharacter.set({"ttsSoftware": this.ttsSoftwareSelecter.selectedSoftware, "characterName": characterName});
+            //選択されたキャラクター名を表示する。上でキャラ変更を他のセレクターに通知するとそちらのアイテム選択イベントでテキスト変更が走るので、それらが終わったこのタイミングでテキスト変更を行う
             this.selecteItemDisplay.changeText(characterName.name);
+            
         });
         //画像が選択されたとき、選択された画像名を表示する
         this.compositehumanImageSelecter.addOnHumanImageChanged((humanImage) => {
@@ -1133,7 +1127,7 @@ export class CharaSelectFeature implements IHasComponent, IDragAble {
         //ボイスモードが選択されたとき、選択されたボイスモードを表示する
         this.compositeVoiceModeSelecter.addOnVoiceModeChanged((voiceMode) => {
             if (voiceMode == null) {return;}
-            this.selecteItemDisplay.changeText(voiceMode.name);
+            this.selecteItemDisplay.changeText(voiceMode.mode);
         });
         //セーブデータが選択されたとき、選択されたセーブデータを表示する
         this.compositeCharacterSettingSaveDataSelecter.addOnSelectedCharacterSaveData((characterSaveData) => {
