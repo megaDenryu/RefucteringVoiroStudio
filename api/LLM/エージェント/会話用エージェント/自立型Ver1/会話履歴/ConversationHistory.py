@@ -1,12 +1,12 @@
-
-
-
 # 会話履歴を操作するクラス
+from typing import Callable
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴発行者
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.Conversation import Conversation
 
 
-class ConversationHistory:
+class ConversationHistory(I会話履歴発行者):
     conversation: Conversation
+    _onMessageAction: list[Callable[[], None]] = []
     def __init__(self):
         self.conversation = Conversation(history=[])
     def addMessage(self, messageUnit):
@@ -15,4 +15,8 @@ class ConversationHistory:
         self.conversation.history = [message for message in self.conversation.history if message.id != messageId]
     def saveConversation(self):
         pass
+    def addOnMessage(self, method:Callable[[], None]):
+        self._onMessageAction.append(method)
+    def 会話を見る(self)->Conversation:
+        return self.conversation
 
