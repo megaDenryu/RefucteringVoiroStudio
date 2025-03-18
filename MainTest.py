@@ -10,6 +10,7 @@ import asyncio
 
 from api.LLM.エージェントテスト.テスト環境.GeminiApiテスト.GeminiTest import 連続検索テスト
 from api.LLM.エージェントテスト.テスト環境.ルビ振りテスト.GeminiConverterTest import Geminiの連続会話テストユニット
+from api.LLM.エージェントテスト.テスト環境.自立型Ver1テスト.自立型Ver1test import 自立型Ver1test
 from api.TtsSoftApi.Coeiroink.CoeiroinkLauncher import CoeiroinkLauncher
 from api.TtsSoftApi.TTSSoftwareManager import TTSSoftwareManager
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
@@ -43,10 +44,11 @@ if __name__ == "__main__":
     # # a = CoeiroinkLauncher.startCoeiroink()
     # asyncio.run(a)
     
-    a = アプリ起動確認者()
-    a.アプリ起動確認()
-    a.初期化()
-        
+    # a = アプリ起動確認者()
+    # a.アプリ起動確認()
+    # a.初期化()
+    
+    自立型Ver1test.MainLoop()
 
 
 
