@@ -6,5 +6,5 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.I�
 
 
 class LLMHumanBodyInput(TypedDict):
-    会話履歴発行者: I会話履歴
-    v口: I表現機構
+    会話履歴: I会話履歴
+    表現機構: I表現機構

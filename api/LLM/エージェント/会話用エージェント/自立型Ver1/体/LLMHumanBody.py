@@ -18,8 +18,8 @@ class LLMHumanBody:
     v口: I表現機構
 
     def __init__(self, input: LLMHumanBodyInput):
-        self.v会話履歴 = input["会話履歴発行者"]
-        self.v口 = input["v口"]
+        self.v会話履歴 = input["会話履歴"]
+        self.v口 = input["表現機構"]
         self.v他人と自分の声を識別する機構 = LLM他人と自分の声を識別する機構()
         self.v脳 = LLMBrain()
     
