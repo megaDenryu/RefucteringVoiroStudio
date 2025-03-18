@@ -30,6 +30,10 @@ class 体を持つ者example(I体を持つ者, I表現機構):
     def llmHumanBodyInput(self)->LLMHumanBodyInput:
         return self.llmHumanBodyInput
     
+    @property
+    def 自分の情報(self)->自分の情報コンテナ:
+        return self._自分の情報
+    
     def 会話履歴注入(self, 会話履歴: I会話履歴):
         self._会話履歴 = 会話履歴
         self._llmHumanBodyInput = {"会話履歴": self._会話履歴,"表現機構": self, "自分の情報": self._自分の情報}
