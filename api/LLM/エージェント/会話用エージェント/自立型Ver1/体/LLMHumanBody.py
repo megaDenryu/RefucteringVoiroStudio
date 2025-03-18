@@ -1,7 +1,7 @@
 from typing import Callable, TypedDict
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Iしゃべるための口 import I表現機構
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.I表現機構 import I表現機構
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMBrain import LLMBrain
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMEar import LLM他人と自分の声を識別する機構
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBodyInput import LLMHumanBodyInput
