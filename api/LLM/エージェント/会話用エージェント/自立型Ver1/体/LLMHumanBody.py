@@ -3,14 +3,16 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.I表現機構 import I表現機構
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMBrain import LLMBrain
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMEar import LLM他人と自分の声を識別する機構
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLM他人と自分の声を識別する機構 import LLM他人と自分の声を識別する機構
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBodyInput import LLMHumanBodyInput
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報 import 自分の情報コンテナ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.外部イベント import 外部イベント
 
 
 
 class LLMHumanBody:
+    v自分の情報:自分の情報コンテナ
     v他人と自分の声を識別する機構: LLM他人と自分の声を識別する機構
     v脳: LLMBrain
 
@@ -18,6 +20,7 @@ class LLMHumanBody:
     v口: I表現機構
 
     def __init__(self, input: LLMHumanBodyInput):
+        self.v自分の情報 = input["自分の情報"]
         self.v会話履歴 = input["会話履歴"]
         self.v口 = input["表現機構"]
         self.v他人と自分の声を識別する機構 = LLM他人と自分の声を識別する機構()
