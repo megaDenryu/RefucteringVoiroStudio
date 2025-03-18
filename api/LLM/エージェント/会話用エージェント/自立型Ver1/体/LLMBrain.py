@@ -6,8 +6,8 @@ class LLMBrain:
     def __init__(self):
         pass
 
-    def 考える(self, message) -> 思考結果:
+    async def 考える(self, message) -> 思考結果:
         """ 
         会話をする
         """
-        return 思考結果(結論 = "考えた結果")
+        return 思考結果(結論 = "考えた結果", 感情="感情" , 理由="理由")
