@@ -17,3 +17,6 @@ class AISpace:
     def add人間(self, 人間:I体を持つ者):
         人間.会話履歴注入(self.conversationHistory)
         self.人間examples.append(人間)
+
+    def 会話更新(self, message:str):
+        self.conversationHistory.addMessage(message)
