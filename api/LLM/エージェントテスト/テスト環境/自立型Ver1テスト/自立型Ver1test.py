@@ -12,4 +12,8 @@ class 自立型Ver1test:
         aiSpace.add人間(人間1)
         aiSpace.add人間(人間2)
 
+        while True:
+            message = input("会話を入力してください")
+            aiSpace.会話更新(message)
+
         

@@ -11,6 +11,8 @@ class ConversationHistory(I会話履歴):
         self.conversation = Conversation(history=[])
     def addMessage(self, messageUnit):
         self.conversation.history.append(messageUnit)
+        for action in self._onMessageAction:
+            action()
     def deleteMessage(self, messageId):
         self.conversation.history = [message for message in self.conversation.history if message.id != messageId]
     def saveConversation(self):
