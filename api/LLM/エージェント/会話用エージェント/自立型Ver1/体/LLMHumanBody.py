@@ -1,5 +1,5 @@
-from typing import Callable, TypedDict
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.Conversation import Conversation
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.I表現機構 import I表現機構
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMBrain import LLMBrain
@@ -29,16 +29,19 @@ class LLMHumanBody:
     async def イベント反応メインプロセス(self):
         event:外部イベント = self.イベントとして会話を解釈する(self.v会話履歴.会話())
         v表現したいこと = await self.イベントが発生した時の行動(event)
-        self.v口.表現する(v表現したいこと)
+        if v表現したいこと is not None:
+            self.v口.表現する(v表現したいこと)
 
-    async def イベントが発生した時の行動(self, event:外部イベント)->PresentationByBody:
+    async def イベントが発生した時の行動(self, event:外部イベント)->PresentationByBody|None:
         フィルター済みの結果 = self.v他人と自分の声を識別する機構.聞く(event)
+        if フィルター済みの結果 is None:
+            return None
         v思考結果:思考結果 = await self.v脳.考える(フィルター済みの結果)
         v表現したいこと:PresentationByBody = self.思考結果から表現したいことをまとめる(v思考結果)
         return v表現したいこと
 
     # 下は今後別のオブジェクトの責務になるかもしれない
-    def イベントとして会話を解釈する(self, messageUnit)->外部イベント:
+    def イベントとして会話を解釈する(self, messageUnit:Conversation)->外部イベント:
         return 外部イベント(会話 = messageUnit)
     
     def 思考結果から表現したいことをまとめる(self, 思考結果:思考結果)->PresentationByBody:

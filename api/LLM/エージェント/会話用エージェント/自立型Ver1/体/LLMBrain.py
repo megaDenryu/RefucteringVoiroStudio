@@ -1,4 +1,5 @@
 
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnit
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果
 
 
@@ -6,7 +7,7 @@ class LLMBrain:
     def __init__(self):
         pass
 
-    async def 考える(self, message) -> 思考結果:
+    async def 考える(self, messageUnit:MessageUnit) -> 思考結果:
         """ 
         会話をする
         """
