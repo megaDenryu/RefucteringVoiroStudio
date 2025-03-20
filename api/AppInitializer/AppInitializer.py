@@ -1,5 +1,4 @@
 
-from pathlib import Path
 from pydantic import BaseModel
 from api.AppInitializer.アプリステータス import Eアプリ進行ステータス
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
