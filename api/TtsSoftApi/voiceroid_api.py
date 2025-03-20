@@ -52,8 +52,14 @@ class cevio_human(HasTTSState):
             return None
         return name
     
-    onTTSSoftware:bool = False #CevioAIが起動しているかどうか
-    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #CevioAiがインストールされているかどうか
+    _onTTSSoftware:bool = False #CevioAIが起動しているかどうか
+    @property
+    def onTTSSoftware(self)->bool:
+        return self._onTTSSoftware
+    _hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #CevioAiがインストールされているかどうか
+    @property
+    def hasTTSSoftware(self)->TTSSoftwareInstallState:
+        return self._hasTTSSoftware
     def __init__(self, chara_mode_state:CharacterModeState|None, started_cevio_num:int) -> None:
         self.chara_mode_state = chara_mode_state
         
@@ -181,8 +187,8 @@ class cevio_human(HasTTSState):
             self.cevio = win32com.client.Dispatch("CeVIO.Talk.RemoteService2.ServiceControl2")
         except:
             print("CeVIOがインストールされていません")
-            self.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
-            self.onTTSSoftware = False
+            self._hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            self._onTTSSoftware = False
             return
         
         try:
@@ -193,12 +199,12 @@ class cevio_human(HasTTSState):
             print("talkerのインスタンス化完了")
             self.setCast(self.cevio_name)
             print("キャラクターの設定完了")
-            self.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            self.onTTSSoftware = True
+            self._hasTTSSoftware = TTSSoftwareInstallState.Installed
+            self._onTTSSoftware = True
         except:
             print("CeVIOが起動に失敗")
-            self.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            self.onTTSSoftware = False
+            self._hasTTSSoftware = TTSSoftwareInstallState.Installed
+            self._onTTSSoftware = False
             return
     
     def setCast(self,cast_name:str|None):
@@ -412,8 +418,14 @@ class AIVoiceHuman(HasTTSState):
             return None
             # raise Exception("chara_mode_stateがNoneです")
         return self.chara_mode_state.voice_mode.mode
-    onTTSSoftware:bool = False #AIVoiceが起動しているかどうか
-    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #AIVoiceがインストールされているかどうか
+    _onTTSSoftware:bool = False #AIVoiceが起動しているかどうか
+    @property
+    def onTTSSoftware(self)->bool:
+        return self._onTTSSoftware
+    _hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #AIVoiceがインストールされているかどうか
+    @property
+    def hasTTSSoftware(self)->TTSSoftwareInstallState:
+        return self._hasTTSSoftware
     def __init__(self, chara_mode_state:CharacterModeState|None, started_AIVoice_num:int) -> None:
         self.chara_mode_state = chara_mode_state
         self.start()
@@ -433,8 +445,8 @@ class AIVoiceHuman(HasTTSState):
         # 自分で置かないといけないファイルがあるか確認dllを確認。todo ダウンロードと配置を自動化する
         if not os.path.isfile(_editor_dir + 'AI.Talk.Editor.Api.dll'):
             print("A.I.VOICE Editor (v1.3.0以降) がインストールされていません。")
-            self.hasTTSSoftware = TTSSoftwareInstallState.ModuleNotFound
-            self.onTTSSoftware = False
+            self._hasTTSSoftware = TTSSoftwareInstallState.ModuleNotFound
+            self._onTTSSoftware = False
             return
         # A.I.VOICE Editor APIの読み込み
         try:
@@ -444,8 +456,8 @@ class AIVoiceHuman(HasTTSState):
         
         except Exception as e:
             print(f"AI.Talk.Editor.Api.dllの読み込みに失敗しました: {e}")
-            self.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
-            self.onTTSSoftware = False
+            self._hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            self._onTTSSoftware = False
             return        
 
         # アクセスを確立する
@@ -465,12 +477,12 @@ class AIVoiceHuman(HasTTSState):
             host_version = self.tts_control.Version
             self.setVoiceChara()
             print(f"{host_name} (v{host_version}) へ接続しました。")
-            self.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            self.onTTSSoftware = True
+            self._hasTTSSoftware = TTSSoftwareInstallState.Installed
+            self._onTTSSoftware = True
         except Exception as e:
             print(f"A.I.VOICE Editorへの接続に失敗しました: {e}")
-            self.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            self.onTTSSoftware = False
+            self._hasTTSSoftware = TTSSoftwareInstallState.Installed
+            self._onTTSSoftware = False
             return
 
     def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):

@@ -32,8 +32,14 @@ class SpeakerInfo(TypedDict):
     styles:list[SpeakerStyle]
 class VoiceVoxHuman(HasTTSState):
     chara_mode_state:CharacterModeState|None
-    onTTSSoftware:bool = False #voicevoxが起動しているかどうか
-    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
+    _onTTSSoftware:bool = False #voicevoxが起動しているかどうか
+    @property
+    def onTTSSoftware(self):
+        return self._onTTSSoftware
+    _hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
+    @property
+    def hasTTSSoftware(self):
+        return self._hasTTSSoftware
     voiceSetting: VoiceVoxVoiceSettingModel|None
     query_url = f"http://127.0.0.1:50021/audio_query" #f"http://localhost:50021/audio_query"だとlocalhostの名前解決に時間がかかるらしい
     synthesis_url = f"http://127.0.0.1:50021/synthesis" #f"http://localhost:50021/synthesis"だとlocalhostの名前解決に時間がかかるらしい

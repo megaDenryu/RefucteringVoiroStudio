@@ -68,8 +68,8 @@ class TTSSoftwareManager:
             tmp_human = await CoeiroinkLauncher.startCoeiroink()
         
         mana = TTSSoftwareManager.singleton()
-        mana.onTTSSoftwareDict[ttss] = tmp_human.onTTSSoftware
-        mana.hasTTSSoftwareDict[ttss] = tmp_human.hasTTSSoftware
+        mana.onTTSSoftwareDict[ttss] = tmp_human._onTTSSoftware
+        mana.hasTTSSoftwareDict[ttss] = tmp_human._hasTTSSoftware
         return tmp_human
     
     @staticmethod

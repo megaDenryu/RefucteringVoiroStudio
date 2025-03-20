@@ -74,8 +74,14 @@ class Coeiroink(HasTTSState):
     DEFAULT_SERVER = "http://127.0.0.1:50032"
     none_num = -1
     server = DEFAULT_SERVER
-    onTTSSoftware:bool = False #vCoeiroinkが起動しているかどうか
-    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #Coeiroinkがインストールされているかどうか
+    _onTTSSoftware:bool = False #vCoeiroinkが起動しているかどうか
+    @property
+    def onTTSSoftware(self):
+        return self._onTTSSoftware
+    _hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #Coeiroinkがインストールされているかどうか
+    @property
+    def hasTTSSoftware(self):
+        return self._hasTTSSoftware
     voiceSetting:CoeiroinkVoiceSettingModel
 
     def __init__(self, chara_mode_state:CharacterModeState|None, started_coeiro_num:int) -> None:
