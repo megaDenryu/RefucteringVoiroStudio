@@ -4,7 +4,7 @@ import json
 from typing import TypedDict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
-from api.Extend.ExtendFunc import ExtendFunc
+from api.Extend.ExtendFunc import ExtendFunc, TextConverter
 from api.InstanceManager.InstanceManager import InastanceManager
 from api.gptAI.Human import Human
 from api.gptAI.HumanInfoValueObject import CharacterId
@@ -46,7 +46,7 @@ async def speakVoiceRoid(websocket: WebSocket, client_id: str):
                 rubi_sentence = await human_ai.aiRubiConverter.convertAsync(text)
                 if rubi_sentence == None:
                     return
-                for sentence in Human.parseSentenseList(rubi_sentence):
+                for sentence in TextConverter.parseSentenseList(rubi_sentence):
                     #wavデータを取得
                     wav_info = human_ai.outputWaveFile(sentence)
                     if wav_info == None:

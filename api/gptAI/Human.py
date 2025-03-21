@@ -7,21 +7,20 @@ from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory impor
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBody import LLMHumanBody
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
-from api.gptAI.HumanInfoValueObject import CharacterName, NickName
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
+from api.gptAI.HumanInformation import CharacterModeState, TTSSoftware
 from api.gptAI.VoiceInfo import WavInfo
+from api.images.image_manager.HumanPart import HumanPart
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
 
-from ..images.image_manager.HumanPart import HumanPart
 
 try:
-    from ..TtsSoftApi.voiceroid_api import cevio_human
+    from api.TtsSoftApi.voiceroid_api import cevio_human
 except ImportError:
     cevio_human = None
     print("cevio_human module could not be imported. Please ensure the required application is installed.")
 
 try:
-    from ..TtsSoftApi.voiceroid_api import AIVoiceHuman
+    from api.TtsSoftApi.voiceroid_api import AIVoiceHuman
 except ImportError:
     AIVoiceHuman = None
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
@@ -121,39 +120,7 @@ class Human:
         return self.human_Voice.output_wav_info_list
 
     
-    @staticmethod
-    def getNameList()->dict[NickName, CharacterName]:
-        """
-        キャラ名のリストを返す
-        """
-        allHumanInformationManager = AllHumanInformationManager.singleton()
-        return allHumanInformationManager.nick_names_manager.nickname2Charaname
-
-    @staticmethod
-    def setCharName(front_name:str)->CharacterName:
-        """
-        front_nameからchar_nameに変換する関数
-        """
-        nickName = NickName(name = front_name)
-        name_list = Human.getNameList()
-        
-        try:
-            return name_list[nickName]
-        except Exception as e:
-            ExtendFunc.ExtendPrint(f"{nickName}は対応するキャラがサーバーに登録されていません。")
-            raise e
-
-    @staticmethod
-    def pickFrontName(filename:str):
-        """
-        char_nameからfront_nameに変換する関数
-        """
-        name_list = Human.getNameList()
-        for front_name_candidate in name_list.keys():
-            if front_name_candidate.name in filename:
-                charaName = AllHumanInformationManager.singleton().nick_names_manager.nickname2Charaname[front_name_candidate]
-                return charaName
-        return "名前が無効です"
+    
     
     def getHumanImage(self):
         return self.image_data_for_client
@@ -161,16 +128,7 @@ class Human:
     def saveHumanImageCombination(self, combination_data:dict, combination_name:str):
         self.human_part.saveHumanImageCombination(combination_data, combination_name,0)
 
-    @staticmethod
-    def parseSentenseList(sentense:str)->list[str]:
-        """
-        文章を分割してリストにする
-        """
-        sentence_list = re.split('[。、]', sentense)
-        # 空白を削除
-        sentence_list = list(filter(lambda x: x != "", sentence_list))
-        ExtendFunc.ExtendPrint(sentence_list)
-        return sentence_list
+    
 
 
 

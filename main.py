@@ -425,7 +425,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             data = json.loads(await websocket.receive_text())
             ExtendFunc.ExtendPrint(data)
             inputNickNameSendData:InputNickNameSendData = InputNickNameSendData(**data)
-            if Human.setCharName(inputNickNameSendData.nick_name.name) == "":
+            if AllHumanInformationManager.frontToCharName(inputNickNameSendData.nick_name.name) == "":
                 print("キャラ名が無効です")
                 await websocket.send_json(json.dumps("キャラ名が無効です"))
                 continue
@@ -496,7 +496,7 @@ async def parserPsdFile(
     file_contents = await file.read()
     print("ファイル受け取り完了")        
     # psdファイルが送られてくるので取得
-    chara_name = Human.pickFrontName(filename)
+    chara_name = AllHumanInformationManager.pickFrontName(filename)
     if chara_name == "名前が無効です":
         respose:CharaCreateDataResponse = {"succese_mode":"名前が無効" ,"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください", "charaCreateData": None}
         return respose

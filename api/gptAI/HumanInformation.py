@@ -422,6 +422,40 @@ class AllHumanInformationManager:
 
     def loadImages(self)->dict[CharacterName, list[HumanImage]]:
         return {}
+    
+    @classmethod
+    def getNameList(cls)->dict[NickName, CharacterName]:
+        """
+        キャラ名のリストを返す
+        """
+        allHumanInformationManager = AllHumanInformationManager.singleton()
+        return allHumanInformationManager.nick_names_manager.nickname2Charaname
+
+    @classmethod
+    def frontToCharName(cls,front_name:str)->CharacterName:
+        """
+        front_nameからchar_nameに変換する関数
+        """
+        nickName = NickName(name = front_name)
+        name_list = cls.getNameList()
+        
+        try:
+            return name_list[nickName]
+        except Exception as e:
+            ExtendFunc.ExtendPrint(f"{nickName}は対応するキャラがサーバーに登録されていません。")
+            raise e
+
+    @classmethod
+    def pickFrontName(cls,filename:str):
+        """
+        char_nameからfront_nameに変換する関数
+        """
+        name_list = cls.getNameList()
+        for front_name_candidate in name_list.keys():
+            if front_name_candidate.name in filename:
+                charaName = AllHumanInformationManager.singleton().nick_names_manager.nickname2Charaname[front_name_candidate]
+                return charaName
+        return "名前が無効です"
 
 class HumanInformation(BaseModel):
     chara_name: CharacterName
