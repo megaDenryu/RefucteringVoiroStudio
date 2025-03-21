@@ -10,32 +10,31 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
+from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
 from api.gptAI.Human import VoiceSystem
 from api.gptAI.HumanInfoValueObject import TTSSoftware
-from api.gptAI.HumanInformation import CharacterModeState
 from api.gptAI.Human自分の情報コンテナ import Human自分の情報コンテナ
+from api.gptAI.Human自分の情報コンテナForNoDisplay import Human自分の情報コンテナForNoDisplay
 from api.gptAI.IHuman import IHuman
 from api.gptAI.VoiceInfo import WavInfo
-from api.images.image_manager.HumanPart import HumanPart
-from api.images.image_manager.IHumanPart import AllBodyFileInfo, HumanData
 
 
 class HumanNoDisplay(IHuman,I体を持つ者):
     voice_switch = True # debug用の変数
-    chara_mode_state:CharacterModeState
+    chara_mode_state:CharacterModeStateForNoDisplay
     voice_system:VoiceSystem
     aiRubiConverter:AIRubiConverter
     _llmHumanBody: LLMHumanBody
     _会話履歴: I会話履歴|None = None
     _llmHumanBodyInput: LLMHumanBodyInput
-    _human自分の情報コンテナ:Human自分の情報コンテナ
+    _human自分の情報コンテナ:Human自分の情報コンテナForNoDisplay
     @property
     def char_name(self): #キャラ名
         return self.chara_mode_state.character_name
     @property
     def id(self):
         return self.chara_mode_state.id
-    def __init__(self,chara_mode_state:CharacterModeState ,voiceroid_dict) -> None:
+    def __init__(self,chara_mode_state:CharacterModeStateForNoDisplay ,voiceroid_dict) -> None:
         """
         @param voiceroid_dict: 使用してる合成音声の種類をカウントする辞書。{"cevio":0,"voicevox":0,"AIVOICE":0}。cevioやAIVOICEの起動管理に使用。
         """
@@ -43,7 +42,7 @@ class HumanNoDisplay(IHuman,I体を持つ者):
         self.chara_mode_state = chara_mode_state
         self.voice_system = self.start(voiceroid_dict)
         self.aiRubiConverter = AIRubiConverterFactory.create()
-        self._human自分の情報コンテナ = Human自分の情報コンテナ(self.chara_mode_state)
+        self._human自分の情報コンテナ = Human自分の情報コンテナForNoDisplay(self.chara_mode_state)
     
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
@@ -114,7 +113,7 @@ class HumanNoDisplay(IHuman,I体を持つ者):
         return self.llmHumanBodyInput
     
     @property
-    def 自分の情報(self)->Human自分の情報コンテナ:
+    def 自分の情報(self)->Human自分の情報コンテナForNoDisplay:
         return self._human自分の情報コンテナ
     
     def 会話履歴注入(self, 会話履歴: I会話履歴):
