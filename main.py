@@ -435,7 +435,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
                 tmp_human = inastanceManager.humanInstances.createHuman(chara_mode_state)
                 tmp_human.aiRubiConverter.setMode(inastanceManager.appSettingModule.setting.セリフ設定.AIによる文章変換)
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
-                human_part_folder:HumanData = tmp_human.image_data_for_client
+                human_part_folder:HumanData = tmp_human.getHumanImage()
                 charaCreateData:CharaCreateData = {
                     "humanData":human_part_folder,
                     "characterModeState":chara_mode_state.toDict()
@@ -752,7 +752,7 @@ async def DecideChara(req: CharacterModeStateReq):
     #name_dataに対応したHumanインスタンスを生成
     tmp_human = inastanceManager.humanInstances.createHuman(character_mode_state)
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
-    human_part_folder:HumanData = tmp_human.image_data_for_client
+    human_part_folder:HumanData = tmp_human.getHumanImage()
     charaCreateData:CharaCreateData = {
         "humanData":human_part_folder,
         "characterModeState":character_mode_state.toDict()

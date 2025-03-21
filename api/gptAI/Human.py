@@ -29,8 +29,8 @@ VoiceSystem = Literal["cevio","voicevox","AIVOICE","Coeiroink","ボイロにい�
 class Human:
     voice_switch = True # debug用の変数
     chara_mode_state:CharacterModeState
-    image_data_for_client:HumanData
-    body_parts_pathes_for_gpt:AllBodyFileInfo
+    _image_data_for_client:HumanData
+    _body_parts_pathes_for_gpt:AllBodyFileInfo
     human_part:HumanPart
     voice_system:VoiceSystem
     aiRubiConverter:AIRubiConverter
@@ -53,7 +53,7 @@ class Human:
         # 体画像周りを準備する
         self.human_part = HumanPart(self.chara_mode_state.character_name, self.chara_mode_state.human_image)
         human_image = chara_mode_state.human_image
-        self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name, self.front_name, human_image)
+        self._image_data_for_client,self._body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name, self.front_name, human_image)
         self.voice_system:VoiceSystem = self.start(voiceroid_dict)
         self.aiRubiConverter = AIRubiConverterFactory.create()
     
@@ -120,7 +120,7 @@ class Human:
     
     
     def getHumanImage(self):
-        return self.image_data_for_client
+        return self._image_data_for_client
     
     def saveHumanImageCombination(self, combination_data:dict, combination_name:str):
         self.human_part.saveHumanImageCombination(combination_data, combination_name,0)
