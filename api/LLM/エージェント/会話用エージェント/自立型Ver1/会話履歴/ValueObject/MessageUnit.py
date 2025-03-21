@@ -4,7 +4,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnitParts.Message import Message
 
 # 発言
-class MessageUnit(BaseModel):
+class MessageUnitVer1(BaseModel):
     id:str
     time:str
     message:Message

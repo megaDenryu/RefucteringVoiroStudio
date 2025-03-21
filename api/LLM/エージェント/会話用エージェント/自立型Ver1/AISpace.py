@@ -3,7 +3,7 @@
 from typing import TypedDict
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.AISpaceInterface import AISpaceInterface
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ConversationHistory import ConversationHistory
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnit
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
 
 class AISpaceInitInput(TypedDict):
@@ -20,5 +20,5 @@ class AISpace(AISpaceInterface):
         人間.会話履歴注入(self._conversationHistory)
         self._人間examples.append(人間)
 
-    async def 会話更新(self, messageUnit: MessageUnit):
+    async def 会話更新(self, messageUnit: MessageUnitVer1):
         await self._conversationHistory.新規メッセージ追加してアクションを実行(messageUnit)

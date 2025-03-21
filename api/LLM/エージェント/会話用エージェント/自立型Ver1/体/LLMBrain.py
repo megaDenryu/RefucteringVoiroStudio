@@ -2,7 +2,7 @@
 import asyncio
 
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnit
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
 
@@ -14,12 +14,12 @@ class LLMBrain:
         self._v会話履歴 = v会話履歴
         self._v自分の情報 = v自分の情報
 
-    async def イベント反応思考(self, messageUnit:MessageUnit) -> 思考結果:
+    async def イベント反応思考(self, messageUnit:MessageUnitVer1) -> 思考結果:
         """ 
         会話をする
         """
         return await self.イベント反応思考テスト(messageUnit)
-    async def イベント反応思考テスト(self, messageUnit:MessageUnit) -> 思考結果:
+    async def イベント反応思考テスト(self, messageUnit:MessageUnitVer1) -> 思考結果:
         # 5秒か10秒をランダムに選択
         import random
         wait_time = random.choice([5, 10])

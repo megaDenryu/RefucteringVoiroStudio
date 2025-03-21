@@ -3,7 +3,7 @@ import asyncio
 from api.Extend.CallBackType import AsyncCallback
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.Conversation import Conversation
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnit
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 
 
 class ConversationHistory(I会話履歴):
@@ -11,7 +11,7 @@ class ConversationHistory(I会話履歴):
     _onMessageAsyncAction: list[AsyncCallback] = []
     def __init__(self):
         self.conversation = Conversation(history=[])
-    async def 新規メッセージ追加してアクションを実行(self, messageUnit: MessageUnit):
+    async def 新規メッセージ追加してアクションを実行(self, messageUnit: MessageUnitVer1):
         self.conversation.history.append(messageUnit)
         if self._onMessageAsyncAction:  # アクションがある場合のみ実行
             # すべてのアクションを同時に開始し、全て完了するまで待機

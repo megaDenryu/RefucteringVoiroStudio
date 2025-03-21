@@ -1,6 +1,6 @@
 
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.AISpace import AISpace
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnit
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnitParts.Message import Message
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnitParts.SpeakerInfo import SpeakerInfo
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.体を持つ者example import 体を持つ者example
@@ -17,7 +17,7 @@ class 自立型Ver1test:
 
         while True:
             message = input("会話を入力してください")
-            messageUnit = MessageUnit(id="1", time="1", message=Message(text=message), speaker=SpeakerInfo(speakerId="1"))
+            messageUnit = MessageUnitVer1(id="1", time="1", message=Message(text=message), speaker=SpeakerInfo(speakerId="1"))
             await aiSpace.会話更新(messageUnit)
 
         
