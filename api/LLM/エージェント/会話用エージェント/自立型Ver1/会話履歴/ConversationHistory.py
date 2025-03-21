@@ -11,7 +11,7 @@ class ConversationHistory(I会話履歴):
     _onMessageAsyncAction: list[AsyncCallback] = []
     def __init__(self):
         self.conversation = Conversation(history=[])
-    async def addMessage(self, messageUnit: MessageUnit):
+    async def 新規メッセージ追加してアクションを実行(self, messageUnit: MessageUnit):
         self.conversation.history.append(messageUnit)
         if self._onMessageAsyncAction:  # アクションがある場合のみ実行
             # すべてのアクションを同時に開始し、全て完了するまで待機

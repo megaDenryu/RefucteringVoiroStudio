@@ -130,7 +130,6 @@ class Human(I体を持つ者):
     
     def saveHumanImageCombination(self, combination_data:dict, combination_name:str):
         self.human_part.saveHumanImageCombination(combination_data, combination_name,0)
-
     
     # I体を持つ者のメソッド
     @property
