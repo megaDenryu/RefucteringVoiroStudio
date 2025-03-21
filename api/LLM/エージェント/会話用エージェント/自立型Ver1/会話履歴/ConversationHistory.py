@@ -10,10 +10,10 @@ class ConversationHistory(I会話履歴):
     _onMessageAsyncAction: list[AsyncCallback] = []
     def __init__(self):
         self.conversation = Conversation(history=[])
-    def addMessage(self, messageUnit: MessageUnit):
+    async def addMessage(self, messageUnit: MessageUnit):
         self.conversation.history.append(messageUnit)
         for action in self._onMessageAsyncAction:
-            action()
+            await action()
     def deleteMessage(self, messageId:str):
         self.conversation.history = [message for message in self.conversation.history if message.id != messageId]
     def saveConversation(self):

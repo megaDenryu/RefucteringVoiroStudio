@@ -1,14 +1,23 @@
 
+import asyncio
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnit
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
 
 
 class LLMBrain:
-    def __init__(self):
-        pass
+    _v自分の情報:I自分の情報コンテナ
+    _v会話履歴: I会話履歴
+    def __init__(self, v自分の情報:I自分の情報コンテナ, v会話履歴:I会話履歴):
+        self._v会話履歴 = v会話履歴
+        self._v自分の情報 = v自分の情報
 
-    async def 考える(self, messageUnit:MessageUnit) -> 思考結果:
+    async def イベント反応思考(self, messageUnit:MessageUnit) -> 思考結果:
         """ 
         会話をする
         """
-        return 思考結果(結論 = "考えた結果", 感情="感情" , 理由="理由")
+        # x秒待機
+        await asyncio.sleep(10)
+        return 思考結果(結論 = f"{self._v自分の情報.id}が{messageUnit.message.text}に対して考えた結果", 感情="感情" , 理由="理由")
+

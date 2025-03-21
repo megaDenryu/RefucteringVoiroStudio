@@ -19,5 +19,5 @@ class AISpace:
         人間.会話履歴注入(self.conversationHistory)
         self.人間examples.append(人間)
 
-    def 会話更新(self, messageUnit: MessageUnit):
-        self.conversationHistory.addMessage(messageUnit)
+    async def 会話更新(self, messageUnit: MessageUnit):
+        await self.conversationHistory.addMessage(messageUnit)
