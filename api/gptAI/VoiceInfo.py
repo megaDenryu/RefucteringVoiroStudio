@@ -24,6 +24,15 @@ class WavInfo(TypedDict):
     characterModeState:ICharacterModeState
     voice_system_name:Literal["AIVoice","Cevio","VoiceVox","Coeiroink"]
 
+class WavInfoForNoDisplay(TypedDict):
+    path:str
+    wav_data:str
+    wav_time:float
+    phoneme_time:list[str]
+    phoneme_str:list[list[str]]
+    char_name:str
+    voice_system_name:Literal["AIVoice","Cevio","VoiceVox","Coeiroink"]
+
 class SentenceInfo(TypedDict):
     characterModeState:ICharacterModeState
     sentence:str

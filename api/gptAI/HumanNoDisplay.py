@@ -1,4 +1,5 @@
 
+from pydantic import InstanceOf
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
 from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import AIRubiConverterFactory
@@ -86,16 +87,16 @@ class HumanNoDisplay(IHuman,I体を持つ者):
     def outputWaveFile(self,str:str)->list[WavInfo]|None:
         str = str.replace(" ","").replace("　","")
         # str = TextConverter.convertReadableJapanaeseSentense(str)
-        if cevio_human == type(self.human_Voice):
+        if isinstance(self.human_Voice, cevio_human):
             print("cevioでwav出力します")
-            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
-        elif AIVoiceHuman == type(self.human_Voice):
+            self.human_Voice.outputWaveFileForNoDisplay(str)
+        elif isinstance(self.human_Voice, AIVoiceHuman):
             print("AIvoiceでwav出力します")
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
-        elif VoiceVoxHuman == type(self.human_Voice):
+        elif isinstance(self.human_Voice, VoiceVoxHuman):
             print("voicevoxでwav出力します")
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
-        elif Coeiroink == type(self.human_Voice):
+        elif isinstance(self.human_Voice, Coeiroink):
             print("coeiroinkでwav出力します")
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         else:
