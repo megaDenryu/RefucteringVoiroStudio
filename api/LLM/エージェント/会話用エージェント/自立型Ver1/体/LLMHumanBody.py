@@ -8,7 +8,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LL
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLM他人と自分の声を識別する機構 import LLM他人と自分の声を識別する機構
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBodyInput import LLMHumanBodyInput
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報 import 自分の情報コンテナ
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.外部イベント import 外部イベント
 
 class 結果種類(enum.Enum):
@@ -20,7 +20,7 @@ class イベント反応結果(BaseModel):
     結果:結果種類
 
 class LLMHumanBody:
-    v自分の情報:自分の情報コンテナ
+    v自分の情報:I自分の情報コンテナ
     v他人と自分の声を識別する機構: LLM他人と自分の声を識別する機構
     v脳: LLMBrain
 

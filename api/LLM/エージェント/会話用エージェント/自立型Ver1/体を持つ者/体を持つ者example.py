@@ -9,7 +9,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報 import 自分の情報コンテナ
 
 
-class 体を持つ者example(I体を持つ者, I表現機構):
+class 体を持つ者example(I体を持つ者):
     _自分の情報:自分の情報コンテナ
     _会話履歴: I会話履歴
     _llmHumanBody: LLMHumanBody
