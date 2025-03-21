@@ -1,5 +1,3 @@
-import re
-from typing import Literal
 
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
@@ -11,42 +9,26 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.�
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
-from api.gptAI.IHuman import IHuman
+from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
+from api.gptAI.Human import VoiceSystem
+from api.gptAI.HumanInfoValueObject import TTSSoftware
+from api.gptAI.HumanInformation import CharacterModeState
 from api.gptAI.Human自分の情報コンテナ import Human自分の情報コンテナ
-from api.gptAI.HumanInformation import CharacterModeState, TTSSoftware
+from api.gptAI.IHuman import IHuman
 from api.gptAI.VoiceInfo import WavInfo
 from api.images.image_manager.HumanPart import HumanPart
-from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
+from api.images.image_manager.IHumanPart import AllBodyFileInfo, HumanData
 
 
-try:
-    from api.TtsSoftApi.voiceroid_api import cevio_human
-except ImportError:
-    cevio_human = None
-    print("cevio_human module could not be imported. Please ensure the required application is installed.")
-
-try:
-    from api.TtsSoftApi.voiceroid_api import AIVoiceHuman
-except ImportError:
-    AIVoiceHuman = None
-    print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
-
-VoiceSystem = Literal["cevio","voicevox","AIVOICE","Coeiroink","ボイロにいない名前が入力されたので起動に失敗しました。","ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"]
-class Human(IHuman,I体を持つ者):
+class HumanNoDisplay(IHuman,I体を持つ者):
     voice_switch = True # debug用の変数
     chara_mode_state:CharacterModeState
-    _image_data_for_client:HumanData
-    _body_parts_pathes_for_gpt:AllBodyFileInfo
-    human_part:HumanPart
     voice_system:VoiceSystem
     aiRubiConverter:AIRubiConverter
     _llmHumanBody: LLMHumanBody
     _会話履歴: I会話履歴|None = None
     _llmHumanBodyInput: LLMHumanBodyInput
     _human自分の情報コンテナ:Human自分の情報コンテナ
-    @property
-    def front_name(self): #フロントで入力してウインドウに表示されてる名前
-        return self.chara_mode_state.front_name
     @property
     def char_name(self): #キャラ名
         return self.chara_mode_state.character_name
@@ -59,10 +41,6 @@ class Human(IHuman,I体を持つ者):
         """
         # 以下コンストラクタのメイン処理
         self.chara_mode_state = chara_mode_state
-        # 体画像周りを準備する
-        self.human_part = HumanPart(self.chara_mode_state.character_name, self.chara_mode_state.human_image)
-        human_image = chara_mode_state.human_image
-        self._image_data_for_client,self._body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name, self.front_name, human_image)
         self.voice_system = self.start(voiceroid_dict)
         self.aiRubiConverter = AIRubiConverterFactory.create()
         self._human自分の情報コンテナ = Human自分の情報コンテナ(self.chara_mode_state)
@@ -126,12 +104,6 @@ class Human(IHuman,I体を持つ者):
             return None
         return self.human_Voice.output_wav_info_list
     
-    def getHumanImage(self):
-        return self._image_data_for_client
-    
-    def saveHumanImageCombination(self, combination_data:dict, combination_name:str):
-        self.human_part.saveHumanImageCombination(combination_data, combination_name,0)
-    
     # I体を持つ者のメソッド
     @property
     def llmHumanBody(self)->LLMHumanBody:
@@ -158,9 +130,3 @@ class Human(IHuman,I体を持つ者):
     
     def しゃべる(self, message:str):
         ExtendFunc.ExtendPrint(message)
-
-    
-
-
-
-
