@@ -10,5 +10,8 @@ class AISpaceInterface(ABC):
     def 空間に人間を追加して会話履歴を注入(self, 人間:I体を持つ者):
         pass
     @abstractmethod
-    async def 会話更新(self, messageUnit: MessageUnitVer1):
+    async def async会話更新(self, messageUnit: MessageUnitVer1):
+        pass
+    @abstractmethod
+    def 会話更新(self, messageUnit: MessageUnitVer1):
         pass

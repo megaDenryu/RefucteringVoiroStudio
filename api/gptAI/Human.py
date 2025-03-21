@@ -40,7 +40,7 @@ class Human(I体を持つ者):
     voice_system:VoiceSystem
     aiRubiConverter:AIRubiConverter
     _llmHumanBody: LLMHumanBody
-    _会話履歴: I会話履歴|None
+    _会話履歴: I会話履歴|None = None
     _llmHumanBodyInput: LLMHumanBodyInput
     _human自分の情報コンテナ:Human自分の情報コンテナ
     @property
@@ -64,7 +64,7 @@ class Human(I体を持つ者):
         self._image_data_for_client,self._body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name, self.front_name, human_image)
         self.voice_system = self.start(voiceroid_dict)
         self.aiRubiConverter = AIRubiConverterFactory.create()
-        self._human自分の情報コンテナ = Human自分の情報コンテナ()
+        self._human自分の情報コンテナ = Human自分の情報コンテナ(self.chara_mode_state)
     
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:

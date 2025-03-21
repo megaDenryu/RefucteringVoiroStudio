@@ -2,10 +2,14 @@
 
 import json
 from typing import TypedDict
+from uuid import uuid4
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
-from api.Extend.ExtendFunc import ExtendFunc, TextConverter
+from api.Extend.ExtendFunc import ExtendFunc, TextConverter, TimeExtend
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnitParts.Message import Message
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnitParts.SpeakerInfo import SpeakerInfo
 from api.gptAI.Human import Human
 from api.gptAI.HumanInfoValueObject import CharacterId
 from api.gptAI.HumanInformation import CharacterModeState, ICharacterModeState
@@ -43,6 +47,8 @@ async def speakVoiceRoid(websocket: WebSocket, client_id: str):
                     return
                 epic_unit = {CharacterSettingCollectionOperatorManager.getNickNameFromSaveId(characterModeState.tts_software, characterModeState.id).name:text}
                 # await inastanceManager.epic.appendMessageAndNotify(epic_unit)#作り直す
+                aiHistoryUnit = MessageUnitVer1(id=str(uuid4()), time=TimeExtend.nowDateTime(), message=Message(text=text), speaker=SpeakerInfo(speakerId=characterModeState.id))
+                inastanceManager.aiSpace.会話更新(aiHistoryUnit)
                 rubi_sentence = await human_ai.aiRubiConverter.convertAsync(text)
                 if rubi_sentence == None:
                     return

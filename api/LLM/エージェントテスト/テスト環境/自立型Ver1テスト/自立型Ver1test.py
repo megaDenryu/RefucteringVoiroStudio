@@ -18,6 +18,6 @@ class 自立型Ver1test:
         while True:
             message = input("会話を入力してください")
             messageUnit = MessageUnitVer1(id="1", time="1", message=Message(text=message), speaker=SpeakerInfo(speakerId="1"))
-            await aiSpace.会話更新(messageUnit)
+            await aiSpace.async会話更新(messageUnit)
 
         
