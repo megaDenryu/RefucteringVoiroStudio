@@ -26,6 +26,7 @@ class SendData(TypedDict):
 
 router = APIRouter()
 
+# 長い文章を分割してコマ切れ音声にして送信するのでpostやgetではむりなのでwebsocketを使う
 @router.websocket("/ws/{client_id}")
 async def speakVoiceRoid(websocket: WebSocket, client_id: str):
     # クライアントとのコネクション確立
