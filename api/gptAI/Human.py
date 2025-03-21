@@ -95,9 +95,6 @@ class Human:
         else:
             print(f"ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。")
             return "ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"
-    
-    def speak(self,str:str):
-        self.human_Voice.speak(str)
 
     def outputWaveFile(self,str:str)->list[WavInfo]|None:
         str = str.replace(" ","").replace("　","")
