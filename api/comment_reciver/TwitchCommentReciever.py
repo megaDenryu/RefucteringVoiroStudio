@@ -36,19 +36,6 @@ class TwitchBot(commands.Bot):
     def run(self):
         super().run()
 
-    async def async_run(self):
-        try:
-            await self.connect()  # Use await instead of creating a task
-        except KeyboardInterrupt:
-            pass
-        finally:
-            if self._closing == None:
-                return
-            if not self._closing.is_set():
-                await self.close()
-        
-    
-
     #チャンネルからログアウト
     async def stop(self):
         await super().close()
