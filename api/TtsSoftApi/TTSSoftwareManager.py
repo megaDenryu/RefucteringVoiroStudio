@@ -1,10 +1,11 @@
 import asyncio
 from api.Extend.ExtendFunc import ExtendFunc
+from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
+from api.TtsSoftApi.CevioAI.CevioAIHuman import cevio_human
 from api.TtsSoftApi.Coeiroink.CoeiroinkLauncher import CoeiroinkLauncher
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.TtsSoftApi.VoiceVox.VoiceVoxLauncher import VoiceVoxLauncher
-from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
 from api.gptAI.HumanInfoValueObject import TTSSoftware
 
 

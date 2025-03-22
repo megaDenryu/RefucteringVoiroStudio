@@ -21,13 +21,13 @@ from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
 
 
 try:
-    from api.TtsSoftApi.voiceroid_api import cevio_human
+    from api.TtsSoftApi.CevioAI.CevioAIHuman import cevio_human
 except ImportError:
     cevio_human = None
     print("cevio_human module could not be imported. Please ensure the required application is installed.")
 
 try:
-    from api.TtsSoftApi.voiceroid_api import AIVoiceHuman
+    from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
 except ImportError:
     AIVoiceHuman = None
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")

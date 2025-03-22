@@ -17,7 +17,7 @@ from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
 from api.TtsSoftApi.HasTTSState import HasTTSState
-from api.TtsSoftApi.voiceroid_api import TTSSoftwareInstallState
+from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.gptAI.HumanInfoValueObject import CharacterName, CharacterSaveId, TTSSoftware, VoiceMode
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState
 from api.gptAI.VoiceInfo import WavInfo
