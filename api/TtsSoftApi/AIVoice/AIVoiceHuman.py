@@ -185,8 +185,15 @@ class AIVoiceHuman(HasTTSState):
             self.tts_control.CurrentVoicePresetName=self.aivoice_name
             ExtendFunc.ExtendPrintWithTitle("AIボイス変更",f"ボイスを{self.aivoice_name}に設定しました")
         except Exception as e:
-            ExtendFunc.ExtendPrintWithTitle("AIボイス変更",f"ボイスを{self.aivoice_name}に設定できませんでした")
+            ExtendFunc.ExtendPrintWithTitle("AIボイス変更",f"ボイスを{self.aivoice_name}に設定できませんでした。")
             ExtendFunc.ExtendPrint(e)
+            try:
+                ExtendFunc.ExtendPrint("AIVoiceを再起動します")
+                self.start()
+                self.tts_control.CurrentVoicePresetName=self.aivoice_name
+            except Exception as e:
+                ExtendFunc.ExtendPrint(e)
+                ExtendFunc.ExtendPrint("AIVoiceの再起動に失敗しました")
     
     def convertPythonList(self,CsArr):
         list = []
