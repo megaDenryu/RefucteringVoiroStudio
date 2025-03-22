@@ -19,15 +19,16 @@ from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
 from api.TtsSoftApi.Coeiroink.CoeiroinkPartsObject import CoeiroinkSpeaker, CoeiroinkWaveData
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
+from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
 from api.gptAI.HumanInfoValueObject import CharacterName, CharacterSaveId, TTSSoftware, VoiceMode
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState
-from api.gptAI.VoiceInfo import WavInfo
+from api.gptAI.VoiceInfo import WavInfo, WavInfoForNoDisplay
 
 
 
 
 class CoeiroinkHumanNoDisplay(HasTTSState):
-    chara_mode_state:CharacterModeState|None
+    chara_mode_state:CharacterModeStateForNoDisplay|None
     output_wav_info_list:list[WavInfo]
     @property
     def char_name(self):
@@ -56,7 +57,7 @@ class CoeiroinkHumanNoDisplay(HasTTSState):
         return self._hasTTSSoftware
     voiceSetting:CoeiroinkVoiceSettingModel
 
-    def __init__(self, chara_mode_state:CharacterModeState|None, started_coeiro_num:int) -> None:
+    def __init__(self, chara_mode_state:CharacterModeStateForNoDisplay|None, started_coeiro_num:int) -> None:
         if chara_mode_state is None:
             return
         self.chara_mode_state = chara_mode_state
@@ -364,16 +365,15 @@ class CoeiroinkHumanNoDisplay(HasTTSState):
 
         p.terminate()
     
-    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):
+    def outputWaveFile(self,content:str):
         """
         todo : 声色インク用の改造が終わってないので、この関数は未完成
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
-        self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
         #output_wav_info_listを初期化
-        self.output_wav_info_list = []
+        output_wav_info_list = []
         for index,text in enumerate(sentence_list):
             if text == "":
                 continue
@@ -397,18 +397,17 @@ class CoeiroinkHumanNoDisplay(HasTTSState):
                     ExtendFunc.ExtendPrint("声色インクの音声データの取得に失敗しました")
                     return
                 
-                wav_info:WavInfo = {
+                wav_info:WavInfoForNoDisplay = {
                     "path":wav_path,
                     "wav_data":wav_data,
                     "wav_time":wav_time,
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
-                    "voice_system_name":"Coeiroink",
-                    "characterModeState": self.chara_mode_state.toDict()
+                    "voice_system_name":"Coeiroink"
                 }
-
-                self.output_wav_info_list.append(wav_info)
+                output_wav_info_list.append(wav_info)
+        return output_wav_info_list
     
     @staticmethod
     def getCoeiroinkNameToNumberDict()->list[CoeiroinkSpeaker]:

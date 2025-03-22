@@ -17,13 +17,14 @@ from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
+from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
 from api.gptAI.HumanInfoValueObject import CharacterSaveId
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
-from api.gptAI.VoiceInfo import WavInfo
+from api.gptAI.VoiceInfo import WavInfo, WavInfoForNoDisplay
 
 
 class CevioAIHumanNoDisplay(HasTTSState):
-    chara_mode_state:CharacterModeState|None
+    chara_mode_state:CharacterModeStateForNoDisplay|None
     output_wav_info_list:list[WavInfo]
     @property
     def name(self):
@@ -49,7 +50,7 @@ class CevioAIHumanNoDisplay(HasTTSState):
     @property
     def hasTTSSoftware(self)->TTSSoftwareInstallState:
         return self._hasTTSSoftware
-    def __init__(self, chara_mode_state:CharacterModeState|None, started_cevio_num:int) -> None:
+    def __init__(self, chara_mode_state:CharacterModeStateForNoDisplay|None, started_cevio_num:int) -> None:
         self.chara_mode_state = chara_mode_state
         
         self.cevioStart(started_cevio_num)
@@ -59,7 +60,7 @@ class CevioAIHumanNoDisplay(HasTTSState):
             if setting is not None:
                 self.setVoiceSetting(setting)
     @staticmethod
-    def createAndUpdateALLCharaList(chara_mode_state:CharacterModeState, started_cevio_num:int)->"CevioAIHumanNoDisplay":
+    def createAndUpdateALLCharaList(chara_mode_state:CharacterModeStateForNoDisplay, started_cevio_num:int)->"CevioAIHumanNoDisplay":
         human = CevioAIHumanNoDisplay(chara_mode_state,started_cevio_num)
         human.updateAllCharaList()
         return human
@@ -99,15 +100,14 @@ class CevioAIHumanNoDisplay(HasTTSState):
             print("cevioで喋ります")
             state = self.talker.Speak(text)
             state.Wait()
-    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):
+    def outputWaveFile(self,content:str)->list[WavInfoForNoDisplay]:
         """
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
-        self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
         #output_wav_info_listを初期化
-        self.output_wav_info_list = []
+        output_wav_info_list = []
         for index,text in enumerate(sentence_list):
             if text == "":
                 continue
@@ -124,7 +124,7 @@ class CevioAIHumanNoDisplay(HasTTSState):
                 wav_data = self.openWavFile(wav_path)   #wabのbinaryデータ
                 wav_time = ExtendSound.get_wav_duration(wav_path) #wavの再生時間
                 ExtendFunc.ExtendPrintWithTitle(f"{text}のwav_time",wav_time)
-                wav_info:WavInfo = {
+                wav_info:WavInfoForNoDisplay = {
                     "path":wav_path,
                     "wav_data":wav_data,
                     "wav_time":wav_time,
@@ -132,10 +132,10 @@ class CevioAIHumanNoDisplay(HasTTSState):
                     "phoneme_str":phoneme_str,
                     "char_name":self.name,
                     "voice_system_name":"Cevio",
-                    "characterModeState": self.chara_mode_state.toDict()
                 }
                 #pprint(f"{wav_info=}")
-                self.output_wav_info_list.append(wav_info)
+                output_wav_info_list.append(wav_info)
+        return output_wav_info_list
 
     def openWavFile(self,file_path):
         """

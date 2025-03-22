@@ -9,16 +9,19 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LL
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
 from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
-from api.TtsSoftApi.CevioAI.CevioAIHuman import CevioAIHuman
+from api.TtsSoftApi.AIVoice.AIVoiceHumanNoDisplay import AIVoiceHumanNoDisplay
+from api.TtsSoftApi.CevioAI.CevioAIHumanNoDisplay import CevioAIHumanNoDisplay
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
+from api.TtsSoftApi.Coeiroink.CoeiroinkHumanNoDisplay import CoeiroinkHumanNoDisplay
 from api.TtsSoftApi.VoiceSystemType import VoiceSystem
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
+from api.TtsSoftApi.VoiceVox.VoiceVoxHumanNoDisplay import VoiceVoxHumanNoDisplay
 from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
 from api.gptAI.HumanInfoValueObject import TTSSoftware
 from api.gptAI.Human自分の情報コンテナ import Human自分の情報コンテナ
 from api.gptAI.Human自分の情報コンテナForNoDisplay import Human自分の情報コンテナForNoDisplay
 from api.gptAI.IHuman import IHuman
-from api.gptAI.VoiceInfo import WavInfo
+from api.gptAI.VoiceInfo import WavInfo, WavInfoForNoDisplay
 
 
 class HumanNoDisplay(IHuman,I体を持つ者):
@@ -49,32 +52,28 @@ class HumanNoDisplay(IHuman,I体を持つ者):
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
             if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
-                if CevioAIHuman is None:
-                    raise ImportError("cevio_human module is not available.")
-                tmp_cevio = CevioAIHuman.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
+                tmp_cevio = CevioAIHumanNoDisplay.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
                 print(f"{self.char_name}のcevio起動完了")
                 self.human_Voice.speak("起動完了")
                 return "cevio"
             elif TTSSoftware.VoiceVox.equal(self.chara_mode_state.tts_software):
-                tmp_voicevox = VoiceVoxHuman(self.chara_mode_state,voiceroid_dict["voicevox"])
+                tmp_voicevox = VoiceVoxHumanNoDisplay(self.chara_mode_state,voiceroid_dict["voicevox"])
                 print(f"{self.char_name}のvoicevox起動開始")
                 self.human_Voice = tmp_voicevox
                 print(f"{self.char_name}のvoicevox起動完了")
                 self.human_Voice.speak("起動完了")
                 return "voicevox"
             elif TTSSoftware.AIVoice.equal(self.chara_mode_state.tts_software):
-                if AIVoiceHuman is None:
-                    raise ImportError("AIVoiceHuman module is not available.")
-                tmp_aivoice = AIVoiceHuman.createAndUpdateALLCharaList(self.chara_mode_state, voiceroid_dict["AIVOICE"])
+                tmp_aivoice = AIVoiceHumanNoDisplay.createAndUpdateALLCharaList(self.chara_mode_state, voiceroid_dict["AIVOICE"])
                 print(f"{self.char_name}のAIVOICE起動開始")
                 self.human_Voice = tmp_aivoice
                 print(f"{self.char_name}のAIVOICE起動完了")
                 self.human_Voice.speak("起動完了")
                 return "AIVOICE"
             elif TTSSoftware.Coeiroink.equal(self.chara_mode_state.tts_software):
-                tmp_coeiroink = Coeiroink(self.chara_mode_state, voiceroid_dict["Coeiroink"])
+                tmp_coeiroink = CoeiroinkHumanNoDisplay(self.chara_mode_state, voiceroid_dict["Coeiroink"])
                 print(f"{self.char_name}のcoeiroink起動開始")
                 self.human_Voice = tmp_coeiroink
                 print(f"{self.char_name}のcoeiroink起動完了")
@@ -85,25 +84,24 @@ class HumanNoDisplay(IHuman,I体を持つ者):
             print(f"ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。")
             return "ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"
 
-    def outputWaveFile(self,str:str)->list[WavInfo]|None:
+    def outputWaveFile(self,str:str)->list[WavInfoForNoDisplay]|None:
         str = str.replace(" ","").replace("　","")
         # str = TextConverter.convertReadableJapanaeseSentense(str)
-        if isinstance(self.human_Voice, CevioAIHuman):
+        if isinstance(self.human_Voice, CevioAIHumanNoDisplay):
             print("cevioでwav出力します")
-            self.human_Voice.outputWaveFileForNoDisplay(str)
-        elif isinstance(self.human_Voice, AIVoiceHuman):
+            return self.human_Voice.outputWaveFile(str)
+        elif isinstance(self.human_Voice, AIVoiceHumanNoDisplay):
             print("AIvoiceでwav出力します")
-            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
-        elif isinstance(self.human_Voice, VoiceVoxHuman):
+            return self.human_Voice.outputWaveFile(str)
+        elif isinstance(self.human_Voice, VoiceVoxHumanNoDisplay):
             print("voicevoxでwav出力します")
-            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
-        elif isinstance(self.human_Voice, Coeiroink):
+            return self.human_Voice.outputWaveFile(str)
+        elif isinstance(self.human_Voice, CoeiroinkHumanNoDisplay):
             print("coeiroinkでwav出力します")
-            self.human_Voice.outputWaveFile(str, self.chara_mode_state)
+            return self.human_Voice.outputWaveFile(str)
         else:
             print("wav出力できるボイロが起動してないのでwav出力できませんでした。")
             return None
-        return self.human_Voice.output_wav_info_list
     
     # I体を持つ者のメソッド
     @property

@@ -18,7 +18,6 @@ from api.gptAI.VoiceInfo import WavInfoForNoDisplay
 
 class AIVoiceHumanNoDisplay(HasTTSState):
     chara_mode_state:CharacterModeStateForNoDisplay|None
-    output_wav_info_list:list[WavInfoForNoDisplay]
     @property
     def char_name(self):
         if self.chara_mode_state is None:
@@ -97,15 +96,14 @@ class AIVoiceHumanNoDisplay(HasTTSState):
             self._onTTSSoftware = False
             return
 
-    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeStateForNoDisplay):
+    def outputWaveFile(self,content:str):
         """
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
-        self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
         #output_wav_info_listを初期化
-        self.output_wav_info_list = []
+        output_wav_info_list = []
         for index,text in enumerate(sentence_list):
             if text == "":
                 continue
@@ -128,8 +126,6 @@ class AIVoiceHumanNoDisplay(HasTTSState):
                 # 音声、lab、を保存
                 self.tts_control.SaveAudioToFile(f"{wav_path}.wav")
 
-
-
                 # 送信するデータを作成する
                 phoneme_str, phoneme_time = self.getPhonemes(f"{wav_path}.lab")
                 wav_data = self.openWavFile(f"{wav_path}.wav")   #wabのbinaryデータ
@@ -144,8 +140,8 @@ class AIVoiceHumanNoDisplay(HasTTSState):
                     "char_name":self.char_name,
                     "voice_system_name":"AIVoice",
                 }
-                #pprint(f"{wav_info=}")
-                self.output_wav_info_list.append(wav_info)
+                output_wav_info_list.append(wav_info)
+        return output_wav_info_list
     
     def openWavFile(self,file_path):
         """

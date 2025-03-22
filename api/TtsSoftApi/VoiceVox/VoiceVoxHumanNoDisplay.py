@@ -15,14 +15,15 @@ from api.Extend.ExtendSound import ExtendSound
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.TtsSoftApi.VoiceVox.VoiceVoxPartsObject import SpeakerInfo
+from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
 from api.gptAI.HumanInfoValueObject import CharacterName, CharacterSaveId, TTSSoftware, VoiceMode
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState
-from api.gptAI.VoiceInfo import WavInfo
+from api.gptAI.HumanInformation import AllHumanInformationManager
+from api.gptAI.VoiceInfo import WavInfo, WavInfoForNoDisplay
 
 
 
 class VoiceVoxHumanNoDisplay(HasTTSState):
-    chara_mode_state:CharacterModeState|None
+    chara_mode_state:CharacterModeStateForNoDisplay|None
     _onTTSSoftware:bool = False #voicevoxが起動しているかどうか
     @property
     def onTTSSoftware(self):
@@ -47,7 +48,7 @@ class VoiceVoxHumanNoDisplay(HasTTSState):
             raise Exception("chara_mode_stateがNoneです")
         return self.chara_mode_state.voice_mode.id
 
-    def __init__(self,chara_mode_state:CharacterModeState|None,started_voicevox_num:int) -> None:
+    def __init__(self,chara_mode_state:CharacterModeStateForNoDisplay|None,started_voicevox_num:int) -> None:
         if chara_mode_state is None:
             return
         self.chara_mode_state = chara_mode_state
@@ -210,14 +211,13 @@ class VoiceVoxHumanNoDisplay(HasTTSState):
 
         p.terminate()
     
-    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):
+    def outputWaveFile(self,content:str):
         """
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
-        self.chara_mode_state = chara_mode_state
         sentence_list = content.split("。")
         print(sentence_list)
-        self.output_wav_info_list = []
+        output_wav_info_list = []
         for index,text in enumerate(sentence_list):
             if text == "":
                 continue
@@ -237,17 +237,17 @@ class VoiceVoxHumanNoDisplay(HasTTSState):
                 wav_data = self.wav2base64(wav_binary)
                 print("wav_data取得完了")
 
-                wav_info:WavInfo = {
+                wav_info:WavInfoForNoDisplay = {
                     "path":wav_path,
                     "wav_data":wav_data,
                     "wav_time":wav_time,
                     "phoneme_time":phoneme_time,
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
-                    "voice_system_name":"VoiceVox",
-                    "characterModeState": self.chara_mode_state.toDict()
+                    "voice_system_name":"VoiceVox"
                 }
-                self.output_wav_info_list.append(wav_info)
+                output_wav_info_list.append(wav_info)
+        return output_wav_info_list
 
 
 

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from api.TtsSoftApi.VoiceSystemType import VoiceSystem
 from api.gptAI.HumanInfoValueObject import CharacterId
-from api.gptAI.VoiceInfo import WavInfo
+from api.gptAI.VoiceInfo import WavInfo, WavInfoForNoDisplay
 
 
 class IHuman(ABC):
@@ -15,5 +15,5 @@ class IHuman(ABC):
         pass
 
     @abstractmethod
-    def outputWaveFile(self,str:str)->list[WavInfo]|None:
+    def outputWaveFile(self,str:str)->list[WavInfo]|list[WavInfoForNoDisplay]|None:
         pass

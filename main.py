@@ -17,8 +17,9 @@ from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.TtsSoftApi import CevioAI
 from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
-from api.TtsSoftApi.CevioAI.CevioAIHuman import cevio_human
+from api.TtsSoftApi.CevioAI.CevioAIHuman import CevioAIHuman
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.TTSSoftwareManager import TTSSoftwareManager
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
@@ -832,7 +833,7 @@ async def cevioAICharacterSetting(req: CevioAICharacterSettingSaveModelReq):
     human.aiRubiConverter.setMode(req.cevioAICharacterSettingModel.readingAloud.AIによる文章変換)
     cevio = human.human_Voice
     #cevio_human かどうかの判定
-    if isinstance(cevio, cevio_human):
+    if isinstance(cevio, CevioAIHuman):
         cevio.setVoiceSetting(req.cevioAICharacterSettingModel.voiceSetting)
         CevioAICharacterSettingCollectionOperator.singleton().save(req.cevioAICharacterSettingModel)
         return json.dumps({"message": "CevioAICharacterSettingを保存しました"})
@@ -892,7 +893,7 @@ async def cevioAIDefaultVoiceSetting(req: CevioAIDefaultVoiceSettingReq):
     if human == None:
         raise HTTPException(status_code=404, detail="Humanが存在しません")
     cevio = human.human_Voice
-    if isinstance(cevio, cevio_human):
+    if isinstance(cevio, CevioAIHuman):
         # talkerComponentArray2を取得する
         voiceSetting = cevio.Components
         return voiceSetting.model_dump_json()
