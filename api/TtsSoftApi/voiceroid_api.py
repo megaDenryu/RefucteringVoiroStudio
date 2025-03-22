@@ -27,7 +27,7 @@ from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.gptAI.HumanInfoValueObject import CharacterSaveId
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, NickName, TTSSoftware, VoiceMode
-from api.gptAI.VoiceInfo import WavInfo
+from api.gptAI.VoiceInfo import WavInfo, WavInfoForNoDisplay
 
 
 
@@ -147,6 +147,42 @@ class cevio_human(HasTTSState):
                 }
                 #pprint(f"{wav_info=}")
                 self.output_wav_info_list.append(wav_info)
+    def outputWaveFileForNoDisplay(self,content:str)->list[WavInfoForNoDisplay]:
+        """
+        ２００文字以上だと切り詰められるので文節に区切って再生する
+        """
+        sentence_list = content.split("。")
+        print(sentence_list)
+        #output_wav_info_listを初期化
+        output_wav_info_list = []
+        for index,text in enumerate(sentence_list):
+            if text == "":
+                continue
+            else:
+                print(f"cevioでwavを生成します:{index + 1}/{len(sentence_list)}")
+                #output_wavフォルダがなければ作成
+                os.makedirs("output_wav", exist_ok=True)
+                wav_path = f"output_wav/cevio_audio_{self.cevio_name}_{index}.wav"
+                ExtendFunc.ExtendPrint(wav_path)
+                state:bool = self.talker.OutputWaveToFile(text,wav_path)
+                phoneme = self.talker.GetPhonemes(text) #音素
+                phoneme_str = [[phoneme.at(x).Phoneme,phoneme.at(x).StartTime,phoneme.at(x).EndTime] for x in range(0,phoneme.Length)]
+                phoneme_time = [phoneme.at(x).Phoneme for x in range(0,phoneme.Length)]
+                wav_data = self.openWavFile(wav_path)   #wabのbinaryデータ
+                wav_time = ExtendSound.get_wav_duration(wav_path) #wavの再生時間
+                ExtendFunc.ExtendPrintWithTitle(f"{text}のwav_time",wav_time)
+                wav_info:WavInfoForNoDisplay = {
+                    "path":wav_path,
+                    "wav_data":wav_data,
+                    "wav_time":wav_time,
+                    "phoneme_time":phoneme_time,
+                    "phoneme_str":phoneme_str,
+                    "char_name":self.name,
+                    "voice_system_name":"Cevio",
+                }
+                #pprint(f"{wav_info=}")
+                output_wav_info_list.append(wav_info)
+        return output_wav_info_list
 
     def openWavFile(self,file_path):
         """

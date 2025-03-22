@@ -1,3 +1,4 @@
+from math import e
 from uuid import uuid4
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingSaveModel import AIVoiceCharacterSettingSaveModel
 from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModel import CevioAICharacterSettingSaveModel
@@ -10,6 +11,7 @@ from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import Vo
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIVoiceCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollectionOperator
 from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, ICharacterName, IHumanImage, IVoiceMode, NickName, TTSSoftware, VoiceMode, TTSSoftwareType, CharacterId, CharacterSaveId
+from api.gptAI.HumanInformation import CharacterModeState
 
 
 class CharacterSettingCollectionOperatorManager:
@@ -72,3 +74,18 @@ class CharacterSettingCollectionOperatorManager:
                 name_pair_list.append(NamePair(data.characterInfo.nickName,data.characterInfo.characterName))
         return name_pair_list
         
+    @staticmethod
+    def getCharacterModeStateFromLiveData(nikonamaUserData:ILiveCommentUserData)->CharacterModeState:
+        for tts_software in TTSSoftware.get_all_software_names():
+            operator = CharacterSettingCollectionOperatorManager.getCharacterSettingCollectionOperator(tts_software)
+            nickname = nikonamaUserData["nickName"]
+            characterName = nikonamaUserData["characterName"]
+            if nickname is not None:
+                saveDatas = operator.getByNickName(NickName(name=nickname["name"]))
+            elif characterName is not None:
+                saveDatas = operator.getByNickName(NickName(name=characterName["name"]))
+            else:
+                saveDatas = None
+
+            if saveDatas is not None and len(saveDatas) != 0:
+                save_id = saveDatas[0].saveID

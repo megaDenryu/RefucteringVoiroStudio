@@ -500,6 +500,20 @@ export class MessageBox {
         console.log("websocketで送信するデータ",ret)
         GlobalState.ws.send(ret);
     }
+
+    //クライアントに表示してないキャラのメッセージを送信する用の関数。しかし要らなくなるかも。まだ未完成で適当。
+    sendMessageAsOtherCharacter(message:string) {
+        //メッセージを送信する
+        const send_data:SendData = {
+            "messages" : [{
+                "text": message,
+                "characterModeState": null
+            }]
+        }
+        let ret = JSON.stringify(send_data);
+        console.log("websocketで送信するデータ",ret)
+        GlobalState.ws.send(ret);
+    }
 }
 
 export type AllData = Record<string, Record<string, string>>;

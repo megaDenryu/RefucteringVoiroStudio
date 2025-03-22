@@ -12,6 +12,7 @@ from api.DataStore.CharacterSetting.AIVoiceCharacterSettingCollection import AIV
 from api.DataStore.CharacterSetting.AIVoiceCharacterSettingSaveModelReq import AIVoiceCharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import CevioAICharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.CevioAICharacterSettingSaveModelReq import CevioAICharacterSettingSaveModelReq
+from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import CoeiroinkCharacterSettingSaveModelReq
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
@@ -278,7 +279,8 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
             "user_id": str(user_id),
             "comment": content,
             "date": date,
-            "user_data": user_data
+            "user_data": user_data,
+            "characterModeState": CharacterSettingCollectionOperatorManager.getCharacterModeStateFromLiveData(user_data)
         }
         ExtendFunc.ExtendPrint(commentData)
         await websocket.send_text(json.dumps(commentData))
