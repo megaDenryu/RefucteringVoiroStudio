@@ -22,7 +22,7 @@ from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterMode
 from api.gptAI.VoiceInfo import WavInfo
 
 
-class CevioAIHuman(HasTTSState):
+class CevioAIHumanNoDisplay(HasTTSState):
     chara_mode_state:CharacterModeState|None
     output_wav_info_list:list[WavInfo]
     @property
@@ -59,8 +59,8 @@ class CevioAIHuman(HasTTSState):
             if setting is not None:
                 self.setVoiceSetting(setting)
     @staticmethod
-    def createAndUpdateALLCharaList(chara_mode_state:CharacterModeState, started_cevio_num:int)->"CevioAIHuman":
-        human = CevioAIHuman(chara_mode_state,started_cevio_num)
+    def createAndUpdateALLCharaList(chara_mode_state:CharacterModeState, started_cevio_num:int)->"CevioAIHumanNoDisplay":
+        human = CevioAIHumanNoDisplay(chara_mode_state,started_cevio_num)
         human.updateAllCharaList()
         return human
     

@@ -3,10 +3,6 @@ import json
 import os
 from pathlib import Path
 from pprint import pprint
-import subprocess
-from typing import Literal, TypedDict, Union
-import winreg
-
 import pyaudio
 import requests
 from requests import Response
@@ -18,18 +14,13 @@ from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
+from api.TtsSoftApi.VoiceVox.VoiceVoxPartsObject import SpeakerInfo
 from api.gptAI.HumanInfoValueObject import CharacterName, CharacterSaveId, TTSSoftware, VoiceMode
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState
 from api.gptAI.VoiceInfo import WavInfo
 
 
-class SpeakerStyle(TypedDict):
-    id:int
-    name:str
-    type:Literal["talk"]
-class SpeakerInfo(TypedDict):
-    name:str
-    styles:list[SpeakerStyle]
+
 class VoiceVoxHuman(HasTTSState):
     chara_mode_state:CharacterModeState|None
     _onTTSSoftware:bool = False #voicevoxが起動しているかどうか
@@ -132,7 +123,7 @@ class VoiceVoxHuman(HasTTSState):
         wav = requests.post(self.synthesis_url, params={'speaker': self.mode}, data=query_json)
         return wav
     
-    def wav2base64(self, wav: Union[bytes, Response]) -> str:
+    def wav2base64(self, wav: bytes|Response) -> str:
         if isinstance(wav, bytes):
             binary_data = wav
         elif isinstance(wav, Response):

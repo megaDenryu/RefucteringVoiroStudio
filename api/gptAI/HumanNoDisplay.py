@@ -8,10 +8,11 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LL
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBodyInput import LLMHumanBodyInput
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
+from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
+from api.TtsSoftApi.CevioAI.CevioAIHuman import CevioAIHuman
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.VoiceSystemType import VoiceSystem
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
-from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
 from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
 from api.gptAI.HumanInfoValueObject import TTSSoftware
 from api.gptAI.Human自分の情報コンテナ import Human自分の情報コンテナ
@@ -48,9 +49,9 @@ class HumanNoDisplay(IHuman,I体を持つ者):
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
             if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
-                if cevio_human is None:
+                if CevioAIHuman is None:
                     raise ImportError("cevio_human module is not available.")
-                tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
+                tmp_cevio = CevioAIHuman.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
                 print(f"{self.char_name}のcevio起動完了")
@@ -87,7 +88,7 @@ class HumanNoDisplay(IHuman,I体を持つ者):
     def outputWaveFile(self,str:str)->list[WavInfo]|None:
         str = str.replace(" ","").replace("　","")
         # str = TextConverter.convertReadableJapanaeseSentense(str)
-        if isinstance(self.human_Voice, cevio_human):
+        if isinstance(self.human_Voice, CevioAIHuman):
             print("cevioでwav出力します")
             self.human_Voice.outputWaveFileForNoDisplay(str)
         elif isinstance(self.human_Voice, AIVoiceHuman):

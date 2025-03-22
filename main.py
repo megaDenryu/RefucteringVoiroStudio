@@ -17,6 +17,8 @@ from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
+from api.TtsSoftApi.CevioAI.CevioAIHuman import cevio_human
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.TTSSoftwareManager import TTSSoftwareManager
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
@@ -24,7 +26,6 @@ from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUn
 from api.gptAI.GPTMode import GPTModeReq, GptMode
 from api.gptAI.HumanInfoValueObject import NickName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
-from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
 from api.gptAI.Human import Human
 # from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart

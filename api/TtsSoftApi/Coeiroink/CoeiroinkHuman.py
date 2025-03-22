@@ -16,43 +16,12 @@ from api.Extend.ExtendSound import ExtendSound
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.domain.LaunchResult import LaunchResult
 from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
+from api.TtsSoftApi.Coeiroink.CoeiroinkPartsObject import CoeiroinkSpeaker, CoeiroinkWaveData
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.gptAI.HumanInfoValueObject import CharacterName, CharacterSaveId, TTSSoftware, VoiceMode
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState
 from api.gptAI.VoiceInfo import WavInfo
-
-
-class CoeiroinkWavRange(TypedDict):
-    start: int
-    end: int
-
-class CoeiroinkPhonemePitch(TypedDict):
-    phoneme: str
-    wavRange: CoeiroinkWavRange
-
-class CoeiroinkMoraDuration(TypedDict):
-    mora: str
-    hira: str
-    phonemePitches: list[CoeiroinkPhonemePitch]
-    wavRange: CoeiroinkWavRange
-
-class CoeiroinkWaveData(TypedDict):
-    wavBase64: str
-    moraDurations: list[CoeiroinkMoraDuration]
-
-class CoeiroinkStyle(TypedDict):
-    styleName: str
-    styleId: int
-    base64Icon: str
-    base64Portrait: str
-
-class CoeiroinkSpeaker(TypedDict):
-    speakerName: str
-    speakerUuid: str
-    styles: list[CoeiroinkStyle]
-    version: str
-    base64Portrait: str
 
 class Coeiroink(HasTTSState):
     chara_mode_state:CharacterModeState|None

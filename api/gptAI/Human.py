@@ -21,9 +21,9 @@ from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
 
 
 try:
-    from api.TtsSoftApi.CevioAI.CevioAIHuman import cevio_human
+    from api.TtsSoftApi.CevioAI.CevioAIHuman import CevioAIHuman
 except ImportError:
-    cevio_human = None
+    CevioAIHuman = None
     print("cevio_human module could not be imported. Please ensure the required application is installed.")
 
 try:
@@ -71,9 +71,9 @@ class Human(IHuman,I体を持つ者):
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
             if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
-                if cevio_human is None:
+                if CevioAIHuman is None:
                     raise ImportError("cevio_human module is not available.")
-                tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
+                tmp_cevio = CevioAIHuman.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
                 print(f"{self.char_name}のcevio起動完了")
@@ -110,7 +110,7 @@ class Human(IHuman,I体を持つ者):
     def outputWaveFile(self,str:str)->list[WavInfo]|None:
         str = str.replace(" ","").replace("　","")
         # str = TextConverter.convertReadableJapanaeseSentense(str)
-        if cevio_human == type(self.human_Voice):
+        if CevioAIHuman == type(self.human_Voice):
             print("cevioでwav出力します")
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif AIVoiceHuman == type(self.human_Voice):

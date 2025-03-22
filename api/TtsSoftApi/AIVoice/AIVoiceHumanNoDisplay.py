@@ -12,12 +12,13 @@ from api.Extend.ExtendSound import ExtendSound
 from api.TtsSoftApi.AIVoice.AIVoicePartsObject import VoicePresetModel
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
+from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, CharacterName, TTSSoftware, VoiceMode
-from api.gptAI.VoiceInfo import WavInfo
+from api.gptAI.VoiceInfo import WavInfoForNoDisplay
 
-class AIVoiceHuman(HasTTSState):
-    chara_mode_state:CharacterModeState|None
-    output_wav_info_list:list[WavInfo]
+class AIVoiceHumanNoDisplay(HasTTSState):
+    chara_mode_state:CharacterModeStateForNoDisplay|None
+    output_wav_info_list:list[WavInfoForNoDisplay]
     @property
     def char_name(self):
         if self.chara_mode_state is None:
@@ -37,13 +38,13 @@ class AIVoiceHuman(HasTTSState):
     @property
     def hasTTSSoftware(self)->TTSSoftwareInstallState:
         return self._hasTTSSoftware
-    def __init__(self, chara_mode_state:CharacterModeState|None, started_AIVoice_num:int) -> None:
+    def __init__(self, chara_mode_state:CharacterModeStateForNoDisplay|None, started_AIVoice_num:int) -> None:
         self.chara_mode_state = chara_mode_state
         self.start()
     
     @staticmethod
-    def createAndUpdateALLCharaList(chara_mode_state:CharacterModeState|None,started_AIVoice_num:int)->"AIVoiceHuman":
-        human = AIVoiceHuman(chara_mode_state,started_AIVoice_num)
+    def createAndUpdateALLCharaList(chara_mode_state:CharacterModeStateForNoDisplay|None,started_AIVoice_num:int)->"AIVoiceHumanNoDisplay":
+        human = AIVoiceHumanNoDisplay(chara_mode_state,started_AIVoice_num)
         # print(human.updateCharName())
         human.updateAllCharaList()
         return human
@@ -96,7 +97,7 @@ class AIVoiceHuman(HasTTSState):
             self._onTTSSoftware = False
             return
 
-    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeState):
+    def outputWaveFile(self,content:str, chara_mode_state:CharacterModeStateForNoDisplay):
         """
         ２００文字以上だと切り詰められるので文節に区切って再生する
         """
@@ -134,7 +135,7 @@ class AIVoiceHuman(HasTTSState):
                 wav_data = self.openWavFile(f"{wav_path}.wav")   #wabのbinaryデータ
                 wav_time = ExtendSound.get_wav_duration(f"{wav_path}.wav")
                 ExtendFunc.ExtendPrintWithTitle(f"{text}のwav_time",wav_time)
-                wav_info:WavInfo = {
+                wav_info:WavInfoForNoDisplay = {
                     "path":wav_path,
                     "wav_data":wav_data,
                     "wav_time":wav_time,
@@ -142,7 +143,6 @@ class AIVoiceHuman(HasTTSState):
                     "phoneme_str":phoneme_str,
                     "char_name":self.char_name,
                     "voice_system_name":"AIVoice",
-                    "characterModeState": self.chara_mode_state.toDict()
                 }
                 #pprint(f"{wav_info=}")
                 self.output_wav_info_list.append(wav_info)
@@ -225,7 +225,7 @@ class AIVoiceHuman(HasTTSState):
         """
         charaNames = []
         for name in self.VoiceNames:
-            chara_name = AIVoiceHuman.convertAIVoiceName2CharaName(name)
+            chara_name = AIVoiceHumanNoDisplay.convertAIVoiceName2CharaName(name)
             #既にリストに入っていないなら追加
             if chara_name not in charaNames:
                 charaNames.append(chara_name)
@@ -235,7 +235,7 @@ class AIVoiceHuman(HasTTSState):
     def CharaNames2DefalutVoiceModeDict(self)->dict[CharacterName, list[VoiceMode]]:
         chara2voicemode_dict:dict[CharacterName, list[VoiceMode]] = {}
         for name in self.VoiceNames:
-            charaName = AIVoiceHuman.convertAIVoiceName2CharaName(name)
+            charaName = AIVoiceHumanNoDisplay.convertAIVoiceName2CharaName(name)
             voiceMode = VoiceMode(mode = name, id_str = self.GetVoicePreset(name).VoiceName)
             if charaName in chara2voicemode_dict:
                 chara2voicemode_dict[charaName].append(voiceMode)
@@ -283,7 +283,7 @@ class AIVoiceHuman(HasTTSState):
         for voicemode in self.VoiceModels:
             if voicemode.id_str == None:
                 raise Exception("id_strがNoneです")
-            searched_charaName = AIVoiceHuman.searchCharaName(voicemode.id_str,defaultVoiceModeDict)
+            searched_charaName = AIVoiceHumanNoDisplay.searchCharaName(voicemode.id_str,defaultVoiceModeDict)
             if searched_charaName is not None:
                 if searched_charaName in emptyVoiceModeDict:
                     emptyVoiceModeDict[searched_charaName].append(voicemode)
