@@ -44,7 +44,6 @@ class AIVoiceHuman(HasTTSState):
     @staticmethod
     def createAndUpdateALLCharaList(chara_mode_state:CharacterModeState|None,started_AIVoice_num:int)->"AIVoiceHuman":
         human = AIVoiceHuman(chara_mode_state,started_AIVoice_num)
-        # print(human.updateCharName())
         human.updateAllCharaList()
         return human
 
