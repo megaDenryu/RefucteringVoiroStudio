@@ -10,6 +10,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LL
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
+from api.TtsSoftApi.VoiceSystemType import VoiceSystem
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.gptAI.IHuman import IHuman
 from api.gptAI.Human自分の情報コンテナ import Human自分の情報コンテナ
@@ -31,7 +32,7 @@ except ImportError:
     AIVoiceHuman = None
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
 
-VoiceSystem = Literal["cevio","voicevox","AIVOICE","Coeiroink","ボイロにいない名前が入力されたので起動に失敗しました。","ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"]
+
 class Human(IHuman,I体を持つ者):
     voice_switch = True # debug用の変数
     chara_mode_state:CharacterModeState

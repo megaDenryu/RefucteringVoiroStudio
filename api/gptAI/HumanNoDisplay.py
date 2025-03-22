@@ -9,10 +9,10 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LL
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
+from api.TtsSoftApi.VoiceSystemType import VoiceSystem
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
 from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
-from api.gptAI.Human import VoiceSystem
 from api.gptAI.HumanInfoValueObject import TTSSoftware
 from api.gptAI.Human自分の情報コンテナ import Human自分の情報コンテナ
 from api.gptAI.Human自分の情報コンテナForNoDisplay import Human自分の情報コンテナForNoDisplay
