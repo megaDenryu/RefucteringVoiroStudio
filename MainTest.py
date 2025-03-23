@@ -2,6 +2,7 @@
  
 
 import asyncio
+from api.Extend.FormatConverter.ConvertTest import ConvertTest
 from api.LLM.エージェント.会話用エージェント.返答判定機.LLM判定テスト import LLM判定テスト
 from api.LLM.エージェントテスト.テスト環境.自立型Ver1テスト.自立型Ver1test import 自立型Ver1test
 
@@ -36,7 +37,8 @@ if __name__ == "__main__":
     # a.アプリ起動確認()
     # a.初期化()
     
-    asyncio.run(自立型Ver1test.MainLoop())
+    # asyncio.run(自立型Ver1test.MainLoop())
+    ConvertTest.main()
 
 
 

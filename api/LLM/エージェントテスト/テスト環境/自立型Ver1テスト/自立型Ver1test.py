@@ -6,7 +6,8 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnitParts.Message import Message
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnitParts.SpeakerInfo import SpeakerInfo
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.体を持つ者example import 体を持つ者example
-
+import random
+import asyncio
 
 class 自立型Ver1test:
     @staticmethod
@@ -22,9 +23,17 @@ class 自立型Ver1test:
         aiSpace.空間に人間を追加して会話履歴を注入(妖精1)
 
         while True:
-            message = input("会話を入力してください")
+            message = await 自立型Ver1test.recieveMessage()
             messageUnit = MessageUnitVer1(id=str(uuid4()), time=TimeExtend.nowDateTime(), message=Message(text=message), speaker=SpeakerInfo(speakerId="弦巻マキ", displayName="弦巻マキ"))
             # aiSpace.会話更新(messageUnit)
             await aiSpace.async会話更新(messageUnit)
+
+    @staticmethod
+    async def recieveMessage()->str:
+        waitTimeList = [5,6,7,8]
+        waitTime = random.choice(waitTimeList)
+        await asyncio.sleep(waitTime)
+        return f"今は{waitTime}秒待ちました"
+    
 
         

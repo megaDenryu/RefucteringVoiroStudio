@@ -32,7 +32,7 @@ class LLMBrain:
         await asyncio.sleep(wait_time)
 
         # 思考手続きモデル
-        await self._v脳内思考プロセス.脳内思考プロセスを進める()
+        await self._v脳内思考プロセス.脳内思考プロセスを進める(messageUnits)
         v最新思考状態 = self._v脳内思考プロセス.最新の思考状態
         return 思考結果(最新思考状態=v最新思考状態)
         # return 思考結果(結論 = f"{self._v自分の情報.id}が{messageUnits[-1].message.text}に対して考えた結果", 感情="感情" , 理由="理由", )

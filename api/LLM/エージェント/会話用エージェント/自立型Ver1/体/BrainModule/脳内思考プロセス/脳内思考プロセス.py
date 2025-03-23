@@ -1,5 +1,6 @@
 
 from uuid import uuid4
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.プロセス材料.プロセス材料を包んだもの import プロセス材料を包んだもの
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内表現イベント.I脳内表現イベント import I脳内表現イベント
@@ -25,8 +26,11 @@ class 脳内思考プロセス:
         """
         pass
 
-    async def 脳内思考プロセスを進める(self):
-        pass
+    async def 脳内思考プロセスを進める(self, messageUnits:list[MessageUnitVer1]):
+        new思考状態:思考状態 = 思考状態(
+            id = str(uuid4()), 
+            思考内容 = messageUnits[-1].message.text
+        )
     
 
     async def 脳内思考プロセスを終了(self):
