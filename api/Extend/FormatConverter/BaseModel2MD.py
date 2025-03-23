@@ -1,4 +1,9 @@
+from pathlib import Path
 from pydantic import BaseModel
+
+from api.Extend.ExtendFunc import ExtendFunc
+from api.Extend.FileManager.Domain.entity.Files.TextFile import TextFile
+from api.Extend.FileManager.FileCreater.FileCreater import FileCreater
 
 class MarkdownConverter:
     def __init__(self, indent_spaces: int = 2) -> None:
@@ -32,4 +37,5 @@ class MarkdownConverter:
             else:
                 markdown_lines.append(f"{indent}- **{key}**: {value}")
         
-        return "\n".join(markdown_lines)
+        文字列 = "\n".join(markdown_lines)
+        return 文字列
