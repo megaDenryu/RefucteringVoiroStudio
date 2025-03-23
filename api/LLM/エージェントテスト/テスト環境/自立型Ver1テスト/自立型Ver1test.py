@@ -24,6 +24,7 @@ class 自立型Ver1test:
         while True:
             message = input("会話を入力してください")
             messageUnit = MessageUnitVer1(id=str(uuid4()), time=TimeExtend.nowDateTime(), message=Message(text=message), speaker=SpeakerInfo(speakerId="弦巻マキ", displayName="弦巻マキ"))
-            aiSpace.会話更新(messageUnit)
+            # aiSpace.会話更新(messageUnit)
+            await aiSpace.async会話更新(messageUnit)
 
         

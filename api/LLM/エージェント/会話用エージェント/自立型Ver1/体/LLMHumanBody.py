@@ -4,6 +4,7 @@ from api.Extend.ExtendFunc import TimeExtend
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.Conversation import Conversation
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内表現イベント.失敗イベント import 失敗イベント
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.I表現機構 import I表現機構
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMBrain import LLMBrain
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLM他人と自分の声を識別する機構 import LLM他人と自分の声を識別する機構

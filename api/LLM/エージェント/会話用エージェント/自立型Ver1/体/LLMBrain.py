@@ -3,6 +3,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.脳内思考プロセス import 脳内思考プロセス
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内表現イベント.I脳内表現イベント import I脳内表現イベント
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.体内信号機.体内信号機 import 体内信号機
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
 
@@ -38,9 +39,12 @@ class LLMBrain:
 
     def 脳内で表現する(self, 脳内表現イベント: I脳内表現イベント):
         """
-        いうのに失敗したことなどを心の中で言っておく。例：○○て言おうと思ったのに言えなかった。
+        いうのに失敗したことなどを心の中で言って脳内状態を更新しておく。例：○○て言おうと思ったのに言えなかった。
         non-blockingで行うので create_task などで非同期で実行する。
+
+        脳内思考プロセスなどにアプローチしたい。
         """
-        pass
-        
+        self._v脳内思考プロセス.プロセス材料に変換して溜める(脳内表現イベント)
+
+
 

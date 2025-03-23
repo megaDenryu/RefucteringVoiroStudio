@@ -1,4 +1,6 @@
 
+from email import message
+import uuid
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
 from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLM用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
@@ -20,7 +22,12 @@ class 思考結果から表現したいことへ加工するLLM:
         """
         思考結果から表現したいことへ加工する
         """
-        response = await self._llmBox.llmUnit.asyncGenerateResponse([v思考結果], PresentationByBody)
+        message_query:IMessageQuery = IMessageQuery(
+            id = str(uuid.uuid4()),
+            role="user",
+            content=v思考結果.最新思考状態.思考内容
+        )
+        response = await self._llmBox.llmUnit.asyncGenerateResponse([message_query], PresentationByBody)
         if response is None or response == "テストモードです":
             raise Exception("加工に失敗しました")
         return response
