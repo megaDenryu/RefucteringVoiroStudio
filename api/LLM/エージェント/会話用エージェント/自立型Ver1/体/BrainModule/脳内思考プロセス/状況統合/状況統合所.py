@@ -6,10 +6,13 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況
 
 class 状況統合所:
+    _状況履歴: list[状況]
     def __init__(self):
-        self.状況 = {}
+        self._状況履歴 = []
     def 思考可能な形に状況を整理して変換(self, 溜まってたプロセス材料: list[プロセス材料を包んだもの], 最新メッセージ: list[MessageUnitVer1]) -> list[状況]:
-        return self.材料を状況に変換(溜まってたプロセス材料) + self.メッセージを状況に変換(最新メッセージ)
+        new状況 = 状況.並び替え(self.材料を状況に変換(溜まってたプロセス材料) + self.メッセージを状況に変換(最新メッセージ))
+        self._状況履歴 += new状況
+        return self._状況履歴
         
 
     def 材料を状況に変換(self, 溜まってたプロセス材料: list[プロセス材料を包んだもの]) -> list[状況]:
