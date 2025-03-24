@@ -1,5 +1,6 @@
 
 from uuid import uuid4
+from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendFunc import TimeExtend
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.AISpace import AISpace
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
@@ -24,9 +25,10 @@ class 自立型Ver1test:
 
         while True:
             message = await 自立型Ver1test.recieveMessage()
+            ExtendFunc.ExtendPrint(message)
             messageUnit = MessageUnitVer1(id=str(uuid4()), time=TimeExtend.nowDateTime(), message=Message(text=message), speaker=SpeakerInfo(speakerId="弦巻マキ", displayName="弦巻マキ"))
-            # aiSpace.会話更新(messageUnit)
-            await aiSpace.async会話更新(messageUnit)
+            aiSpace.会話更新(messageUnit)
+            # await aiSpace.async会話更新(messageUnit)
 
     @staticmethod
     async def recieveMessage()->str:

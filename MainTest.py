@@ -37,8 +37,8 @@ if __name__ == "__main__":
     # a.アプリ起動確認()
     # a.初期化()
     
-    # asyncio.run(自立型Ver1test.MainLoop())
-    ConvertTest.main()
+    asyncio.run(自立型Ver1test.MainLoop())
+    # ConvertTest.main()
 
 
 

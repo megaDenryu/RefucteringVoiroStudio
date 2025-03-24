@@ -1,5 +1,7 @@
 
 from uuid import uuid4
+from api.Extend.FormatConverter import BaseModel2MD
+from api.Extend.FormatConverter.ConvertAndSaveLog import ConvertAndSaveLog
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.プロセス材料.プロセス材料を包んだもの import プロセス材料を包んだもの
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
@@ -19,6 +21,7 @@ class 脳内思考プロセス:
     def __init__(self):
         初期思考状態:思考状態 = 思考状態(id = str(uuid4()), 思考内容 = "初期思考")
         self._思考履歴 = [初期思考状態]
+        self._プロセス材料溜め置き場 = []
 
     async def 脳内思考プロセスを開始(self):
         """
@@ -29,7 +32,7 @@ class 脳内思考プロセス:
     async def 脳内思考プロセスを進める(self, messageUnits:list[MessageUnitVer1]):
         new思考状態:思考状態 = 思考状態(
             id = str(uuid4()), 
-            思考内容 = messageUnits[-1].message.text
+            思考内容 = ConvertAndSaveLog.MarkdownConvertList(model = messageUnits, log=True)
         )
     
 

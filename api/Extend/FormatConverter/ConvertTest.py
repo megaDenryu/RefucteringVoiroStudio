@@ -14,4 +14,6 @@ class ConvertTest:
     @staticmethod
     def main():
         q = MessageUnitVer1(id="1", time="2021-01-01", message=Message(text="Hello"), speaker=SpeakerInfo(speakerId="1", displayName="Alice"))
-        ConvertAndSaveLog.MarkdownConvert(q)
+        q_s = [q,q,q,q]
+        # ConvertAndSaveLog.MarkdownConvert(q)
+        ConvertAndSaveLog.MarkdownConvertList(q_s)
