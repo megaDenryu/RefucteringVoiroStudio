@@ -1,6 +1,7 @@
 # 会話履歴を操作するクラス
 import asyncio
 from api.Extend.CallBackType import AsyncCallback
+from api.Extend.FormatConverter.ConvertAndSaveLog import ConvertAndSaveLog
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.Conversation import Conversation
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1

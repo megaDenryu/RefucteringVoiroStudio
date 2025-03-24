@@ -59,7 +59,7 @@ class LLMHumanBody:
                 self._v口.表現する(v表現したいこと)
                 return イベント反応結果(結果=結果種類.表現した)
             else:
-                self._v脳.脳内で表現する(失敗イベント(event = v表現したいこと, time = TimeExtend("now")))
+                self._v脳.脳内で表現する(失敗イベント(event = v表現したいこと, time = TimeExtend("now"), 本人の名前 = self._v自分の情報.表示名))
                 return イベント反応結果(結果=結果種類.何もしなかった)
             
         else:

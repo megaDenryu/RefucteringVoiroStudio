@@ -7,3 +7,8 @@ class I自分の情報コンテナ(ABC):
     @abstractmethod
     def id(self)->str:
         pass
+
+    @property
+    @abstractmethod
+    def 表示名(self)->str:
+        pass

@@ -22,11 +22,15 @@ class 自立型Ver1test:
         aiSpace.空間に人間を追加して会話履歴を注入(人間2)
         aiSpace.空間に人間を追加して会話履歴を注入(人間3)
         aiSpace.空間に人間を追加して会話履歴を注入(妖精1)
+        人間1.setAiSpace(aiSpace)
+        人間2.setAiSpace(aiSpace)
+        人間3.setAiSpace(aiSpace)
+        妖精1.setAiSpace(aiSpace)
 
         while True:
             message = await 自立型Ver1test.recieveMessage()
             ExtendFunc.ExtendPrint(message)
-            messageUnit = MessageUnitVer1(id=str(uuid4()), time=TimeExtend.nowDateTime(), message=Message(text=message), speaker=SpeakerInfo(speakerId="弦巻マキ", displayName="弦巻マキ"))
+            messageUnit = MessageUnitVer1(id=str(uuid4()), time=TimeExtend(), message=Message(text=message), speaker=SpeakerInfo(speakerId="弦巻マキ", displayName="弦巻マキ"))
             aiSpace.会話更新(messageUnit)
             # await aiSpace.async会話更新(messageUnit)
 

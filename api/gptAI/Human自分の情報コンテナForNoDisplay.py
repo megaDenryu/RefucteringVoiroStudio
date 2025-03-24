@@ -8,6 +8,10 @@ class Human自分の情報コンテナForNoDisplay(I自分の情報コンテナ)
     @property
     def id(self)->str:
         return self._chara_mode_state.id
+    
+    @property
+    def 表示名(self)->str:
+        return self._chara_mode_state.character_name.name
 
     def __init__(self, chara_mode_state:CharacterModeStateForNoDisplay):
         self._chara_mode_state = chara_mode_state

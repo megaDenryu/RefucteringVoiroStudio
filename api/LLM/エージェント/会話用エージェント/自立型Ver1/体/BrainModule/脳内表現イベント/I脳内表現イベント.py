@@ -1,6 +1,14 @@
 
-from abc import ABC
+from abc import ABC, abstractmethod
+
+from api.Extend.ExtendFunc import TimeExtend
 
 
 class I脳内表現イベント(ABC):
-    pass
+    @abstractmethod
+    def eventToStr(self)->str:
+        pass
+    @property
+    @abstractmethod
+    def time(self)->TimeExtend:
+        pass

@@ -1,6 +1,6 @@
 
 from pathlib import Path
-from api.Extend.ExtendFunc import ExtendFunc
+from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
 from api.Extend.FileManager.Domain.entity.Files.TextFile import TextFile
 from api.Extend.FileManager.FileCreater.FileCreater import FileCreater
 from api.Extend.FormatConverter import BaseModel2MD
@@ -13,7 +13,8 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話
 class ConvertTest:
     @staticmethod
     def main():
-        q = MessageUnitVer1(id="1", time="2021-01-01", message=Message(text="Hello"), speaker=SpeakerInfo(speakerId="1", displayName="Alice"))
-        q_s = [q,q,q,q]
-        # ConvertAndSaveLog.MarkdownConvert(q)
-        ConvertAndSaveLog.MarkdownConvertList(q_s)
+        # q = MessageUnitVer1(id="1", time=TimeExtend(), message=Message(text="Hello"), speaker=SpeakerInfo(speakerId="1", displayName="Alice"))
+        # q_s = [q,q,q,q]
+        # # ConvertAndSaveLog.MarkdownConvert(q)
+        # ConvertAndSaveLog.MarkdownConvertList(q_s)
+        pass
