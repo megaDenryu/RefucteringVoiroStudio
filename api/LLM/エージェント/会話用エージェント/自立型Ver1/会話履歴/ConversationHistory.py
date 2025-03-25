@@ -1,24 +1,28 @@
 # 会話履歴を操作するクラス
-from typing import Callable
+import asyncio
+from api.Extend.CallBackType import AsyncCallback
+from api.Extend.FormatConverter.ConvertAndSaveLog import ConvertAndSaveLog
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.Conversation import Conversation
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 
 
 class ConversationHistory(I会話履歴):
     conversation: Conversation
-    _onMessageAction: list[Callable[[], None]] = []
+    _onMessageAsyncAction: list[AsyncCallback] = []
     def __init__(self):
         self.conversation = Conversation(history=[])
-    def addMessage(self, messageUnit):
+    async def 新規メッセージ追加してアクションを実行(self, messageUnit: MessageUnitVer1):
         self.conversation.history.append(messageUnit)
-        for action in self._onMessageAction:
-            action()
-    def deleteMessage(self, messageId):
+        if self._onMessageAsyncAction:  # アクションがある場合のみ実行
+            # すべてのアクションを同時に開始し、全て完了するまで待機
+            await asyncio.gather(*[action() for action in self._onMessageAsyncAction])
+    def deleteMessage(self, messageId:str):
         self.conversation.history = [message for message in self.conversation.history if message.id != messageId]
     def saveConversation(self):
         pass
-    def addOnMessage(self, method:Callable[[], None]):
-        self._onMessageAction.append(method)
+    def addOnMessage(self, asyncMethod:AsyncCallback)->None:
+        self._onMessageAsyncAction.append(asyncMethod)
     def 会話(self)->Conversation:
         return self.conversation
 

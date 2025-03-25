@@ -17,6 +17,9 @@ from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingSaveModelReq import
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingSaveModelReq import VoiceVoxCharacterSettingSaveModelReq
 from api.InstanceManager.InstanceManager import InastanceManager
+from api.TtsSoftApi import CevioAI
+from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
+from api.TtsSoftApi.CevioAI.CevioAIHuman import CevioAIHuman
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.TTSSoftwareManager import TTSSoftwareManager
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
@@ -24,7 +27,6 @@ from api.comment_reciver.TwitchCommentReciever import TwitchBot, TwitchMessageUn
 from api.gptAI.GPTMode import GPTModeReq, GptMode
 from api.gptAI.HumanInfoValueObject import NickName
 from api.gptAI.HumanInformation import AllHumanInformationDict, AllHumanInformationManager, CharacterModeState, CharacterName, HumanImage, ICharacterModeState, TTSSoftware, VoiceMode, CharacterId
-from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
 from api.gptAI.Human import Human
 # from api.gptAI.AgentManager import AgentEventManager, AgentManager, GPTAgent, LifeProcessBrain
 from api.images.image_manager.HumanPart import HumanPart
@@ -425,7 +427,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
             data = json.loads(await websocket.receive_text())
             ExtendFunc.ExtendPrint(data)
             inputNickNameSendData:InputNickNameSendData = InputNickNameSendData(**data)
-            if Human.setCharName(inputNickNameSendData.nick_name.name) == "":
+            if AllHumanInformationManager.frontToCharName(inputNickNameSendData.nick_name.name) == "":
                 print("キャラ名が無効です")
                 await websocket.send_json(json.dumps("キャラ名が無効です"))
                 continue
@@ -435,7 +437,7 @@ async def human_pict(websocket: WebSocket, client_id: str):
                 tmp_human = inastanceManager.humanInstances.createHuman(chara_mode_state)
                 tmp_human.aiRubiConverter.setMode(inastanceManager.appSettingModule.setting.セリフ設定.AIによる文章変換)
                 #clientにキャラクターのパーツのフォルダの画像のpathを送信
-                human_part_folder:HumanData = tmp_human.image_data_for_client
+                human_part_folder:HumanData = tmp_human.getHumanImage()
                 charaCreateData:CharaCreateData = {
                     "humanData":human_part_folder,
                     "characterModeState":chara_mode_state.toDict()
@@ -496,7 +498,7 @@ async def parserPsdFile(
     file_contents = await file.read()
     print("ファイル受け取り完了")        
     # psdファイルが送られてくるので取得
-    chara_name = Human.pickFrontName(filename)
+    chara_name = AllHumanInformationManager.pickFrontName(filename)
     if chara_name == "名前が無効です":
         respose:CharaCreateDataResponse = {"succese_mode":"名前が無効" ,"message": "ファイル名が無効です。保存フォルダの推測に使うのでファイル名にキャラクター名を1つ含めてください", "charaCreateData": None}
         return respose
@@ -752,7 +754,7 @@ async def DecideChara(req: CharacterModeStateReq):
     #name_dataに対応したHumanインスタンスを生成
     tmp_human = inastanceManager.humanInstances.createHuman(character_mode_state)
     #clientにキャラクターのパーツのフォルダの画像のpathを送信
-    human_part_folder:HumanData = tmp_human.image_data_for_client
+    human_part_folder:HumanData = tmp_human.getHumanImage()
     charaCreateData:CharaCreateData = {
         "humanData":human_part_folder,
         "characterModeState":character_mode_state.toDict()
@@ -831,7 +833,7 @@ async def cevioAICharacterSetting(req: CevioAICharacterSettingSaveModelReq):
     human.aiRubiConverter.setMode(req.cevioAICharacterSettingModel.readingAloud.AIによる文章変換)
     cevio = human.human_Voice
     #cevio_human かどうかの判定
-    if isinstance(cevio, cevio_human):
+    if isinstance(cevio, CevioAIHuman):
         cevio.setVoiceSetting(req.cevioAICharacterSettingModel.voiceSetting)
         CevioAICharacterSettingCollectionOperator.singleton().save(req.cevioAICharacterSettingModel)
         return json.dumps({"message": "CevioAICharacterSettingを保存しました"})
@@ -891,7 +893,7 @@ async def cevioAIDefaultVoiceSetting(req: CevioAIDefaultVoiceSettingReq):
     if human == None:
         raise HTTPException(status_code=404, detail="Humanが存在しません")
     cevio = human.human_Voice
-    if isinstance(cevio, cevio_human):
+    if isinstance(cevio, CevioAIHuman):
         # talkerComponentArray2を取得する
         voiceSetting = cevio.Components
         return voiceSetting.model_dump_json()

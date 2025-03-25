@@ -4,17 +4,21 @@ import json
 from api.Extend.FileManager.Domain.entity.Interaface.IFile import IFile
 
 class JsonFile(IFile):
-    path:Path
+    _path:Path
     content: dict
     def __init__(self, path:Path ,content: dict = {}):
         if not self.validate_extension(path):
             raise ValueError(f"不正なファイル拡張子です: {path.suffix} , 可能な拡張子: .json")
-        self.path = path
+        self._path = path
         self.content = content
+    
+    @property
+    def path(self) -> Path:
+        return self._path
         
     def save(self) -> bool:
         try:
-            with open(self.path, 'w', encoding='utf-8') as f:
+            with open(self._path, 'w', encoding='utf-8') as f:
                 json.dump(self.content, f, ensure_ascii=False, indent=4)
             return True
         except Exception as e:

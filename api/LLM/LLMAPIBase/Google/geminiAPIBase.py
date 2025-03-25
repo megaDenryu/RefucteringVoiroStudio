@@ -32,10 +32,10 @@ class GeminiAPIUnit(ILLMApiUnit):
     test_mode:bool
     system_message:Optional[ContentUnion]
 
-    def __init__(self,test_mode:bool = True, system_message:Optional[ContentUnion] = None):
+    def __init__(self,test_mode:bool = True, system_message:Optional[ContentUnion] = None, model:GeminiType = GeminiType.gemini2flash):
         self.api_key = JsonAccessor.loadGeminiAPIKey()
         self.client = genai.Client(api_key = self.api_key)
-        self.geminiモデル名 = GeminiType.gemini2flash
+        self.geminiモデル名 = model
         self.test_mode = test_mode
         self.system_message = system_message
 

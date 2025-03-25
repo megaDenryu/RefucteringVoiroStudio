@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Union
 
+from api import Extend
+from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FileManager.Domain.entity.Interaface.IFile import IFile
 from api.Extend.FileManager.FileCreater.FileCreateResult import FileCreateResult
 
@@ -63,5 +65,6 @@ class FileCreater:
                 result_list.append(FileCreater.create_directory(file))
             else:
                 raise ValueError("不正なファイルオブジェクトです")
+        ExtendFunc.ExtendPrint(result_list)
         return result_list
     

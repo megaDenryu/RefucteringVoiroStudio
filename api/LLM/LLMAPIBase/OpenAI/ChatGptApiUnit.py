@@ -14,15 +14,16 @@ class ChatGptApiUnit(ILLMApiUnit):
     _client: OpenAI
     _async_client: AsyncOpenAI
     model: ChatGPTType
-    system_message: MessageQueryDict|None = None
+    system_message: MessageQueryDict|None
 
-    def __init__(self,test_mode:bool = True, model:ChatGPTType = ChatGPTType.gptp4o_mini):
+    def __init__(self,test_mode:bool = True, system_message: MessageQueryDict|None = None, model:ChatGPTType = ChatGPTType.gptp4o_mini):
         try:
             api_key = JsonAccessor.loadOpenAIAPIKey()
             self._client = OpenAI(api_key = api_key)
             self._async_client = AsyncOpenAI(api_key = api_key)
             self.test_mode = test_mode
             self.model = model
+            self.system_message = system_message
 
         except Exception as e:
             print("APIキーの読み込みに失敗しました。")

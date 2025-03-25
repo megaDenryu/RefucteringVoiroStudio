@@ -1184,6 +1184,16 @@ class TextConverter:
        
         # 翻訳後の文章を結合
 
+    @staticmethod
+    def parseSentenseList(sentense:str)->list[str]:
+        """
+        文章を分割してリストにする
+        """
+        sentence_list = re.split('[。、]', sentense)
+        # 空白を削除
+        sentence_list = list(filter(lambda x: x != "", sentence_list))
+        return sentence_list
+
 class RandomExtend:
     @staticmethod
     def random0to1():

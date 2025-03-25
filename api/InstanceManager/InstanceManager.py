@@ -1,14 +1,18 @@
+from uuid import uuid4
+from api import Extend
 from api.AppInitializer.AppInitializer import アプリ起動確認者
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
 from api.DataStore.Memo import Memo
 # from api.Epic.Epic import Epic
 # from api.InstanceManager.GptAgentInstanceManager import GPTAgentInstanceManager
+from api.Extend import ExtendFunc
 from api.InstanceManager.HumanDict import HumanInstanceContainer
 from api.InstanceManager.ClientIds import ClientIds, ClientWebSocket
 from api.InstanceManager.InsatanceManagerInterface import InstanceManagerInterface
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
 from api.LLM.エージェント.RubiConverter.ConverterUnits.ChatGPTRubiConverterUnit import ChatGptRubiConverter
 # from api.gptAI.AgentPipeManager import AgentPipeManager
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.AISpace import AISpace, AISpaceInitInput
 from api.gptAI.GPTMode import GptModeManager
 # from api.gptAI.InputReciever import InputReciever
 
@@ -27,6 +31,7 @@ class InastanceManager(InstanceManagerInterface):
     # _agentPipeManager: AgentPipeManager
     _appSettingModule :AppSettingModule
     _diary:Memo
+    _aiSpace:AISpace
 
     @property
     def appStartChecker(self):
@@ -78,6 +83,10 @@ class InastanceManager(InstanceManagerInterface):
     @property
     def diary(self):
         return self._diary
+    
+    @property
+    def aiSpace(self):
+        return self._aiSpace
 
     
 
@@ -96,7 +105,9 @@ class InastanceManager(InstanceManagerInterface):
         self._appStartChecker = アプリ起動確認者()
         self._clientIds = ClientIds()
         self._clientWs = ClientWebSocket()
-        self._humanInstances = HumanInstanceContainer()
+        aISpaceInitInput:AISpaceInitInput = {"id":str(uuid4())}
+        self._aiSpace = AISpace(aISpaceInitInput)
+        self._humanInstances = HumanInstanceContainer(self.aiSpace)
         self._gptModeManager = GptModeManager()
         # self._epic = Epic()
         # self._gptAgentInstanceManager = GPTAgentInstanceManager(self._gptModeManager, self._epic, self._humanInstances)

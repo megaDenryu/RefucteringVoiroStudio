@@ -1,10 +1,11 @@
 import asyncio
 from api.Extend.ExtendFunc import ExtendFunc
+from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
+from api.TtsSoftApi.CevioAI.CevioAIHuman import CevioAIHuman
 from api.TtsSoftApi.Coeiroink.CoeiroinkLauncher import CoeiroinkLauncher
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.TtsSoftApi.VoiceVox.VoiceVoxLauncher import VoiceVoxLauncher
-from api.TtsSoftApi.voiceroid_api import AIVoiceHuman, cevio_human
 from api.gptAI.HumanInfoValueObject import TTSSoftware
 
 
@@ -61,15 +62,15 @@ class TTSSoftwareManager:
         if ttss == TTSSoftware.AIVoice:
             tmp_human = AIVoiceHuman(None,0)
         elif ttss == TTSSoftware.CevioAI:
-            tmp_human = cevio_human(None,0)
+            tmp_human = CevioAIHuman(None,0)
         elif ttss == TTSSoftware.VoiceVox:
             tmp_human = await VoiceVoxLauncher.startVoicevox()
         elif ttss == TTSSoftware.Coeiroink:
             tmp_human = await CoeiroinkLauncher.startCoeiroink()
         
         mana = TTSSoftwareManager.singleton()
-        mana.onTTSSoftwareDict[ttss] = tmp_human.onTTSSoftware
-        mana.hasTTSSoftwareDict[ttss] = tmp_human.hasTTSSoftware
+        mana.onTTSSoftwareDict[ttss] = tmp_human._onTTSSoftware
+        mana.hasTTSSoftwareDict[ttss] = tmp_human._hasTTSSoftware
         return tmp_human
     
     @staticmethod

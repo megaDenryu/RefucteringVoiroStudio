@@ -1,22 +1,28 @@
 
 
+import asyncio
 from typing import TypedDict
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.AISpaceInterface import AISpaceInterface
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ConversationHistory import ConversationHistory
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
 
 class AISpaceInitInput(TypedDict):
     id:str
 
 # AIランタイムのエントリーポイント
-class AISpace:
-    conversationHistory: ConversationHistory
-    人間examples: list[I体を持つ者] = []
+class AISpace(AISpaceInterface):
+    _conversationHistory: ConversationHistory
+    _人間examples: list[I体を持つ者] = []
     def __init__(self, input: AISpaceInitInput):
-        self.conversationHistory = ConversationHistory()
+        self._conversationHistory = ConversationHistory()
 
-    def add人間(self, 人間:I体を持つ者):
-        人間.会話履歴注入(self.conversationHistory)
-        self.人間examples.append(人間)
+    def 空間に人間を追加して会話履歴を注入(self, 人間:I体を持つ者):
+        人間.会話履歴注入(self._conversationHistory)
+        self._人間examples.append(人間)
 
-    def 会話更新(self, message:str):
-        self.conversationHistory.addMessage(message)
+    async def async会話更新(self, messageUnit: MessageUnitVer1):
+        await self._conversationHistory.新規メッセージ追加してアクションを実行(messageUnit)
+    
+    def 会話更新(self, messageUnit: MessageUnitVer1):
+        asyncio.create_task(self.async会話更新(messageUnit))

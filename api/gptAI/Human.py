@@ -4,38 +4,47 @@ from typing import Literal
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.エージェント.RubiConverter.AIRubiConverter import AIRubiConverter
 from api.LLM.エージェント.RubiConverter.RubiConverterUnitDictFactory import AIRubiConverterFactory
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.I会話履歴 import I会話履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBody import LLMHumanBody
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBodyInput import LLMHumanBodyInput
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
+from api.TtsSoftApi.VoiceSystemType import VoiceSystem
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
-from api.gptAI.HumanInfoValueObject import CharacterName, NickName
-from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState, TTSSoftware
+from api.gptAI.IHuman import IHuman
+from api.gptAI.Human自分の情報コンテナ import Human自分の情報コンテナ
+from api.gptAI.HumanInformation import CharacterModeState, TTSSoftware
 from api.gptAI.VoiceInfo import WavInfo
+from api.images.image_manager.HumanPart import HumanPart
 from api.images.image_manager.IHumanPart import HumanData, AllBodyFileInfo
 
-from ..images.image_manager.HumanPart import HumanPart
 
 try:
-    from ..TtsSoftApi.voiceroid_api import cevio_human
+    from api.TtsSoftApi.CevioAI.CevioAIHuman import CevioAIHuman
 except ImportError:
-    cevio_human = None
+    CevioAIHuman = None
     print("cevio_human module could not be imported. Please ensure the required application is installed.")
 
 try:
-    from ..TtsSoftApi.voiceroid_api import AIVoiceHuman
+    from api.TtsSoftApi.AIVoice.AIVoiceHuman import AIVoiceHuman
 except ImportError:
     AIVoiceHuman = None
     print("AIVoiceHuman module could not be imported. Please ensure the required application is installed.")
 
-VoiceSystem = Literal["cevio","voicevox","AIVOICE","Coeiroink","ボイロにいない名前が入力されたので起動に失敗しました。","ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"]
-class Human:
+
+class Human(IHuman,I体を持つ者):
     voice_switch = True # debug用の変数
     chara_mode_state:CharacterModeState
-    image_data_for_client:HumanData
-    body_parts_pathes_for_gpt:AllBodyFileInfo
+    _image_data_for_client:HumanData
+    _body_parts_pathes_for_gpt:AllBodyFileInfo
     human_part:HumanPart
     voice_system:VoiceSystem
     aiRubiConverter:AIRubiConverter
-    llmHumanBody: LLMHumanBody
+    _llmHumanBody: LLMHumanBody
+    _会話履歴: I会話履歴|None = None
+    _llmHumanBodyInput: LLMHumanBodyInput
+    _human自分の情報コンテナ:Human自分の情報コンテナ
     @property
     def front_name(self): #フロントで入力してウインドウに表示されてる名前
         return self.chara_mode_state.front_name
@@ -54,16 +63,17 @@ class Human:
         # 体画像周りを準備する
         self.human_part = HumanPart(self.chara_mode_state.character_name, self.chara_mode_state.human_image)
         human_image = chara_mode_state.human_image
-        self.image_data_for_client,self.body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name, self.front_name, human_image)
-        self.voice_system:VoiceSystem = self.start(voiceroid_dict)
+        self._image_data_for_client,self._body_parts_pathes_for_gpt = self.human_part.getHumanAllParts(self.char_name, self.front_name, human_image)
+        self.voice_system = self.start(voiceroid_dict)
         self.aiRubiConverter = AIRubiConverterFactory.create()
+        self._human自分の情報コンテナ = Human自分の情報コンテナ(self.chara_mode_state)
     
     def start(self, voiceroid_dict:dict[str,int] = {"cevio":0,"voicevox":0,"AIVOICE":0,"Coeiroink":0})->VoiceSystem:#voiceroid_dictはcevio,voicevox,AIVOICEの数をカウントする
         if self.voice_switch:
             if TTSSoftware.CevioAI.equal(self.chara_mode_state.tts_software):
-                if cevio_human is None:
+                if CevioAIHuman is None:
                     raise ImportError("cevio_human module is not available.")
-                tmp_cevio = cevio_human.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
+                tmp_cevio = CevioAIHuman.createAndUpdateALLCharaList(self.chara_mode_state,voiceroid_dict["cevio"])
                 print(f"{self.char_name}のcevio起動開始")
                 self.human_Voice = tmp_cevio
                 print(f"{self.char_name}のcevio起動完了")
@@ -96,14 +106,11 @@ class Human:
         else:
             print(f"ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。")
             return "ボイロ起動しない設定なので起動しません。ONにするにはHuman.voice_switchをTrueにしてください。"
-    
-    def speak(self,str:str):
-        self.human_Voice.speak(str)
 
     def outputWaveFile(self,str:str)->list[WavInfo]|None:
         str = str.replace(" ","").replace("　","")
         # str = TextConverter.convertReadableJapanaeseSentense(str)
-        if cevio_human == type(self.human_Voice):
+        if CevioAIHuman == type(self.human_Voice):
             print("cevioでwav出力します")
             self.human_Voice.outputWaveFile(str, self.chara_mode_state)
         elif AIVoiceHuman == type(self.human_Voice):
@@ -119,58 +126,41 @@ class Human:
             print("wav出力できるボイロが起動してないのでwav出力できませんでした。")
             return None
         return self.human_Voice.output_wav_info_list
-
-    
-    @staticmethod
-    def getNameList()->dict[NickName, CharacterName]:
-        """
-        キャラ名のリストを返す
-        """
-        allHumanInformationManager = AllHumanInformationManager.singleton()
-        return allHumanInformationManager.nick_names_manager.nickname2Charaname
-
-    @staticmethod
-    def setCharName(front_name:str)->CharacterName:
-        """
-        front_nameからchar_nameに変換する関数
-        """
-        nickName = NickName(name = front_name)
-        name_list = Human.getNameList()
-        
-        try:
-            return name_list[nickName]
-        except Exception as e:
-            ExtendFunc.ExtendPrint(f"{nickName}は対応するキャラがサーバーに登録されていません。")
-            raise e
-
-    @staticmethod
-    def pickFrontName(filename:str):
-        """
-        char_nameからfront_nameに変換する関数
-        """
-        name_list = Human.getNameList()
-        for front_name_candidate in name_list.keys():
-            if front_name_candidate.name in filename:
-                charaName = AllHumanInformationManager.singleton().nick_names_manager.nickname2Charaname[front_name_candidate]
-                return charaName
-        return "名前が無効です"
     
     def getHumanImage(self):
-        return self.image_data_for_client
+        return self._image_data_for_client
     
     def saveHumanImageCombination(self, combination_data:dict, combination_name:str):
         self.human_part.saveHumanImageCombination(combination_data, combination_name,0)
+    
+    # I体を持つ者のメソッド
+    @property
+    def llmHumanBody(self)->LLMHumanBody:
+        return self.llmHumanBody
 
-    @staticmethod
-    def parseSentenseList(sentense:str)->list[str]:
-        """
-        文章を分割してリストにする
-        """
-        sentence_list = re.split('[。、]', sentense)
-        # 空白を削除
-        sentence_list = list(filter(lambda x: x != "", sentence_list))
-        ExtendFunc.ExtendPrint(sentence_list)
-        return sentence_list
+    @property
+    def llmHumanBodyInput(self)->LLMHumanBodyInput:
+        return self.llmHumanBodyInput
+    
+    @property
+    def 自分の情報(self)->Human自分の情報コンテナ:
+        return self._human自分の情報コンテナ
+    
+    def 会話履歴注入(self, 会話履歴: I会話履歴):
+        if self._会話履歴 is not None:
+            return
+        self._会話履歴 = 会話履歴
+        self._llmHumanBodyInput = {"会話履歴": self._会話履歴,"表現機構": self, "自分の情報": self.自分の情報}
+        self._llmHumanBody = LLMHumanBody(input=self._llmHumanBodyInput)
+        self._会話履歴.addOnMessage(self._llmHumanBody.イベント反応メインプロセス)
+
+    def 表現する(self, 表現したいこと:PresentationByBody):
+        ExtendFunc.ExtendPrint(表現したいこと)
+    
+    def しゃべる(self, message:str):
+        ExtendFunc.ExtendPrint(message)
+
+    
 
 
 

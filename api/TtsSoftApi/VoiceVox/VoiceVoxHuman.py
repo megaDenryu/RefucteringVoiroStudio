@@ -3,10 +3,6 @@ import json
 import os
 from pathlib import Path
 from pprint import pprint
-import subprocess
-from typing import Literal, TypedDict, Union
-import winreg
-
 import pyaudio
 import requests
 from requests import Response
@@ -17,23 +13,24 @@ from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
 from api.TtsSoftApi.HasTTSState import HasTTSState
-from api.TtsSoftApi.voiceroid_api import TTSSoftwareInstallState
+from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
+from api.TtsSoftApi.VoiceVox.VoiceVoxPartsObject import SpeakerInfo
 from api.gptAI.HumanInfoValueObject import CharacterName, CharacterSaveId, TTSSoftware, VoiceMode
 from api.gptAI.HumanInformation import AllHumanInformationManager, CharacterModeState
 from api.gptAI.VoiceInfo import WavInfo
 
 
-class SpeakerStyle(TypedDict):
-    id:int
-    name:str
-    type:Literal["talk"]
-class SpeakerInfo(TypedDict):
-    name:str
-    styles:list[SpeakerStyle]
+
 class VoiceVoxHuman(HasTTSState):
     chara_mode_state:CharacterModeState|None
-    onTTSSoftware:bool = False #voicevoxが起動しているかどうか
-    hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
+    _onTTSSoftware:bool = False #voicevoxが起動しているかどうか
+    @property
+    def onTTSSoftware(self):
+        return self._onTTSSoftware
+    _hasTTSSoftware:TTSSoftwareInstallState = TTSSoftwareInstallState.NotInstalled #voicevoxがインストールされているかどうか
+    @property
+    def hasTTSSoftware(self):
+        return self._hasTTSSoftware
     voiceSetting: VoiceVoxVoiceSettingModel|None
     query_url = f"http://127.0.0.1:50021/audio_query" #f"http://localhost:50021/audio_query"だとlocalhostの名前解決に時間がかかるらしい
     synthesis_url = f"http://127.0.0.1:50021/synthesis" #f"http://localhost:50021/synthesis"だとlocalhostの名前解決に時間がかかるらしい
@@ -126,7 +123,7 @@ class VoiceVoxHuman(HasTTSState):
         wav = requests.post(self.synthesis_url, params={'speaker': self.mode}, data=query_json)
         return wav
     
-    def wav2base64(self, wav: Union[bytes, Response]) -> str:
+    def wav2base64(self, wav: bytes|Response) -> str:
         if isinstance(wav, bytes):
             binary_data = wav
         elif isinstance(wav, Response):

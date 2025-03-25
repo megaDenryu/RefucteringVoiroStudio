@@ -39,8 +39,8 @@ class VoiceVoxLauncher:
                     # 非同期でプロセスを起動
                     subprocess.Popen([savedPath])
                     print("VoiceVoxが正常に起動しました。")
-                    tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
-                    tmp_human.onTTSSoftware = True
+                    tmp_human._hasTTSSoftware = TTSSoftwareInstallState.Installed
+                    tmp_human._onTTSSoftware = True
                     return tmp_human
                 except Exception as e:
                     print(f"VoiceVoxの起動に失敗しました: {e}")
@@ -52,8 +52,8 @@ class VoiceVoxLauncher:
             shortcut_path = Path(f"C:\\Users\\{username}\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\VOICEVOX.lnk")
             # ショートカットを起動
             os.startfile(shortcut_path)
-            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            tmp_human.onTTSSoftware = True
+            tmp_human._hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human._onTTSSoftware = True
             AppSettingModule.singleton().saveVoiceVoxPath(shortcut_path)
             return tmp_human
         except Exception as e:
@@ -62,18 +62,18 @@ class VoiceVoxLauncher:
         result = await LaunchUtils.launchExe(ExeFileName("VOICEVOX.exe"))
         print(result.message)
         if result.exec_success == ExecSuccess.SUCCESS and result.file_path is not None:
-            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            tmp_human.onTTSSoftware = True
+            tmp_human._hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human._onTTSSoftware = True
             AppSettingModule.singleton().saveVoiceVoxPath(result.file_path)
             return tmp_human
         else:
             if result.file_path is None:
-                tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
-                tmp_human.onTTSSoftware = False
+                tmp_human._hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+                tmp_human._onTTSSoftware = False
                 return tmp_human
             else:
-                tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
-                tmp_human.onTTSSoftware = False
+                tmp_human._hasTTSSoftware = TTSSoftwareInstallState.Installed
+                tmp_human._onTTSSoftware = False
 
                 
 
@@ -92,26 +92,26 @@ class VoiceVoxLauncher:
 
         if voicevox_path is None:
             print("VoiceVoxのインストール場所が見つかりませんでした。")
-            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
-            tmp_human.onTTSSoftware = False
+            tmp_human._hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            tmp_human._onTTSSoftware = False
             return tmp_human
         
         voicevox_exe_path = voicevox_path / "VOICEVOX.exe"
         if not os.path.exists(voicevox_exe_path):
             print("VoiceVoxのexeファイルが見つかりませんでした。")
-            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
-            tmp_human.onTTSSoftware = False
+            tmp_human._hasTTSSoftware = TTSSoftwareInstallState.NotInstalled
+            tmp_human._onTTSSoftware = False
             return tmp_human
 
         try:
             # 非同期でプロセスを起動
             subprocess.Popen([voicevox_exe_path])
             print("VoiceVoxが正常に起動しました。")
-            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            tmp_human.onTTSSoftware = True
+            tmp_human._hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human._onTTSSoftware = True
             return tmp_human
         except Exception as e:
             print(f"VoiceVoxの起動に失敗しました: {e}")
-            tmp_human.hasTTSSoftware = TTSSoftwareInstallState.Installed
-            tmp_human.onTTSSoftware = False
+            tmp_human._hasTTSSoftware = TTSSoftwareInstallState.Installed
+            tmp_human._onTTSSoftware = False
             return tmp_human
