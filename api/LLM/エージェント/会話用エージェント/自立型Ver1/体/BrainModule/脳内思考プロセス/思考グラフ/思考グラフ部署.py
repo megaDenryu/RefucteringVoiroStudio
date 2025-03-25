@@ -1,3 +1,8 @@
+from uuid import uuid4
+from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.アクション.アクショングラフ import アクショングラフ
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定llm import 方針策定LLM
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.計画 import 計画LLM
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
@@ -41,13 +46,24 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を
 
 class 思考グラフ部署:
     _v自分の情報:I自分の情報コンテナ
-    _llmタスク分解係:タスク分解係
-    _タスクグラフ:タスクグラフ|None
+    _方針策定: 方針策定LLM
+    _計画LLM:計画LLM
+    _アクショングラフ:アクショングラフ
+
 
     
     def __init__(self, v自分の情報:I自分の情報コンテナ) -> None:
         self._v自分の情報 = v自分の情報
+        self._方針策定 = 方針策定LLM()
 
 
     def 思考を進める(self, 状況履歴: list[状況]) -> 思考状態:
-        pass
+        """
+        与えられた状況履歴をもとに、次の思考を進める
+        """
+        方針クエリ:list[IMessageQuery] = [IMessageQuery(id=str(uuid4()), role="user", content=状況.リスト化文章(状況履歴))]
+        # 計画を立てる
+        計画 = self._計画LLM.計画を立てる(方針クエリ)
+        # アクションを実行する
+        結果 = self._アクショングラフ.アクションを実行する(計画)
+        return 結果
