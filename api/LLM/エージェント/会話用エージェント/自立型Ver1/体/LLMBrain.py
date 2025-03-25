@@ -17,7 +17,7 @@ class LLMBrain:
         self._v会話履歴 = v会話履歴
         self._v自分の情報 = v自分の情報
         self._v体内信号機 = v体内信号機
-        self._v脳内思考プロセス = 脳内思考プロセス()
+        self._v脳内思考プロセス = 脳内思考プロセス(self._v自分の情報)
 
     async def イベント反応思考(self, messageUnits:list[MessageUnitVer1]) -> 思考結果:
         """ 
