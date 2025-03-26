@@ -125,6 +125,7 @@ class NiconamaUserLinkVoiceroidModule:
                 characterName=name_pair.characterName,
                 nickName=name_pair.nickName
             )
+        oldUserDatas.user_datas = [data for data in oldUserDatas.user_datas if data.user_id != NikonamaUserId]# 該当のuser_id以外の要素だけを残す。（同じuser_idがあれば削除）
         oldUserDatas.user_datas.append(user_data)
         # ファイルに保存
         JsonAccessor.updateJsonFromBaseModel(self.path, oldUserDatas)
