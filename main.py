@@ -267,6 +267,7 @@ async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, cha
     async for NDGRComment in ndgr_client.streamComments():
         # 生のユーザー ID が 0 より上だったら生のユーザー ID を、そうでなければ匿名化されたユーザー ID を表示する
         user_id = NDGRComment.raw_user_id if NDGRComment.raw_user_id > 0 else NDGRComment.hashed_user_id
+        ExtendFunc.ExtendPrint(f"生のユーザー ID: {user_id}")
         content = NDGRComment.content
         date = TimeExtend.convertDatetimeToString(NDGRComment.at)
         if "@" in content or "＠" in content:

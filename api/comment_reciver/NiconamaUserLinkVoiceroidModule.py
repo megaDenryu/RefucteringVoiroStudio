@@ -60,11 +60,11 @@ class NiconamaUserLinkVoiceroidModule:
                 return user_data
         return None
     
-    def registerNikonamaUserIdToCharaInfo(self,comment,NikonamaUserId)->LiveCommentUserData|None:
+    def registerNikonamaUserIdToCharaInfo(self,comment:str,NikonamaUserId:int|str)->LiveCommentUserData|None:
         name_pair = self.getNickNameFromComment(comment)
         ExtendFunc.ExtendPrintWithTitle("コメントにキャラ指定があったのでニックネームを取得", name_pair)
         if name_pair != None:
-            user_data = self.saveNikonamaUserIdToCharaName(NikonamaUserId, None,name_pair)
+            user_data = self.saveNikonamaUserIdToCharaName(str(NikonamaUserId), None,name_pair)
             self.user_datas = self.loadNikonamaUserIdToCharaNameJson()
             ExtendFunc.ExtendPrintWithTitle("ユーザーデータを登録user_data", user_data)
             ExtendFunc.ExtendPrintWithTitle("ユーザーデータを登録self.user_datas", self.user_datas)
