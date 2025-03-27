@@ -60,11 +60,11 @@ class NiconamaUserLinkVoiceroidModule:
                 return user_data
         return None
     
-    def registerNikonamaUserIdToCharaInfo(self,comment,NikonamaUserId)->LiveCommentUserData|None:
+    def registerNikonamaUserIdToCharaInfo(self,comment:str,NikonamaUserId:int|str)->LiveCommentUserData|None:
         name_pair = self.getNickNameFromComment(comment)
         ExtendFunc.ExtendPrintWithTitle("コメントにキャラ指定があったのでニックネームを取得", name_pair)
         if name_pair != None:
-            user_data = self.saveNikonamaUserIdToCharaName(NikonamaUserId, None,name_pair)
+            user_data = self.saveNikonamaUserIdToCharaName(str(NikonamaUserId), None,name_pair)
             self.user_datas = self.loadNikonamaUserIdToCharaNameJson()
             ExtendFunc.ExtendPrintWithTitle("ユーザーデータを登録user_data", user_data)
             ExtendFunc.ExtendPrintWithTitle("ユーザーデータを登録self.user_datas", self.user_datas)
@@ -125,6 +125,7 @@ class NiconamaUserLinkVoiceroidModule:
                 characterName=name_pair.characterName,
                 nickName=name_pair.nickName
             )
+        oldUserDatas.user_datas = [data for data in oldUserDatas.user_datas if data.user_id != NikonamaUserId]# 該当のuser_id以外の要素だけを残す。（同じuser_idがあれば削除）
         oldUserDatas.user_datas.append(user_data)
         # ファイルに保存
         JsonAccessor.updateJsonFromBaseModel(self.path, oldUserDatas)
