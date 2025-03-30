@@ -9,8 +9,6 @@ class システムメッセージ辞書(BaseModel):
     llmシステムメッセージ辞書: dict[LLM用途タイプ, IMessageQuery]
     llmsシステムメッセージ辞書: dict[LLMs用途タイプ, IMessageQuery]
 
-
-
 class SystemMessageリポジトリ:
     _llmシステムメッセージ辞書: dict[LLM用途タイプ, IMessageQuery] = {}
     _llmsシステムメッセージ辞書: dict[LLMs用途タイプ, IMessageQuery] = {}
