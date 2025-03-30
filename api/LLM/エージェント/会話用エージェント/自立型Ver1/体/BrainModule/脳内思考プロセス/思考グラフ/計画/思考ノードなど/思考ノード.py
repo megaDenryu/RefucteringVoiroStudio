@@ -44,7 +44,7 @@ class 思考ノード:
         return node
     
     @property
-    async def premitive(self) -> dict:
+    async def primitive(self) -> dict:
         if self.思考結果 is None:
             思考結果 = await self.実行()
             return {
