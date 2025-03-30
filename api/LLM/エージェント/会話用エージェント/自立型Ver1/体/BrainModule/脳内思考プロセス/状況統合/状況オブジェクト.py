@@ -10,6 +10,12 @@ class 状況:
 
     def toStr(self):
         return f"\n{str(self.時間)}:{self.内容}"
+
+    def primitive(self):
+        return {
+            "時間": str(self.時間),
+            "内容": self.内容
+        }
     
     @staticmethod
     def リスト化文章(状況リスト: list["状況"])->str:
@@ -22,3 +28,17 @@ class 状況:
     def 並び替え(状況リスト: list["状況"])->list["状況"]:
         # 時間の早い順（昇順）でソート。たとえば、[13:00, 12:00, 14:00] というリストを並び替えると [12:00, 13:00, 14:00] になります。
         return sorted(状況リスト, key=lambda x: x.時間)
+    
+class 状況リスト:
+    状況リスト: list[状況]
+    def __init__(self, 状況リスト: list[状況]):
+        self.状況リスト = 状況リスト
+    
+    def リスト化文章(self):
+        return 状況.リスト化文章(self.状況リスト)
+    
+    def 並び替え(self):
+        self.状況リスト = 状況.並び替え(self.状況リスト)
+
+    def primitive(self):
+        return [状況.primitive() for 状況 in self.状況リスト]

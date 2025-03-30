@@ -11,7 +11,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.プロセス材料.プロセス材料を包んだもの import プロセス材料を包んだもの
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.思考グラフ部署 import 思考グラフ部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況, 状況リスト
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況統合所 import 状況統合所
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内表現イベント.I脳内表現イベント import I脳内表現イベント
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
@@ -33,8 +33,7 @@ class 脳内思考プロセス:
     
     def __init__(self, v自分の情報:I自分の情報コンテナ):
         self._v自分の情報 = v自分の情報
-        初期思考状態:思考状態 = 思考状態(id = str(uuid4()), 思考内容 = "初期思考")
-        self._思考履歴 = [初期思考状態]
+        self._思考履歴 = [思考状態.初期思考状態を生成()]
         self._プロセス材料溜め置き場 = []
         self._llmプロセス計画 = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.プロセス計画)
         self._外部状況統合所 = 状況統合所()
@@ -51,8 +50,8 @@ class 脳内思考プロセス:
         #     id = str(uuid4()), 
         #     思考内容 = ConvertAndSaveLog.MarkdownConvertList(model = messageUnits, log=True)
         # )
-        状況履歴:list[状況] = self._外部状況統合所.思考可能な形に状況を整理して変換(self._プロセス材料溜め置き場,最新メッセージ)
-        new思考状態:思考状態 = self._思考グラフ部署.思考を進める(状況履歴)
+        状況履歴:状況リスト = self._外部状況統合所.思考可能な形に状況を整理して変換(self._プロセス材料溜め置き場,最新メッセージ)
+        new思考状態:思考状態 = await self._思考グラフ部署.思考を進める(状況履歴)
         self._思考履歴.append(new思考状態)
         self._プロセス材料溜め置き場 = []
     

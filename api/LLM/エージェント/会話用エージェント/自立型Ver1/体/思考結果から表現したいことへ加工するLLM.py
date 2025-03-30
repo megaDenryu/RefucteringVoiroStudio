@@ -27,7 +27,7 @@ class 思考結果から表現したいことへ加工するLLM:
             role="user",
             content=v思考結果.最新思考状態.思考内容
         )
-        return PresentationByBody(文章 = v思考結果.最新思考状態.思考内容, 感情="なし") # 仮の返り値
+        # return PresentationByBody(文章 = v思考結果.最新思考状態.思考内容, 感情="なし") # 仮の返り値
         response = await self._llmBox.llmUnit.asyncGenerateResponse([message_query], PresentationByBody)
         if response is None or response == "テストモードです":
             raise Exception("加工に失敗しました")

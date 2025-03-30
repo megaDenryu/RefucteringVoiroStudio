@@ -3,16 +3,16 @@ from uuid import uuid4
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.プロセス材料.プロセス材料を包んだもの import プロセス材料を包んだもの
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況, 状況リスト
 
 class 状況統合所:
     _状況履歴: list[状況]
     def __init__(self):
         self._状況履歴 = []
-    def 思考可能な形に状況を整理して変換(self, 溜まってたプロセス材料: list[プロセス材料を包んだもの], 最新メッセージ: list[MessageUnitVer1]) -> list[状況]:
+    def 思考可能な形に状況を整理して変換(self, 溜まってたプロセス材料: list[プロセス材料を包んだもの], 最新メッセージ: list[MessageUnitVer1]) -> 状況リスト:
         new状況 = 状況.並び替え(self.材料を状況に変換(溜まってたプロセス材料) + self.メッセージを状況に変換(最新メッセージ))
         self._状況履歴 += new状況
-        return self._状況履歴
+        return 状況リスト(self._状況履歴)
         
 
     def 材料を状況に変換(self, 溜まってたプロセス材料: list[プロセス材料を包んだもの]) -> list[状況]:

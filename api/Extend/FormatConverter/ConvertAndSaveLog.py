@@ -16,9 +16,9 @@ class ConvertAndSaveLog:
     def MarkdownConvert(model: BaseModel, indent_level: int = 0 , log: bool = True) -> str:
         c = BaseModel2MD.MarkdownConverter()
         文字列 = c.convert(model,indent_level)
-        filepath: Path = ExtendFunc.api_dir / "memo/md_log" / model.__repr_name__() / f"{model.__repr_name__()}.md"
-        mdFile = TextFile(filepath, 文字列, SaveConfigEnum.追記)
         if log:
+            filepath: Path = ExtendFunc.api_dir / "memo/md_log" / model.__repr_name__() / f"{model.__repr_name__()}.md"
+            mdFile = TextFile(filepath, 文字列, SaveConfigEnum.追記)
             FileCreater.まとめて作成([mdFile])
         return 文字列
     
