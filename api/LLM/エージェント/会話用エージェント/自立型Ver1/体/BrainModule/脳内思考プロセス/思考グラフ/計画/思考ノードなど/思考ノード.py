@@ -1,6 +1,7 @@
 
 from math import e
 import stat
+from typing import TypedDict
 import uuid
 from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLMs用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
@@ -12,6 +13,11 @@ class 思考ノードの結果:
     思考結果: str
     def __init__(self,思考結果: str) -> None:
         self.思考結果 = 思考結果
+
+class 思考ノードPrimitive(TypedDict):
+    ノード名: str
+    考えるべき内容: str
+    思考結果: str
 
 class 思考ノード:
     id: str
@@ -44,13 +50,12 @@ class 思考ノード:
         return node
     
     @property
-    async def primitive(self) -> dict:
+    def primitive(self) -> 思考ノードPrimitive:
         if self.思考結果 is None:
-            思考結果 = await self.実行()
             return {
                 "ノード名": self.ノード名,
                 "考えるべき内容": self.考えるべき内容,
-                "思考結果": 思考結果
+                "思考結果": "まだ考えていない"
             }
         else:
             return {
