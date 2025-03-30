@@ -3,7 +3,7 @@ from email import message
 import uuid
 from api.LLM.LLMAPIBase.LLMInterface.QueryProxy import QueryProxy,クエリ段落
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
-from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLM用途タイプ
+from api.LLM.LLMAPIBase.LLM用途タイプ import LLM用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.思考結果 import 思考結果

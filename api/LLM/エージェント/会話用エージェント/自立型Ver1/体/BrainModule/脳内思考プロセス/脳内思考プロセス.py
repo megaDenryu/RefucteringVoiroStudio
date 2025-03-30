@@ -4,7 +4,7 @@ from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FormatConverter import BaseModel2MD
 from api.Extend.FormatConverter.ConvertAndSaveLog import ConvertAndSaveLog
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
-from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLM用途タイプ
+from api.LLM.LLMAPIBase.LLM用途タイプ import LLM用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1

@@ -4,7 +4,7 @@ import uuid
 from pydantic import BaseModel
 from api.Extend.ExtendFunc import TimeExtend
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
-from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLM用途タイプ
+from api.LLM.LLMAPIBase.LLM用途タイプ import LLM用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針object import Compass, 方針

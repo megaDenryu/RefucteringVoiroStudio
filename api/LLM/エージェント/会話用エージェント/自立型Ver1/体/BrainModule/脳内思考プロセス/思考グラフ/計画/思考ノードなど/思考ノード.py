@@ -3,7 +3,8 @@ from math import e
 import stat
 from typing import TypedDict
 import uuid
-from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLMs用途タイプ
+from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
+from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.LLMリクエスト用BaseModel import ThinkNode
@@ -31,7 +32,8 @@ class 思考ノード:
         self.ノード名 = thinkNode.ノード名
         self.考えるべき内容 = thinkNode.考えるべき内容
         self.前に終わらせるべき思考ノードのノード名 = thinkNode.前に終わらせるべき思考ノードのノード名
-        self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.思考ノード)
+        システムメッセージ = IMessageQuery.systemMessage()
+        self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.思考ノード).setSystemMessage(システムメッセージ)
     async def 実行(self)->思考ノードの結果:
         self.思考結果 = 思考ノードの結果(思考結果="思考ノードの実行結果")
         return self.思考結果

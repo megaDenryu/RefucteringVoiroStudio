@@ -8,7 +8,7 @@ import uuid
 
 
 from api import LLM
-from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLMs用途タイプ
+from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.LLMリクエスト用BaseModel import ThinkGraph, ThinkNode

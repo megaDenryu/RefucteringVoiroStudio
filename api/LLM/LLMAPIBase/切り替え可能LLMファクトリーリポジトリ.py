@@ -4,7 +4,7 @@
 from email.policy import default
 from api.LLM.LLMAPIBase.I切り替え可能LLMファクトリーリポジトリ import I切り替え可能LLMファクトリーリポジトリ
 from api.LLM.LLMAPIBase.LLMType import GeminiType, LLMModelType
-from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLMs用途タイプ, LLM用途タイプ
+from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ, LLM用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 
 
