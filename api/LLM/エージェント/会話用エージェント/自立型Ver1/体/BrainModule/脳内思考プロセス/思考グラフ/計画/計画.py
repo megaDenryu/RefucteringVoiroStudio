@@ -1,7 +1,7 @@
 import json
 import uuid
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
-from api.LLM.LLMAPIBase.LLMInterface.QueryProxy import QueryProxy
+from api.LLM.LLMAPIBase.LLMInterface.QueryProxy import QueryProxy, クエリ段落
 from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLM用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
@@ -15,9 +15,9 @@ class 計画クエリの代理(QueryProxy):
     def __init__(self, 状況履歴: 状況リスト,現在方針: 方針):
         super().__init__()
         self._クエリプロキシ = [
-            {"状況履歴": 状況履歴.primitive()},
-            {"現在方針": 現在方針.compass.model_dump()},
-            {"考えてほしいこと": "状況履歴と現在方針をもとに、思考アクション計画を立ててください。"},
+            クエリ段落("状況履歴", 状況履歴),
+            クエリ段落("現在方針", 現在方針.compass),
+            クエリ段落("考えてほしいこと", "状況履歴と現在方針をもとに、思考アクション計画を立ててください。"),
         ]
         self._状況履歴 = 状況履歴
         self._現在方針 = 現在方針
@@ -29,8 +29,6 @@ class 計画クエリの代理(QueryProxy):
         # 現在方針:
         {self._現在方針.内容()}
         """
-    
-    
 
 
 class 思考アクション計画する人:

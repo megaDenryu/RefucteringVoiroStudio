@@ -11,7 +11,7 @@ class 状況:
     def toStr(self):
         return f"\n{str(self.時間)}:{self.内容}"
 
-    def primitive(self):
+    def model_dump(self):
         return {
             "時間": str(self.時間),
             "内容": self.内容
@@ -40,5 +40,5 @@ class 状況リスト:
     def 並び替え(self):
         self.状況リスト = 状況.並び替え(self.状況リスト)
 
-    def primitive(self):
-        return [状況.primitive() for 状況 in self.状況リスト]
+    def model_dump(self):
+        return [状況.model_dump() for 状況 in self.状況リスト]
