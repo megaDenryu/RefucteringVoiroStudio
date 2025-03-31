@@ -3,7 +3,7 @@ from typing import Union
 
 from api import Extend
 from api.Extend.ExtendFunc import ExtendFunc
-from api.Extend.FileManager.Domain.entity.Interaface.I作成するファイル import I作成するファイル
+from api.Extend.FileManager.Domain.ファイル作成.Interaface.I作成するファイル import I作成するファイル
 from api.Extend.FileManager.FileCreater.FileCreateResult import FileCreateResult
 
 class FileCreater:

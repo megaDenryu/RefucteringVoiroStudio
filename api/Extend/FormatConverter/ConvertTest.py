@@ -1,7 +1,7 @@
 
 from pathlib import Path
 from api.Extend.ExtendFunc import ExtendFunc, TimeExtend
-from api.Extend.FileManager.Domain.entity.Files.TextFile import TextFile
+from api.Extend.FileManager.Domain.ファイル作成.Files.TextFile import TextFile
 from api.Extend.FileManager.FileCreater.FileCreater import FileCreater
 from api.Extend.FormatConverter import BaseModel2MD
 from api.Extend.FormatConverter.ConvertAndSaveLog import ConvertAndSaveLog
