@@ -9,7 +9,7 @@ from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.domain.LaunchResult import ExecSuccess, LaunchResult
-from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
+from api.Extend.FileManager.FileSearch.launcher.launch_utils import LaunchUtils
 from api.TtsSoftApi.Coeiroink.CoeiroinkHuman import Coeiroink
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 

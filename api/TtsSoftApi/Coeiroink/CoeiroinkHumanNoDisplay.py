@@ -15,7 +15,7 @@ from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.domain.LaunchResult import LaunchResult
-from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
+from api.Extend.FileManager.FileSearch.launcher.launch_utils import LaunchUtils
 from api.TtsSoftApi.Coeiroink.CoeiroinkPartsObject import CoeiroinkSpeaker, CoeiroinkWaveData
 from api.TtsSoftApi.HasTTSState import HasTTSState
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState

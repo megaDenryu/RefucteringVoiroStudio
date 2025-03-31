@@ -6,7 +6,7 @@ import os
 from api.DataStore.AppSetting.AppSettingModule import AppSettingModule
 from api.Extend.FileManager.FileSearch.domain.File.exe_file import ExeFileName
 from api.Extend.FileManager.FileSearch.domain.LaunchResult import ExecSuccess, LaunchResult
-from api.Extend.FileManager.FileSearch.util.launch_utils import LaunchUtils
+from api.Extend.FileManager.FileSearch.launcher.launch_utils import LaunchUtils
 from api.TtsSoftApi.TTSSoftwareInstallState import TTSSoftwareInstallState
 from api.TtsSoftApi.VoiceVox.VoiceVoxHuman import VoiceVoxHuman
 
