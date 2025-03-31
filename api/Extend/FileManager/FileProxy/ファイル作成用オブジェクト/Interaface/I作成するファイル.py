@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any
 
-class IFile(ABC):
+class I作成するファイル(ABC):
     @property
     @abstractmethod
     def path(self) -> Path:

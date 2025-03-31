@@ -2,7 +2,7 @@
 from abc import ABC, abstractmethod
 from typing import Dict
 from api.LLM.LLMAPIBase.LLMType import LLMModelType
-from api.LLM.LLMAPIBase.OpenAI.LLM用途タイプ import LLM用途タイプ
+from api.LLM.LLMAPIBase.LLM用途タイプ import LLM用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 
 class I切り替え可能LLMファクトリーリポジトリ(ABC):

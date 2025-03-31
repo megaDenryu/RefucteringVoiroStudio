@@ -3,12 +3,12 @@ from typing import Union
 
 from api import Extend
 from api.Extend.ExtendFunc import ExtendFunc
-from api.Extend.FileManager.Domain.entity.Interaface.IFile import IFile
+from api.Extend.FileManager.FileProxy.ファイル作成用オブジェクト.Interaface.I作成するファイル import I作成するファイル
 from api.Extend.FileManager.FileCreater.FileCreateResult import FileCreateResult
 
 class FileCreater:
     @staticmethod
-    def create_file(file: IFile) -> FileCreateResult:
+    def create_file(file: I作成するファイル) -> FileCreateResult:
         """
         ファイルを作成する
         """
@@ -52,14 +52,14 @@ class FileCreater:
             )
         
     @staticmethod
-    def まとめて作成(files: list[IFile|Path]) -> list[FileCreateResult]:
+    def まとめて作成(files: list[I作成するファイル|Path]) -> list[FileCreateResult]:
         """
         複数のファイルを作成する
         contentsは(パス, ファイルオブジェクト)のタプルのリスト
         """
         result_list = []
         for file in files:
-            if isinstance(file, IFile):
+            if isinstance(file, I作成するファイル):
                 result_list.append(FileCreater.create_file(file))
             elif isinstance(file, Path):
                 result_list.append(FileCreater.create_directory(file))

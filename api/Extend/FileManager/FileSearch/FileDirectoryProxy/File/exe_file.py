@@ -1,4 +1,4 @@
-from api.Extend.FileManager.FileSearch.domain.File.file_interface import IFileName
+from api.Extend.FileManager.FileSearch.FileDirectoryProxy.File.file_interface import IFileName
 
 
 class ExeFileName(IFileName):
