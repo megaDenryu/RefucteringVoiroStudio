@@ -1,9 +1,9 @@
 from pathlib import Path
 import json
 
-from api.Extend.FileManager.Domain.entity.Interaface.IFile import IFile
+from api.Extend.FileManager.Domain.entity.Interaface.I作成するファイル import I作成するファイル
 
-class JsonFile(IFile):
+class JsonFile(I作成するファイル):
     _path:Path
     content: dict
     def __init__(self, path:Path ,content: dict = {}):

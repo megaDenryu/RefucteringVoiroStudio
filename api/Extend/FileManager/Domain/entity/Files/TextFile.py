@@ -1,8 +1,8 @@
 from pathlib import Path
-from api.Extend.FileManager.Domain.entity.Interaface.IFile import IFile
+from api.Extend.FileManager.Domain.entity.Interaface.I作成するファイル import I作成するファイル
 from api.Extend.FileManager.Domain.entity.Interaface.SaveConfig import SaveConfigEnum
 
-class TextFile(IFile):
+class TextFile(I作成するファイル):
     _path: Path
     content: str
     allow_extensions = ['.txt', '.log', '.md']
