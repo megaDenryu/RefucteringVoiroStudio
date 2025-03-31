@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Union
 
-from api.Extend.FileManager.FileSearch.domain.drive import Drive
+from api.Extend.FileManager.FileSearch.FileDirectoryProxy.drive import Drive
 
 class FileLocation:
     def __init__(self, location: Path|Drive):

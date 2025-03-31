@@ -5,8 +5,8 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Iterator, List
 
 # 仮定: IFileName と FileLocation は別のモジュールからインポート
-from api.Extend.FileManager.FileSearch.domain.File.file_interface import IFileName
-from api.Extend.FileManager.FileSearch.domain.file_location import FileLocation
+from api.Extend.FileManager.FileSearch.FileDirectoryProxy.File.file_interface import IFileName
+from api.Extend.FileManager.FileSearch.FileDirectoryProxy.file_location import FileLocation
 
 class FileSearcher:
     async def searchFile(self, location: FileLocation, file: IFileName) -> Path | None:

@@ -1,7 +1,7 @@
 import subprocess
-from api.Extend.FileManager.FileSearch.domain.File.file_interface import IFileName
-from api.Extend.FileManager.FileSearch.domain.LaunchResult import ExecSuccess, LaunchResult
-from api.Extend.FileManager.FileSearch.domain.file_location import FileLocation
+from api.Extend.FileManager.FileSearch.FileDirectoryProxy.File.file_interface import IFileName
+from api.Extend.FileManager.FileSearch.launcher.LaunchResult import ExecSuccess, LaunchResult
+from api.Extend.FileManager.FileSearch.FileDirectoryProxy.file_location import FileLocation
 from api.Extend.FileManager.FileSearch.searcher.file_searcher import FileSearcher
 
 
