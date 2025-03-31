@@ -1,6 +1,6 @@
 from pathlib import Path
-from api.Extend.FileManager.Domain.ファイル作成.Interaface.I作成するファイル import I作成するファイル
-from api.Extend.FileManager.Domain.ファイル作成.Interaface.SaveConfig import SaveConfigEnum
+from api.Extend.FileManager.Domain.ファイル作成用オブジェクト.Interaface.I作成するファイル import I作成するファイル
+from api.Extend.FileManager.Domain.ファイル作成用オブジェクト.Interaface.SaveConfig import SaveConfigEnum
 
 class TextFile(I作成するファイル):
     _path: Path

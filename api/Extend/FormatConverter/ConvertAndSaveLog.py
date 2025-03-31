@@ -5,8 +5,8 @@ from typing import TypeVar
 from pydantic import BaseModel
 
 from api.Extend.ExtendFunc import ExtendFunc
-from api.Extend.FileManager.Domain.ファイル作成.Files.TextFile import TextFile
-from api.Extend.FileManager.Domain.ファイル作成.Interaface.SaveConfig import SaveConfigEnum
+from api.Extend.FileManager.Domain.ファイル作成用オブジェクト.Files.TextFile import TextFile
+from api.Extend.FileManager.Domain.ファイル作成用オブジェクト.Interaface.SaveConfig import SaveConfigEnum
 from api.Extend.FileManager.FileCreater.FileCreater import FileCreater
 from api.Extend.FormatConverter import BaseModel2MD
 

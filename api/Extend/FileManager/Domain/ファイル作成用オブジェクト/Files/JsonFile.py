@@ -1,7 +1,7 @@
 from pathlib import Path
 import json
 
-from api.Extend.FileManager.Domain.ファイル作成.Interaface.I作成するファイル import I作成するファイル
+from api.Extend.FileManager.Domain.ファイル作成用オブジェクト.Interaface.I作成するファイル import I作成するファイル
 
 class JsonFile(I作成するファイル):
     _path:Path
