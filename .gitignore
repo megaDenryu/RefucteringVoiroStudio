@@ -27,7 +27,7 @@ audio.wav
 query.json
 my-electron-app/node_modules/*
 /app/audio/*
-api/AppSettingJson/openai_api_key.json
+api/AppSettingJson/api_key.json
 api/memo/*
 output_wav/*
 output_aivoice/*

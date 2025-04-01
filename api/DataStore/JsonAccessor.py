@@ -69,7 +69,7 @@ class JsonAccessor:
 
     @staticmethod
     def ApiKeyFileGenerate():
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/api_key.json"
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             with open(path, mode='w') as f:
@@ -81,7 +81,7 @@ class JsonAccessor:
 
     @staticmethod
     def loadOpenAIAPIKey()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/api_key.json"
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             JsonAccessor.ApiKeyFileGenerate()
@@ -94,7 +94,7 @@ class JsonAccessor:
     
     @staticmethod
     def loadTwitchAccessToken()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/api_key.json"
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             JsonAccessor.ApiKeyFileGenerate()
@@ -107,7 +107,7 @@ class JsonAccessor:
     
     @staticmethod
     def loadGeminiAPIKey()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
+        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/api_key.json"
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             JsonAccessor.ApiKeyFileGenerate()
