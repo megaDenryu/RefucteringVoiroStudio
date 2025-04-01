@@ -1,6 +1,7 @@
 from typing import Type, TypeVar
 from openai import AsyncOpenAI, OpenAI
 from typing_extensions import Literal
+from api.DataStore.FileProxy.api_keyProxy import api_keyProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.LLM.LLMAPIBase.LLMInterface.ILLMAPI import ILLMApiUnit, IMessageQuery, ResponseBaseModelT
 from api.LLM.LLMAPIBase.LLMType import ChatGPTType, LLMModelType
@@ -18,7 +19,7 @@ class ChatGptApiUnit(ILLMApiUnit):
 
     def __init__(self,test_mode:bool = True, system_message: MessageQueryDict|None = None, model:ChatGPTType = ChatGPTType.gptp4o_mini):
         try:
-            api_key = JsonAccessor.loadOpenAIAPIKey()
+            api_key = api_keyProxy.loadOpenAIAPIKey()
             self._client = OpenAI(api_key = api_key)
             self._async_client = AsyncOpenAI(api_key = api_key)
             self.test_mode = test_mode

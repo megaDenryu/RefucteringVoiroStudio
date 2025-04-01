@@ -4,6 +4,7 @@ from twitchio.ext import commands
 import asyncio
 import sys
 from pathlib import Path
+from api.DataStore.FileProxy.api_keyProxy import api_keyProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from asyncio import Queue
@@ -100,7 +101,7 @@ class TwitchBot(commands.Bot):
     
     @staticmethod
     def getAccessToken():
-        return JsonAccessor.loadTwitchAccessToken()
+        return api_keyProxy.loadTwitchAccessToken()
 
 if __name__ == "__main__":
     name = "rokkaman"

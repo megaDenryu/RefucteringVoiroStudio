@@ -12,6 +12,7 @@ from google.genai.types import GenerateContentConfig
 from google.genai.types import GenerateContentConfigOrDict
 from google.generativeai.models import list_models
 from pydantic import BaseModel
+from api.DataStore.FileProxy.api_keyProxy import api_keyProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.Google.ContentsConverter import ContentsConverter
@@ -33,7 +34,7 @@ class GeminiAPIUnit(ILLMApiUnit):
     system_message:Optional[ContentUnion]
 
     def __init__(self,test_mode:bool = True, system_message:Optional[ContentUnion] = None, model:GeminiType = GeminiType.gemini2flash):
-        self.api_key = JsonAccessor.loadGeminiAPIKey()
+        self.api_key = api_keyProxy.loadGeminiAPIKey()
         self.client = genai.Client(api_key = self.api_key)
         self.geminiモデル名 = model
         self.test_mode = test_mode
