@@ -1,11 +1,16 @@
 import json
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 
 
 class api_keyProxy:
     @staticmethod
+    def path():
+        return DataDir._().AppSettingJson / "api_key.json"
+
+    @staticmethod
     def ApiKeyFileGenerate():
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/api_key.json"
+        path = api_keyProxy.path()
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             with open(path, mode='w') as f:
@@ -17,7 +22,7 @@ class api_keyProxy:
 
     @staticmethod
     def loadOpenAIAPIKey()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/api_key.json"
+        path = api_keyProxy.path()
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             api_keyProxy.ApiKeyFileGenerate()
@@ -30,7 +35,7 @@ class api_keyProxy:
     
     @staticmethod
     def loadTwitchAccessToken()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/api_key.json"
+        path = api_keyProxy.path()
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             api_keyProxy.ApiKeyFileGenerate()
@@ -43,7 +48,7 @@ class api_keyProxy:
     
     @staticmethod
     def loadGeminiAPIKey()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/api_key.json"
+        path = api_keyProxy.path()
         #もしファイルが存在しない場合はファイルを作成
         if not path.exists():
             api_keyProxy.ApiKeyFileGenerate()

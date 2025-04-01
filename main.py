@@ -254,12 +254,7 @@ class NicoNamaCommment(TypedDict):
 async def nikonama_comment_reciver_start(websocket: WebSocket, room_id: str, characterId: CharacterId):
     await websocket.accept()
     ExtendFunc.ExtendPrint(f"{inastanceManager.humanInstances.tryGetHuman(characterId)}で{room_id}のニコ生コメント受信開始")
-    update_room_id_query = {
-        "ニコ生コメントレシーバー設定": {
-            "生放送URL":room_id
-        }
-    }
-    JsonAccessor.updateAppSettingJson(update_room_id_query)
+    AppSettingModule.singleton().saveニコ生URL(room_id)
     ndgr_client = newNikonamaCommentReciever(room_id)
     new_nikonama_comment_reciever_list[characterId] = ndgr_client
     nulvm = NiconamaUserLinkVoiceroidModule()

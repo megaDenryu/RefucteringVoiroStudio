@@ -54,17 +54,6 @@ class JsonAccessor:
             ExtendFunc.ExtendPrint("new_dict",new_dict)
             JsonAccessor.saveLogJson("ErrorLog.json",new_dict)
             return new_dict
-
-    @staticmethod
-    def loadNikonamaUserIdToCharaNameJson():
-        try:
-            path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/user_data.json"
-            user_data = ExtendFunc.loadJsonToDict(path)
-        except FileNotFoundError:
-            user_data = {}
-        return user_data
-    
-
     
     
     BaseModelList = TypeVar("BaseModelList", bound=BaseModelList)
@@ -121,37 +110,7 @@ class JsonAccessor:
                 content = f.read()
         return content
     
-    @staticmethod
-    def loadCharcterAISettingYaml()->CharacterAISettingList:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
-        with open(path,encoding="UTF8") as f:
-            content = f.read()
-        try:
-            parsedData = yaml.safe_load(content)
-            if parsedData is None:
-                CharacterAISettingCollection = CharacterAISettingList(list = [])
-            else:
-                CharacterAISettingCollection:CharacterAISettingList = CharacterAISettingList(**parsedData)
-        except yaml.YAMLError as e:
-            ExtendFunc.ExtendPrint("yaml読み込みエラー",e)
-            CharacterAISettingCollection = CharacterAISettingList(list = [])
-        return CharacterAISettingCollection
     
-    @staticmethod
-    def updateCharcterAISettingYaml(setting_value:CharacterAISettingList):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
-        with open(path, 'w', encoding="utf-8") as f:
-            t = setting_value.model_dump_json()
-            jsonToDict = json.loads(t)
-            yaml.dump(jsonToDict, f, allow_unicode=True, sort_keys=False)
-
-    @staticmethod
-    def updateCharcterAISettingJson(setting_value:CharacterAISettingList):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.json"
-        with open(path, 'w', encoding="utf-8") as f:
-            t = setting_value.model_dump()
-            pprint(t)
-            json.dump(setting_value.model_dump(), f, indent=4, ensure_ascii=False)
     
     @staticmethod
     def loadAppSettingYamlAsString(yml_file_name:str)->str:

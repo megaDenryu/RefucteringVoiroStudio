@@ -15,7 +15,7 @@ from api.DataStore.AppSetting.AppSettingModel.CommentReciver.NiconicoLive.Niconi
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.TwitchLive.TwitchSettingModel import TwitchSettingModel
 from api.DataStore.AppSetting.AppSettingModel.CommentReciver.YoutubeLive.YoutubeLiveSettingModel import YoutubeLiveSettingModel
 from api.DataStore.AppSetting.AppSettingModel.GPTSetting.GPTSetting import GPTSettingModel
-from api.DataStore.JsonAccessor import JsonAccessor, JsonAccessorTest
+from api.DataStore.FileProxy.api_keyProxy import api_keyProxy
 from api.DataStore.Memo import Memo, MemoTest
 from api.DataStore.PickleAccessor import PickleAccessor, PickleAccessorTest
 from api.Extend.BaseModel.BaseModel2UIFormatConverter import 型の変換と保存
@@ -146,7 +146,7 @@ def 構造化apiテスト():
     from pydantic import BaseModel
     from openai import OpenAI
 
-    api_key = JsonAccessor.loadOpenAIAPIKey()
+    api_key = api_keyProxy.loadOpenAIAPIKey()
     client = OpenAI(api_key = api_key)
 
     class カレンダーイベント(BaseModel):
