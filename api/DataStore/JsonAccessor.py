@@ -18,8 +18,6 @@ import yaml
 from api.gptAI.HumanInfoValueObject import CharacterName
 
 class JsonAccessor:
-    def __init__(self, json_path):
-        pass
 
     @staticmethod
     def dictToJsonString(input_dict:dict)->str:
@@ -56,36 +54,6 @@ class JsonAccessor:
             ExtendFunc.ExtendPrint("new_dict",new_dict)
             JsonAccessor.saveLogJson("ErrorLog.json",new_dict)
             return new_dict
-    
-    @staticmethod
-    def loadAppSetting():
-        # VoiroStudioReleaseVer\api\web\app_setting.jsonを取得
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting.json"
-        app_setting = ExtendFunc.loadJsonToDict(path)
-        return app_setting
-    
-    @staticmethod
-    def saveAppSetting(app_setting):
-        """
-        使用前にloadAppSettingを使用してapp_settingを取得
-        書き換えたい値を変更した後にこの関数を使用して保存
-        """
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting.json"
-        ExtendFunc.saveDictToJson(path, app_setting)
-    
-    @staticmethod
-    def saveEndKeyWordsToJson(end_keywords):
-        app_setting = JsonAccessor.loadAppSetting()
-        app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"] = end_keywords
-        JsonAccessor.saveAppSetting(app_setting)
-    
-    @staticmethod
-    def updateAppSettingJson(setting_value:dict):
-        app_setting = JsonAccessor.loadAppSetting()
-        pprint(app_setting)
-        ExtendFunc.deepUpdateDict(app_setting, setting_value)
-        pprint(app_setting)
-        JsonAccessor.saveAppSetting(app_setting)
 
     @staticmethod
     def loadNikonamaUserIdToCharaNameJson():
@@ -97,56 +65,7 @@ class JsonAccessor:
         return user_data
     
 
-    @staticmethod
-    def ApiKeyFileGenerate():
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
-        #もしファイルが存在しない場合はファイルを作成
-        if not path.exists():
-            with open(path, mode='w') as f:
-                json.dump({
-                    "openai_api_key":"",
-                    "twitch_access_token":"",
-                    "gemini_api_key":""
-                }, f, indent=4)
-
-    @staticmethod
-    def loadOpenAIAPIKey()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
-        #もしファイルが存在しない場合はファイルを作成
-        if not path.exists():
-            JsonAccessor.ApiKeyFileGenerate()
-            return None
-        try:
-            openai_api_key = ExtendFunc.loadJsonToDict(path)["openai_api_key"]
-            return openai_api_key
-        except KeyError:
-            return None
     
-    @staticmethod
-    def loadTwitchAccessToken()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
-        #もしファイルが存在しない場合はファイルを作成
-        if not path.exists():
-            JsonAccessor.ApiKeyFileGenerate()
-            return None
-        try:
-            twitch_access_token = ExtendFunc.loadJsonToDict(path)["twitch_access_token"]
-            return twitch_access_token
-        except KeyError:
-            return None
-    
-    @staticmethod
-    def loadGeminiAPIKey()->str|None:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/openai_api_key.json"
-        #もしファイルが存在しない場合はファイルを作成
-        if not path.exists():
-            JsonAccessor.ApiKeyFileGenerate()
-            return None
-        try:
-            gemini_api_key = ExtendFunc.loadJsonToDict(path)["gemini_api_key"]
-            return gemini_api_key
-        except KeyError:
-            return None
     
     BaseModelList = TypeVar("BaseModelList", bound=BaseModelList)
     BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
@@ -190,15 +109,7 @@ class JsonAccessor:
         with open(json_path, 'w', encoding="utf-8") as f:
             json.dump(baseModel.model_dump(), f, indent=4, ensure_ascii=False)
         
-    @staticmethod
-    def loadCharcterDestinationYaml()->CharacterDestinationList:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharacterDestination/CharacterDestination.yml"
-        return JsonAccessor.loadYamlToBaseModel(path, CharacterDestinationList)
     
-    @staticmethod
-    def updateCharcterDestinationYaml(setting_value:CharacterDestinationList):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharacterDestination/CharacterDestination.yml"
-        JsonAccessor.updateYamlFromBaseModel(path, setting_value)
 
     @staticmethod
     def loadOldCharcterAISettingYamlAsString()->str:
@@ -338,9 +249,3 @@ class JsonAccessor:
         return False
 
     
-class JsonAccessorTest:
-    def __init__(self) -> None:
-        pudate = {}
-        pudate["ニコ生コメントレシーバー設定"] = {}
-        pudate["ニコ生コメントレシーバー設定"]["生放送URL"] = "test"
-        JsonAccessor.updateAppSettingJson(pudate)

@@ -5,6 +5,7 @@ from api.AppSettingJson.CharacterDestination.CharacterDestination import (
     CharacterDestinationCollectionUnit,
     CharacterDestinationList,
 )
+from api.DataStore.FileProxy.CharacterDestinationProxy import CharacterDestinationProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.gptAI.HumanInfoValueObject import CharacterName
 
@@ -30,7 +31,7 @@ class CharacterDestinationCollection:
         if dataLoadFunc is not None:
             self._characterDestinationCollection = dataLoadFunc()
         else:
-            self._characterDestinationCollection = JsonAccessor.loadCharcterDestinationYaml()
+            self._characterDestinationCollection = CharacterDestinationProxy.loadCharcterDestinationYaml()
 
     def getCharacterDestination(self, characterName: CharacterName) -> CharacterDestination:
         for unit in self._characterDestinationCollection.list:
@@ -44,7 +45,7 @@ class CharacterDestinationCollection:
 
     def save(self):
         if self._dirty:
-            JsonAccessor.updateCharcterDestinationYaml(self._characterDestinationCollection)
+            CharacterDestinationProxy.updateCharcterDestinationYaml(self._characterDestinationCollection)
             self._dirty = False
 
     @staticmethod
