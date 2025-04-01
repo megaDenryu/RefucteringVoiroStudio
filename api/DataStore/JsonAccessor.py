@@ -56,36 +56,6 @@ class JsonAccessor:
             ExtendFunc.ExtendPrint("new_dict",new_dict)
             JsonAccessor.saveLogJson("ErrorLog.json",new_dict)
             return new_dict
-    
-    @staticmethod
-    def loadAppSetting():
-        # VoiroStudioReleaseVer\api\web\app_setting.jsonを取得
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting.json"
-        app_setting = ExtendFunc.loadJsonToDict(path)
-        return app_setting
-    
-    @staticmethod
-    def saveAppSetting(app_setting):
-        """
-        使用前にloadAppSettingを使用してapp_settingを取得
-        書き換えたい値を変更した後にこの関数を使用して保存
-        """
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/app_setting.json"
-        ExtendFunc.saveDictToJson(path, app_setting)
-    
-    @staticmethod
-    def saveEndKeyWordsToJson(end_keywords):
-        app_setting = JsonAccessor.loadAppSetting()
-        app_setting["ニコ生コメントレシーバー設定"]["コメント受信停止キーワード"] = end_keywords
-        JsonAccessor.saveAppSetting(app_setting)
-    
-    @staticmethod
-    def updateAppSettingJson(setting_value:dict):
-        app_setting = JsonAccessor.loadAppSetting()
-        pprint(app_setting)
-        ExtendFunc.deepUpdateDict(app_setting, setting_value)
-        pprint(app_setting)
-        JsonAccessor.saveAppSetting(app_setting)
 
     @staticmethod
     def loadNikonamaUserIdToCharaNameJson():
@@ -190,15 +160,7 @@ class JsonAccessor:
         with open(json_path, 'w', encoding="utf-8") as f:
             json.dump(baseModel.model_dump(), f, indent=4, ensure_ascii=False)
         
-    @staticmethod
-    def loadCharcterDestinationYaml()->CharacterDestinationList:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharacterDestination/CharacterDestination.yml"
-        return JsonAccessor.loadYamlToBaseModel(path, CharacterDestinationList)
     
-    @staticmethod
-    def updateCharcterDestinationYaml(setting_value:CharacterDestinationList):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharacterDestination/CharacterDestination.yml"
-        JsonAccessor.updateYamlFromBaseModel(path, setting_value)
 
     @staticmethod
     def loadOldCharcterAISettingYamlAsString()->str:
@@ -338,9 +300,3 @@ class JsonAccessor:
         return False
 
     
-class JsonAccessorTest:
-    def __init__(self) -> None:
-        pudate = {}
-        pudate["ニコ生コメントレシーバー設定"] = {}
-        pudate["ニコ生コメントレシーバー設定"]["生放送URL"] = "test"
-        JsonAccessor.updateAppSettingJson(pudate)
