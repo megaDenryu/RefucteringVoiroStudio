@@ -152,3 +152,8 @@ class AppSettingModule:
         ExtendFunc.ExtendPrint(self.setting)
         self.saveSetting(self.setting)
 
+    def saveニコ生URL(self, url:str):
+        self.setting.コメント受信設定.ニコニコ生放送.配信URL = url
+        ExtendFunc.ExtendPrint(self.setting)
+        self.saveSetting(self.setting)
+

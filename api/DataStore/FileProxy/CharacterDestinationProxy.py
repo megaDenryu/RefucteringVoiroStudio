@@ -6,11 +6,14 @@ from api.Extend.ExtendFunc import ExtendFunc
 
 class CharacterDestinationProxy:
     @staticmethod
+    def path():
+        return DataDir._().CharacterDestination / "CharacterDestination.yml"
+    @staticmethod
     def loadCharcterDestinationYaml()->CharacterDestinationList:
-        path = DataDir._().CharacterDestination / "CharacterDestination.yml"
+        path = CharacterDestinationProxy.path()
         return JsonAccessor.loadYamlToBaseModel(path, CharacterDestinationList)
     
     @staticmethod
     def updateCharcterDestinationYaml(setting_value:CharacterDestinationList):
-        path = DataDir._().CharacterDestination / "CharacterDestination.yml"
+        path = CharacterDestinationProxy.path()
         JsonAccessor.updateYamlFromBaseModel(path, setting_value)

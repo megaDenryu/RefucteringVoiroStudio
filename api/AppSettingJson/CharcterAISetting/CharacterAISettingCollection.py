@@ -1,6 +1,7 @@
 from pprint import pprint
 from typing import Callable
 from api.AppSettingJson.CharcterAISetting.CharacterAISetting import ActionPattern, CharacterAISetting, CharacterAISettingCollectionUnit, CharacterAISettingList, CharacterRelationships, Emotion
+from api.DataStore.FileProxy.CharcterAISettingProxy import CharcterAISettingProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.gptAI.HumanInfoValueObject import CharacterName
 
@@ -31,7 +32,7 @@ class CharacterAISettingCollection:
         if dataLoadFunc is not None:
             self._characterAISettingCollection = dataLoadFunc()
         else:
-            self._characterAISettingCollection = JsonAccessor.loadCharcterAISettingYaml()
+            self._characterAISettingCollection = CharcterAISettingProxy.loadCharcterAISettingYaml()
 
     def getCharacterAISetting(self, characterName:CharacterName)->CharacterAISetting:
         for unit in self._characterAISettingCollection.list:
@@ -45,11 +46,11 @@ class CharacterAISettingCollection:
 
     def save(self):
         if self._dirty:
-            JsonAccessor.updateCharcterAISettingYaml(self._characterAISettingCollection)
+            CharcterAISettingProxy.updateCharcterAISettingYaml(self._characterAISettingCollection)
             self._dirty = False
     def saveJson(self):
         if self._dirty:
-            JsonAccessor.updateCharcterAISettingJson(self._characterAISettingCollection)
+            CharcterAISettingProxy.updateCharcterAISettingJson(self._characterAISettingCollection)
             self._dirty = False
 
     @staticmethod
