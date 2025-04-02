@@ -42,18 +42,7 @@ class JsonAccessor:
                 "saveobj":saveobj
             })
 
-    @staticmethod
-    def extendJsonLoad(loadString:str):
-        """
-        json文字列を読み込み、辞書型に変換します。できない場合は何かしらのjsonにして返します
-        """
-        try:
-            return json.loads(loadString)
-        except json.JSONDecodeError:
-            new_dict = {f"{TimeExtend()}":loadString, "エラー":"json形式でないため、文章のみを返します。"}
-            ExtendFunc.ExtendPrint("new_dict",new_dict)
-            JsonAccessor.saveLogJson("ErrorLog.json",new_dict)
-            return new_dict
+    
     
     
     BaseModelList = TypeVar("BaseModelList", bound=BaseModelList)
@@ -97,72 +86,6 @@ class JsonAccessor:
     def updateJsonFromBaseModel(json_path:Path, baseModel:BaseModel):
         with open(json_path, 'w', encoding="utf-8") as f:
             json.dump(baseModel.model_dump(), f, indent=4, ensure_ascii=False)
-        
-    
-
-    @staticmethod
-    def loadOldCharcterAISettingYamlAsString()->str:
-        """
-        CharSetting.ymlを読み込み、その内容を文字列として返します。
-        """
-        yml_path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/OldCharcterAISetting.yml"
-        with open(yml_path,encoding="UTF8") as f:
-                content = f.read()
-        return content
-    
-    
-    
-    @staticmethod
-    def loadAppSettingYamlAsString(yml_file_name:str)->str:
-        """
-        CharSetting.ymlを読み込み、その内容を文字列として返します。
-        """
-        yml_path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson" / yml_file_name
-        with open(yml_path,encoding="UTF8") as f:
-                content = f.read()
-        return content
-    
-    @staticmethod
-    def loadAppSettingYamlAsReplacedDict(yml_file_name:str, replace_dict:dict)->dict:
-        """
-        CharSetting.ymlを読み込み、その内容を辞書として返します。
-        """
-        content = JsonAccessor.loadAppSettingYamlAsString(yml_file_name)
-        replaced_content = ExtendFunc.replaceBulkString(content, replace_dict)
-        content_dict = yaml.safe_load(replaced_content)
-        return content_dict
-    
-    @staticmethod
-    def saveLogJson(file_name, input_dict):
-        # 拡張子がついてるかチェックし、なければつける
-        if not file_name.endswith(".json"):
-            file_name += ".json"
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "LogJson" / file_name
-        ExtendFunc.saveDictToJson(path, input_dict)
-
-    @staticmethod
-    def insertLogJsonToDict(file_name, input_dict, data_name:str = ""):
-        if  isinstance(input_dict, str):
-            try:
-                input_dict = json.loads(input_dict)
-            except json.JSONDecodeError:
-                input_dict = {"文章":input_dict, "エラー":"json形式でないため、文章のみ保存しました。"}
-        
-        now_time = TimeExtend()
-        save_dict = {
-            f"{now_time.date} : {data_name}":input_dict
-        }
-        # ExtendFunc.ExtendPrint("save_dict",save_dict)
-        # 拡張子がついてるかチェックし、なければつける
-        if not file_name.endswith(".json"):
-            file_name += ".json"
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "LogJson" / file_name
-        dict = ExtendFunc.loadJsonToDict(path)
-        dict.update(save_dict)
-        # ExtendFunc.ExtendPrint("dict",dict)
-        ExtendFunc.saveDictToJson(path, dict)
-
-    
     
     @staticmethod
     def loadHasSaveData(charaName:CharacterName):

@@ -17,6 +17,8 @@ class DataDir:
     CharaNames: Path
     CharaNames2Voice: Path
     VoiceModeNames: Path
+
+    LogJson: Path # LogJson配下
     
     def __init__(self) -> None:
         if DataDir._instance is not None:
@@ -35,6 +37,8 @@ class DataDir:
         self.CharaNames = self.CharSettingJson / "CharaNames"
         self.CharaNames2VoiceMode = self.CharSettingJson / "CharaNames2VoiceMode"
         self.VoiceModeNames = self.CharSettingJson / "VoiceModeNames"
+
+        self.LogJson = self.api_dir / "LogJson" # LogJson配下
         
         # self._initialize_directories()
     def checkPrint(self):
