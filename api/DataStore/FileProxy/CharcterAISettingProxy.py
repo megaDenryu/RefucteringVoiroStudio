@@ -1,14 +1,18 @@
 import json
+from pyparsing import C
 import yaml
 from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingList
+from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 
 
 class CharcterAISettingProxy:
-
+    @staticmethod
+    def path():
+        return DataDir._().CharcterAISetting / "CharcterAISetting.yml"
     @staticmethod
     def loadCharcterAISettingYaml()->CharacterAISettingList:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
+        path = CharcterAISettingProxy.path()
         with open(path,encoding="UTF8") as f:
             content = f.read()
         try:
@@ -24,7 +28,7 @@ class CharcterAISettingProxy:
     
     @staticmethod
     def updateCharcterAISettingYaml(setting_value:CharacterAISettingList):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.yml"
+        path = CharcterAISettingProxy.path()
         with open(path, 'w', encoding="utf-8") as f:
             t = setting_value.model_dump_json()
             jsonToDict = json.loads(t)
@@ -32,7 +36,7 @@ class CharcterAISettingProxy:
 
     @staticmethod
     def updateCharcterAISettingJson(setting_value:CharacterAISettingList):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/CharcterAISetting.json"
+        path = CharcterAISettingProxy.path()
         with open(path, 'w', encoding="utf-8") as f:
             t = setting_value.model_dump()
             json.dump(setting_value.model_dump(), f, indent=4, ensure_ascii=False)

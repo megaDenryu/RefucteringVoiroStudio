@@ -1,6 +1,6 @@
 from typing import Callable
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
-from api.DataStore.JsonAccessor import JsonAccessor
+from api.DataStore.FileProxy.InitMemoryProxy import InitMemoryProxy
 from api.gptAI.HumanBaseModel import 利益ベクトル, 目標と利益ベクトル
 from api.gptAI.HumanInfoValueObject import CharacterName, ICharacterName
 
@@ -30,7 +30,7 @@ class InitMemoryCollection:
         if dataLoadFunc is not None:
             self._initMemoryCollection = dataLoadFunc()
         else:
-            self._initMemoryCollection = JsonAccessor.loadInitMemoryYaml()
+            self._initMemoryCollection = InitMemoryProxy.loadInitMemoryYaml()
 
     def getInitMemory(self, key:CharacterName)->D_InitMemory:
         for i in self._initMemoryCollection:
@@ -44,7 +44,7 @@ class InitMemoryCollection:
 
     def save(self):
         if self._dirty:
-            JsonAccessor.updateInitMemoryYaml(self._initMemoryCollection)
+            InitMemoryProxy.updateInitMemoryYaml(self._initMemoryCollection)
             self._dirty = False
 
 

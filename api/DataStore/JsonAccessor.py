@@ -132,32 +132,11 @@ class JsonAccessor:
         content_dict = yaml.safe_load(replaced_content)
         return content_dict
     
-    @staticmethod
-    def loadGptBehaviorYaml(chara_name:str = "一般")->GPTBehaviorDict:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/GPTBehavior/GPTBehavior.yml"
-        with open(path,encoding="UTF8") as f:
-            content = f.read()
-        dic:dict[GPTBehaviorKey,GPTBehaviorDict] = yaml.safe_load(content)
-        return dic[chara_name]
     
-    @staticmethod
-    def loadCoeiroinkNameToNumberJson():
-        path = DataDir._().CharSettingJson / "CoeiroinkNameToNumber.json"
-        coeiroink_name_to_number = ExtendFunc.loadJsonToDict(path)
-        return coeiroink_name_to_number
     
-    @staticmethod
-    def saveCoeiroinkNameToNumberJson(coeiroink_name_to_number):
-        path = DataDir._().CharSettingJson / "CoeiroinkNameToNumber.json"
-        ExtendFunc.saveDictToJson(path, coeiroink_name_to_number)
+    
 
-    @staticmethod
-    def loadGPTBehaviorYaml(chara_name:str = "一般"):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/GPTBehavior.yml"
-        with open(path,encoding="UTF8") as f:
-            content = f.read()
-        dict = yaml.safe_load(content)
-        return dict[chara_name]
+    
     
     @staticmethod
     def saveLogJson(file_name, input_dict):
@@ -189,19 +168,7 @@ class JsonAccessor:
         # ExtendFunc.ExtendPrint("dict",dict)
         ExtendFunc.saveDictToJson(path, dict)
 
-    @staticmethod
-    def loadInitMemoryYaml()->list[InitMemoryCollectionUnit]:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/InitMemory/InitMemory.yml"
-        with open(path,encoding="UTF8") as f:
-            content = f.read()
-        initMemoryCollectionlist:list[InitMemoryCollectionUnit] = yaml.safe_load(content)
-        return initMemoryCollectionlist
     
-    @staticmethod
-    def updateInitMemoryYaml(collectionList:list[InitMemoryCollectionUnit]):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/InitMemory/InitMemory.yml"
-        with open(path, 'w', encoding="utf-8") as f:
-            yaml.dump(collectionList, f, allow_unicode=True)
     
     @staticmethod
     def loadHasSaveData(charaName:CharacterName):
