@@ -3,7 +3,7 @@ from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 
 
-class AppSettingJson:
+class AppSettingJsonProxy:
     @staticmethod
     def loadAppSettingYamlAsString(yml_file_name:str)->str:
         """
@@ -19,7 +19,7 @@ class AppSettingJson:
         """
         CharSetting.ymlを読み込み、その内容を辞書として返します。
         """
-        content = AppSettingJson.loadAppSettingYamlAsString(yml_file_name)
+        content = AppSettingJsonProxy.loadAppSettingYamlAsString(yml_file_name)
         replaced_content = ExtendFunc.replaceBulkString(content, replace_dict)
         content_dict = yaml.safe_load(replaced_content)
         return content_dict
