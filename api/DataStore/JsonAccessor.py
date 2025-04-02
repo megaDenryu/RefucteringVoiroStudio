@@ -132,12 +132,6 @@ class JsonAccessor:
         content_dict = yaml.safe_load(replaced_content)
         return content_dict
     
-    
-    
-    
-
-    
-    
     @staticmethod
     def saveLogJson(file_name, input_dict):
         # 拡張子がついてるかチェックし、なければつける
