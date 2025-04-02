@@ -10,6 +10,7 @@ import requests
 
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollectionOperator
 from api.DataStore.ChatacterVoiceSetting.CoeiroinkVoiceSetting.CoeiroinkVoiceSettingModel import CoeiroinkVoiceSettingModel
+from api.DataStore.FileProxy.CoeiroinkNameToNumberProxy import CoeiroinkNameToNumberProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from api.Extend.ExtendSound import ExtendSound
@@ -436,7 +437,7 @@ class Coeiroink(HasTTSState):
                 style_num = style["styleId"]
                 save_name = name + ":" +style_name
                 save_dict[save_name] = style_num
-        JsonAccessor.saveCoeiroinkNameToNumberJson(save_dict)
+        CoeiroinkNameToNumberProxy.saveCoeiroinkNameToNumberJson(save_dict)
 
     @staticmethod
     def getCaharaNameList()->list[CharacterName]:

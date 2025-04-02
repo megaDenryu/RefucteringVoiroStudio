@@ -2,19 +2,18 @@ import sys
 
 from pydantic import BaseModel
 
+from api.DataStore.FileProxy.DefaultSettingsProxy.LLM.自立型ver1.DefaultシステムメッセージProxy import DefaultシステムメッセージProxy
+from api.DataStore.FileProxy.LLMProxy.自立型ver1Proxy.システムメッセージProxy import システムメッセージProxy
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
 from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ, LLM用途タイプ
-
-class システムメッセージ辞書(BaseModel):
-    llmシステムメッセージ辞書: dict[LLM用途タイプ, IMessageQuery]
-    llmsシステムメッセージ辞書: dict[LLMs用途タイプ, IMessageQuery]
+from api.LLM.LLMAPIBase.システムメッセージ辞書 import システムメッセージ辞書
 
 class SystemMessageリポジトリ:
     _llmシステムメッセージ辞書: dict[LLM用途タイプ, IMessageQuery] = {}
     _llmsシステムメッセージ辞書: dict[LLMs用途タイプ, IMessageQuery] = {}
 
     def __init__(self) -> None:
-        vシステムメッセージ辞書:システムメッセージ辞書 = self._tryLoadSystemMessage辞書()
+        vシステムメッセージ辞書 = self._tryLoadSystemMessage辞書()
         self._llmシステムメッセージ辞書 = vシステムメッセージ辞書.llmシステムメッセージ辞書
         self._llmsシステムメッセージ辞書 = vシステムメッセージ辞書.llmsシステムメッセージ辞書
 
@@ -39,7 +38,11 @@ class SystemMessageリポジトリ:
             self._llmシステムメッセージ辞書[llm_type].content = system_message.content
         elif isinstance(llm_type, LLMs用途タイプ):
             self._llmsシステムメッセージ辞書[llm_type].content = system_message.content
-        self._saveSystemMessage辞書()
+        data = システムメッセージ辞書(
+            llmシステムメッセージ辞書=self._llmシステムメッセージ辞書,
+            llmsシステムメッセージ辞書=self._llmsシステムメッセージ辞書
+        )
+        self._saveSystemMessage辞書(data=data)
     
     def changeMessages(self, system_messages: dict[LLM用途タイプ|LLMs用途タイプ, IMessageQuery]) -> None:
         """
@@ -47,20 +50,27 @@ class SystemMessageリポジトリ:
         """
         for llm_type, system_message in system_messages.items():
             self.changeMessage(llm_type, system_message)
-        self._saveSystemMessage辞書()
+        data = システムメッセージ辞書(
+            llmシステムメッセージ辞書=self._llmシステムメッセージ辞書,
+            llmsシステムメッセージ辞書=self._llmsシステムメッセージ辞書
+        )
+        self._saveSystemMessage辞書(data=data)
 
 
     def _tryLoadSystemMessage辞書(self) -> システムメッセージ辞書:
-        raise NotImplementedError("システムメッセージ辞書の読み込みは未実装です。")
-        vシステムメッセージ辞書:システムメッセージ辞書 = システムメッセージ辞書()
-        return vシステムメッセージ辞書
+        data = システムメッセージProxy.load()
+        if data is None:
+            data = DefaultシステムメッセージProxy.load()
+            システムメッセージProxy.save(data)
+            return data
+        return data
 
 
-    def _saveSystemMessage辞書(self) -> None:
+    def _saveSystemMessage辞書(self,data:システムメッセージ辞書) -> None:
         """
         システムメッセージ辞書を保存する
         """
-        pass
+        システムメッセージProxy.save(data)
 
     def 初期データとファイルを作成して保存(self) -> None:
         llmシステムメッセージ辞書 = {}

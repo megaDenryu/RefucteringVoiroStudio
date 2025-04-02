@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
 from api.AppSettingJson.CharacterDestination.CharacterDestination import CharacterDestinationList
 from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit, CharacterAISettingList
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict,GPTBehaviorKey
@@ -42,24 +42,13 @@ class JsonAccessor:
                 "saveobj":saveobj
             })
 
-    @staticmethod
-    def extendJsonLoad(loadString:str):
-        """
-        json文字列を読み込み、辞書型に変換します。できない場合は何かしらのjsonにして返します
-        """
-        try:
-            return json.loads(loadString)
-        except json.JSONDecodeError:
-            new_dict = {f"{TimeExtend()}":loadString, "エラー":"json形式でないため、文章のみを返します。"}
-            ExtendFunc.ExtendPrint("new_dict",new_dict)
-            JsonAccessor.saveLogJson("ErrorLog.json",new_dict)
-            return new_dict
+    
     
     
     BaseModelList = TypeVar("BaseModelList", bound=BaseModelList)
     BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
     @staticmethod
-    def loadYamlToBaseModel(yaml_path:Path, baseModel:Type[BaseModelList])->BaseModelList:
+    def loadYamlToBaseModelList(yaml_path:Path, baseModel:Type[BaseModelList])->BaseModelList:
         with open(yaml_path,encoding="UTF8") as f:
             content = f.read()
         try:
@@ -73,6 +62,20 @@ class JsonAccessor:
             return baseModel(list = [])
         
     @staticmethod
+    def loadYamlToBaseModel(yaml_path:Path, baseModel:Type[BaseModelT])->BaseModelT|None:
+        with open(yaml_path,encoding="UTF8") as f:
+            content = f.read()
+        try:
+            parsedData = yaml.safe_load(content)
+            if parsedData is None:
+                return baseModel()
+            else:
+                return baseModel(**parsedData)
+        except yaml.YAMLError as e:
+            ExtendFunc.ExtendPrint("yaml読み込みエラー",e)
+            return None
+        
+    @staticmethod
     def updateYamlFromBaseModel(yaml_path:Path, baseModel:BaseModel):
         """
         Enumを含むBaseModelをyamlに書き込めます。
@@ -81,6 +84,30 @@ class JsonAccessor:
             t = baseModel.model_dump_json()
             jsonToDict = json.loads(t)
             yaml.dump(jsonToDict, f, allow_unicode=True, sort_keys=False)
+
+    @staticmethod
+    def saveYamlFromBaseModel(yaml_path:Path, baseModel:BaseModel):
+        """Enumを含むBaseModelをyamlに書き込みます。"""
+        try:
+            # ファイルが存在しない場合はディレクトリを作成
+            if not yaml_path.parent.exists():
+                yaml_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # データをYAML形式に変換
+            t = baseModel.model_dump_json()
+            jsonToDict = json.loads(t)
+            yaml_content = yaml.dump(jsonToDict, allow_unicode=True, sort_keys=False)
+            
+            # コメント付きで書き込み
+            with open(yaml_path, 'w', encoding="utf-8") as f:
+                f.write("# これは自動生成されたファイルです。\n")
+                f.write(yaml_content)
+                
+            return True
+        except Exception as e:
+            ExtendFunc.ExtendPrint(f"YAML保存エラー: {e}")
+            return False
+
 
     @staticmethod
     def loadJsonToBaseModel(json_path:Path, baseModel:Type[BaseModelT])->BaseModelT|None:
@@ -97,111 +124,6 @@ class JsonAccessor:
     def updateJsonFromBaseModel(json_path:Path, baseModel:BaseModel):
         with open(json_path, 'w', encoding="utf-8") as f:
             json.dump(baseModel.model_dump(), f, indent=4, ensure_ascii=False)
-        
-    
-
-    @staticmethod
-    def loadOldCharcterAISettingYamlAsString()->str:
-        """
-        CharSetting.ymlを読み込み、その内容を文字列として返します。
-        """
-        yml_path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/CharcterAISetting/OldCharcterAISetting.yml"
-        with open(yml_path,encoding="UTF8") as f:
-                content = f.read()
-        return content
-    
-    
-    
-    @staticmethod
-    def loadAppSettingYamlAsString(yml_file_name:str)->str:
-        """
-        CharSetting.ymlを読み込み、その内容を文字列として返します。
-        """
-        yml_path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson" / yml_file_name
-        with open(yml_path,encoding="UTF8") as f:
-                content = f.read()
-        return content
-    
-    @staticmethod
-    def loadAppSettingYamlAsReplacedDict(yml_file_name:str, replace_dict:dict)->dict:
-        """
-        CharSetting.ymlを読み込み、その内容を辞書として返します。
-        """
-        content = JsonAccessor.loadAppSettingYamlAsString(yml_file_name)
-        replaced_content = ExtendFunc.replaceBulkString(content, replace_dict)
-        content_dict = yaml.safe_load(replaced_content)
-        return content_dict
-    
-    @staticmethod
-    def loadGptBehaviorYaml(chara_name:str = "一般")->GPTBehaviorDict:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/GPTBehavior/GPTBehavior.yml"
-        with open(path,encoding="UTF8") as f:
-            content = f.read()
-        dic:dict[GPTBehaviorKey,GPTBehaviorDict] = yaml.safe_load(content)
-        return dic[chara_name]
-    
-    @staticmethod
-    def loadCoeiroinkNameToNumberJson():
-        path = DataDir._().CharSettingJson / "CoeiroinkNameToNumber.json"
-        coeiroink_name_to_number = ExtendFunc.loadJsonToDict(path)
-        return coeiroink_name_to_number
-    
-    @staticmethod
-    def saveCoeiroinkNameToNumberJson(coeiroink_name_to_number):
-        path = DataDir._().CharSettingJson / "CoeiroinkNameToNumber.json"
-        ExtendFunc.saveDictToJson(path, coeiroink_name_to_number)
-
-    @staticmethod
-    def loadGPTBehaviorYaml(chara_name:str = "一般"):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/GPTBehavior.yml"
-        with open(path,encoding="UTF8") as f:
-            content = f.read()
-        dict = yaml.safe_load(content)
-        return dict[chara_name]
-    
-    @staticmethod
-    def saveLogJson(file_name, input_dict):
-        # 拡張子がついてるかチェックし、なければつける
-        if not file_name.endswith(".json"):
-            file_name += ".json"
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "LogJson" / file_name
-        ExtendFunc.saveDictToJson(path, input_dict)
-
-    @staticmethod
-    def insertLogJsonToDict(file_name, input_dict, data_name:str = ""):
-        if  isinstance(input_dict, str):
-            try:
-                input_dict = json.loads(input_dict)
-            except json.JSONDecodeError:
-                input_dict = {"文章":input_dict, "エラー":"json形式でないため、文章のみ保存しました。"}
-        
-        now_time = TimeExtend()
-        save_dict = {
-            f"{now_time.date} : {data_name}":input_dict
-        }
-        # ExtendFunc.ExtendPrint("save_dict",save_dict)
-        # 拡張子がついてるかチェックし、なければつける
-        if not file_name.endswith(".json"):
-            file_name += ".json"
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "LogJson" / file_name
-        dict = ExtendFunc.loadJsonToDict(path)
-        dict.update(save_dict)
-        # ExtendFunc.ExtendPrint("dict",dict)
-        ExtendFunc.saveDictToJson(path, dict)
-
-    @staticmethod
-    def loadInitMemoryYaml()->list[InitMemoryCollectionUnit]:
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/InitMemory/InitMemory.yml"
-        with open(path,encoding="UTF8") as f:
-            content = f.read()
-        initMemoryCollectionlist:list[InitMemoryCollectionUnit] = yaml.safe_load(content)
-        return initMemoryCollectionlist
-    
-    @staticmethod
-    def updateInitMemoryYaml(collectionList:list[InitMemoryCollectionUnit]):
-        path = ExtendFunc.getTargetDirFromParents(__file__, "api") / "AppSettingJson/InitMemory/InitMemory.yml"
-        with open(path, 'w', encoding="utf-8") as f:
-            yaml.dump(collectionList, f, allow_unicode=True)
     
     @staticmethod
     def loadHasSaveData(charaName:CharacterName):

@@ -11,7 +11,7 @@ class CharacterDestinationProxy:
     @staticmethod
     def loadCharcterDestinationYaml()->CharacterDestinationList:
         path = CharacterDestinationProxy.path()
-        return JsonAccessor.loadYamlToBaseModel(path, CharacterDestinationList)
+        return JsonAccessor.loadYamlToBaseModelList(path, CharacterDestinationList)
     
     @staticmethod
     def updateCharcterDestinationYaml(setting_value:CharacterDestinationList):

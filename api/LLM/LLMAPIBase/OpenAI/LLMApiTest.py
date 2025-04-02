@@ -1,3 +1,5 @@
+from api.DataStore.FileProxy.AppSettingJsonProxy.AgentSettingProxy import AgentSettingProxy
+from api.DataStore.FileProxy.AppSettingJsonProxy.AppSettingJsonProxyBase import AppSettingJsonProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
@@ -9,7 +11,7 @@ from api.LLM.エージェント.RubiConverter.KanaText import KanaText
 def LLMApiTest():
     unit = GeminiAPIUnit()
     unit = GeminiAPIUnit(False, )
-    system_message_query:MessageQueryDict = JsonAccessor.loadAppSettingYamlAsReplacedDict("AgentSetting.yml",{})["音声認識フリガナエージェントBaseModel"][0]
+    system_message_query:MessageQueryDict = AgentSettingProxy.load()
     print(type(system_message_query))
     system_message:str = system_message_query["content"] 
 

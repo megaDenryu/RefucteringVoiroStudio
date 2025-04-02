@@ -11,12 +11,16 @@ class DataDir:
     CharcterAISetting: Path
     GPTBehavior: Path
     InitMemory: Path
-    VoiceRoidDefaultSettings: Path
+    DefaultSettings: Path
+    DefaultLLM: Path 
+    Default自立型ver1: Path 
     
     CharSettingJson: Path # CharSettingJson配下
     CharaNames: Path
     CharaNames2Voice: Path
     VoiceModeNames: Path
+
+    LogJson: Path # LogJson配下
     
     def __init__(self) -> None:
         if DataDir._instance is not None:
@@ -29,12 +33,18 @@ class DataDir:
         self.CharcterAISetting = self.AppSettingJson / "CharcterAISetting"
         self.GPTBehavior = self.AppSettingJson / "GPTBehavior"
         self.InitMemory = self.AppSettingJson / "InitMemory"
-        self.VoiceRoidDefaultSettings = self.AppSettingJson / "VoiceRoidDefaultSettings"
+        self.DefaultSettings = self.AppSettingJson / "DefaultSettings" # DefaultSettings配下
+        self.DefaultLLM = self.DefaultSettings / "DefaultLLM"
+        self.Default自立型ver1 = self.DefaultLLM / "Default自立型ver1"
+        self.LLM = self.AppSettingJson / "LLM" # LLM配下
+        self.自立型ver1 = self.LLM / "自立型ver1"
 
         self.CharSettingJson = self.api_dir / "CharSettingJson" # CharSettingJson配下
         self.CharaNames = self.CharSettingJson / "CharaNames"
         self.CharaNames2VoiceMode = self.CharSettingJson / "CharaNames2VoiceMode"
         self.VoiceModeNames = self.CharSettingJson / "VoiceModeNames"
+
+        self.LogJson = self.api_dir / "LogJson" # LogJson配下
         
         # self._initialize_directories()
     def checkPrint(self):
@@ -44,7 +54,7 @@ class DataDir:
         ExtendFunc.ExtendPrint(self.CharcterAISetting)
         ExtendFunc.ExtendPrint(self.GPTBehavior)
         ExtendFunc.ExtendPrint(self.InitMemory)
-        ExtendFunc.ExtendPrint(self.VoiceRoidDefaultSettings)
+        ExtendFunc.ExtendPrint(self.DefaultSettings)
         ExtendFunc.ExtendPrint(self.CharSettingJson)
         ExtendFunc.ExtendPrint(self.CharaNames)
         ExtendFunc.ExtendPrint(self.CharaNames2VoiceMode)
