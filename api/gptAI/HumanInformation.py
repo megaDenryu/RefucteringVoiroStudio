@@ -7,6 +7,7 @@ from api.DataStore.CharacterSetting.CevioAICharacterSettingCollection import Cev
 from api.DataStore.CharacterSetting.CharacterSettingCollectionOperatorManager import CharacterSettingCollectionOperatorManager
 from api.DataStore.CharacterSetting.CoeiroinkCharacterSettingCollection import CoeiroinkCharacterSettingCollection, CoeiroinkCharacterSettingCollectionOperator
 from api.DataStore.CharacterSetting.VoiceVoxCharacterSettingCollection import VoiceVoxCharacterSettingCollection, VoiceVoxCharacterSettingCollectionOperator
+from api.DataStore.FileProxy.DefaultSettingsProxy.DefaultNickNamesProxy import DefaultNickNamesProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.DataStore.data_dir import DataDir
 from api.Extend.BaseModel.ExtendBaseModel import HashableBaseModel
@@ -185,17 +186,12 @@ class DefaultNicknamesManager:
     ニックネーム辞書はユーザーが持ってるTTSソフトから使用可能なキャラクターのリストを取得して作る必要があるが、それと同時に開発側で先に想定されるニックネームも用意したい。
     なのでデフォルトニックネームリストとTTSソフトから抽出したキャラリストの共通部分として実際のニックネームリストを構成するような方式にすることで両方を満たせる。
     """
-    defalutNicknamesPath: Path
     defalutNicknames: dict[CharacterName, list[NickName]]
     def __init__(self) -> None:
-        self.defalutNicknamesPath = DataDir._().AppSettingJson / "VoiceRoidDefaultSettings/DefaultNickNames.json" #絶対に消さないでください
         self.defalutNicknames = self.loadDefaultNicknames()
     
     def loadDefaultNicknames(self)->dict[CharacterName, list[NickName]]:
-        path = self.defalutNicknamesPath
-        # もしファイルが存在しない場合はファイルを作成
-        JsonAccessor.checkExistAndCreateJson(path, {})
-        nicknames_dict:dict[str, list[str]] = ExtendFunc.loadJsonToDict(path)
+        nicknames_dict:dict[str, list[str]] = DefaultNickNamesProxy.load()
         # nicknamesの型が正常かどうかを確認
         for name, nicknames in nicknames_dict.items():
             if not isinstance(name, str) or not isinstance(nicknames, list):

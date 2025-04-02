@@ -11,7 +11,7 @@ class DataDir:
     CharcterAISetting: Path
     GPTBehavior: Path
     InitMemory: Path
-    VoiceRoidDefaultSettings: Path
+    DefaultSettings: Path
     
     CharSettingJson: Path # CharSettingJson配下
     CharaNames: Path
@@ -31,7 +31,7 @@ class DataDir:
         self.CharcterAISetting = self.AppSettingJson / "CharcterAISetting"
         self.GPTBehavior = self.AppSettingJson / "GPTBehavior"
         self.InitMemory = self.AppSettingJson / "InitMemory"
-        self.VoiceRoidDefaultSettings = self.AppSettingJson / "VoiceRoidDefaultSettings"
+        self.DefaultSettings = self.AppSettingJson / "DefaultSettings"
 
         self.CharSettingJson = self.api_dir / "CharSettingJson" # CharSettingJson配下
         self.CharaNames = self.CharSettingJson / "CharaNames"
@@ -48,7 +48,7 @@ class DataDir:
         ExtendFunc.ExtendPrint(self.CharcterAISetting)
         ExtendFunc.ExtendPrint(self.GPTBehavior)
         ExtendFunc.ExtendPrint(self.InitMemory)
-        ExtendFunc.ExtendPrint(self.VoiceRoidDefaultSettings)
+        ExtendFunc.ExtendPrint(self.DefaultSettings)
         ExtendFunc.ExtendPrint(self.CharSettingJson)
         ExtendFunc.ExtendPrint(self.CharaNames)
         ExtendFunc.ExtendPrint(self.CharaNames2VoiceMode)
