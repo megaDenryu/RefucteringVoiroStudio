@@ -2,19 +2,17 @@ import sys
 
 from pydantic import BaseModel
 
+from api.DataStore.FileProxy.DefaultSettingsProxy.LLM.自立型ver1.DefaultシステムメッセージProxy import DefaultシステムメッセージProxy
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
 from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ, LLM用途タイプ
-
-class システムメッセージ辞書(BaseModel):
-    llmシステムメッセージ辞書: dict[LLM用途タイプ, IMessageQuery]
-    llmsシステムメッセージ辞書: dict[LLMs用途タイプ, IMessageQuery]
+from api.LLM.LLMAPIBase.システムメッセージ辞書 import システムメッセージ辞書
 
 class SystemMessageリポジトリ:
     _llmシステムメッセージ辞書: dict[LLM用途タイプ, IMessageQuery] = {}
     _llmsシステムメッセージ辞書: dict[LLMs用途タイプ, IMessageQuery] = {}
 
     def __init__(self) -> None:
-        vシステムメッセージ辞書:システムメッセージ辞書 = self._tryLoadSystemMessage辞書()
+        vシステムメッセージ辞書 = self._tryLoadSystemMessage辞書()
         self._llmシステムメッセージ辞書 = vシステムメッセージ辞書.llmシステムメッセージ辞書
         self._llmsシステムメッセージ辞書 = vシステムメッセージ辞書.llmsシステムメッセージ辞書
 
@@ -51,6 +49,8 @@ class SystemMessageリポジトリ:
 
 
     def _tryLoadSystemMessage辞書(self) -> システムメッセージ辞書:
+        
+        data = DefaultシステムメッセージProxy.load()
         raise NotImplementedError("システムメッセージ辞書の読み込みは未実装です。")
         vシステムメッセージ辞書:システムメッセージ辞書 = システムメッセージ辞書()
         return vシステムメッセージ辞書

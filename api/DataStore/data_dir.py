@@ -12,6 +12,8 @@ class DataDir:
     GPTBehavior: Path
     InitMemory: Path
     DefaultSettings: Path
+    DefaultLLM: Path 
+    Default自立型ver1: Path 
     
     CharSettingJson: Path # CharSettingJson配下
     CharaNames: Path
@@ -31,7 +33,11 @@ class DataDir:
         self.CharcterAISetting = self.AppSettingJson / "CharcterAISetting"
         self.GPTBehavior = self.AppSettingJson / "GPTBehavior"
         self.InitMemory = self.AppSettingJson / "InitMemory"
-        self.DefaultSettings = self.AppSettingJson / "DefaultSettings"
+        self.DefaultSettings = self.AppSettingJson / "DefaultSettings" # DefaultSettings配下
+        self.DefaultLLM = self.DefaultSettings / "DefaultLLM"
+        self.Default自立型ver1 = self.DefaultLLM / "Default自立型ver1"
+        self.LLM = self.AppSettingJson / "LLM" # LLM配下
+        self.自立型ver1 = self.LLM / "自立型ver1"
 
         self.CharSettingJson = self.api_dir / "CharSettingJson" # CharSettingJson配下
         self.CharaNames = self.CharSettingJson / "CharaNames"

@@ -48,7 +48,7 @@ class JsonAccessor:
     BaseModelList = TypeVar("BaseModelList", bound=BaseModelList)
     BaseModelT = TypeVar("BaseModelT", bound=BaseModel)
     @staticmethod
-    def loadYamlToBaseModel(yaml_path:Path, baseModel:Type[BaseModelList])->BaseModelList:
+    def loadYamlToBaseModelList(yaml_path:Path, baseModel:Type[BaseModelList])->BaseModelList:
         with open(yaml_path,encoding="UTF8") as f:
             content = f.read()
         try:
@@ -60,6 +60,20 @@ class JsonAccessor:
         except yaml.YAMLError as e:
             ExtendFunc.ExtendPrint("yaml読み込みエラー",e)
             return baseModel(list = [])
+        
+    @staticmethod
+    def loadYamlToBaseModel(yaml_path:Path, baseModel:Type[BaseModelT])->BaseModelT|None:
+        with open(yaml_path,encoding="UTF8") as f:
+            content = f.read()
+        try:
+            parsedData = yaml.safe_load(content)
+            if parsedData is None:
+                return baseModel()
+            else:
+                return baseModel(**parsedData)
+        except yaml.YAMLError as e:
+            ExtendFunc.ExtendPrint("yaml読み込みエラー",e)
+            return None
         
     @staticmethod
     def updateYamlFromBaseModel(yaml_path:Path, baseModel:BaseModel):
