@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 from typing import Type, TypeVar
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Json
 from api.AppSettingJson.CharacterDestination.CharacterDestination import CharacterDestinationList
 from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit, CharacterAISettingList
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict,GPTBehaviorKey
@@ -84,6 +84,30 @@ class JsonAccessor:
             t = baseModel.model_dump_json()
             jsonToDict = json.loads(t)
             yaml.dump(jsonToDict, f, allow_unicode=True, sort_keys=False)
+
+    @staticmethod
+    def saveYamlFromBaseModel(yaml_path:Path, baseModel:BaseModel):
+        """Enumを含むBaseModelをyamlに書き込みます。"""
+        try:
+            # ファイルが存在しない場合はディレクトリを作成
+            if not yaml_path.parent.exists():
+                yaml_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            # データをYAML形式に変換
+            t = baseModel.model_dump_json()
+            jsonToDict = json.loads(t)
+            yaml_content = yaml.dump(jsonToDict, allow_unicode=True, sort_keys=False)
+            
+            # コメント付きで書き込み
+            with open(yaml_path, 'w', encoding="utf-8") as f:
+                f.write("# これは自動生成されたファイルです。\n")
+                f.write(yaml_content)
+                
+            return True
+        except Exception as e:
+            ExtendFunc.ExtendPrint(f"YAML保存エラー: {e}")
+            return False
+
 
     @staticmethod
     def loadJsonToBaseModel(json_path:Path, baseModel:Type[BaseModelT])->BaseModelT|None:

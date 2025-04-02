@@ -12,3 +12,8 @@ class システムメッセージProxy:
         path = システムメッセージProxy.path()
         data = JsonAccessor.loadYamlToBaseModel(path, システムメッセージ辞書)
         return data
+    
+    @staticmethod
+    def save(data:システムメッセージ辞書) -> None:
+        path = システムメッセージProxy.path()
+        JsonAccessor.saveYamlFromBaseModel(path, data)
