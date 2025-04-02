@@ -1,4 +1,4 @@
-from api.DataStore.FileProxy.AppSettingJsonProxy.AppSettingJsonProxy import AppSettingJsonProxy
+from api.DataStore.FileProxy.AppSettingJsonProxy.AppSettingJsonProxyBase import AppSettingJsonProxy
 
 
 class AgentSettingProxy:

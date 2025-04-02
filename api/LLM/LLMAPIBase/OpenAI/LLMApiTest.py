@@ -1,5 +1,5 @@
 from api.DataStore.FileProxy.AppSettingJsonProxy.AgentSettingProxy import AgentSettingProxy
-from api.DataStore.FileProxy.AppSettingJsonProxy.AppSettingJsonProxy import AppSettingJsonProxy
+from api.DataStore.FileProxy.AppSettingJsonProxy.AppSettingJsonProxyBase import AppSettingJsonProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.Google.geminiAPIBase import GeminiAPIUnit
