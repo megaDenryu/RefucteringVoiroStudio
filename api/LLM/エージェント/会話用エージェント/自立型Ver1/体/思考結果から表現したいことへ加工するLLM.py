@@ -25,27 +25,15 @@ class 思考結果から表現したいことへ加工するLLM:
     _llmBox:切り替え可能LLMBox
 
     def __init__(self):
-
         self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.思考結果から表現したいことへ加工するLLM)
-        self._llmBox.setSystemMessage(self.systemMessage)
-
 
     async def 加工する(self, v思考結果:思考結果)->PresentationByBody:
         """
         思考結果から表現したいことへ加工する
         """
-        
         # return PresentationByBody(文章 = v思考結果.最新思考状態.思考内容, 感情="なし") # 仮の返り値
         加工クエリプロキシ = 思考結果から表現したいことへ加工するクエリプロキシ(v思考結果)
         response = await self._llmBox.llmUnit.asyncGenerateResponse(加工クエリプロキシ.json文字列でクエリ出力, PresentationByBody)
         if response is None or response == "テストモードです":
             raise Exception("加工に失敗しました")
         return response
-        
-    @property
-    def systemMessage(self)->IMessageQuery:
-        return IMessageQuery(
-            id = "思考結果から表現したいことへ加工するLLMのシステムメッセージ",
-            role="system",
-            content="思考結果から表現したいことへ加工するLLMのシステムメッセージ"
-        )
