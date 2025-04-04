@@ -16,3 +16,19 @@ class DefaultシステムメッセージProxy:
         if data is None:
             raise ValueError("システムメッセージ辞書が読み込めませんでした。")
         return data
+    
+    @staticmethod
+    def saveEmptyData():
+        path = DefaultシステムメッセージProxy.path()
+        llmシステムメッセージ辞書 = {}
+        llmsシステムメッセージ辞書 = {}
+        for llm_type in LLM用途タイプ:
+            llmシステムメッセージ辞書[llm_type] = IMessageQuery.systemMessage("")
+        for llm_type in LLMs用途タイプ:
+            llmsシステムメッセージ辞書[llm_type] = IMessageQuery.systemMessage("")
+        # デフォルトのシステムメッセージ辞書を保存
+        data = システムメッセージ辞書(
+            llmシステムメッセージ辞書= llmシステムメッセージ辞書,
+            llmsシステムメッセージ辞書= llmsシステムメッセージ辞書
+        )
+        JsonAccessor.saveYamlFromBaseModel(path, data)

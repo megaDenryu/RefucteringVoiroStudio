@@ -3,7 +3,10 @@ from math import e
 import stat
 from typing import TypedDict
 import uuid
+
+from pydantic import BaseModel
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
+from api.LLM.LLMAPIBase.LLMInterface.QueryProxy import QueryProxy, クエリ段落
 from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
@@ -15,16 +18,52 @@ class 思考ノードの結果:
     def __init__(self,思考結果: str) -> None:
         self.思考結果 = 思考結果
 
+class 思考ノードの結果辞書:
+    def __init__(self, 思考ノードの結果: dict[str, 思考ノードの結果]) -> None:
+        self.思考ノードの結果 = 思考ノードの結果
+    def model_dump(self) -> dict[str, str]:
+        ret_dict = {}
+        for key, value in self.思考ノードの結果.items():
+            ret_dict[key] = value.思考結果
+        return ret_dict
+    def add(self, ノード名: str, 思考結果: 思考ノードの結果) -> None:
+        self.思考ノードの結果[ノード名] = 思考結果
+
 class 思考ノードPrimitive(TypedDict):
     ノード名: str
     考えるべき内容: str
     思考結果: str
+
+class ThinkingResult(BaseModel):
+    自由思考欄: list[str]
+    思考整理結果: str
+
+class 思考用クエリ(QueryProxy):
+    def __init__(self,考えるべき内容:str, 前のノードでの結果:思考ノードの結果辞書) -> None:
+        self._クエリプロキシ = [
+            クエリ段落("考えるべき内容", 考えるべき内容),
+            クエリ段落("前のノードでの結果", 前のノードでの結果),
+        ]
+        self.考えるべき内容 = 考えるべき内容
+        self.前のノードでの結果 = 前のノードでの結果
+
+    def カスタム出力(self) -> str:
+        return f"""
+        # 考えるべき内容:
+        {self.考えるべき内容}
+        # 前のノードでの結果:
+        {self.前のノードでの結果}
+        """
+    
+    
+        
 
 class 思考ノード:
     id: str
     ノード名: str
     考えるべき内容: str
     前に終わらせるべき思考ノードのノード名: list[str]
+    前のノードの結果辞書: 思考ノードの結果辞書
     思考結果: 思考ノードの結果|None = None
     _llmBox: 切り替え可能LLMBox
     def __init__(self,thinkNode:ThinkNode) -> None:
@@ -32,10 +71,15 @@ class 思考ノード:
         self.ノード名 = thinkNode.ノード名
         self.考えるべき内容 = thinkNode.考えるべき内容
         self.前に終わらせるべき思考ノードのノード名 = thinkNode.前に終わらせるべき思考ノードのノード名
-        self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.思考ノード)
+        self.前のノードの結果辞書 = 思考ノードの結果辞書({})
+        self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.思考ノード)    
     async def 実行(self)->思考ノードの結果:
-        self.思考結果 = 思考ノードの結果(思考結果="思考ノードの実行結果")
-        return self.思考結果
+        v思考用クエリ = 思考用クエリ(self.考えるべき内容, self.前のノードの結果辞書)
+        v思考結果 = await self._llmBox.llmUnit.asyncGenerateResponse(v思考用クエリ.json文字列でクエリ出力, ThinkingResult)
+        if not isinstance(v思考結果, ThinkingResult):
+            raise TypeError("思考ノードの結果がThinkingResultではありません")
+        # self.思考結果 = 思考ノードの結果(思考結果="思考ノードの実行結果")
+        return 思考ノードの結果(思考結果 = v思考結果.思考整理結果)
     def 完了したか(self) -> bool:
         if self.思考結果 is not None:
             return True
@@ -64,3 +108,7 @@ class 思考ノード:
                 "考えるべき内容": self.考えるべき内容,
                 "思考結果": self.思考結果.思考結果
             }
+        
+    def 他ノードの結果を受け取る(self, ノード名: str, 結果: 思考ノードの結果):
+        self.前のノードの結果辞書.add(ノード名, 結果)
+

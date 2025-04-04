@@ -4,28 +4,11 @@
 
 import asyncio
 from typing import Coroutine
-import uuid
-
-
-from api import LLM
-from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ
-from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
-from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.LLMリクエスト用BaseModel import ThinkGraph, ThinkNode
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考アローなど.思考アロー import 思考アロー
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考アローなど.思考アローリスト import 思考アローリスト
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考ノードなど.思考ノード import 思考ノード
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考ノードなど.思考ノードリスト import 思考ノードリスト
-
-
-
-
-
-
-
-
-
-
 
 class 思考グラフ:
     _全てのノード: 思考ノードリスト
@@ -83,9 +66,10 @@ class 思考グラフ:
             return
         次の実行taskリスト:list[Coroutine] = []
         for アロー in 次のアローリスト:
+            アロー._後.他ノードの結果を受け取る(ノード.ノード名,結果)
             if アロー.完了フラグ == False:
                 アロー.完了フラグ = True
-                coroutine = アロー._後.実行()
+                coroutine = self._ノードを実行したときの処理(アロー._後)
                 次の実行taskリスト.append(coroutine)
         # 3. 次のノードを実行する
         await asyncio.gather(*次の実行taskリスト)

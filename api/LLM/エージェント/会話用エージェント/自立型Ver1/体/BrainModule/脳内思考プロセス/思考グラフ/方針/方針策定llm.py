@@ -16,11 +16,6 @@ class 方針策定LLM:
     _方針履歴:list[方針]
     def __init__(self) -> None:
         self._llmUnit = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.方針策定)
-        self._llmUnit.setSystemMessage(IMessageQuery(
-            id = str(uuid4()),
-            content = "状況履歴に基づいて方針を策定します。",
-            role = "system"
-        ))
     async def 方針を策定する(self, input:方針策定input):
         messageQuery = [IMessageQuery(id=str(uuid4()),role="user",content=状況.リスト化文章(input.状況履歴))]
         

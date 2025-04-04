@@ -68,7 +68,7 @@ class JsonAccessor:
         try:
             parsedData = yaml.safe_load(content)
             if parsedData is None:
-                return baseModel()
+                return None
             else:
                 return baseModel(**parsedData)
         except yaml.YAMLError as e:
