@@ -14,7 +14,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考履歴 import 思考履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.浅い思考.浅い思考部署 import 浅い思考部署
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況, 状況リスト
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況, 状況リスト, 状況履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況統合所 import 状況統合所
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内表現イベント.I脳内表現イベント import I脳内表現イベント
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
@@ -52,9 +52,9 @@ class 脳内思考プロセス:
         #     id = str(uuid4()), 
         #     思考内容 = ConvertAndSaveLog.MarkdownConvertList(model = messageUnits, log=True)
         # )
-        状況履歴:状況リスト = self._外部状況統合所.思考可能な形に状況を整理して変換(self._プロセス材料溜め置き場,最新メッセージ)
-        self._ブロッキングなしで深い思考を実行する(状況履歴)
-        await self._浅い思考(状況履歴)
+        v状況履歴:状況履歴 = self._外部状況統合所.思考可能な形に状況を整理して変換(self._プロセス材料溜め置き場,最新メッセージ)
+        self._ブロッキングなしで深い思考を実行する(v状況履歴)
+        await self._浅い思考(v状況履歴)
         self._プロセス材料溜め置き場 = []
     
 
@@ -66,13 +66,13 @@ class 脳内思考プロセス:
         self._プロセス材料溜め置き場.append(プロセス材料)
         ExtendFunc.ExtendPrint(self._プロセス材料溜め置き場)
     
-    def _ブロッキングなしで深い思考を実行する(self, 状況履歴: 状況リスト):
-        asyncio.create_task(self._深い思考(状況履歴))
+    def _ブロッキングなしで深い思考を実行する(self, v状況履歴: 状況履歴):
+        asyncio.create_task(self._深い思考(v状況履歴))
 
-    async def _深い思考(self, 状況履歴: 状況リスト):
-        new思考状態:思考状態 = await self._思考グラフ部署.思考を進める(状況履歴,self._思考履歴)
+    async def _深い思考(self, v状況履歴: 状況履歴):
+        new思考状態:思考状態 = await self._思考グラフ部署.思考を進める(v状況履歴,self._思考履歴)
         self._思考履歴.追加(new思考状態)
 
-    async def _浅い思考(self, 状況履歴: 状況リスト):
-        new思考状態:思考状態 = await self._浅い思考部署.思考を進める(状況履歴,self._思考履歴)
+    async def _浅い思考(self, v状況履歴: 状況履歴):
+        new思考状態:思考状態 = await self._浅い思考部署.思考を進める(v状況履歴,self._思考履歴)
         self._思考履歴.追加(new思考状態)

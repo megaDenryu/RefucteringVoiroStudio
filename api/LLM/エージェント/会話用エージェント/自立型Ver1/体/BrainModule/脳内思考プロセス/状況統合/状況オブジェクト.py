@@ -73,3 +73,7 @@ class 状況履歴:
             "前状況": self.前状況.model_dump(),
             "新状況": self.新状況.model_dump()
         }
+    
+    @staticmethod
+    def 空の状況履歴を生成() -> "状況履歴":
+        return 状況履歴(状況リスト([]), 状況リスト([]))

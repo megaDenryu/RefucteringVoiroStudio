@@ -8,14 +8,14 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考ノードなど.思考ノード import 思考ノード
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考履歴 import 思考履歴
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況リスト
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況リスト, 状況履歴
 
 class 思考内容プロキシ(QueryProxy):
-    def __init__(self, 状況履歴:状況リスト ,前の思考:思考履歴) -> None:
-        self.状況履歴 = 状況履歴
+    def __init__(self, v状況履歴:状況履歴 ,前の思考:思考履歴) -> None:
+        self.状況履歴 = v状況履歴
         self.前の思考 = 前の思考
         self._クエリプロキシ = [
-            クエリ段落("状況履歴", 状況履歴),
+            クエリ段落("状況履歴", v状況履歴),
             クエリ段落("前の思考", 前の思考),
             クエリ段落("考えること", "前の思考と状況履歴を元に、思考する"),
         ]
@@ -32,8 +32,8 @@ class 浅い思考部署:
     def __init__(self):
         _llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.浅い思考)
 
-    async def 思考を進める(self, 状況履歴: 状況リスト, 前の思考:思考履歴) -> 思考状態:
-        v思考内容プロキシ = 思考内容プロキシ(状況履歴, 前の思考)
+    async def 思考を進める(self, v状況履歴: 状況履歴, 前の思考:思考履歴) -> 思考状態:
+        v思考内容プロキシ = 思考内容プロキシ(v状況履歴, 前の思考)
         thinkNode:ThinkNode = ThinkNode(
             ノード名="思考ノード",
             考えるべき内容=v思考内容プロキシ.json文字列で出力(),
