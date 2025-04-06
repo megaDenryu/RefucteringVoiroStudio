@@ -30,15 +30,46 @@ class 状況:
         return sorted(状況リスト, key=lambda x: x.時間)
     
 class 状況リスト:
-    状況リスト: list[状況]
+    _状況リスト: list[状況]
     def __init__(self, 状況リスト: list[状況]):
-        self.状況リスト = 状況リスト
+        self._状況リスト = 状況リスト
+    
+    def __add__(self, 状況: "状況リスト"):
+        return 状況リスト(self._状況リスト + 状況._状況リスト)
     
     def リスト化文章(self):
-        return 状況.リスト化文章(self.状況リスト)
+        return 状況.リスト化文章(self._状況リスト)
     
     def 並び替え(self):
-        self.状況リスト = 状況.並び替え(self.状況リスト)
+        self._状況リスト = 状況.並び替え(self._状況リスト)
 
     def model_dump(self):
-        return [状況.model_dump() for 状況 in self.状況リスト]
+        return [状況.model_dump() for 状況 in self._状況リスト]
+    
+class 状況履歴:
+    前状況: 状況リスト
+    新状況: 状況リスト
+    def __init__(self, 前状況: 状況リスト, 新状況: 状況リスト):
+        self.前状況 = 前状況
+        self.新状況 = 新状況
+    def 新状況更新(self, 新状況: 状況リスト):
+        self.前状況 = self.前状況 + self.新状況
+        self.新状況 = 新状況
+
+    def 新状況に追加(self, 状況: 状況):
+        self.新状況._状況リスト.append(状況)
+    
+    @property
+    def 全状況(self)->状況リスト:
+        return self.前状況 + self.新状況
+
+    def リスト化文章(self):
+        return self.全状況.リスト化文章()
+    def 並び替え(self):
+        self.前状況.並び替え()
+        self.新状況.並び替え()
+    def model_dump(self):
+        return {
+            "前状況": self.前状況.model_dump(),
+            "新状況": self.新状況.model_dump()
+        }

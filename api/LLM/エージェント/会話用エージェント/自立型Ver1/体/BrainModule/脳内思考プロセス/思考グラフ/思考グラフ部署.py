@@ -5,6 +5,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考アクション計画 import 思考グラフ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.計画 import 思考アクション計画する人
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考履歴 import 思考履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況, 状況リスト
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
 
@@ -58,14 +59,14 @@ class 思考グラフ部署:
         self._方針策定 = 方針策定LLM()
         self._計画LLM = 思考アクション計画する人()
 
-
-    async def 思考を進める(self, 状況履歴: 状況リスト) -> 思考状態:
+    async def 思考を進める(self, 状況履歴: 状況リスト,前の思考:思考履歴) -> 思考状態:
         """
         与えられた状況履歴をもとに、次の思考を進める
         """
         # 計画を立てる
-        self._思考グラフ = await self._計画LLM.計画を立てる(状況履歴,self._方針策定.現在方針)
+        self._思考グラフ = await self._計画LLM.計画を立てる(状況履歴,self._方針策定.現在方針,前の思考)
         # アクションを実行する
         最終思考ノード = await self._思考グラフ.グラフ実行()
         v思考状態 = 思考状態(最終思考ノード=最終思考ノード)
         return v思考状態
+    
