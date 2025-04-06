@@ -40,8 +40,7 @@ if __name__ == "__main__":
     # asyncio.run(自立型Ver1test.MainLoop())
     # ConvertTest.main()
 
-    print("aaaaa")
-    DefaultシステムメッセージProxy.saveEmptyData()
+    DefaultシステムメッセージProxy.用途タイプが追加されたので更新()
 
 
 
