@@ -78,8 +78,8 @@ class 思考ノード:
         v思考結果 = await self._llmBox.llmUnit.asyncGenerateResponse(v思考用クエリ.json文字列でクエリ出力, ThinkingResult)
         if not isinstance(v思考結果, ThinkingResult):
             raise TypeError("思考ノードの結果がThinkingResultではありません")
-        # self.思考結果 = 思考ノードの結果(思考結果="思考ノードの実行結果")
-        return 思考ノードの結果(思考結果 = v思考結果.思考整理結果)
+        self.思考結果 = 思考ノードの結果(思考結果 = v思考結果.思考整理結果)
+        return self.思考結果
     def 完了したか(self) -> bool:
         if self.思考結果 is not None:
             return True

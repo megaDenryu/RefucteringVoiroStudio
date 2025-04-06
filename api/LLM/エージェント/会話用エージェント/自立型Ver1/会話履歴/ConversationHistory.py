@@ -17,6 +17,7 @@ class ConversationHistory(I会話履歴):
         if self._onMessageAsyncAction:  # アクションがある場合のみ実行
             # すべてのアクションを同時に開始し、全て完了するまで待機
             await asyncio.gather(*[action() for action in self._onMessageAsyncAction])
+        
     def deleteMessage(self, messageId:str):
         self.conversation.history = [message for message in self.conversation.history if message.id != messageId]
     def saveConversation(self):
