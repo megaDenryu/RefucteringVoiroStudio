@@ -48,10 +48,6 @@ class 脳内思考プロセス:
         pass
 
     async def 脳内思考プロセスを進める(self, 最新メッセージ:list[MessageUnitVer1]):
-        # new思考状態:思考状態 = 思考状態(
-        #     id = str(uuid4()), 
-        #     思考内容 = ConvertAndSaveLog.MarkdownConvertList(model = messageUnits, log=True)
-        # )
         v状況履歴:状況履歴 = self._外部状況統合所.思考可能な形に状況を整理して変換(self._プロセス材料溜め置き場,最新メッセージ)
         self._ブロッキングなしで深い思考を実行する(v状況履歴)
         await self._浅い思考(v状況履歴)
@@ -75,4 +71,4 @@ class 脳内思考プロセス:
 
     async def _浅い思考(self, v状況履歴: 状況履歴):
         new思考状態:思考状態 = await self._浅い思考部署.思考を進める(v状況履歴,self._思考履歴)
-        self._思考履歴.追加(new思考状態)
+        self._思考履歴.追加(new思考状態)    

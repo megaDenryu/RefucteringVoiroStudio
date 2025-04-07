@@ -80,3 +80,13 @@ class 思考グラフ部署:
         v方針 = await self._方針策定課長.方針を策定する(方針策定input(v状況履歴))
         return v方針
     
+    async def ランダム思考(self, v状況履歴: 状況履歴,前の思考:思考履歴)-> 思考状態|方針:
+        """
+        方針改定か思考グラフの実行かをランダムにおこなう
+        """
+        import random
+        if random.random() < 0.8:
+            return await self.思考を進める(v状況履歴,前の思考)
+        else:
+            return await self.方針を改定する(v状況履歴)
+    

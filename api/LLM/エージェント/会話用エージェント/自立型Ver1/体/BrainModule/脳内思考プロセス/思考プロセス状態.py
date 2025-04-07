@@ -11,7 +11,7 @@ class 思考状態:
         self.id = str(uuid.uuid4())
         self.最終思考ノードのリスト = 最終思考ノード
     
-    def primitive(self) -> list[思考ノードPrimitive]:
+    def model_dump(self) -> list[思考ノードPrimitive]:
         """
         思考状態をprimitiveに変換する
         """

@@ -4,6 +4,7 @@
 
 import asyncio
 from typing import Coroutine
+from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.LLMリクエスト用BaseModel import ThinkGraph, ThinkNode
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考アローなど.思考アロー import 思考アロー
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考アローなど.思考アローリスト import 思考アローリスト
@@ -16,9 +17,10 @@ class 思考グラフ:
     _グラフの第一ステップ: list[思考ノード] = []
     _グラフの最終ステップ: list[思考ノード] = []
     def __init__(self,グラフ情報: ThinkGraph) -> None:
+        ExtendFunc.ExtendPrint(グラフ情報.model_dump())
         self._全てのノード = 思考ノードリスト(self._ノードを作成する(グラフ情報))
         self._全てのアロー = 思考アローリスト(self._全てのノード.思考アローリストを生成())
-        self._グラフの第一ステップ = self.グラフ実行ステップを生成()
+        self._グラフの第一ステップ = self.グラフ実行ステップを生成()[0]
 
     def _ノードを作成する(self,グラフ情報: ThinkGraph) -> list[思考ノード]:
         ノードリスト = []
@@ -28,7 +30,7 @@ class 思考グラフ:
         return ノードリスト
 
 
-    def グラフ実行ステップを生成(self):
+    def グラフ実行ステップを生成(self)-> list[list[思考ノード]]:
         全ステップ = []
         第一ステップ = []
         for ノード in self._全てのノード._ノードリスト:
