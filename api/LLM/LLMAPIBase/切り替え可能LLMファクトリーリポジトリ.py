@@ -21,6 +21,8 @@ class 切り替え可能LLMファクトリーリポジトリ(I切り替え可能
         self._現在のモデル:LLMModelType = GeminiType.gemini2flash
         for llm_type in LLM用途タイプ:
             self._llm辞書[llm_type] = 切り替え可能LLMBox(self._現在のモデル).setSystemMessage(self.systemMessageリポジトリ.getSystemMessage(llm_type))
+        for llm_type in LLMs用途タイプ:
+            self._llmList辞書[llm_type] = []
 
     @classmethod
     def singleton(cls):

@@ -5,6 +5,7 @@ from typing import TypedDict
 import uuid
 
 from pydantic import BaseModel
+from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
 from api.LLM.LLMAPIBase.LLMInterface.QueryProxy import QueryProxy, クエリ段落
 from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ
@@ -78,6 +79,7 @@ class 思考ノード:
         v思考結果 = await self._llmBox.llmUnit.asyncGenerateResponse(v思考用クエリ.json文字列でクエリ出力, ThinkingResult)
         if not isinstance(v思考結果, ThinkingResult):
             raise TypeError("思考ノードの結果がThinkingResultではありません")
+        ExtendFunc.ExtendPrint(v思考結果.model_dump())
         self.思考結果 = 思考ノードの結果(思考結果 = v思考結果.思考整理結果)
         return self.思考結果
     def 完了したか(self) -> bool:

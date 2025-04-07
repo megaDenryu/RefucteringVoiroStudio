@@ -11,7 +11,7 @@ class 思考結果:
         モデルをダンプする
         """
         return {
-            "最新思考状態": self.最新思考状態.primitive(),
+            "最新思考状態": self.最新思考状態.model_dump(),
         }
 
 

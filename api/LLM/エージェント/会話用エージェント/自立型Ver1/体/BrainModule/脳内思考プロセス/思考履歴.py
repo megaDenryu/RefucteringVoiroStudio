@@ -20,7 +20,7 @@ class 思考履歴:
         """
         ret_list:list[list[思考ノードPrimitive]] = []
         for 思考状態 in self.思考状態リスト:
-            思考ノードprimitive = 思考状態.primitive()
+            思考ノードprimitive = 思考状態.model_dump()
             ret_list.append(思考ノードprimitive)
         return ret_list
         

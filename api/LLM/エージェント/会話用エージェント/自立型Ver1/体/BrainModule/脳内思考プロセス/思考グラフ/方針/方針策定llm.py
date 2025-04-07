@@ -28,6 +28,7 @@ class 方針策定部署:
     _方針履歴:方針履歴
     def __init__(self) -> None:
         self._llmUnit = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.方針策定)
+        self._方針履歴 = 方針履歴([方針.初期方針()])
     async def 方針を策定する(self, input:方針策定input):
         クエリプロキシ = 方針策定クエリプロキシ(input.v状況履歴)
         
