@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.中期方針 import 中期方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.短期方針 import 短期方針
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.総合方針 import 総合方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.長期方針 import 長期方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定input import 方針策定input
 
@@ -20,6 +21,7 @@ class I方針策定部署(ABC):
     async def 長期方針を策定する(self, input:方針策定input)->長期方針:
         pass
 
+    @property
     @abstractmethod
-    def model_dump(self):
+    def 現在方針(self)->総合方針:
         pass
