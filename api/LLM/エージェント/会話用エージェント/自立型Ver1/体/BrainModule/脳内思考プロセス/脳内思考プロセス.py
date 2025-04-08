@@ -11,7 +11,7 @@ from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ i
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.プロセス材料.プロセス材料を包んだもの import プロセス材料を包んだもの
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.思考グラフ部署 import 思考グラフ部署
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針object import 方針
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.短期方針 import 短期方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定input import 方針策定input
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定llm import 方針策定部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
@@ -78,10 +78,10 @@ class 脳内思考プロセス:
         new思考状態:思考状態 = await self._浅い思考部署.思考を進める(v状況履歴,self._思考履歴)
         self._思考履歴.追加(new思考状態)    
     
-    async def 方針を改定する(self, v状況履歴: 状況履歴) -> 方針:
+    async def 方針を改定する(self, v状況履歴: 状況履歴) -> 短期方針:
         """
         与えられた状況履歴をもとに、次の方針を立てる
         """
         # 方針を立てる
-        v方針 = await self._方針策定部署.方針を策定する(方針策定input(v状況履歴))
+        v方針 = await self._方針策定部署.短期方針を策定する(方針策定input(v状況履歴))
         return v方針
