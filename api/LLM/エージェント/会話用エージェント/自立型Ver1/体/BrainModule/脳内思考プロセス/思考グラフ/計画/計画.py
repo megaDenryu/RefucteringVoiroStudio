@@ -5,6 +5,7 @@ from api.LLM.LLMAPIBase.LLMInterface.QueryProxy import QueryProxy, クエリ段�
 from api.LLM.LLMAPIBase.LLM用途タイプ import LLM用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.I方針策定部署 import I方針策定部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針object import 方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考アクション計画 import ThinkGraph, 思考グラフ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考履歴 import 思考履歴
@@ -38,11 +39,11 @@ class 思考アクション計画する人:
     def __init__(self):
         self._llm = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.思考アクション計画する人)
 
-    async def 計画を立てる(self, v状況履歴: 状況履歴,現在方針: 方針, 前の思考:思考履歴)->思考グラフ:
+    async def 計画を立てる(self, v状況履歴: 状況履歴,方針策定部署:I方針策定部署, 前の思考:思考履歴)->思考グラフ:
         """
         与えられた状況履歴をもとに、自分の欲望を満たすような答えを出すための思考をするための計画を立てる
         """
-        計画クエリ = 計画クエリの代理(v状況履歴,現在方針,前の思考)
+        計画クエリ = 計画クエリの代理(v状況履歴,方針策定部署,前の思考)
         
         think_graph = await self._llm.llmUnit.asyncGenerateResponse(計画クエリ.json文字列でクエリ出力, ThinkGraph)
         if not isinstance(think_graph, ThinkGraph):
