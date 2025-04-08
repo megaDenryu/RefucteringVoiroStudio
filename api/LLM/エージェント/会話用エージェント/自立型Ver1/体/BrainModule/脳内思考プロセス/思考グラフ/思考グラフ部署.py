@@ -1,6 +1,7 @@
 from uuid import uuid4
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.感情.感情担当 import 感情状態管理
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.I方針策定部署 import I方針策定部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針object import 方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定input import 方針策定input
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定llm import 方針策定部署
@@ -51,42 +52,24 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を
 class 思考グラフ部署:
     _v自分の情報:I自分の情報コンテナ
     _感情:感情状態管理
-    _方針策定課長: 方針策定部署
     _思考計画課長:思考アクション計画する人
     _思考グラフ:思考グラフ
     
     def __init__(self, v自分の情報:I自分の情報コンテナ) -> None:
         self._v自分の情報 = v自分の情報
         self._感情 = 感情状態管理()
-        self._方針策定課長 = 方針策定部署()
         self._思考計画課長 = 思考アクション計画する人()
 
-    async def 思考を進める(self, v状況履歴: 状況履歴,前の思考:思考履歴) -> 思考状態:
+    async def 思考を進める(self, v状況履歴: 状況履歴,前の思考:思考履歴, 方針策定部署:I方針策定部署) -> 思考状態:
         """
         与えられた状況履歴をもとに、次の思考を進める
         """
         # 計画を立てる
-        self._思考グラフ = await self._思考計画課長.計画を立てる(v状況履歴,self._方針策定課長.現在方針,前の思考)
+        self._思考グラフ = await self._思考計画課長.計画を立てる(v状況履歴,方針策定部署,前の思考)
         # アクションを実行する
         最終思考ノード = await self._思考グラフ.グラフ実行()
         v思考状態 = 思考状態(最終思考ノード=最終思考ノード)
         return v思考状態
     
-    async def 方針を改定する(self, v状況履歴: 状況履歴) -> 方針:
-        """
-        与えられた状況履歴をもとに、次の方針を立てる
-        """
-        # 方針を立てる
-        v方針 = await self._方針策定課長.方針を策定する(方針策定input(v状況履歴))
-        return v方針
     
-    async def ランダム思考(self, v状況履歴: 状況履歴,前の思考:思考履歴)-> 思考状態|方針:
-        """
-        方針改定か思考グラフの実行かをランダムにおこなう
-        """
-        import random
-        if random.random() < 0.8:
-            return await self.思考を進める(v状況履歴,前の思考)
-        else:
-            return await self.方針を改定する(v状況履歴)
     

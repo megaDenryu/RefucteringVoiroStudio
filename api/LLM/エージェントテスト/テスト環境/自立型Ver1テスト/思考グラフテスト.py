@@ -18,11 +18,11 @@ class 思考グラフテスト:
             新状況 = 状況リスト([状況(時間=TimeExtend(),内容="あ",)]),
         )
         _思考履歴 = 思考履歴([思考状態.初期思考状態を生成()])
-        結果:思考状態|方針 = await _思考グラフ部署.ランダム思考(_v状況履歴, _思考履歴)
-        ExtendFunc.ExtendPrint(結果.model_dump())
+        # 結果:思考状態|方針 = await _思考グラフ部署.ランダム思考(_v状況履歴, _思考履歴)
+        # ExtendFunc.ExtendPrint(結果.model_dump())
 
-        while True:
-            nyuryoku = input("入力 : ")
-            _v状況履歴.新状況更新(状況リスト([状況(時間=TimeExtend(),内容=nyuryoku)]))
-            結果:思考状態|方針 = await _思考グラフ部署.ランダム思考(_v状況履歴, _思考履歴)
-            ExtendFunc.ExtendPrint(結果.model_dump())
+        # while True:
+        #     nyuryoku = input("入力 : ")
+        #     _v状況履歴.新状況更新(状況リスト([状況(時間=TimeExtend(),内容=nyuryoku)]))
+        #     結果:思考状態|方針 = await _思考グラフ部署.ランダム思考(_v状況履歴, _思考履歴)
+        #     ExtendFunc.ExtendPrint(結果.model_dump())
