@@ -32,9 +32,7 @@ class QueryProxy(ABC):
             dict化クエリ.append(段落.model_dump())
         return dict化クエリ
     
-    @abstractmethod
-    def カスタム出力(self)->str:
-        pass
+    
     
     @property
     def json文字列でクエリ出力(self)->list[IMessageQuery]:
