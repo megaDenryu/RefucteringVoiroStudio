@@ -31,8 +31,3 @@ class 方針履歴:
     @property
     def 最新総合方針(self)->総合方針:
         return 総合方針(self.最新短期方針,self.最新中期方針,self.最新長期方針)
-    def model_dump(self):
-        primitive方針リスト:list[dict[str,str]] = []
-        for 方針 in self.短期方針リスト:
-            primitive方針リスト.append(方針.model_dump())
-        return primitive方針リスト
