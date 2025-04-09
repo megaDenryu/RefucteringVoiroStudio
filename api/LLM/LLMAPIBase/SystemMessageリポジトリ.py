@@ -2,8 +2,10 @@ import sys
 
 from pydantic import BaseModel
 
+from api import Extend
 from api.DataStore.FileProxy.DefaultSettingsProxy.LLM.自立型ver1.DefaultシステムメッセージProxy import DefaultシステムメッセージProxy
 from api.DataStore.FileProxy.LLMProxy.自立型ver1Proxy.システムメッセージProxy import システムメッセージProxy
+from api.Extend import ExtendFunc
 from api.LLM.LLMAPIBase.LLMInterface.IMessageQuery import IMessageQuery
 from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ, LLM用途タイプ
 from api.LLM.LLMAPIBase.システムメッセージ辞書 import システムメッセージ辞書
@@ -27,6 +29,7 @@ class SystemMessageリポジトリ:
             if llm_type in self._llmsシステムメッセージ辞書:
                 return self._llmsシステムメッセージ辞書[llm_type]
             else:
+                ExtendFunc.ExtendFunc.ExtendPrint(self._llmsシステムメッセージ辞書)
                 raise KeyError(f"指定された用途のシステムメッセージが見つかりません: {llm_type}")
     
 

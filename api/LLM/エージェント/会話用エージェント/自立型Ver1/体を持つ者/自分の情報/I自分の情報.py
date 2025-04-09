@@ -18,6 +18,11 @@ class I自分の情報コンテナ(ABC):
     def 表示名(self)->str:
         pass
 
+    @property
+    @abstractmethod
+    def 自分の情報(self)->str:
+        pass
+
     @abstractmethod
     def 自分の情報の更新(self)->None:
         """
