@@ -6,7 +6,7 @@ from typing import Type, TypeVar
 
 from pydantic import BaseModel, Json
 from api.AppSettingJson.CharacterDestination.CharacterDestination import CharacterDestinationList
-from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingCollectionUnit, CharacterAISettingList
+from api.LLM.キャラクター内面モデル.CharacterAISetting import CharacterAISettingCollectionUnit, CharacterAISettingList
 from api.AppSettingJson.GPTBehavior.GPTBehavior import GPTBehaviorDict,GPTBehaviorKey
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
 from api.DataStore.data_dir import DataDir

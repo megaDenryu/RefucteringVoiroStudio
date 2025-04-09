@@ -1,6 +1,6 @@
 from pprint import pprint
 from typing import Callable
-from api.AppSettingJson.CharcterAISetting.CharacterAISetting import ActionPattern, CharacterAISetting, CharacterAISettingCollectionUnit, CharacterAISettingList, CharacterRelationships, Emotion
+from api.LLM.キャラクター内面モデル.CharacterAISetting import ActionPattern, CharacterAISetting, CharacterAISettingCollectionUnit, CharacterAISettingList, CharacterRelationships, Emotion
 from api.DataStore.FileProxy.CharcterAISettingProxy import CharcterAISettingProxy
 from api.DataStore.JsonAccessor import JsonAccessor
 from api.gptAI.HumanInfoValueObject import CharacterName
