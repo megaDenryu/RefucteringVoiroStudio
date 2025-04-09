@@ -1,7 +1,7 @@
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.Conversation import Conversation
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.体内信号機.体内信号機 import 体内信号機
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.I自分の情報 import I自分の情報コンテナ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.外部イベント import 外部イベント
 
 class LLM他人と自分の声を識別する機構:

@@ -12,7 +12,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LL
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.体内信号機.体内信号機 import 体内信号機
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.思考結果から表現したいことへ加工するLLM import 思考結果から表現したいことへ加工するLLM
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.I自分の情報 import I自分の情報コンテナ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.外部イベント import 外部イベント
 
 class 結果種類(enum.Enum):

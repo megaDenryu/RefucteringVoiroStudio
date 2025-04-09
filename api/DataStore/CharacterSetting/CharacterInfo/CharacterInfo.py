@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 
-from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISetting
+from api.LLM.キャラクター内面モデル.CharacterAISetting import CharacterAISetting
 from api.gptAI.HumanInfoValueObject import CharacterName, HumanImage, NickName
 
 

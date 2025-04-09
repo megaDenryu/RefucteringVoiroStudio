@@ -11,7 +11,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LL
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.LLMHumanBodyInput import LLMHumanBodyInput
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.表現したいこと import PresentationByBody
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I体を持つ者 import I体を持つ者
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報 import 自分の情報コンテナ
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.自分の情報 import 自分の情報コンテナ
 
 
 class 体を持つ者example(I体を持つ者):

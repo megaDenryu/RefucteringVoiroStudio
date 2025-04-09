@@ -1,5 +1,5 @@
 
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.I自分の情報 import I自分の情報コンテナ
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.I自分の情報 import I自分の情報コンテナ
 from api.gptAI.CharacterModeStateForNoDisplay import CharacterModeStateForNoDisplay
 
 

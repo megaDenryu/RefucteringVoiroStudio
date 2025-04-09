@@ -1,7 +1,7 @@
 import json
 from pyparsing import C
 import yaml
-from api.AppSettingJson.CharcterAISetting.CharacterAISetting import CharacterAISettingList
+from api.LLM.キャラクター内面モデル.CharacterAISetting import CharacterAISettingList
 from api.DataStore.data_dir import DataDir
 from api.Extend.ExtendFunc import ExtendFunc
 
