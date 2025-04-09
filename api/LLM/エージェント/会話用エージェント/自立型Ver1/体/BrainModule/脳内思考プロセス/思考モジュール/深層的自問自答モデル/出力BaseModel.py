@@ -1,13 +1,25 @@
 from pydantic import BaseModel,Field
 
 
+class ThoughtNode3(BaseModel):
+    """思考の連鎖における単一のノード（問い、思考、応答）を表します。"""
+    a問い: str
+    b自由思考欄: list[str]
+    c回答: list[str] = Field(description= "上記の問いや思考に対するキャラクターの応答。問がむずかしい場合は分からないが回答になってもよい。")
+
+class ThoughtNode2(BaseModel):
+    """思考の連鎖における単一のノード（問い、思考、応答）を表します。"""
+    a問い: str
+    b自由思考欄: list[str]
+    c回答: list[str] = Field(description= "上記の問いや思考に対するキャラクターの応答。問がむずかしい場合は分からないが回答になってもよい。")
+    dさらなる自問自答:list[ThoughtNode3] = Field(description= "上記の問いや思考に続く思考・問い")
+
 class ThoughtNode(BaseModel):
     """思考の連鎖における単一のノード（問い、思考、応答）を表します。"""
-    問い: str
-    自由思考欄: list[str]
-    回答orさらなる自問自答: list[str]|list["ThoughtNode"] = Field(description= "上記の問いや思考に対するキャラクターの応答や、それに続く思考・問い。"
-                                                                    "単純な答えや感情の場合は文字列、思考が連鎖・分岐する場合はThoughtNodeのリスト、"
-                                                                    "問がむずかしい場合は分からないが回答になってもよい。")
+    a問い: str
+    b自由思考欄: list[str]
+    c回答: list[str] = Field(description= "上記の問いや思考に対するキャラクターの応答。問がむずかしい場合は分からないが回答になってもよい。")
+    dさらなる自問自答:list[ThoughtNode2] = Field(description= "上記の問いや思考に続く思考・問い")
 
 class InternalMonologue(BaseModel):
     """
