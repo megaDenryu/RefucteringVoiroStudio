@@ -43,8 +43,8 @@ if __name__ == "__main__":
     # DefaultシステムメッセージProxy.用途タイプが追加されたので更新()
 
     
-    # asyncio.run(思考グラフテスト.test())
-    asyncio.run(思考グラフテスト.test創造的連想モデル())
+    asyncio.run(思考グラフテスト.test())
+    # asyncio.run(思考グラフテスト.test創造的連想モデル())
 
     
 

@@ -16,6 +16,10 @@ llmシステムメッセージ辞書:
     id: 4108146b-248a-41ae-901d-4465e796367b
     role: system
     content: ''
+  思考の種類選択:
+    id: c43a4262-b42f-4c06-a6fe-ea42cebc9738
+    role: system
+    content: ''
 llmsシステムメッセージ辞書:
   思考ノード:
     id: 4067ecaf-4721-4ea3-8562-d1aa4f16583d

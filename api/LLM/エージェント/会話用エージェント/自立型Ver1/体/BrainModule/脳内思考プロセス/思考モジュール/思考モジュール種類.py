@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class 思考モジュール種類(Enum):
+class ThinkingModuleEnum(Enum):
     """
     思考モジュールの種類を定義する列挙型
     """
