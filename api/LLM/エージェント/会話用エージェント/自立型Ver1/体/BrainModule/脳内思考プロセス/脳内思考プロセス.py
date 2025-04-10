@@ -22,7 +22,6 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.浅い思考.浅い思考部署 import 浅い思考部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況, 状況リスト, 状況履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況統合所 import 状況統合所
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.選択部署.選択部署 import 選択部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内表現イベント.I脳内表現イベント import I脳内表現イベント
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.I自分の情報 import I自分の情報コンテナ
 
@@ -35,7 +34,6 @@ class 脳内思考プロセス:
     _方針策定課長: 方針策定部署
     _浅い思考部署: 浅い思考部署
     _プロセス材料溜め置き場: list[プロセス材料を包んだもの]
-    _思考選択部署: 選択部署
     @property
     def 思考履歴を見て思い出す(self)->思考履歴:
         return self._思考履歴
@@ -90,16 +88,4 @@ class 脳内思考プロセス:
         v方針 = await self._方針策定部署.短期方針を策定する(方針策定input(v状況履歴))
         return v方針
     
-    async def 選択的思考を実行する(self, v状況履歴: 状況履歴) -> 思考状態:
-        """
-        与えられた状況履歴をもとに、選択的思考を行う
-        """
-        v選択結果:ThinkingModuleEnum = await self._思考選択部署.思考の種類を適当に選ぶ(v状況履歴, self._思考履歴)
-        if v選択結果 == ThinkingModuleEnum.深層的自問自答モデル:
-            v自問自答モジュール = 自問自答モジュール()
-            result = await v自問自答モジュール.実行(v状況履歴, self._思考履歴, self._v自分の情報)
-            return result
-        elif v選択結果 == ThinkingModuleEnum.創造的連想モデル:
-            v創造的連想モジュール = 創造的連想モジュール()
-            result = await v創造的連想モジュール.実行(v状況履歴, self._思考履歴, self._v自分の情報)
-            return result
+    
