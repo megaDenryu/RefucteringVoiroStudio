@@ -57,7 +57,6 @@ class 脳内思考プロセス:
         self._ブロッキングなしで深い思考を実行する(v状況履歴)
         await self._浅い思考(v状況履歴)
         self._プロセス材料溜め置き場 = []
-    
 
     async def 脳内思考プロセスを終了(self):
         pass

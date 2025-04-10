@@ -44,7 +44,7 @@ if __name__ == "__main__":
 
     
     # asyncio.run(思考グラフテスト.test())
-    asyncio.run(思考グラフテスト.test自問自答もじゅーる())
+    asyncio.run(思考グラフテスト.test創造的連想モデル())
 
     
 
