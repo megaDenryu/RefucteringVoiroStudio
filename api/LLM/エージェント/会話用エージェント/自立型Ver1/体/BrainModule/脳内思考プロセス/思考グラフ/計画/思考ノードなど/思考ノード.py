@@ -16,8 +16,8 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 
 class 思考ノードの結果:
     思考結果: str
-    def __init__(self,思考結果: str) -> None:
-        self.思考結果 = 思考結果
+    def __init__(self,思考結果:BaseModel) -> None:
+        self.思考結果 = 思考結果.model_dump()
 
 class 思考ノードの結果辞書:
     def __init__(self, 思考ノードの結果: dict[str, 思考ノードの結果]) -> None:
@@ -73,7 +73,7 @@ class 思考ノード:
         self.考えるべき内容 = thinkNode.考えるべき内容
         self.前に終わらせるべき思考ノードのノード名 = thinkNode.前に終わらせるべき思考ノードのノード名
         self.前のノードの結果辞書 = 思考ノードの結果辞書({})
-        self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.思考ノード)    
+        self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.思考ノード)
     async def 実行(self)->思考ノードの結果:
         v思考用クエリ = 思考用クエリ(self.考えるべき内容, self.前のノードの結果辞書)
         v思考結果 = await self._llmBox.llmUnit.asyncGenerateResponse(v思考用クエリ.json文字列でクエリ出力, ThinkingResult)
