@@ -15,4 +15,13 @@ class Human自分の情報コンテナ(I自分の情報コンテナ):
 
     def __init__(self, chara_mode_state:CharacterModeState):
         self._chara_mode_state = chara_mode_state
+
+    @property
+    def 自分の情報(self)->str:
+        raise NotImplementedError("自分の情報は実装されていません。")
+    def 自分の情報の更新(self)->None:
+        """
+        自分の情報を更新する。
+        """
+        raise NotImplementedError("自分の情報の更新は実装されていません。")
         
