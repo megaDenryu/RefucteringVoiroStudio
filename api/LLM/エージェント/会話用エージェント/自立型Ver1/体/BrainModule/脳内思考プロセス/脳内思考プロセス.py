@@ -11,6 +11,7 @@ from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ i
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.会話履歴.ValueObject.MessageUnit import MessageUnitVer1
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.プロセス材料.プロセス材料を包んだもの import プロセス材料を包んだもの
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.思考グラフ部署 import 思考グラフ部署
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.感情.感情担当 import 感情状態管理
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.短期方針 import 短期方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定input import 方針策定input
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定llm import 方針策定部署
@@ -33,6 +34,7 @@ class 脳内思考プロセス:
     _思考グラフ部署: 思考グラフ部署
     _方針策定課長: 方針策定部署
     _浅い思考部署: 浅い思考部署
+    _感情: 感情状態管理
     _プロセス材料溜め置き場: list[プロセス材料を包んだもの]
     @property
     def 思考履歴を見て思い出す(self)->思考履歴:
@@ -48,6 +50,7 @@ class 脳内思考プロセス:
         self._外部状況統合所 = 状況統合所()
         self._方針策定部署 = 方針策定部署()
         self._思考グラフ部署 = 思考グラフ部署(self._v自分の情報)
+        self._感情 = 感情状態管理()
 
     async def 脳内思考プロセスを開始(self):
         """
