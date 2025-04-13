@@ -39,7 +39,7 @@ class 思考選択実行モジュール:
             return result
         
         elif v選択結果 == ThinkingModuleEnum.専門家が結論を出すモデル:
-            v専門家が結論を出すモデル = 専門家が結論を出すモデル()
+            v専門家が結論を出すモデル = 専門家が結論を出すモデル(vキャラクター情報.表示名)
             result = await v専門家が結論を出すモデル.実行(v状況履歴, v思考履歴, vキャラクター情報)
             return result
         

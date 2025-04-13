@@ -13,26 +13,28 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 
 
 class 専門家が結論を出すモデル:
+    _私の名前: str
     _llmBox: 切り替え可能LLMBox
 
-    def __init__(self) -> None:
+    def __init__(self,私の名前) -> None:
+        self._私の名前 = 私の名前
         self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.専門家が問に対して結論を出す)
 
     async def 実行(self, v状況履歴: 状況履歴, v思考履歴: 思考履歴, vキャラクター情報) -> BaseModel:
         結果 = await self.専門家同士の会話シミュレート2(v状況履歴, v思考履歴, vキャラクター情報)
-        while 結果.結論が出たかまだ続けるかの判断 == ConversationProgressStatus.まだ続ける:
+        while 結果.g結論が出たかまだ続けるかの判断 == ConversationProgressStatus.まだ続ける:
             結果 = await self.専門家同士の会話シミュレート続き(結果)
         return 結果
 
     async def 問いに答える(self, 問い: IModelDumpAble) -> BaseModel:
         結果 = await self.専門家同士の会話シミュレート(問い)
-        while 結果.結論が出たかまだ続けるかの判断 == ConversationProgressStatus.まだ続ける:
+        while 結果.g結論が出たかまだ続けるかの判断 == ConversationProgressStatus.まだ続ける:
             結果 = await self.専門家同士の会話シミュレート続き(結果)
         return 結果
 
     async def 専門家同士の会話シミュレート(self, 問い: IModelDumpAble) -> ExpertConversation:
-        proxy = 専門家同士の会話クエリプロキシ(問い)
-        ExtendFunc.ExtendPrint(proxy.json文字列でクエリ出力)
+        proxy = 専門家同士の会話クエリプロキシ(self._私の名前,問い)
+        ExtendFunc.ExtendPrint(proxy.dict化クエリ)
         result = await self._llmBox.llmUnit.asyncGenerateResponse(proxy.json文字列でクエリ出力,ExpertConversation)
         if isinstance(result, ExpertConversation):
             return result
@@ -40,7 +42,7 @@ class 専門家が結論を出すモデル:
     
     async def 専門家同士の会話シミュレート2(self, v状況履歴: 状況履歴, v思考履歴: 思考履歴, vキャラクター情報) -> ExpertConversation:
         proxy = 専門家同士の会話クエリプロキシ2(v状況履歴, v思考履歴, vキャラクター情報)
-        ExtendFunc.ExtendPrint(proxy.json文字列でクエリ出力)
+        ExtendFunc.ExtendPrint(proxy.dict化クエリ)
         result = await self._llmBox.llmUnit.asyncGenerateResponse(proxy.json文字列でクエリ出力,ExpertConversation)
         
         if isinstance(result, ExpertConversation):
@@ -49,11 +51,11 @@ class 専門家が結論を出すモデル:
     
     async def 専門家同士の会話シミュレート続き(self, 専門家同士の会話: ExpertConversation) -> ExpertConversation:
         proxy = 専門家同士の会話続きクエリプロキシ(専門家同士の会話)
-        ExtendFunc.ExtendPrint(proxy.json文字列でクエリ出力)
+        ExtendFunc.ExtendPrint(proxy.dict化クエリ)
         result = await self._llmBox.llmUnit.asyncGenerateResponse(proxy.json文字列でクエリ出力,ExpertConversationContinue)
         
         if isinstance(result, ExpertConversationContinue):
-            専門家同士の会話.本番会話内容 += result.本番会話内容
-            専門家同士の会話.結論が出たかまだ続けるかの判断 = result.結論が出たかまだ続けるかの判断
+            専門家同士の会話.e本番会話内容 += result.e本番会話内容
+            専門家同士の会話.g結論が出たかまだ続けるかの判断 = result.g結論が出たかまだ続けるかの判断
             return 専門家同士の会話
         raise TypeError("思考ノードの結果がCreativeAssociationOutputではありません")
