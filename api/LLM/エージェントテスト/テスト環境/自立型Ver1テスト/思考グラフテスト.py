@@ -3,6 +3,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.短期方針 import 短期方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.創造的連想モデル.創造的連想モジュール import 創造的連想モジュール
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.報酬生成モデル.出力BaseModel import Benefit
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.深層的自問自答モデル.自問自答実行モジュール import 自問自答モジュール
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.統合思考モデル.連鎖的思考モデル import モデル連鎖思考
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考履歴 import 思考履歴
@@ -64,3 +65,12 @@ class 思考グラフテスト:
         vモデル連鎖思考 = モデル連鎖思考()
         kekka = await vモデル連鎖思考.実行(_v状況履歴, _v思考履歴, _v自分の情報)
         ExtendFunc.ExtendPrint(kekka.model_dump())
+
+    @classmethod
+    def 報酬ベクトルテスト(cls):
+        b = Benefit.zero()
+        ExtendFunc.ExtendPrint(b.model_dump())
+        b1 = Benefit.zero()
+        b1.精神エネルギー = -12
+        c = b + b1
+        ExtendFunc.ExtendPrint(c.model_dump())
