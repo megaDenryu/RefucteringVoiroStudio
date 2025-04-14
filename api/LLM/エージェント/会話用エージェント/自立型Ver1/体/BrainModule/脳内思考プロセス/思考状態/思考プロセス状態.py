@@ -2,9 +2,10 @@
 import uuid
 
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考ノードなど.思考ノード import 思考ノード, 思考ノードPrimitive
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考状態.I思考状態 import I思考状態
 
 
-class 思考状態:
+class 思考状態(I思考状態):
     id: str
     最終思考ノードのリスト: list[思考ノード]
     def __init__(self, 最終思考ノード: list[思考ノード]) -> None:

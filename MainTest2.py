@@ -6,7 +6,6 @@ import wave
 
 from pydantic import BaseModel
 from api.AppSettingJson.CharacterDestination.CharacterDestinationCollection import CharacterDestinationCollectionTest
-from api.AppSettingJson.CharcterAISetting.CharacterAISettingCollection import CharacterAISettingCollectionTest
 from api.AppSettingJson.InitMemory.InitMemory import D_InitMemory, InitMemoryCollectionUnit
 from api.DataStore.AppSetting.AppSettingModel.AppSettingInitReq import AppSettingInitReq
 from api.DataStore.AppSetting.AppSettingModel.AppSettingModel import AppSettingsModel
