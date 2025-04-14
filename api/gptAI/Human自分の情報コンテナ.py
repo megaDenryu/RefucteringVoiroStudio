@@ -24,4 +24,6 @@ class Human自分の情報コンテナ(I自分の情報コンテナ):
         自分の情報を更新する。
         """
         raise NotImplementedError("自分の情報の更新は実装されていません。")
-        
+    
+    def model_dump(self) -> dict | list:
+        raise NotImplementedError("model_dumpは実装されていません。")        
