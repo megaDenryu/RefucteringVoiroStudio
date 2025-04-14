@@ -14,6 +14,12 @@ class 自分の情報コンテナ(I自分の情報コンテナ):
     @property
     def 自分の情報(self)->str:
         return self._情報
+    
+    def model_dump(self)->dict|list:
+        return {
+            "表示名":self.表示名,
+            "自分の情報":self.自分の情報,
+        }
     def __init__(self,id:str):
         self._id = id
         self._情報 = self.load作られたばかりのAI()

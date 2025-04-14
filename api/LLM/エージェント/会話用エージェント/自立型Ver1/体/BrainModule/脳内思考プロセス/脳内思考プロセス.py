@@ -15,7 +15,8 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.短期方針 import 短期方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定input import 方針策定input
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針策定llm import 方針策定部署
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考プロセス状態 import 思考状態
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考状態.I思考状態 import I思考状態
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考状態.思考プロセス状態 import 思考状態
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.創造的連想モデル.創造的連想モジュール import 創造的連想モジュール
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.思考モジュール種類 import ThinkingModuleEnum
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.深層的自問自答モデル.自問自答実行モジュール import 自問自答モジュール
@@ -30,17 +31,18 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を
 class 脳内思考プロセス:
     _v自分の情報:I自分の情報コンテナ
     _思考履歴: 思考履歴
+    _感情: 感情状態管理
+    _方針策定課長: 方針策定部署
+
     _外部状況統合所: 状況統合所
     _思考グラフ部署: 思考グラフ部署
-    _方針策定課長: 方針策定部署
     _浅い思考部署: 浅い思考部署
-    _感情: 感情状態管理
     _プロセス材料溜め置き場: list[プロセス材料を包んだもの]
     @property
     def 思考履歴を見て思い出す(self)->思考履歴:
         return self._思考履歴
     @property
-    def 最新の思考状態(self)->思考状態:
+    def 最新の思考状態(self)->I思考状態:
         return self._思考履歴.最新の思考状態
     
     def __init__(self, v自分の情報:I自分の情報コンテナ):
