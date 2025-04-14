@@ -30,3 +30,7 @@ class I自分の情報コンテナ(ABC):
         """
         pass
 
+    @abstractmethod
+    def model_dump(self)->dict|list:
+        pass
+

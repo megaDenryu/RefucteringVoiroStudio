@@ -6,6 +6,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.思考選択モデル.思考方法選択クエリプロキシ import 思考方法選択クエリプロキシ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考履歴 import 思考履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況履歴
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.I自分の情報 import I自分の情報コンテナ
 
 
 class 思考選択モデル:
@@ -13,8 +14,8 @@ class 思考選択モデル:
     def __init__(self):
         _llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.思考の種類選択)
 
-    async def 思考の種類を適当に選ぶ(self, v状況履歴: 状況履歴, v思考履歴: 思考履歴) -> ThinkingModuleEnum:
-        クエリプロキシ = 思考方法選択クエリプロキシ(v状況履歴, v思考履歴)
+    async def 思考の種類を適当に選ぶ(self, v状況履歴: 状況履歴, v思考履歴: 思考履歴, vキャラクター情報:I自分の情報コンテナ) -> ThinkingModuleEnum:
+        クエリプロキシ = 思考方法選択クエリプロキシ(v状況履歴, v思考履歴, vキャラクター情報)
         結果 = await self._llmBox.llmUnit.asyncGenerateResponse(クエリプロキシ.json文字列でクエリ出力, ThinkingMethodSelecter)
         if isinstance(結果, ThinkingMethodSelecter):
             return 結果.b思考方法
