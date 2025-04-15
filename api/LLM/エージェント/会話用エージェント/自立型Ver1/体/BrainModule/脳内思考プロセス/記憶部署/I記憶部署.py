@@ -1,9 +1,10 @@
+from abc import ABC, abstractmethod
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考ノードなど.思考ノード import 思考ノードPrimitive
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考状態.I思考状態 import I思考状態
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考状態.思考プロセス状態 import 思考状態
 
 
-class 記憶部署:
+class I記憶部署(ABC):
     """
     記憶の構造は広義の知識として考えられるものと、過去の状態を知識として持っておけばよくて今の値が大事な状態として考えられるものがある。
     - 報酬：報酬ベクトルという型として持つ必要がある。
@@ -26,24 +27,15 @@ class 記憶部署:
     jsonに保存するので保存する前には何かしらのBaseModelとして保持する必要があるのでその型を定義しないといけない。
     ModelDumpableを受け取ってそれを適当にリストで保存し、適宜整理してという形のほうが実装は楽かもしれない。
     """
-    思考状態リスト: list[I思考状態]
-    def __init__(self, 思考状態リスト: list[I思考状態]) -> None:
-        self.思考状態リスト = 思考状態リスト
-
+    @abstractmethod
     def 追加(self, 思考状態: I思考状態):
-        self.思考状態リスト.append(思考状態)
+        pass
 
     @property
+    @abstractmethod
     def 最新の思考状態(self)->I思考状態:
-        return self.思考状態リスト[-1]
+        pass
 
+    @abstractmethod
     def model_dump(self)->list[dict|list]:
-        """
-        思考状態をprimitiveに変換する
-        """
-        ret_list:list[dict|list] = []
-        for 思考状態 in self.思考状態リスト:
-            思考ノードprimitive = 思考状態.model_dump()
-            ret_list.append(思考ノードprimitive)
-        return ret_list
-        
+        pass

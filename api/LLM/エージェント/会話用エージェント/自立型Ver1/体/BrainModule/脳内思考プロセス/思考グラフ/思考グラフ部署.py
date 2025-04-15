@@ -8,7 +8,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考アクション計画 import 思考グラフ
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.計画 import 思考アクション計画する人
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考状態.思考プロセス状態 import 思考状態
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.記憶部署 import 記憶部署
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.記憶部署.I記憶部署 import I記憶部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況, 状況リスト, 状況履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.I自分の情報 import I自分の情報コンテナ
 
@@ -58,7 +58,7 @@ class 思考グラフ部署:
         self._v自分の情報 = v自分の情報
         self._思考計画課長 = 思考アクション計画する人()
 
-    async def 思考を進める(self, v状況履歴: 状況履歴,前の思考:記憶部署, 方針策定部署:I方針策定部署) -> 思考状態:
+    async def 思考を進める(self, v状況履歴: 状況履歴,前の思考:I記憶部署, 方針策定部署:I方針策定部署) -> 思考状態:
         """
         与えられた状況履歴をもとに、次の思考を進める
         """
