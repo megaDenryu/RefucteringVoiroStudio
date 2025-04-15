@@ -22,7 +22,6 @@ class I記憶部署(ABC):
     - ルール
     - 直感
     - 予測
-    - 直感
     - 道徳
     などがある。これらはenumとして定義してそれぞれの属性を持ったBaseModelとして持てばよいが、例えば知識のグラフ構造はどうするべきなのか？
     jsonに保存するので保存する前には何かしらのBaseModelとして保持する必要があるのでその型を定義しないといけない。
@@ -33,7 +32,7 @@ class I記憶部署(ABC):
         pass
 
     @abstractmethod
-    def 記憶整理(self):
+    def 記憶整理して保存(self,記憶: IModelDumpAble):
         """
         記憶を整理する
         """

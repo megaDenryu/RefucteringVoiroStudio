@@ -40,8 +40,8 @@ class 記憶部署(I記憶部署):
     def 追加(self, 思考状態: IModelDumpAble):
         self._v未保存記憶.追加(思考状態)
 
-    def 記憶整理(self):
-        self._記憶整理課.
+    async def 記憶整理して保存(self,記憶: IModelDumpAble):
+        await self._記憶整理課.記憶整理(記憶)
 
     @property
     def 最新の思考状態(self)->I思考状態:
