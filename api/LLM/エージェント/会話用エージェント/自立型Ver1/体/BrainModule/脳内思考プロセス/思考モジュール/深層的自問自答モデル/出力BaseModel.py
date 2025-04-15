@@ -7,6 +7,13 @@ class EmotionVector(BaseModel):
     """
     感情:str = Field(description="感情をポエム的に表現")
     感情の強さ:int = Field(description="感情の強さを数値で表現")
+    @classmethod
+    def 無(cls) -> "EmotionVector":
+        """感情ベクトルの初期化"""
+        return EmotionVector(
+            感情="",
+            感情の強さ=0
+        )
 
 class ThoughtNode3(BaseModel):
     """思考の連鎖における単一のノード（問い、思考、応答）を表します。"""

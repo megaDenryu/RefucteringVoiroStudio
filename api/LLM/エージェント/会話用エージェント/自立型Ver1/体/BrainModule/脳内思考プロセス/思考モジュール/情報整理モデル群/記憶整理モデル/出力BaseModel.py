@@ -34,6 +34,9 @@ class OrganizingMemoryResultBenefitEmotion(BaseModel):
     """
     報酬: Benefit
     感情: EmotionVector
+    @classmethod
+    def zero(cls) -> "OrganizingMemoryResultBenefitEmotion":
+        return OrganizingMemoryResultBenefitEmotion(報酬=Benefit.zero(),感情=EmotionVector.無())
 
 class MemoryAsTheorem(BaseModel):
     命題: str
@@ -45,6 +48,13 @@ class MemoryAsTheorem(BaseModel):
 
 class OrganizingMemoryAsTheorem(BaseModel):
     人生の定理リスト: list[MemoryAsTheorem]
+    def __add__(self, other: "OrganizingMemoryAsTheorem") -> "OrganizingMemoryAsTheorem":
+        return OrganizingMemoryAsTheorem(
+            人生の定理リスト=self.人生の定理リスト + other.人生の定理リスト
+        )
+    @classmethod
+    def 空(cls) -> "OrganizingMemoryAsTheorem":
+        return OrganizingMemoryAsTheorem(人生の定理リスト=[])
 
 class MemoryAsRule(BaseModel):
     ルール: str
@@ -54,6 +64,11 @@ class MemoryAsRule(BaseModel):
 
 class OrganizingMemoryAsRule(BaseModel):
     人生のルールリスト: list[MemoryAsRule]
+    def __add__(self, other: "OrganizingMemoryAsRule") -> "OrganizingMemoryAsRule":
+        return OrganizingMemoryAsRule(人生のルールリスト=self.人生のルールリスト + other.人生のルールリスト)
+    @classmethod
+    def 空(cls) -> "OrganizingMemoryAsRule":
+        return OrganizingMemoryAsRule(人生のルールリスト=[])
 
 class MemoryAsConcept(BaseModel):
     概念: str
@@ -64,6 +79,13 @@ class MemoryAsConcept(BaseModel):
 
 class OrganizingMemoryAsConcept(BaseModel):
     人生の概念リスト: list[MemoryAsConcept]
+    def __add__(self, other: "OrganizingMemoryAsConcept") -> "OrganizingMemoryAsConcept":
+        return OrganizingMemoryAsConcept(人生の概念リスト=self.人生の概念リスト + other.人生の概念リスト)
+    @classmethod
+    def 空(cls) -> "OrganizingMemoryAsConcept":
+        return OrganizingMemoryAsConcept(人生の概念リスト=[])
+
+
 class MemoryAsQA(BaseModel):
     # 人生の問と答え
     問: str
@@ -72,16 +94,35 @@ class MemoryAsQA(BaseModel):
     関連事項: str
 class OrganizingMemoryAsQA(BaseModel):
     人生の問と答えリスト: list[MemoryAsQA]
+    def __add__(self, other: "OrganizingMemoryAsQA") -> "OrganizingMemoryAsQA":
+        return OrganizingMemoryAsQA(人生の問と答えリスト=self.人生の問と答えリスト + other.人生の問と答えリスト)
+    @classmethod
+    def 空(cls) -> "OrganizingMemoryAsQA":
+        return OrganizingMemoryAsQA(人生の問と答えリスト=[])
 
 class MemoryAsLifeInsight(BaseModel):
     # 人生の洞察
-    方針: str
-    計画: str
-    目標: str
-    新たな問い: str
-    体験したこと: str
-    価値観: str
-    道徳: str   
+    方針: list[str]
+    計画: list[str]
+    目標: list[str]
+    新たな問い: list[str]
+    体験したこと: list[str]
+    価値観: list[str]
+    道徳: list[str]
+
+    def __add__(self, other: "MemoryAsLifeInsight") -> "MemoryAsLifeInsight":
+        return MemoryAsLifeInsight(
+            方針=self.方針 + other.方針,
+            計画=self.計画 + other.計画,
+            目標=self.目標 + other.目標,
+            新たな問い=self.新たな問い + other.新たな問い,
+            体験したこと=self.体験したこと + other.体験したこと,
+            価値観=self.価値観 + other.価値観,
+            道徳=self.道徳 + other.道徳
+        )
+    @classmethod
+    def 空(cls) -> "MemoryAsLifeInsight":
+        return MemoryAsLifeInsight(方針=[],計画=[],目標=[],新たな問い=[],体験したこと=[],価値観=[],道徳=[])
 
 class OrganizingMemoryResult(BaseModel):
     報酬感情: OrganizingMemoryResultBenefitEmotion
@@ -90,6 +131,26 @@ class OrganizingMemoryResult(BaseModel):
     概念:OrganizingMemoryAsConcept
     人生での問と答え:OrganizingMemoryAsQA
     人生からの洞察:MemoryAsLifeInsight
+
+    def 報酬感情のみ上書きしてマージ(self, other: "OrganizingMemoryResult") -> "OrganizingMemoryResult":
+        return OrganizingMemoryResult(
+            報酬感情= other.報酬感情,
+            人生での定理=self.人生での定理 + other.人生での定理,
+            人生のルール=self.人生のルール + other.人生のルール,
+            概念=self.概念 + other.概念,
+            人生での問と答え=self.人生での問と答え + other.人生での問と答え,
+            人生からの洞察=self.人生からの洞察 + other.人生からの洞察
+        )
+    @classmethod
+    def 空(cls) -> "OrganizingMemoryResult":
+        return OrganizingMemoryResult(
+            報酬感情=OrganizingMemoryResultBenefitEmotion.zero(),
+            人生での定理=OrganizingMemoryAsTheorem.空(),
+            人生のルール=OrganizingMemoryAsRule.空(),
+            概念=OrganizingMemoryAsConcept.空(),
+            人生での問と答え=OrganizingMemoryAsQA.空(),
+            人生からの洞察=MemoryAsLifeInsight.空()
+        )
 
 
     

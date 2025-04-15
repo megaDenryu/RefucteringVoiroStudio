@@ -13,7 +13,7 @@ class 記憶整理モデル(Iキャラに依存しない作業モデル):
     def __init__(self):
         self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.記憶整理)
 
-    async def 情報をもとに実行(self, 情報: list[IModelDumpAble]) -> IModelDumpAble:
+    async def 情報をもとに実行(self, 情報: list[IModelDumpAble]) -> OrganizingMemoryResult:
         """
         情報をもとに実行する
         """
