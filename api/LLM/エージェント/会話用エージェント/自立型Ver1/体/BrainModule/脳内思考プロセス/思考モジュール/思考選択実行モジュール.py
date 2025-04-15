@@ -1,5 +1,5 @@
 from api.Extend.BaseModel.model_dumpable import IModelDumpAble
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.I思考モデル import I思考モデル
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.インターフェース.I思考モデル import Iキャラ依存思考モデル
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.思考モデルファクトリ import 思考モデルファクトリー
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考モジュール.思考選択モデル.思考選択モデル import 思考選択モデル
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.記憶部署.I記憶部署 import I記憶部署
@@ -7,7 +7,7 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.I自分の情報 import I自分の情報コンテナ
 
 
-class 思考選択実行モジュール(I思考モデル):
+class 思考選択実行モジュール(Iキャラ依存思考モデル):
     def __init__(self) -> None:
         self._思考選択モデル = 思考選択モデル()
 

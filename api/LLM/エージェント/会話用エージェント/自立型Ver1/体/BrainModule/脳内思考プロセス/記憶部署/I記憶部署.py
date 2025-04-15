@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
+from api.Extend.BaseModel.model_dumpable import IModelDumpAble
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考ノードなど.思考ノード import 思考ノードPrimitive
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考状態.I思考状態 import I思考状態
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考状態.思考プロセス状態 import 思考状態
+
 
 
 class I記憶部署(ABC):
@@ -28,7 +29,14 @@ class I記憶部署(ABC):
     ModelDumpableを受け取ってそれを適当にリストで保存し、適宜整理してという形のほうが実装は楽かもしれない。
     """
     @abstractmethod
-    def 追加(self, 思考状態: I思考状態):
+    def 追加(self, 思考状態: IModelDumpAble):
+        pass
+
+    @abstractmethod
+    def 記憶整理(self):
+        """
+        記憶を整理する
+        """
         pass
 
     @property
