@@ -1,5 +1,5 @@
 from api.LLM.LLMAPIBase.LLMInterface.QueryProxy import QueryProxy, クエリ段落
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考履歴 import 思考履歴
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.記憶部署.I記憶部署 import I記憶部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況履歴
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体を持つ者.自分の情報.I自分の情報 import I自分の情報コンテナ
 
@@ -8,7 +8,7 @@ class 深層的自問自答クエリプロキシ(QueryProxy):
     """
     深層的自問自答クエリプロキシ
     """
-    def __init__(self, v状況履歴: 状況履歴, vキャラクター情報:I自分の情報コンテナ, v思考履歴: 思考履歴) -> None:
+    def __init__(self, v状況履歴: 状況履歴, vキャラクター情報:I自分の情報コンテナ, v思考履歴: I記憶部署) -> None:
         self._クエリプロキシ = [
             クエリ段落("キャラクター情報", vキャラクター情報),
             クエリ段落("思考履歴", v思考履歴),

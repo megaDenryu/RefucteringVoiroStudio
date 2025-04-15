@@ -9,13 +9,13 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.短期方針 import 短期方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.方針.方針種類.総合方針 import 総合方針
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考グラフ.計画.思考アクション計画 import ThinkGraph, 思考グラフ
-from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.思考履歴 import 思考履歴
+from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.記憶部署.I記憶部署 import I記憶部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況, 状況リスト, 状況履歴
 
 class 計画クエリの代理(QueryProxy):
     _状況履歴: 状況履歴
     _現在方針: 総合方針
-    def __init__(self, v状況履歴: 状況履歴, 現在方針: 総合方針, 前の思考: 思考履歴):
+    def __init__(self, v状況履歴: 状況履歴, 現在方針: 総合方針, 前の思考: I記憶部署):
         super().__init__()
         self._クエリプロキシ = [
             クエリ段落("状況履歴", v状況履歴),
@@ -33,7 +33,7 @@ class 思考アクション計画する人:
     def __init__(self):
         self._llm = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.思考アクション計画する人)
 
-    async def 計画を立てる(self, v状況履歴: 状況履歴,方針策定部署:I方針策定部署, 前の思考:思考履歴)->思考グラフ:
+    async def 計画を立てる(self, v状況履歴: 状況履歴,方針策定部署:I方針策定部署, 前の思考:I記憶部署)->思考グラフ:
         """
         与えられた状況履歴をもとに、自分の欲望を満たすような答えを出すための思考をするための計画を立てる
         """
