@@ -34,8 +34,8 @@ class 記憶部署(I記憶部署):
     _v未保存記憶: 未保存記憶課 = 未保存記憶課()
     _記憶整理課: 記憶整理課 = 記憶整理課()
 
-    def __init__(self, 思考状態リスト: list[I思考状態]) -> None:
-        self.思考状態リスト = 思考状態リスト
+    def __init__(self,) -> None:
+        pass
 
     def 追加(self, 思考状態: IModelDumpAble):
         self._v未保存記憶.追加(思考状態)
@@ -44,18 +44,15 @@ class 記憶部署(I記憶部署):
         await self._記憶整理課.記憶整理(記憶)
 
     @property
-    def 最新の思考状態(self)->I思考状態:
+    def 最新の思考状態(self)->未保存記憶課:
         """
         目的：何を話すか考えるための材料としての思考状態を提供する。基本的にこれで提供されたものをもとにキャラクターのしゃべり方に合わせて加工することでしゃべりを実現する。
         """
-        return self.思考状態リスト[-1]
+        return self._v未保存記憶
 
-    def model_dump(self)->list[dict|list]:
-        """
-        思考状態をprimitiveに変換する
-        """
-        ret_list:list[dict|list] = []
-        for 思考状態 in self.思考状態リスト:
-            思考ノードprimitive = 思考状態.model_dump()
-            ret_list.append(思考ノードprimitive)
-        return ret_list
+    def model_dump(self):
+        return {
+            "長期記憶": self._v保存済み記憶.model_dump(),
+            "整理された記憶": self._記憶整理課.model_dump(),
+            "短期記憶": self._v未保存記憶.model_dump(),
+        }
