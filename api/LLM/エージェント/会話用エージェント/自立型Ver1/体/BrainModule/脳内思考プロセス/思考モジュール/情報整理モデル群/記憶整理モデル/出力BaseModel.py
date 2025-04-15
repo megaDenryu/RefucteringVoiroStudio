@@ -28,11 +28,14 @@ from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.Br
 jsonに保存するので保存する前には何かしらのBaseModelとして保持する必要があるのでその型を定義しないといけない。
 ModelDumpableを受け取ってそれを適当にリストで保存し、適宜整理してという形のほうが実装は楽かもしれない。
 """
-class OrganizingMemoryResultFlash(BaseModel):
+class OrganizingMemoryResultBenefitEmotion(BaseModel):
+    """
+    報酬と感情の記憶
+    """
     報酬: Benefit
     感情: EmotionVector
 
-class OrganizingMemoryAsTheorem(BaseModel):
+class MemoryAsTheorem(BaseModel):
     命題: str
     真実か否か: str
     証明: str
@@ -40,36 +43,54 @@ class OrganizingMemoryAsTheorem(BaseModel):
     具体例: str
     関連事項: str
 
-class OrganizingMemoryAsRule(BaseModel):
+class OrganizingMemoryAsTheorem(BaseModel):
+    人生の定理リスト: list[MemoryAsTheorem]
+
+class MemoryAsRule(BaseModel):
     ルール: str
     定義: str
     例: str
     関連事項: str
 
-class OrganizingMemoryAsConcept(BaseModel):
+class OrganizingMemoryAsRule(BaseModel):
+    人生のルールリスト: list[MemoryAsRule]
+
+class MemoryAsConcept(BaseModel):
     概念: str
     定義: str
     特徴: str
     例: str
     関連事項: str
 
-class OrganizingMemoryAsQandA(BaseModel):
+class OrganizingMemoryAsConcept(BaseModel):
+    人生の概念リスト: list[MemoryAsConcept]
+class MemoryAsQA(BaseModel):
+    # 人生の問と答え
     問: str
     結論へ至る道筋: str
     結論: str
     関連事項: str
+class OrganizingMemoryAsQA(BaseModel):
+    人生の問と答えリスト: list[MemoryAsQA]
 
-class OrganizingMemoryResult(BaseModel):
-    定理:list[OrganizingMemoryAsTheorem]
-    ルール:list[OrganizingMemoryAsRule]
-    概念:list[OrganizingMemoryAsConcept]
-    QandA:list[OrganizingMemoryAsQandA]
+class MemoryAsLifeInsight(BaseModel):
+    # 人生の洞察
     方針: str
     計画: str
     目標: str
+    新たな問い: str
     体験したこと: str
-    経験したこと: str
     価値観: str
     道徳: str   
+
+class OrganizingMemoryResult(BaseModel):
+    報酬感情: OrganizingMemoryResultBenefitEmotion
+    人生での定理:OrganizingMemoryAsTheorem
+    人生のルール:OrganizingMemoryAsRule
+    概念:OrganizingMemoryAsConcept
+    人生での問と答え:OrganizingMemoryAsQA
+    人生からの洞察:MemoryAsLifeInsight
+
+
     
     
