@@ -52,7 +52,7 @@ class 思考アクション計画する人:
         """
         与えられた状況履歴をもとに、自分の欲望を満たすような答えを出すための思考をするための計画を立てる
         """
-        計画クエリ = 計画クエリの代理(v状況履歴, 記憶, vキャラクター情報)
+        計画クエリ = 計画クエリの代理.状況から作成(v状況履歴, 記憶, vキャラクター情報)
         
         think_graph = await self._llm.llmUnit.asyncGenerateResponse(計画クエリ.json文字列でクエリ出力, ThinkGraph)
         if not isinstance(think_graph, ThinkGraph):
