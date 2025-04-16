@@ -77,6 +77,7 @@ class 思考ノード:
     async def 実行(self)->思考ノードの結果:
         v思考用クエリ = 思考用クエリ(self.考えるべき内容, self.前のノードの結果辞書)
         v思考結果 = await self._llmBox.llmUnit.asyncGenerateResponse(v思考用クエリ.json文字列でクエリ出力, ThinkingResult)
+        
         if not isinstance(v思考結果, ThinkingResult):
             raise TypeError("思考ノードの結果がThinkingResultではありません")
         ExtendFunc.ExtendPrint(v思考結果.model_dump())

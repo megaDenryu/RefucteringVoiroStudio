@@ -55,6 +55,16 @@ class 脳内思考プロセス:
         self._思考グラフ部署 = 思考グラフ部署(self._v自分の情報)
         self._感情 = 感情状態管理()
 
+    def Tickスタート(self):
+        # ノンブロッキングでTickする
+        a = asyncio.create_task(self.Tick())
+        # a.add_done_callback(self.脳内思考プロセスを開始)
+
+    async def Tick(self):
+        while True:
+            await asyncio.sleep(180)
+            await self.脳内思考プロセスを開始()
+
     async def 脳内思考プロセスを開始(self):
         """
         開始処理（データロード、前処理、初期思考生成）を行う
