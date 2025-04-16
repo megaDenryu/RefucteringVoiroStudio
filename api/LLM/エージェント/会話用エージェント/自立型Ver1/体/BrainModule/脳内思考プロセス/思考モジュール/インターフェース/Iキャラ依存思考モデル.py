@@ -13,7 +13,7 @@ class Iキャラ依存思考モデル(ABC):
     思考モデルのインターフェース
     """
     @abstractmethod
-    async def 実行(self, v状況履歴: 状況履歴, v思考履歴: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> IModelDumpAble:
+    async def 実行(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> IModelDumpAble:
         """
         思考を進める
         """

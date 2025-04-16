@@ -32,7 +32,7 @@ class I記憶部署(ABC):
         pass
 
     @abstractmethod
-    def 記憶整理して保存(self,記憶: IModelDumpAble):
+    def 記憶整理して保存(self,記憶: list[IModelDumpAble]):
         """
         記憶を整理する
         """
