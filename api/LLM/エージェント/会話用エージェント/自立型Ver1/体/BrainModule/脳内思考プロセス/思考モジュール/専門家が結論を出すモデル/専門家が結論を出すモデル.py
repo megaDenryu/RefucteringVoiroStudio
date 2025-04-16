@@ -20,8 +20,8 @@ class 専門家が結論を出すモデル(Iキャラ依存思考モデル):
     def __init__(self) -> None:
         self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.専門家が問に対して結論を出す)
 
-    async def 実行(self, v状況履歴: 状況履歴, v思考履歴: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> BaseModel:
-        結果 = await self.専門家同士の会話シミュレート2(v状況履歴, v思考履歴, vキャラクター情報)
+    async def 実行(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> BaseModel:
+        結果 = await self.専門家同士の会話シミュレート2(v状況履歴, v記憶部署, vキャラクター情報)
         while 結果.g結論が出たかまだ続けるかの判断 == ConversationProgressStatus.まだ続ける:
             結果 = await self.専門家同士の会話シミュレート続き(結果)
         return 結果
@@ -40,8 +40,8 @@ class 専門家が結論を出すモデル(Iキャラ依存思考モデル):
             return result
         raise TypeError("思考ノードの結果がCreativeAssociationOutputではありません")
     
-    async def 専門家同士の会話シミュレート2(self, v状況履歴: 状況履歴, v思考履歴: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> ExpertConversation:
-        proxy = 専門家同士の会話クエリプロキシ2(v状況履歴, v思考履歴, vキャラクター情報)
+    async def 専門家同士の会話シミュレート2(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> ExpertConversation:
+        proxy = 専門家同士の会話クエリプロキシ2(v状況履歴, v記憶部署, vキャラクター情報)
         ExtendFunc.ExtendPrint(proxy.dict化クエリ)
         result = await self._llmBox.llmUnit.asyncGenerateResponse(proxy.json文字列でクエリ出力,ExpertConversation)
         

@@ -16,8 +16,8 @@ class 創造的連想モジュール(Iキャラ依存思考モデル):
     def __init__(self) -> None:
         self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.創造的連想)
 
-    async def 実行(self, v状況履歴: 状況履歴, v思考履歴: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> CreativeAssociationOutput:
-        proxy = 創造的連想クエリプロキシ(v状況履歴, vキャラクター情報, v思考履歴)
+    async def 実行(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> CreativeAssociationOutput:
+        proxy = 創造的連想クエリプロキシ(v状況履歴, vキャラクター情報, v記憶部署)
         ExtendFunc.ExtendPrint(proxy.json文字列でクエリ出力)
         result = await self._llmBox.llmUnit.asyncGenerateResponse(proxy.json文字列でクエリ出力,CreativeAssociationOutput)
         if isinstance(result, CreativeAssociationOutput):

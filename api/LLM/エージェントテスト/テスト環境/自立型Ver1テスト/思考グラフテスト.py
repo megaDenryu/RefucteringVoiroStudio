@@ -34,37 +34,37 @@ class 思考グラフテスト:
     @classmethod
     async def test自問自答もじゅーる(cls):
         _v自分の情報 = 自分の情報コンテナ(id="結月ゆかり")
-        _v思考履歴 = 記憶部署()
+        _v記憶部署 = 記憶部署()
         _v状況履歴:状況履歴 = 状況履歴(
             前状況 = 状況リスト([状況(時間=TimeExtend(),内容="それじゃあ自己紹介します。",)]),
             新状況 = 状況リスト([状況(時間=TimeExtend(),内容=_v自分の情報.load作られたばかりのAI(),)]),
         )
         v自問自答モジュール = 自問自答モジュール()
-        kekka = await v自問自答モジュール.実行(_v状況履歴, _v思考履歴, _v自分の情報)
+        kekka = await v自問自答モジュール.実行(_v状況履歴, _v記憶部署, _v自分の情報)
         ExtendFunc.ExtendPrint(kekka.model_dump())
 
     @classmethod
     async def test創造的連想モデル(cls):
         _v自分の情報 = 自分の情報コンテナ(id="結月ゆかり")
-        _v思考履歴 = 記憶部署()
+        _v記憶部署 = 記憶部署()
         _v状況履歴:状況履歴 = 状況履歴(
             前状況 = 状況リスト([状況(時間=TimeExtend(),内容="それじゃあ自己紹介します。",)]),
             新状況 = 状況リスト([状況(時間=TimeExtend(),内容=_v自分の情報.load作られたばかりのAI(),)]),
         )
         v創造的連想モジュール = 創造的連想モジュール()
-        kekka = await v創造的連想モジュール.実行(_v状況履歴, _v思考履歴, _v自分の情報)
+        kekka = await v創造的連想モジュール.実行(_v状況履歴, _v記憶部署, _v自分の情報)
         ExtendFunc.ExtendPrint(kekka.model_dump())
 
     @classmethod
     async def testモデル連鎖思考(cls):
         _v自分の情報 = 自分の情報コンテナ(id="結月ゆかり")
-        _v思考履歴 = 記憶部署()
+        _v記憶部署 = 記憶部署()
         _v状況履歴:状況履歴 = 状況履歴(
             前状況 = 状況リスト([状況(時間=TimeExtend(),内容="それじゃあ自己紹介します。",)]),
             新状況 = 状況リスト([状況(時間=TimeExtend(),内容=_v自分の情報.load作られたばかりのAI(),)]),
         )
         vモデル連鎖思考 = モデル連鎖思考()
-        kekka = await vモデル連鎖思考.実行(_v状況履歴, _v思考履歴, _v自分の情報)
+        kekka = await vモデル連鎖思考.実行(_v状況履歴, _v記憶部署, _v自分の情報)
         ExtendFunc.ExtendPrint(kekka.model_dump())
 
     @classmethod

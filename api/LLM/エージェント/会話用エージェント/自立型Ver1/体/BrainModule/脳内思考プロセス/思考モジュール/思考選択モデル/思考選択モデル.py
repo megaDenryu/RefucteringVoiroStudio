@@ -18,11 +18,11 @@ class 思考選択モデル(Iキャラ依存思考モデル):
     def __init__(self):
         self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.思考の種類選択)
 
-    async def 実行(self, v状況履歴: 状況履歴, v思考履歴: I記憶部署, vキャラクター情報: I自分の情報コンテナ) -> ThinkingMethodSelecter:
-        return await self.思考の種類を適当に選ぶ(v状況履歴, v思考履歴, vキャラクター情報)
+    async def 実行(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報: I自分の情報コンテナ) -> ThinkingMethodSelecter:
+        return await self.思考の種類を適当に選ぶ(v状況履歴, v記憶部署, vキャラクター情報)
 
-    async def 思考の種類を適当に選ぶ(self, v状況履歴: 状況履歴, v思考履歴: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> ThinkingMethodSelecter:
-        クエリプロキシ = 思考方法選択クエリプロキシ(v状況履歴, v思考履歴, vキャラクター情報)
+    async def 思考の種類を適当に選ぶ(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> ThinkingMethodSelecter:
+        クエリプロキシ = 思考方法選択クエリプロキシ(v状況履歴, v記憶部署, vキャラクター情報)
         結果 = await self._llmBox.llmUnit.asyncGenerateResponse(クエリプロキシ.json文字列でクエリ出力, ThinkingMethodSelecter)
         if isinstance(結果, ThinkingMethodSelecter):
             return 結果
