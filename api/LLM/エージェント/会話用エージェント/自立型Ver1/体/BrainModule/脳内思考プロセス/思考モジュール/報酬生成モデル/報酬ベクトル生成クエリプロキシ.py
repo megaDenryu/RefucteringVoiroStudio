@@ -10,7 +10,7 @@ class 報酬ベクトル生成クエリプロキシ(QueryProxy):
     def __init__(self) -> None:
         self._クエリプロキシ = []
     @classmethod
-    def 履歴から生成(cls, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> "報酬ベクトル生成クエリプロキシ":
+    def 履歴から生成(cls, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ, 追伸:IModelDumpAble|str|None = None) -> "報酬ベクトル生成クエリプロキシ":
         プロキシ = cls()
         プロキシ._クエリプロキシ = [
             クエリ段落("状況履歴", v状況履歴),
@@ -18,20 +18,24 @@ class 報酬ベクトル生成クエリプロキシ(QueryProxy):
             クエリ段落("キャラクター情報", vキャラクター情報),
             クエリ段落("指示", プロキシ.指示文),
         ]
+        if 追伸 is not None:
+            プロキシ._クエリプロキシ.append(クエリ段落("追伸", 追伸))
         return プロキシ
     
     @classmethod
-    def 状況から報酬を生成(cls, 状況:list[IModelDumpAble|str]) -> "報酬ベクトル生成クエリプロキシ":
+    def 状況から報酬を生成(cls, 状況:list[IModelDumpAble|str],追伸:IModelDumpAble|str|None = None) -> "報酬ベクトル生成クエリプロキシ":
         プロキシ = cls()
         プロキシ._クエリプロキシ = []
         for index in range(len(状況)):
             状況要素 = 状況[index]
             プロキシ._クエリプロキシ.append(クエリ段落(f"状況{index}", 状況要素))
         プロキシ._クエリプロキシ.append(クエリ段落("指示", プロキシ.指示文))
+        if 追伸 is not None:
+            プロキシ._クエリプロキシ.append(クエリ段落("追伸", 追伸))
         return プロキシ
     
     @classmethod
-    def 未来予測から報酬を予測(cls, 未来予測:list[IModelDumpAble|str]) -> "報酬ベクトル生成クエリプロキシ":
+    def 未来予測から報酬を予測(cls, 未来予測:list[IModelDumpAble|str],追伸:IModelDumpAble|str|None = None) -> "報酬ベクトル生成クエリプロキシ":
         プロキシ = cls()
         プロキシ._クエリプロキシ = []
         for index in range(len(未来予測)):
@@ -39,6 +43,8 @@ class 報酬ベクトル生成クエリプロキシ(QueryProxy):
             プロキシ._クエリプロキシ.append(クエリ段落(f"情報{index}", 未来要素))
         プロキシ._クエリプロキシ.append(クエリ段落("指示1", プロキシ.指示文))
         プロキシ._クエリプロキシ.append(クエリ段落("指示2", "この情報から、キャラクターが将来受け取れる報酬を予測してください。"))
+        if 追伸 is not None:
+            プロキシ._クエリプロキシ.append(クエリ段落("追伸", 追伸))
         return プロキシ
 
     @property

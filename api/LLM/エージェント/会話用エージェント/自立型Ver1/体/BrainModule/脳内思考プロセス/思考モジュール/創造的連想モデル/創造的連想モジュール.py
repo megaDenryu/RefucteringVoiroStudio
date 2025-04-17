@@ -1,4 +1,5 @@
 from api import Extend
+from api.Extend.BaseModel.model_dumpable import IModelDumpAble
 from api.Extend.ExtendFunc import ExtendFunc
 from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
@@ -16,8 +17,8 @@ class 創造的連想モジュール(Iキャラ依存思考モデル):
     def __init__(self) -> None:
         self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.創造的連想)
 
-    async def 実行(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> CreativeAssociationOutput:
-        proxy = 創造的連想クエリプロキシ(v状況履歴, vキャラクター情報, v記憶部署)
+    async def 実行(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ, 追伸:IModelDumpAble|str|None = None) -> CreativeAssociationOutput:
+        proxy = 創造的連想クエリプロキシ(v状況履歴, vキャラクター情報, v記憶部署, 追伸)
         ExtendFunc.ExtendPrint(proxy.json文字列でクエリ出力)
         result = await self._llmBox.llmUnit.asyncGenerateResponse(proxy.json文字列でクエリ出力,CreativeAssociationOutput)
         if isinstance(result, CreativeAssociationOutput):

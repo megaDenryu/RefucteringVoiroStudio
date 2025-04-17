@@ -1,3 +1,4 @@
+from api.Extend.BaseModel.model_dumpable import IModelDumpAble
 from api.LLM.LLMAPIBase.LLMInterface.QueryProxy import QueryProxy, クエリ段落
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.記憶部署.I記憶部署 import I記憶部署
 from api.LLM.エージェント.会話用エージェント.自立型Ver1.体.BrainModule.脳内思考プロセス.状況統合.状況オブジェクト import 状況履歴
@@ -8,13 +9,15 @@ class 深層的自問自答クエリプロキシ(QueryProxy):
     """
     深層的自問自答クエリプロキシ
     """
-    def __init__(self, v状況履歴: 状況履歴, vキャラクター情報:I自分の情報コンテナ, v記憶部署: I記憶部署) -> None:
+    def __init__(self, v状況履歴: 状況履歴, vキャラクター情報:I自分の情報コンテナ, v記憶部署: I記憶部署,追伸:IModelDumpAble|str|None = None) -> None:
         self._クエリプロキシ = [
             クエリ段落("キャラクター情報", vキャラクター情報),
             クエリ段落("思考履歴", v記憶部署),
             クエリ段落("状況履歴", v状況履歴),
             クエリ段落("指示", self.指示文),
         ]
+        if 追伸 is not None:
+            self._クエリプロキシ.append(クエリ段落("追伸", 追伸))
 
     @property
     def 指示文(self) -> str:

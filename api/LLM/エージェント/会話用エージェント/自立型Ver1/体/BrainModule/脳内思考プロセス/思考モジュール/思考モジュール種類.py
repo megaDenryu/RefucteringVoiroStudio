@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class ThinkingModuleEnum(Enum):
     """
     思考モジュールの種類を定義する列挙型

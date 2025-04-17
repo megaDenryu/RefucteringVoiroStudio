@@ -22,13 +22,15 @@ class 専門家同士の会話クエリプロキシ(QueryProxy):
 """
 
 class 専門家同士の会話クエリプロキシ2(QueryProxy):
-    def __init__(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> None:
+    def __init__(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ, 追伸:IModelDumpAble|str|None = None) -> None:
         self._クエリプロキシ = [
             クエリ段落("キャラクター情報", vキャラクター情報),
             クエリ段落("思考履歴", v記憶部署),
             クエリ段落("状況履歴", v状況履歴),
             クエリ段落("指示文", self.指示文),
         ]
+        if 追伸 is not None:
+            self._クエリプロキシ.append(クエリ段落("追伸", 追伸))
 
     @property
     def 指示文(self) -> str:
@@ -39,11 +41,13 @@ class 専門家同士の会話クエリプロキシ2(QueryProxy):
 
 
 class 専門家同士の会話続きクエリプロキシ(QueryProxy):
-    def __init__(self, 専門家同士の会話: ExpertConversation) -> None:
+    def __init__(self, 専門家同士の会話: ExpertConversation, 追伸:IModelDumpAble|str|None = None) -> None:
         self._クエリプロキシ = [
             クエリ段落("専門家同士の会話", 専門家同士の会話),
             クエリ段落("指示文", self.指示文),
         ]
+        if 追伸 is not None:
+            self._クエリプロキシ.append(クエリ段落("追伸", 追伸))
 
     @property
     def 指示文(self) -> str:

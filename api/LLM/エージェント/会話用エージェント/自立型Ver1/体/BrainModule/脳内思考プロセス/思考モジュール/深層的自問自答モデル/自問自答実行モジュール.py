@@ -1,4 +1,5 @@
 
+from api.Extend.BaseModel.model_dumpable import IModelDumpAble
 from api.LLM.LLMAPIBase.LLM用途タイプ import LLMs用途タイプ
 from api.LLM.LLMAPIBase.切り替え可能LLM import 切り替え可能LLMBox
 from api.LLM.LLMAPIBase.切り替え可能LLMファクトリーリポジトリ import 切り替え可能LLMファクトリーリポジトリ
@@ -16,8 +17,8 @@ class 自問自答モジュール(Iキャラ依存思考モデル):
     def __init__(self) -> None:
         self._llmBox = 切り替え可能LLMファクトリーリポジトリ.singleton().createLLMs(LLMs用途タイプ.ハイデガー的自問自答)
 
-    async def 実行(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ) -> InternalMonologue:
-        proxy = 深層的自問自答クエリプロキシ(v状況履歴, vキャラクター情報, v記憶部署)
+    async def 実行(self, v状況履歴: 状況履歴, v記憶部署: I記憶部署, vキャラクター情報:I自分の情報コンテナ, 追伸:IModelDumpAble|str|None = None) -> InternalMonologue:
+        proxy = 深層的自問自答クエリプロキシ(v状況履歴, vキャラクター情報, v記憶部署, 追伸)
         result = await self._llmBox.llmUnit.asyncGenerateResponse(proxy.json文字列でクエリ出力,InternalMonologue)
         if isinstance(result, InternalMonologue):
             return result
