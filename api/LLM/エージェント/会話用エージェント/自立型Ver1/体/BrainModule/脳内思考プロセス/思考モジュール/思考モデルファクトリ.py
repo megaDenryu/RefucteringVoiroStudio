@@ -12,6 +12,6 @@ class 思考モデルファクトリー:
             return 自問自答モジュール()
         elif 思考モデル名 == ThinkingModuleEnum.創造的連想モデル:
             return 創造的連想モジュール()
-        elif 思考モデル名 == ThinkingModuleEnum.専門家が結論を出すモデル:
+        elif 思考モデル名 == ThinkingModuleEnum.脳内専門家会議モデル:
             return 専門家が結論を出すモデル()
         
