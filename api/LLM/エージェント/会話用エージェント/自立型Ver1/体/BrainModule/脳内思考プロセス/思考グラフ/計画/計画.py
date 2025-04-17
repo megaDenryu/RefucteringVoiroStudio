@@ -19,7 +19,7 @@ class 計画クエリの代理(QueryProxy):
         pass
 
     @classmethod
-    def 状況から作成(cls, v状況履歴: 状況履歴, 記憶部署: I記憶部署, vキャラクター情報: I自分の情報コンテナ):
+    def 状況から作成(cls, v状況履歴: 状況履歴, 記憶部署: I記憶部署, vキャラクター情報: I自分の情報コンテナ, 追伸:IModelDumpAble|str|None = None):
         クエリ = cls()
         クエリ._クエリプロキシ = [
             クエリ段落("状況履歴", v状況履歴),
@@ -27,6 +27,8 @@ class 計画クエリの代理(QueryProxy):
             クエリ段落("キャラクター情報", vキャラクター情報),
             クエリ段落("指示文", クエリ.指示文),
         ]
+        if 追伸 is not None:
+            クエリ._クエリプロキシ.append(クエリ段落("追伸", 追伸))
         return クエリ
 
     @classmethod
@@ -48,12 +50,11 @@ class 思考アクション計画する人:
     def __init__(self):
         self._llm = 切り替え可能LLMファクトリーリポジトリ.singleton().getLLM(LLM用途タイプ.思考アクション計画する人)
 
-    async def 計画を立てる(self, v状況履歴: 状況履歴, 記憶: I記憶部署, vキャラクター情報: I自分の情報コンテナ)->思考グラフ:
+    async def 計画を立てる(self, v状況履歴: 状況履歴, 記憶: I記憶部署, vキャラクター情報: I自分の情報コンテナ, 追伸:IModelDumpAble|str|None = None)->思考グラフ:
         """
         与えられた状況履歴をもとに、自分の欲望を満たすような答えを出すための思考をするための計画を立てる
         """
-        計画クエリ = 計画クエリの代理.状況から作成(v状況履歴, 記憶, vキャラクター情報)
-        
+        計画クエリ = 計画クエリの代理.状況から作成(v状況履歴, 記憶, vキャラクター情報, 追伸)
         think_graph = await self._llm.llmUnit.asyncGenerateResponse(計画クエリ.json文字列でクエリ出力, ThinkGraph)
         if not isinstance(think_graph, ThinkGraph):
             raise TypeError("思考アクション計画の結果がThinkGraphではありません")
